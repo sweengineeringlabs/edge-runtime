@@ -9,8 +9,10 @@ use crate::core::{DefaultConfigLoader, DefaultRuntimeManager};
 
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
+pub use crate::api::edge_runtime::{EdgeRuntime, EdgeRuntimeBuilder};
 pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::runtime_manager::RuntimeManager;
+pub use crate::api::service_registry::ServiceRegistry;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::input::{DefaultInput, Input};
