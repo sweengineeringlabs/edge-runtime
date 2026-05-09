@@ -17,6 +17,12 @@ pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::input::{DefaultInput, Input};
 pub use crate::api::output::{DefaultOutput, Output};
 
+// ── Auth / TLS ────────────────────────────────────────────────────────────────
+pub use swe_edge_ingress_verifier::{TokenVerifier, JwtVerifier, JwtConfig, JwtKey, Claims, VerifierError};
+pub use swe_edge_ingress::{
+    GrpcInboundInterceptor, AuthorizationInterceptor, GrpcInboundInterceptorChain,
+};
+
 // ── Ingress surface (handlers + request/response types) ───────────────────────
 pub use swe_edge_ingress::{
     // Handler trait + decode/encode helpers
