@@ -52,3 +52,91 @@ pub(crate) fn grpc_json_decode<Req: serde::de::DeserializeOwned>(
 pub(crate) fn grpc_json_encode<Resp: serde::Serialize>(resp: &Resp) -> Vec<u8> {
     serde_json::to_vec(resp).unwrap_or_default()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde::{Deserialize, Serialize};
+    use swe_edge_ingress::{HttpBody, HttpMethod, HttpRequest};
+
+    #[derive(Debug, PartialEq, Serialize, Deserialize)]
+    struct Msg { text: String }
+
+    fn post_with_json(v: serde_json::Value) -> HttpRequest {
+        HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: Some(HttpBody::Json(v)), timeout: None }
+    }
+
+    fn post_with_raw(b: Vec<u8>) -> HttpRequest {
+        HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: Some(HttpBody::Raw(b)), timeout: None }
+    }
+
+    fn post_with_no_body() -> HttpRequest {
+        HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: None, timeout: None }
+    }
+
+    /// @covers: json_decode — Json variant
+    #[test]
+    fn test_json_decode_json_body_deserializes_correctly() {
+        let req = post_with_json(serde_json::json!({"text": "hello"}));
+        let msg: Msg = json_decode(&req).unwrap();
+        assert_eq!(msg, Msg { text: "hello".into() });
+    }
+
+    /// @covers: json_decode — Raw variant
+    #[test]
+    fn test_json_decode_raw_body_deserializes_correctly() {
+        let req = post_with_raw(br#"{"text":"world"}"#.to_vec());
+        let msg: Msg = json_decode(&req).unwrap();
+        assert_eq!(msg, Msg { text: "world".into() });
+    }
+
+    /// @covers: json_decode — None body
+    #[test]
+    fn test_json_decode_none_body_fails_for_non_nullable_type() {
+        let req = post_with_no_body();
+        let result = json_decode::<Msg>(&req);
+        assert!(result.is_err());
+    }
+
+    /// @covers: json_decode — Form body returns InvalidInput
+    #[test]
+    fn test_json_decode_form_body_returns_invalid_input_error() {
+        let req = HttpRequest { body: Some(HttpBody::Form(Default::default())), ..post_with_no_body() };
+        let result = json_decode::<Msg>(&req);
+        assert!(matches!(result, Err(HttpInboundError::InvalidInput(_))));
+    }
+
+    /// @covers: json_encode
+    #[test]
+    fn test_json_encode_produces_200_with_json_content_type() {
+        let resp = json_encode(Msg { text: "ok".into() });
+        assert_eq!(resp.status, 200);
+        assert_eq!(resp.header("content-type"), Some("application/json"));
+        let parsed: Msg = serde_json::from_slice(&resp.body).unwrap();
+        assert_eq!(parsed.text, "ok");
+    }
+
+    /// @covers: grpc_json_decode
+    #[test]
+    fn test_grpc_json_decode_deserializes_bytes_correctly() {
+        let bytes = br#"{"text":"grpc"}"#;
+        let msg: Msg = grpc_json_decode(bytes).unwrap();
+        assert_eq!(msg, Msg { text: "grpc".into() });
+    }
+
+    /// @covers: grpc_json_decode — invalid bytes
+    #[test]
+    fn test_grpc_json_decode_invalid_bytes_returns_invalid_argument() {
+        let result = grpc_json_decode::<Msg>(b"not json");
+        assert!(matches!(result, Err(GrpcInboundError::InvalidArgument(_))));
+    }
+
+    /// @covers: grpc_json_encode
+    #[test]
+    fn test_grpc_json_encode_serializes_to_bytes() {
+        let msg = Msg { text: "bytes".into() };
+        let bytes = grpc_json_encode(&msg);
+        let decoded: Msg = serde_json::from_slice(&bytes).unwrap();
+        assert_eq!(decoded, msg);
+    }
+}

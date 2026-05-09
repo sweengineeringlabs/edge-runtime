@@ -37,6 +37,8 @@ pub use swe_edge_ingress::{
     GrpcMetadata, GrpcStatusCode, GrpcMessageStream,
     // Per-request auth context
     RequestContext,
+    // TLS config — used in builder .http_tls() / .grpc_tls()
+    IngressTlsConfig,
 };
 
 // ── Egress surface (outbound clients) ─────────────────────────────────────────

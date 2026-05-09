@@ -52,5 +52,17 @@ swe-edge-ingress.workspace    = true
 swe-edge-egress-grpc.workspace = true
 swe-edge-egress-http.workspace = true
 
+[[test]]
+name = "edge_runtime_int_test"
+path = "tests/edge_runtime_int_test.rs"
+
+[[test]]
+name = "composite_int_test"
+path = "tests/composite_int_test.rs"
+
+[[test]]
+name = "json_codec_int_test"
+path = "tests/json_codec_int_test.rs"
+
 [lints]
 workspace = true

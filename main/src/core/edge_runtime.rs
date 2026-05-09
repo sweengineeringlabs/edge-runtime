@@ -183,3 +183,20 @@ async fn wait_for_signal() {
     #[cfg(not(unix))]
     { let _ = tokio::signal::ctrl_c().await; }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::api::edge_runtime::EdgeRuntime;
+    use crate::api::error::RuntimeError;
+
+    /// @covers: serve — fails fast when no handler is registered
+    #[test]
+    fn test_serve_returns_start_failed_when_no_handler_registered() {
+        let rt     = tokio::runtime::Runtime::new().unwrap();
+        let result = rt.block_on(EdgeRuntime::builder().grpc_allow_unauthenticated().serve());
+        assert!(
+            matches!(result, Err(RuntimeError::StartFailed(_))),
+            "expected StartFailed, got: {result:?}",
+        );
+    }
+}
