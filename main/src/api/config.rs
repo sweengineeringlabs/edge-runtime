@@ -6,6 +6,7 @@ use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
+use crate::api::load_monitor::{AutoscalePolicy, MetricsConfig};
 
 use crate::api::types::RuntimeConfig;
 
@@ -50,6 +51,8 @@ pub(crate) struct ConfigOverride {
     pub(crate) egress_http:              Option<HttpConfig>,
     pub(crate) egress_grpc:              Option<GrpcChannelConfig>,
     pub(crate) grpc_reflection:          Option<bool>,
+    pub(crate) metrics:                  Option<MetricsConfig>,
+    pub(crate) autoscale:                Option<AutoscalePolicy>,
 }
 
 impl ConfigOverride {
@@ -73,6 +76,8 @@ impl ConfigOverride {
         if let Some(v) = self.egress_http               { base.egress_http               = Some(v); }
         if let Some(v) = self.egress_grpc               { base.egress_grpc               = Some(v); }
         if let Some(v) = self.grpc_reflection            { base.grpc_reflection           = v; }
+        if let Some(v) = self.metrics                    { base.metrics                   = Some(v); }
+        if let Some(v) = self.autoscale                  { base.autoscale                 = Some(v); }
         base
     }
 }

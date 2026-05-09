@@ -10,6 +10,24 @@
 # grpc_allow_unauthenticated = false
 # grpc_reflection            = false   # set true to enable grpc.reflection.v1alpha
 
+# ── Prometheus metrics endpoint ───────────────────────────────────────────────
+# Absent = metrics server not started.  Bind on a separate address —
+# never expose metrics on the same port as the primary HTTP ingress.
+#
+# [metrics]
+# bind = "0.0.0.0:9090"
+# path = "/metrics"
+
+# ── Auto-scale thresholds ─────────────────────────────────────────────────────
+# Checked every second by the background sampler.  When any threshold is
+# exceeded a scale-out warning is emitted; the actual scaling action is
+# handled by the orchestrator (Kubernetes HPA reads /metrics via Prometheus).
+#
+# [autoscale]
+# requests_active_max   = 500
+# requests_per_sec_max  = 1000
+# latency_p99_ms_max    = 200
+
 # ── HTTP TLS ─────────────────────────────────────────────────────────────────
 # Absent = plain HTTP.  Set client_ca_pem_path to enable mTLS.
 #

@@ -6,6 +6,8 @@ use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
+pub use crate::api::load_monitor::{AutoscalePolicy, MetricsConfig};
+
 /// Configuration for the runtime manager.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -50,6 +52,13 @@ pub struct RuntimeConfig {
     /// Requires at least one `.grpc_route()` call so the service registry is
     /// populated.  Default `false`.
     pub grpc_reflection: bool,
+
+    // ── Observability / auto-scaling ──────────────────────────────────────────
+    /// Prometheus metrics endpoint.  Absent = metrics server not started.
+    pub metrics:   Option<MetricsConfig>,
+    /// Auto-scale threshold policy.  Checked every second by the sampler.
+    /// Has no effect if `metrics` is absent.
+    pub autoscale: Option<AutoscalePolicy>,
 }
 
 impl Default for RuntimeConfig {
@@ -68,6 +77,8 @@ impl Default for RuntimeConfig {
             egress_http:               None,
             egress_grpc:               None,
             grpc_reflection:           false,
+            metrics:                   None,
+            autoscale:                 None,
         }
     }
 }

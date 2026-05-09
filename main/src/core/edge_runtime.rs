@@ -14,7 +14,10 @@ use tokio::sync::oneshot;
 use crate::api::edge_runtime::EdgeRuntimeBuilder;
 use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::input::{DefaultInput, Input};
+use crate::api::load_monitor::{LoadCounters, SharedCounters};
 use crate::api::output::DefaultOutput;
+use crate::core::load_monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
+use crate::core::metrics_handler::MetricsHandler;
 use crate::saf::{load_config_xdg, run_until_signal, runtime_manager};
 
 const DEFAULT_APP_NAME: &str = "swe-edge";
@@ -105,13 +108,29 @@ impl EdgeRuntimeBuilder {
 
         let lifecycle = self.lifecycle.unwrap_or_else(|| new_null_lifecycle_monitor());
 
+        // ── Load monitor — shared counters + background sampler ───────────────
+        let counters: Option<SharedCounters> = config.metrics.as_ref().map(|_| {
+            let c = Arc::new(LoadCounters::new());
+            let sampler = BackgroundSampler::new(Arc::clone(&c), config.autoscale.clone());
+            tokio::spawn(async move { sampler.run().await });
+            c
+        });
+
         // ── Servers ───────────────────────────────────────────────────────────
-        let timeout_secs = config.shutdown_timeout_secs;
-        let http_bind    = config.http_bind.clone();
-        let grpc_bind    = config.grpc_bind.clone();
+        let timeout_secs  = config.shutdown_timeout_secs;
+        let http_bind     = config.http_bind.clone();
+        let grpc_bind     = config.grpc_bind.clone();
+        let metrics_bind  = config.metrics.as_ref().map(|m| m.bind.clone());
 
         let (http_tx, http_rx) = oneshot::channel::<()>();
         let http_task = input.http().map(|handler| {
+            // Wrap with load monitor if metrics are enabled.
+            let handler: Arc<dyn swe_edge_ingress::HttpInbound> =
+                if let Some(ref c) = counters {
+                    Arc::new(HttpLoadMonitor::new(handler, Arc::clone(c)))
+                } else {
+                    handler
+                };
             let mut server = AxumHttpServer::new(http_bind, handler);
             if let Some(tls)      = http_tls              { server = server.with_tls(tls); }
             if let Some(verifier) = http_bearer_verifier  { server = server.with_bearer_auth(verifier); }
@@ -125,6 +144,13 @@ impl EdgeRuntimeBuilder {
 
         let (grpc_tx, grpc_rx) = oneshot::channel::<()>();
         let grpc_task = input.grpc().map(|handler| {
+            // Wrap with load monitor if metrics are enabled.
+            let handler: Arc<dyn swe_edge_ingress::GrpcInbound> =
+                if let Some(ref c) = counters {
+                    Arc::new(GrpcLoadMonitor::new(handler, Arc::clone(c)))
+                } else {
+                    handler
+                };
             // Wrap with reflection if enabled and a dispatcher registry was captured.
             let handler: Arc<dyn swe_edge_ingress::GrpcInbound> =
                 if let Some(registry) = reflection_registry {
@@ -151,13 +177,30 @@ impl EdgeRuntimeBuilder {
             })
         });
 
+        // ── Metrics server ────────────────────────────────────────────────────
+        let (metrics_tx, metrics_task) = if let (Some(bind), Some(ref c)) = (metrics_bind, &counters) {
+            let (tx, rx) = oneshot::channel::<()>();
+            let server   = AxumHttpServer::new(bind, Arc::new(MetricsHandler::new(Arc::clone(c))));
+            let task     = tokio::spawn(async move {
+                let signal = async move { let _ = rx.await; };
+                if let Err(e) = server.serve(signal).await {
+                    tracing::error!("metrics server error: {e}");
+                }
+            });
+            (Some(tx), Some(task))
+        } else {
+            (None, None)
+        };
+
         let mgr    = runtime_manager(config, Arc::new(input), Arc::new(output), lifecycle);
         let result = run_until_signal(mgr, timeout_secs, wait_for_signal()).await;
 
         let _ = http_tx.send(());
         let _ = grpc_tx.send(());
-        if let Some(t) = http_task { let _ = tokio::time::timeout(Duration::from_secs(5), t).await; }
-        if let Some(t) = grpc_task { let _ = tokio::time::timeout(Duration::from_secs(5), t).await; }
+        if let Some(tx) = metrics_tx { let _ = tx.send(()); }
+        if let Some(t) = http_task    { let _ = tokio::time::timeout(Duration::from_secs(5), t).await; }
+        if let Some(t) = grpc_task    { let _ = tokio::time::timeout(Duration::from_secs(5), t).await; }
+        if let Some(t) = metrics_task { let _ = tokio::time::timeout(Duration::from_secs(5), t).await; }
 
         result
     }
