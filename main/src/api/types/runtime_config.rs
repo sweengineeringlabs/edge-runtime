@@ -1,6 +1,8 @@
 //! RuntimeConfig — process-level configuration for the daemon.
 
 use serde::{Deserialize, Serialize};
+use swe_edge_egress_grpc::GrpcChannelConfig;
+use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
@@ -33,6 +35,15 @@ pub struct RuntimeConfig {
     pub http_auth: Option<JwtConfig>,
     /// Skip gRPC auth interceptor enforcement.  Default `false` = fail-closed.
     pub grpc_allow_unauthenticated: bool,
+
+    // ── Egress ────────────────────────────────────────────────────────────────
+    /// HTTP egress client config.  When set, `serve()` auto-builds the full
+    /// middleware stack (auth, retry, rate, breaker, cache, TLS) using SWE
+    /// defaults.  When absent, a plain default client is used.
+    pub egress_http: Option<HttpConfig>,
+    /// gRPC egress channel config.  When set, `serve()` auto-dials the
+    /// channel.  When absent, no gRPC egress client is wired.
+    pub egress_grpc: Option<GrpcChannelConfig>,
 }
 
 impl Default for RuntimeConfig {
@@ -48,6 +59,8 @@ impl Default for RuntimeConfig {
             grpc_tls:                  None,
             http_auth:                 None,
             grpc_allow_unauthenticated: false,
+            egress_http:               None,
+            egress_grpc:               None,
         }
     }
 }

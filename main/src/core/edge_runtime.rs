@@ -5,6 +5,8 @@ use std::time::Duration;
 
 use edge_proxy::new_null_lifecycle_monitor;
 use swe_edge_ingress::{AxumHttpServer, TonicGrpcServer};
+use swe_edge_egress_grpc::create_transport_from_config;
+use swe_edge_egress_http::{default_http_outbound, default_http_outbound_with_config};
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
@@ -62,14 +64,36 @@ impl EdgeRuntimeBuilder {
             ));
         }
 
-        // ── Egress ────────────────────────────────────────────────────────────
-        let egress_http = self.egress_http.ok_or_else(|| {
-            RuntimeError::StartFailed(
-                "EdgeRuntime: no HTTP egress client registered — call .egress_http()".into(),
-            )
-        })?;
+        // ── Egress: builder explicit > TOML config > default ─────────────────
+        let egress_http: Arc<dyn swe_edge_egress_http::HttpOutbound> =
+            if let Some(h) = self.egress_http {
+                h
+            } else if let Some(http_cfg) = config.egress_http.clone() {
+                Arc::new(
+                    default_http_outbound_with_config(http_cfg)
+                        .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+                )
+            } else {
+                Arc::new(
+                    default_http_outbound()
+                        .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+                )
+            };
+
+        let egress_grpc: Option<Arc<dyn swe_edge_egress_grpc::GrpcOutbound>> =
+            if let Some(g) = self.egress_grpc {
+                Some(g)
+            } else if let Some(ref grpc_cfg) = config.egress_grpc {
+                Some(
+                    create_transport_from_config(grpc_cfg)
+                        .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+                )
+            } else {
+                None
+            };
+
         let mut output = DefaultOutput::new_http(egress_http);
-        if let Some(g) = self.egress_grpc { output = output.with_grpc(g); }
+        if let Some(g) = egress_grpc { output = output.with_grpc(g); }
 
         let lifecycle = self.lifecycle.unwrap_or_else(|| new_null_lifecycle_monitor());
 

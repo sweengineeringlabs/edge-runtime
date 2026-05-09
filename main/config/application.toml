@@ -24,6 +24,27 @@
 # key_pem_path       = "/etc/edge/certs/server.key"
 # client_ca_pem_path = "/etc/edge/certs/client-ca.crt"   # mTLS only
 
+# ── Egress HTTP client ───────────────────────────────────────────────────────
+# Absent = default middleware stack with no base URL.
+# Present = full middleware stack (auth, retry, rate, breaker, cache, TLS)
+# using SWE defaults, applied against this base URL.
+#
+# [egress_http]
+# base_url              = "https://upstream.example.com"
+# timeout_secs          = 30
+# connect_timeout_secs  = 10
+# user_agent            = "my-service/1.0"
+# follow_redirects      = true
+# max_redirects         = 10
+
+# ── Egress gRPC channel ───────────────────────────────────────────────────────
+# Absent = no gRPC egress client wired.
+#
+# [egress_grpc]
+# endpoint         = "https://grpc.upstream.example.com:443"
+# tls_required     = true
+# max_message_bytes = 4194304   # 4 MiB
+
 # ── HTTP JWT bearer auth ──────────────────────────────────────────────────────
 # Absent = no token enforcement on HTTP.
 #

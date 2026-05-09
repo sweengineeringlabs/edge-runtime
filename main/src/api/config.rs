@@ -2,6 +2,8 @@
 
 use serde::Deserialize;
 use thiserror::Error;
+use swe_edge_egress_grpc::GrpcChannelConfig;
+use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
@@ -45,6 +47,8 @@ pub(crate) struct ConfigOverride {
     pub(crate) grpc_tls:                  Option<IngressTlsConfig>,
     pub(crate) http_auth:                 Option<JwtConfig>,
     pub(crate) grpc_allow_unauthenticated: Option<bool>,
+    pub(crate) egress_http:              Option<HttpConfig>,
+    pub(crate) egress_grpc:              Option<GrpcChannelConfig>,
 }
 
 impl ConfigOverride {
@@ -65,6 +69,8 @@ impl ConfigOverride {
         if let Some(v) = self.grpc_tls                  { base.grpc_tls                  = Some(v); }
         if let Some(v) = self.http_auth                 { base.http_auth                 = Some(v); }
         if let Some(v) = self.grpc_allow_unauthenticated { base.grpc_allow_unauthenticated = v; }
+        if let Some(v) = self.egress_http               { base.egress_http               = Some(v); }
+        if let Some(v) = self.egress_grpc               { base.egress_grpc               = Some(v); }
         base
     }
 }
