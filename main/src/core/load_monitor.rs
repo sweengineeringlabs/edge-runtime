@@ -12,11 +12,11 @@ use swe_edge_ingress::{
     HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse,
 };
 
-use crate::api::load_monitor::{AutoscalePolicy, LoadCounters, SharedCounters};
+use crate::api::load_monitor::{AutoscalePolicy, SharedCounters};
 
 // ── HTTP wrapper ──────────────────────────────────────────────────────────────
 
-/// Wraps an `HttpInbound` handler and records load metrics for every request.
+/// Wraps an `HttpInbound` handler; records load metrics on every request.
 pub(crate) struct HttpLoadMonitor {
     inner:    Arc<dyn HttpInbound>,
     counters: SharedCounters,
@@ -34,14 +34,13 @@ impl HttpInbound for HttpLoadMonitor {
         request: HttpRequest,
         ctx:     RequestContext,
     ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
-        self.counters.requests_active.fetch_add(1, Ordering::Relaxed);
+        self.counters.on_start();
         let counters = Arc::clone(&self.counters);
         let fut = self.inner.handle(request, ctx);
         Box::pin(async move {
             let start = Instant::now();
             let result = fut.await;
-            let latency_us = start.elapsed().as_micros() as u64;
-            counters.record(latency_us, result.is_err());
+            counters.on_end(start.elapsed().as_micros() as u64, result.is_err());
             result
         })
     }
@@ -53,7 +52,7 @@ impl HttpInbound for HttpLoadMonitor {
 
 // ── gRPC wrapper ──────────────────────────────────────────────────────────────
 
-/// Wraps a `GrpcInbound` handler and records load metrics for every call.
+/// Wraps a `GrpcInbound` handler; records load metrics on every call.
 pub(crate) struct GrpcLoadMonitor {
     inner:    Arc<dyn GrpcInbound>,
     counters: SharedCounters,
@@ -71,14 +70,13 @@ impl GrpcInbound for GrpcLoadMonitor {
         request: GrpcRequest,
         ctx:     RequestContext,
     ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
-        self.counters.requests_active.fetch_add(1, Ordering::Relaxed);
+        self.counters.on_start();
         let counters = Arc::clone(&self.counters);
         let fut = self.inner.handle_unary(request, ctx);
         Box::pin(async move {
             let start = Instant::now();
             let result = fut.await;
-            let latency_us = start.elapsed().as_micros() as u64;
-            counters.record(latency_us, result.is_err());
+            counters.on_end(start.elapsed().as_micros() as u64, result.is_err());
             result
         })
     }
@@ -90,14 +88,13 @@ impl GrpcInbound for GrpcLoadMonitor {
         messages: GrpcMessageStream,
         ctx:      RequestContext,
     ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
-        self.counters.requests_active.fetch_add(1, Ordering::Relaxed);
+        self.counters.on_start();
         let counters = Arc::clone(&self.counters);
         let fut = self.inner.handle_stream(method, metadata, messages, ctx);
         Box::pin(async move {
             let start = Instant::now();
             let result = fut.await;
-            let latency_us = start.elapsed().as_micros() as u64;
-            counters.record(latency_us, result.is_err());
+            counters.on_end(start.elapsed().as_micros() as u64, result.is_err());
             result
         })
     }
@@ -109,7 +106,8 @@ impl GrpcInbound for GrpcLoadMonitor {
 
 // ── Background sampler ────────────────────────────────────────────────────────
 
-/// Runs every second: computes derived metrics and checks autoscale thresholds.
+/// Ticks every second: pushes derived gauges into the provider and checks
+/// autoscale thresholds.
 pub(crate) struct BackgroundSampler {
     counters: SharedCounters,
     policy:   Option<AutoscalePolicy>,
@@ -121,45 +119,33 @@ impl BackgroundSampler {
     }
 
     pub(crate) async fn run(self) {
-        let mut prev_total  = 0u64;
-        let mut prev_errors = 0u64;
         let mut interval = tokio::time::interval(std::time::Duration::from_secs(1));
         loop {
             interval.tick().await;
 
-            let total  = self.counters.requests_total.load(Ordering::Relaxed);
-            let errors = self.counters.errors_total.load(Ordering::Relaxed);
-            let active = self.counters.requests_active.load(Ordering::Relaxed);
+            let active = self.counters.requests_in_flight.load(Ordering::Relaxed) as f64;
+            let rps    = self.counters.requests_since_tick.swap(0, Ordering::Relaxed) as f64;
+            let eps    = self.counters.errors_since_tick.swap(0, Ordering::Relaxed) as f64;
+            let p99    = self.counters.latency_ring.lock().p99_ms();
 
-            let rps = total.saturating_sub(prev_total);
-            let eps = errors.saturating_sub(prev_errors);
-            let p99 = self.counters.latency_ring.lock().p99_ms();
-
-            self.counters.snapshot_rps.store(rps, Ordering::Relaxed);
-            self.counters.snapshot_p99_ms.store(p99, Ordering::Relaxed);
-            self.counters.snapshot_err_per_sec.store(eps, Ordering::Relaxed);
-
-            prev_total  = total;
-            prev_errors = errors;
+            let p = &*self.counters.provider;
+            p.record_gauge("edge_requests_active",      active, &[]);
+            p.record_gauge("edge_requests_per_second",  rps,    &[]);
+            p.record_gauge("edge_errors_per_second",    eps,    &[]);
+            p.record_gauge("edge_request_latency_p99_ms", p99,  &[]);
 
             if let Some(ref policy) = self.policy {
-                if active > policy.requests_active_max {
-                    tracing::warn!(
-                        active, max = policy.requests_active_max,
-                        "scale-out signal: requests_active exceeded threshold"
-                    );
+                if active as u64 > policy.requests_active_max {
+                    tracing::warn!(active, max = policy.requests_active_max,
+                        "scale-out signal: requests_active exceeded threshold");
                 }
-                if rps > policy.requests_per_sec_max {
-                    tracing::warn!(
-                        rps, max = policy.requests_per_sec_max,
-                        "scale-out signal: requests_per_second exceeded threshold"
-                    );
+                if rps as u64 > policy.requests_per_sec_max {
+                    tracing::warn!(rps, max = policy.requests_per_sec_max,
+                        "scale-out signal: requests_per_second exceeded threshold");
                 }
                 if p99 > policy.latency_p99_ms_max {
-                    tracing::warn!(
-                        p99_ms = p99, max = policy.latency_p99_ms_max,
-                        "scale-out signal: latency_p99_ms exceeded threshold"
-                    );
+                    tracing::warn!(p99_ms = p99, max = policy.latency_p99_ms_max,
+                        "scale-out signal: latency_p99_ms exceeded threshold");
                 }
             }
         }
@@ -171,13 +157,16 @@ mod tests {
     use super::*;
     use std::sync::Arc;
     use std::sync::atomic::Ordering;
+    use swe_observ_metrics::create_local_metrics_backend;
+    use crate::api::load_monitor::LoadCounters;
 
-    fn counters() -> SharedCounters { Arc::new(LoadCounters::new()) }
+    fn counters() -> SharedCounters {
+        Arc::new(LoadCounters::new(Arc::new(create_local_metrics_backend())))
+    }
 
     /// @covers: HttpLoadMonitor::new
     #[test]
     fn test_http_load_monitor_new_does_not_panic() {
-        use futures::future::BoxFuture;
         struct NullHttp;
         impl HttpInbound for NullHttp {
             fn handle(&self, _: HttpRequest, _: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
@@ -209,10 +198,9 @@ mod tests {
         let _m = GrpcLoadMonitor::new(Arc::new(NullGrpc), counters());
     }
 
-    /// @covers: HttpLoadMonitor::handle — increments and decrements active
+    /// @covers: HttpLoadMonitor::handle — records via provider
     #[tokio::test]
-    async fn test_http_monitor_handle_updates_counters() {
-        use futures::future::BoxFuture;
+    async fn test_http_monitor_handle_records_request_via_provider() {
         struct OkHttp;
         impl HttpInbound for OkHttp {
             fn handle(&self, _: HttpRequest, _: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
@@ -224,11 +212,10 @@ mod tests {
         }
         let c = counters();
         let m = HttpLoadMonitor::new(Arc::new(OkHttp), Arc::clone(&c));
-        let req = HttpRequest::get("/");
-        m.handle(req, RequestContext::unauthenticated()).await.unwrap();
-        assert_eq!(c.requests_active.load(Ordering::Relaxed), 0);
-        assert_eq!(c.requests_total.load(Ordering::Relaxed), 1);
-        assert_eq!(c.errors_total.load(Ordering::Relaxed), 0);
+        m.handle(HttpRequest::get("/"), RequestContext::unauthenticated()).await.unwrap();
+        assert_eq!(c.requests_in_flight.load(Ordering::Relaxed), 0);
+        let snaps = c.provider.export();
+        assert!(snaps.iter().any(|s| s.name == "edge_requests_total" && s.value == 1.0));
     }
 
     /// @covers: BackgroundSampler::new

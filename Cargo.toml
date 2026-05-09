@@ -33,6 +33,7 @@ swe-edge-egress-http      = { package = "swe-edge-egress-http-transport", git = 
 swe-edge-ingress-verifier          = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 swe-edge-ingress-grpc-reflection   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 edge-domain                        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+swe-observ-metrics                 = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 # Workspace-internal
 swe-edge-runtime = { package = "swe-edge-runtime-main", path = "main" }

@@ -52,8 +52,9 @@ pub use edge_proxy::{LifecycleMonitor, HealthReport, new_null_lifecycle_monitor}
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
 pub use crate::api::load_monitor::{
-    AutoscalePolicy, LoadCounters, LoadSnapshot, MetricsConfig, SharedCounters,
+    AutoscalePolicy, LoadCounters, MetricsConfig, SharedCounters,
 };
+pub use swe_observ_metrics::{MetricsProvider, MetricSnapshot, MetricType};
 
 /// Load config using the default layered chain
 /// (`default.toml` → `application.toml` → env vars).

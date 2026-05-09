@@ -14,6 +14,7 @@ use tokio::sync::oneshot;
 use crate::api::edge_runtime::EdgeRuntimeBuilder;
 use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::input::{DefaultInput, Input};
+use swe_observ_metrics::create_local_metrics_backend;
 use crate::api::load_monitor::{LoadCounters, SharedCounters};
 use crate::api::output::DefaultOutput;
 use crate::core::load_monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
@@ -110,7 +111,7 @@ impl EdgeRuntimeBuilder {
 
         // ── Load monitor — shared counters + background sampler ───────────────
         let counters: Option<SharedCounters> = config.metrics.as_ref().map(|_| {
-            let c = Arc::new(LoadCounters::new());
+            let c = Arc::new(LoadCounters::new(Arc::new(create_local_metrics_backend())));
             let sampler = BackgroundSampler::new(Arc::clone(&c), config.autoscale.clone());
             tokio::spawn(async move { sampler.run().await });
             c
