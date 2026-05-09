@@ -122,6 +122,8 @@ impl EdgeRuntimeBuilder {
         let http_bind     = config.http_bind.clone();
         let grpc_bind     = config.grpc_bind.clone();
         let metrics_bind  = config.metrics.as_ref().map(|m| m.bind.clone());
+        let metrics_path  = config.metrics.as_ref().map(|m| m.path.clone())
+            .unwrap_or_else(|| "/metrics".into());
 
         let (http_tx, http_rx) = oneshot::channel::<()>();
         let http_task = input.http().map(|handler| {
@@ -181,7 +183,7 @@ impl EdgeRuntimeBuilder {
         // ── Metrics server ────────────────────────────────────────────────────
         let (metrics_tx, metrics_task) = if let (Some(bind), Some(ref c)) = (metrics_bind, &counters) {
             let (tx, rx) = oneshot::channel::<()>();
-            let server   = AxumHttpServer::new(bind, Arc::new(MetricsHandler::new(Arc::clone(c))));
+            let server   = AxumHttpServer::new(bind, Arc::new(MetricsHandler::new(Arc::clone(c), &metrics_path)));
             let task     = tokio::spawn(async move {
                 let signal = async move { let _ = rx.await; };
                 if let Err(e) = server.serve(signal).await {

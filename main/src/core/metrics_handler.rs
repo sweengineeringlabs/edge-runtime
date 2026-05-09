@@ -18,14 +18,16 @@ use crate::api::load_monitor::SharedCounters;
 /// Serves the Prometheus text exposition endpoint.
 ///
 /// Bound to `[metrics] bind` (default `0.0.0.0:9090`) — never on
-/// the primary `http_bind`.
+/// the primary `http_bind`.  Responds only to the configured `path`
+/// (default `/metrics`); all other paths return `404 Not Found`.
 pub(crate) struct MetricsHandler {
     counters: SharedCounters,
+    path:     String,
 }
 
 impl MetricsHandler {
-    pub(crate) fn new(counters: SharedCounters) -> Self {
-        Self { counters }
+    pub(crate) fn new(counters: SharedCounters, path: impl Into<String>) -> Self {
+        Self { counters, path: path.into() }
     }
 }
 
@@ -36,10 +38,20 @@ impl HttpInbound for MetricsHandler {
         _ctx:    RequestContext,
     ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         let provider = Arc::clone(&self.counters.provider);
+        let path     = self.path.clone();
         Box::pin(async move {
             if request.method != HttpMethod::Get {
                 return Err(HttpInboundError::InvalidInput(
                     "metrics endpoint only accepts GET".into(),
+                ));
+            }
+            let req_path = request.url
+                .split('?').next().unwrap_or(&request.url)
+                .trim_end_matches('/');
+            let cfg_path = path.trim_end_matches('/');
+            if req_path != cfg_path {
+                return Err(HttpInboundError::NotFound(
+                    format!("not found: {}", request.url),
                 ));
             }
             let body = render_prometheus(&*provider);
@@ -92,21 +104,37 @@ mod tests {
         provider.record_counter("edge_requests_total", 42.0, &[]);
         provider.record_gauge("edge_requests_active", 7.0, &[]);
         let counters = Arc::new(LoadCounters::new(provider));
-        MetricsHandler::new(counters)
+        MetricsHandler::new(counters, "/metrics")
     }
 
-    /// @covers: MetricsHandler::handle — GET returns 200 with Prometheus body
+    /// @covers: MetricsHandler::handle — GET /metrics returns 200 with Prometheus body
     #[tokio::test]
-    async fn test_handle_get_returns_prometheus_text_with_recorded_metrics() {
+    async fn test_handle_get_configured_path_returns_prometheus_text() {
         let h    = handler_with_data();
-        let req  = HttpRequest::get("/metrics");
-        let resp = h.handle(req, RequestContext::unauthenticated()).await.unwrap();
+        let resp = h.handle(HttpRequest::get("/metrics"), RequestContext::unauthenticated()).await.unwrap();
         assert_eq!(resp.status, 200);
         let ct   = resp.header("content-type").map(str::to_owned);
         let body = String::from_utf8(resp.body).unwrap();
         assert!(body.contains("edge_requests_total"), "missing counter in: {body}");
         assert!(body.contains("edge_requests_active"), "missing gauge in: {body}");
         assert_eq!(ct.as_deref(), Some("text/plain; version=0.0.4; charset=utf-8"));
+    }
+
+    /// @covers: MetricsHandler::handle — wrong path returns NotFound
+    #[tokio::test]
+    async fn test_handle_get_wrong_path_returns_not_found() {
+        let h   = handler_with_data();
+        let err = h.handle(HttpRequest::get("/healthz"), RequestContext::unauthenticated())
+            .await.unwrap_err();
+        assert!(matches!(err, HttpInboundError::NotFound(_)));
+    }
+
+    /// @covers: MetricsHandler::handle — trailing slash is normalised
+    #[tokio::test]
+    async fn test_handle_get_path_with_trailing_slash_returns_200() {
+        let h    = handler_with_data();
+        let resp = h.handle(HttpRequest::get("/metrics/"), RequestContext::unauthenticated()).await.unwrap();
+        assert_eq!(resp.status, 200);
     }
 
     /// @covers: MetricsHandler::handle — POST returns InvalidInput
