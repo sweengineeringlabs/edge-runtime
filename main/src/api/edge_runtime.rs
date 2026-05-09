@@ -2,16 +2,15 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Handler, HandlerError, HandlerRegistry};
+use edge_domain::{Handler, HandlerRegistry};
 use edge_proxy::LifecycleMonitor;
 use swe_edge_egress_grpc::GrpcOutbound;
 use swe_edge_egress_http::HttpOutbound;
 use swe_edge_ingress::{
     GrpcDecodeFn, GrpcEncodeFn, GrpcHandlerAdapter, GrpcHandlerRegistryDispatcher,
     GrpcInbound, GrpcInboundInterceptor, GrpcInboundInterceptorChain,
-    GrpcRequest, GrpcResponse,
     HttpDecodeFn, HttpEncodeFn, HttpHandlerAdapter, HttpHandlerRegistryDispatcher,
-    HttpInbound, HttpRequest, HttpResponse, IngressTlsConfig,
+    HttpInbound, IngressTlsConfig,
 };
 use swe_edge_ingress_verifier::TokenVerifier;
 
@@ -63,6 +62,7 @@ pub struct EdgeRuntimeBuilder {
 pub struct EdgeRuntime;
 
 impl EdgeRuntime {
+    /// Create a new builder for assembling an edge runtime.
     pub fn builder() -> EdgeRuntimeBuilder {
         EdgeRuntimeBuilder {
             config:                    None,

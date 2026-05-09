@@ -1,5 +1,5 @@
 # swe-edge runtime — operator overrides.
-# Loaded at runtime from the working directory or SWE_EDGE_CONFIG_DIR.
+# Loaded via XDG chain: /etc/xdg/swe-edge/ → ~/.config/swe-edge/ → $SWE_EDGE_CONFIG_DIR
 # Uncomment and set fields to override the shipped defaults.
 
 # service_name          = "my-edge"
@@ -7,3 +7,43 @@
 # grpc_bind             = "0.0.0.0:50051"
 # shutdown_timeout_secs = 30
 # systemd_notify        = false
+# grpc_allow_unauthenticated = false
+
+# ── HTTP TLS ─────────────────────────────────────────────────────────────────
+# Absent = plain HTTP.  Set client_ca_pem_path to enable mTLS.
+#
+# [http_tls]
+# cert_pem_path      = "/etc/edge/certs/server.crt"
+# key_pem_path       = "/etc/edge/certs/server.key"
+# client_ca_pem_path = "/etc/edge/certs/client-ca.crt"   # mTLS only
+
+# ── gRPC TLS ─────────────────────────────────────────────────────────────────
+#
+# [grpc_tls]
+# cert_pem_path      = "/etc/edge/certs/server.crt"
+# key_pem_path       = "/etc/edge/certs/server.key"
+# client_ca_pem_path = "/etc/edge/certs/client-ca.crt"   # mTLS only
+
+# ── HTTP JWT bearer auth ──────────────────────────────────────────────────────
+# Absent = no token enforcement on HTTP.
+#
+# HS256 (shared secret):
+# [http_auth]
+# required_issuer   = "https://auth.example.com"
+# required_audience = "api"          # optional
+# leeway_seconds    = 10
+# [http_auth.key]
+# algorithm = "HS256"
+# secret    = [107, 101, 121]        # raw bytes of the HMAC secret
+#
+# RS256 / ES256 (public key):
+# [http_auth]
+# required_issuer   = "https://auth.example.com"
+# leeway_seconds    = 10
+# [http_auth.key]
+# algorithm  = "RS256"
+# public_pem = """
+# -----BEGIN PUBLIC KEY-----
+# ...
+# -----END PUBLIC KEY-----
+# """

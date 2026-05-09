@@ -5,6 +5,7 @@ use std::time::Duration;
 
 use edge_proxy::new_null_lifecycle_monitor;
 use swe_edge_ingress::{AxumHttpServer, TonicGrpcServer};
+use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
 use crate::api::edge_runtime::EdgeRuntimeBuilder;
@@ -27,6 +28,25 @@ impl EdgeRuntimeBuilder {
                 load_config_xdg(name).map_err(|e| RuntimeError::StartFailed(e.to_string()))?
             }
         };
+
+        // ── Resolve TLS / auth: builder explicit wins, else fall back to config ─
+        let http_tls = self.http_tls.or_else(|| config.http_tls.clone());
+        let grpc_tls = self.grpc_tls.or_else(|| config.grpc_tls.clone());
+
+        let http_bearer_verifier: Option<Arc<dyn TokenVerifier>> =
+            if let Some(v) = self.http_bearer_verifier {
+                Some(v)
+            } else if let Some(ref auth_cfg) = config.http_auth {
+                Some(Arc::new(
+                    JwtVerifier::from_config(auth_cfg)
+                        .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+                ))
+            } else {
+                None
+            };
+
+        let grpc_allow_unauthenticated =
+            self.grpc_allow_unauthenticated || config.grpc_allow_unauthenticated;
 
         // ── Ingress ───────────────────────────────────────────────────────────
         let mut input = DefaultInput::empty();
@@ -61,8 +81,8 @@ impl EdgeRuntimeBuilder {
         let (http_tx, http_rx) = oneshot::channel::<()>();
         let http_task = input.http().map(|handler| {
             let mut server = AxumHttpServer::new(http_bind, handler);
-            if let Some(tls)      = self.http_tls              { server = server.with_tls(tls); }
-            if let Some(verifier) = self.http_bearer_verifier  { server = server.with_bearer_auth(verifier); }
+            if let Some(tls)      = http_tls              { server = server.with_tls(tls); }
+            if let Some(verifier) = http_bearer_verifier  { server = server.with_bearer_auth(verifier); }
             tokio::spawn(async move {
                 let signal = async move { let _ = http_rx.await; };
                 if let Err(e) = server.serve(signal).await {
@@ -74,11 +94,11 @@ impl EdgeRuntimeBuilder {
         let (grpc_tx, grpc_rx) = oneshot::channel::<()>();
         let grpc_task = input.grpc().map(|handler| {
             let mut server = TonicGrpcServer::new(grpc_bind, handler);
-            if let Some(tls) = self.grpc_tls { server = server.with_tls(tls); }
+            if let Some(tls) = grpc_tls { server = server.with_tls(tls); }
             if !self.grpc_interceptors.is_empty() {
                 server = server.with_interceptors(self.grpc_interceptors);
             }
-            if self.grpc_allow_unauthenticated {
+            if grpc_allow_unauthenticated {
                 server = server.allow_unauthenticated(true);
             }
             tokio::spawn(async move {

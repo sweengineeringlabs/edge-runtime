@@ -1,6 +1,8 @@
 //! RuntimeConfig — process-level configuration for the daemon.
 
 use serde::{Deserialize, Serialize};
+use swe_edge_ingress::IngressTlsConfig;
+use swe_edge_ingress_verifier::JwtConfig;
 
 /// Configuration for the runtime manager.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -18,17 +20,34 @@ pub struct RuntimeConfig {
     pub systemd_notify: bool,
     /// Tenant identifier — `None` for single-tenant deployments.
     pub tenant_id: Option<String>,
+
+    // ── TLS ───────────────────────────────────────────────────────────────────
+    /// TLS/mTLS for the HTTP server.  Absent = plain HTTP.
+    /// Set `client_ca_pem_path` to enable mTLS.
+    pub http_tls: Option<IngressTlsConfig>,
+    /// TLS/mTLS for the gRPC server.  Absent = plain gRPC.
+    pub grpc_tls: Option<IngressTlsConfig>,
+
+    // ── Auth ──────────────────────────────────────────────────────────────────
+    /// JWT bearer auth for the HTTP server.  Absent = no token enforcement.
+    pub http_auth: Option<JwtConfig>,
+    /// Skip gRPC auth interceptor enforcement.  Default `false` = fail-closed.
+    pub grpc_allow_unauthenticated: bool,
 }
 
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
-            service_name:          "swe-edge".into(),
-            http_bind:             "0.0.0.0:8080".into(),
-            grpc_bind:             "0.0.0.0:50051".into(),
-            shutdown_timeout_secs: 30,
-            systemd_notify:        false,
-            tenant_id:             None,
+            service_name:              "swe-edge".into(),
+            http_bind:                 "0.0.0.0:8080".into(),
+            grpc_bind:                 "0.0.0.0:50051".into(),
+            shutdown_timeout_secs:     30,
+            systemd_notify:            false,
+            tenant_id:                 None,
+            http_tls:                  None,
+            grpc_tls:                  None,
+            http_auth:                 None,
+            grpc_allow_unauthenticated: false,
         }
     }
 }
