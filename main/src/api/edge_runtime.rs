@@ -102,8 +102,32 @@ impl EdgeRuntimeBuilder {
 
     // ── Routing ───────────────────────────────────────────────────────────────
 
-    /// Register an HTTP handler.  Routes accumulate in an internal dispatcher.
+    /// Register an HTTP handler with automatic JSON decode/encode.
+    ///
+    /// `Req` is deserialised from the JSON request body;
+    /// `Resp` is serialised to a `200 application/json` response.
+    ///
+    /// For custom serialisation use [`http_route_with`](Self::http_route_with).
     pub fn http_route<Req, Resp>(
+        self,
+        handler: Arc<dyn Handler<Req, Resp>>,
+    ) -> Self
+    where
+        Req:  serde::de::DeserializeOwned + Send + 'static,
+        Resp: serde::Serialize + Send + 'static,
+    {
+        self.http_route_with(
+            handler,
+            crate::core::json_codec::json_decode::<Req>,
+            crate::core::json_codec::json_encode::<Resp>,
+        )
+    }
+
+    /// Register an HTTP handler with explicit decode/encode functions.
+    ///
+    /// Use when the default JSON codec is not appropriate (e.g. protobuf,
+    /// MessagePack, custom content negotiation).
+    pub fn http_route_with<Req, Resp>(
         mut self,
         handler: Arc<dyn Handler<Req, Resp>>,
         decode:  HttpDecodeFn<Req>,
@@ -121,8 +145,31 @@ impl EdgeRuntimeBuilder {
         self
     }
 
-    /// Register a gRPC handler.  Routes accumulate in an internal dispatcher.
+    /// Register a gRPC handler with automatic JSON decode/encode.
+    ///
+    /// `Req` is deserialised from raw bytes as JSON;
+    /// `Resp` is serialised to raw bytes as JSON.
+    ///
+    /// For protobuf or other wire formats use [`grpc_route_with`](Self::grpc_route_with).
     pub fn grpc_route<Req, Resp>(
+        self,
+        handler: Arc<dyn Handler<Req, Resp>>,
+    ) -> Self
+    where
+        Req:  serde::de::DeserializeOwned + Send + 'static,
+        Resp: serde::Serialize + Send + 'static,
+    {
+        self.grpc_route_with(
+            handler,
+            crate::core::json_codec::grpc_json_decode::<Req>,
+            crate::core::json_codec::grpc_json_encode::<Resp>,
+        )
+    }
+
+    /// Register a gRPC handler with explicit decode/encode functions.
+    ///
+    /// Use for protobuf or any non-JSON wire format.
+    pub fn grpc_route_with<Req, Resp>(
         mut self,
         handler: Arc<dyn Handler<Req, Resp>>,
         decode:  GrpcDecodeFn<Req>,
