@@ -6,7 +6,7 @@ use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
-pub use crate::api::load_monitor::{AutoscalePolicy, MetricsConfig};
+pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
 
 /// Configuration for the runtime manager.
 #[derive(Debug, Clone, Serialize, Deserialize)]

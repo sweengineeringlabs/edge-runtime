@@ -280,3 +280,41 @@ impl EdgeRuntimeBuilder {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// @covers: EdgeRuntime::builder
+    #[test]
+    fn test_builder_creates_with_all_fields_none() {
+        let b = EdgeRuntime::builder();
+        assert!(b.config.is_none());
+        assert!(b.app_name.is_none());
+        assert!(b.http_handler.is_none());
+        assert!(b.grpc_handler.is_none());
+        assert!(b.egress_http.is_none());
+        assert!(b.egress_grpc.is_none());
+    }
+
+    /// @covers: EdgeRuntimeBuilder::app_name
+    #[test]
+    fn test_builder_app_name_sets_field() {
+        let b = EdgeRuntime::builder().app_name("my-svc");
+        assert_eq!(b.app_name.as_deref(), Some("my-svc"));
+    }
+
+    /// @covers: EdgeRuntimeBuilder::grpc_allow_unauthenticated
+    #[test]
+    fn test_builder_grpc_allow_unauthenticated_sets_flag() {
+        let b = EdgeRuntime::builder().grpc_allow_unauthenticated();
+        assert!(b.grpc_allow_unauthenticated);
+    }
+
+    /// @covers: EdgeRuntimeBuilder::build_registry — returns None when no egress_http set
+    #[test]
+    fn test_build_registry_returns_none_without_egress_http() {
+        let b = EdgeRuntime::builder();
+        assert!(b.build_registry().is_none());
+    }
+}

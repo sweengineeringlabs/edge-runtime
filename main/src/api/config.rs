@@ -6,7 +6,7 @@ use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
-use crate::api::load_monitor::{AutoscalePolicy, MetricsConfig};
+use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
 
 use crate::api::types::RuntimeConfig;
 

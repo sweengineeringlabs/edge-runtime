@@ -15,11 +15,14 @@ use crate::api::edge_runtime::EdgeRuntimeBuilder;
 use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::input::{DefaultInput, Input};
 use swe_observ_metrics::create_local_metrics_backend;
-use crate::api::load_monitor::{LoadCounters, SharedCounters};
+use crate::api::config_loader::ConfigLoader;
+use crate::api::monitor::{LoadCounters, SharedCounters};
 use crate::api::output::DefaultOutput;
-use crate::core::load_monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
+use crate::core::config_loader::DefaultConfigLoader;
+use crate::core::monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
 use crate::core::metrics_handler::MetricsHandler;
-use crate::saf::{load_config_xdg, run_until_signal, runtime_manager};
+use crate::core::runner::run_until_signal;
+use crate::core::runtime_manager::DefaultRuntimeManager;
 
 const DEFAULT_APP_NAME: &str = "swe-edge";
 
@@ -32,7 +35,8 @@ impl EdgeRuntimeBuilder {
             Some(c) => c,
             None => {
                 let name = self.app_name.as_deref().unwrap_or(DEFAULT_APP_NAME);
-                load_config_xdg(name).map_err(|e| RuntimeError::StartFailed(e.to_string()))?
+                DefaultConfigLoader::xdg(name).load()
+                    .map_err(|e| RuntimeError::StartFailed(e.to_string()))?
             }
         };
 
@@ -195,7 +199,7 @@ impl EdgeRuntimeBuilder {
             (None, None)
         };
 
-        let mgr    = runtime_manager(config, Arc::new(input), Arc::new(output), lifecycle);
+        let mgr    = DefaultRuntimeManager::new(config, Arc::new(input), Arc::new(output), lifecycle);
         let result = run_until_signal(mgr, timeout_secs, wait_for_signal()).await;
 
         let _ = http_tx.send(());

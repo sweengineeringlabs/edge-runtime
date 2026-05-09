@@ -68,4 +68,90 @@ mod tests {
         assert!(input.http.is_none());
         assert!(input.grpc.is_none());
     }
+
+    /// @covers: DefaultInput::empty
+    #[test]
+    fn test_empty_creates_input_with_no_transports() {
+        let input = DefaultInput::empty();
+        assert!(input.http.is_none());
+        assert!(input.grpc.is_none());
+    }
+
+    /// @covers: DefaultInput::new_http
+    #[test]
+    fn test_new_http_sets_http_transport() {
+        use futures::future::BoxFuture;
+        use swe_edge_ingress::{HttpInboundResult, HttpHealthCheck};
+        struct Stub;
+        impl HttpInbound for Stub {
+            fn handle(&self, _: swe_edge_ingress::HttpRequest, _: edge_domain::RequestContext)
+                -> BoxFuture<'_, HttpInboundResult<swe_edge_ingress::HttpResponse>>
+            { Box::pin(async { Ok(swe_edge_ingress::HttpResponse::new(200, vec![])) }) }
+            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>>
+            { Box::pin(async { Ok(HttpHealthCheck::healthy()) }) }
+        }
+        let input = DefaultInput::new_http(Arc::new(Stub));
+        assert!(input.http.is_some());
+        assert!(input.grpc.is_none());
+    }
+
+    /// @covers: DefaultInput::new_grpc
+    #[test]
+    fn test_new_grpc_sets_grpc_transport() {
+        use futures::future::BoxFuture;
+        use swe_edge_ingress::{GrpcInboundResult, GrpcHealthCheck, GrpcInboundError,
+            GrpcRequest, GrpcResponse, GrpcMetadata, GrpcMessageStream};
+        struct Stub;
+        impl GrpcInbound for Stub {
+            fn handle_unary(&self, _: GrpcRequest, _: edge_domain::RequestContext)
+                -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>>
+            { Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) }) }
+            fn handle_stream(&self, _: String, _: GrpcMetadata, _: GrpcMessageStream, _: edge_domain::RequestContext)
+                -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>>
+            { Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) }) }
+            fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>>
+            { Box::pin(async { Ok(GrpcHealthCheck::healthy()) }) }
+        }
+        let input = DefaultInput::new_grpc(Arc::new(Stub));
+        assert!(input.http.is_none());
+        assert!(input.grpc.is_some());
+    }
+
+    /// @covers: DefaultInput::with_http
+    #[test]
+    fn test_with_http_replaces_transport() {
+        use futures::future::BoxFuture;
+        use swe_edge_ingress::{HttpInboundResult, HttpHealthCheck};
+        struct Stub;
+        impl HttpInbound for Stub {
+            fn handle(&self, _: swe_edge_ingress::HttpRequest, _: edge_domain::RequestContext)
+                -> BoxFuture<'_, HttpInboundResult<swe_edge_ingress::HttpResponse>>
+            { Box::pin(async { Ok(swe_edge_ingress::HttpResponse::new(200, vec![])) }) }
+            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>>
+            { Box::pin(async { Ok(HttpHealthCheck::healthy()) }) }
+        }
+        let input = DefaultInput::empty().with_http(Arc::new(Stub));
+        assert!(input.http.is_some());
+    }
+
+    /// @covers: DefaultInput::with_grpc
+    #[test]
+    fn test_with_grpc_replaces_transport() {
+        use futures::future::BoxFuture;
+        use swe_edge_ingress::{GrpcInboundResult, GrpcHealthCheck, GrpcInboundError,
+            GrpcRequest, GrpcResponse, GrpcMetadata, GrpcMessageStream};
+        struct Stub;
+        impl GrpcInbound for Stub {
+            fn handle_unary(&self, _: GrpcRequest, _: edge_domain::RequestContext)
+                -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>>
+            { Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) }) }
+            fn handle_stream(&self, _: String, _: GrpcMetadata, _: GrpcMessageStream, _: edge_domain::RequestContext)
+                -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>>
+            { Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) }) }
+            fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>>
+            { Box::pin(async { Ok(GrpcHealthCheck::healthy()) }) }
+        }
+        let input = DefaultInput::empty().with_grpc(Arc::new(Stub));
+        assert!(input.grpc.is_some());
+    }
 }

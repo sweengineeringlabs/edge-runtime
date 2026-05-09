@@ -13,7 +13,7 @@ use swe_edge_ingress::{
 };
 use swe_observ_metrics::{MetricType, MetricsProvider};
 
-use crate::api::load_monitor::SharedCounters;
+use crate::api::monitor::SharedCounters;
 
 /// Serves the Prometheus text exposition endpoint.
 ///
@@ -97,7 +97,7 @@ mod tests {
     use super::*;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
-    use crate::api::load_monitor::LoadCounters;
+    use crate::api::monitor::LoadCounters;
 
     fn handler_with_data() -> MetricsHandler {
         let provider = Arc::new(create_local_metrics_backend());
