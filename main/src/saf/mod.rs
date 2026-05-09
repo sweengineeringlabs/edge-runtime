@@ -13,10 +13,8 @@ pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 pub use crate::api::types::runtime_health::ComponentHealth;
-pub use crate::api::input::Input;
-pub use crate::api::output::Output;
-pub use crate::core::input::DefaultInput;
-pub use crate::core::output::DefaultOutput;
+pub use crate::api::input::{DefaultInput, Input};
+pub use crate::api::output::{DefaultOutput, Output};
 pub use swe_edge_egress_grpc::{GrpcMessageStream, GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, TonicGrpcClient};
 
 /// Load config using the default layered chain

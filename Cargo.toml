@@ -32,7 +32,7 @@ swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", path = "../
 swe-edge-egress-http = { package = "swe-edge-egress-http-transport", path = "../egress/http/transport" }
 
 # Workspace-internal
-swe-edge-runtime = { path = "main" }
+swe-edge-runtime = { package = "swe-edge-runtime-main", path = "main" }
 
 [workspace.lints.rust]
 unsafe_code  = "deny"

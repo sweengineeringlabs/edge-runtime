@@ -185,8 +185,8 @@ mod tests {
         GrpcMetadata as EgressGrpcMetadata,
     };
     use swe_edge_egress_http::{HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse};
-    use super::super::input::DefaultInput;
-    use super::super::output::DefaultOutput;
+    use crate::api::input::DefaultInput;
+    use crate::api::output::DefaultOutput;
 
     struct StubLifecycle;
 

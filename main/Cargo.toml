@@ -1,5 +1,5 @@
 [package]
-name         = "swe-edge-runtime"
+name         = "swe-edge-runtime-main"
 version.workspace      = true
 edition.workspace      = true
 license.workspace      = true
@@ -15,6 +15,7 @@ application_type = "lib"
 service_type     = "runtime"
 
 [lib]
+name = "swe_edge_runtime"
 path = "src/lib.rs"
 
 [features]
