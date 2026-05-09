@@ -3,18 +3,12 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use edge_proxy::LifecycleMonitor;
 
 use crate::core::{DefaultConfigLoader, DefaultRuntimeManager};
 
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
 pub use crate::api::edge_runtime::{EdgeRuntime, EdgeRuntimeBuilder};
-pub use swe_edge_ingress::{
-    Handler, HandlerError,
-    HttpDecodeFn, HttpEncodeFn,
-    GrpcDecodeFn, GrpcEncodeFn,
-};
 pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;
@@ -22,7 +16,31 @@ pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::input::{DefaultInput, Input};
 pub use crate::api::output::{DefaultOutput, Output};
-pub use swe_edge_egress_grpc::{GrpcMessageStream, GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, TonicGrpcClient};
+
+// ── Ingress surface (handlers + request/response types) ───────────────────────
+pub use swe_edge_ingress::{
+    // Handler trait + decode/encode helpers
+    Handler, HandlerError,
+    HttpDecodeFn, HttpEncodeFn,
+    GrpcDecodeFn, GrpcEncodeFn,
+    // HTTP value objects needed in decode/encode functions
+    HttpRequest, HttpResponse, HttpInboundError, HttpInboundResult, HttpHealthCheck,
+    HttpMethod, HttpAuth, HttpBody, HttpConfig,
+    // gRPC value objects needed in decode/encode functions
+    GrpcRequest, GrpcResponse, GrpcInboundError, GrpcInboundResult, GrpcHealthCheck,
+    GrpcMetadata, GrpcStatusCode, GrpcMessageStream,
+    // Per-request auth context
+    RequestContext,
+};
+
+// ── Egress surface (outbound clients) ─────────────────────────────────────────
+pub use swe_edge_egress_http::{
+    HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamResponse,
+};
+pub use swe_edge_egress_grpc::{GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, TonicGrpcClient};
+
+// ── Lifecycle / health ────────────────────────────────────────────────────────
+pub use edge_proxy::{LifecycleMonitor, HealthReport, new_null_lifecycle_monitor};
 
 /// Load config using the default layered chain
 /// (`default.toml` → `application.toml` → env vars).
