@@ -20,9 +20,14 @@ use crate::api::types::RuntimeConfig;
 
 /// Builder for assembling and starting an edge runtime.
 ///
+/// Config loading when `.config()` is not called:
+/// XDG Base Directory chain is used with `app_name` (default `"swe-edge"`):
+/// `/etc/xdg/<app_name>/application.toml` → `~/.config/<app_name>/application.toml`
+/// → `$SWE_EDGE_CONFIG_DIR/application.toml` → env vars.
+///
 /// ```rust,ignore
 /// EdgeRuntime::builder()
-///     .config(cfg)
+///     .app_name("my-service")          // sets XDG app dir; skip to use "swe-edge"
 ///     .http_tls(IngressTlsConfig::tls("cert.pem", "key.pem"))
 ///     .http_bearer_auth(Arc::new(JwtVerifier::from_config(&jwt_cfg)?))
 ///     .http_route(Arc::new(MyHandler), decode, encode)
@@ -32,6 +37,7 @@ use crate::api::types::RuntimeConfig;
 /// ```
 pub struct EdgeRuntimeBuilder {
     pub(crate) config:                   Option<RuntimeConfig>,
+    pub(crate) app_name:                 Option<String>,
     // Inbound handlers (explicit escape hatch)
     pub(crate) http_handler:             Option<Arc<dyn HttpInbound>>,
     pub(crate) grpc_handler:             Option<Arc<dyn GrpcInbound>>,
@@ -60,6 +66,7 @@ impl EdgeRuntime {
     pub fn builder() -> EdgeRuntimeBuilder {
         EdgeRuntimeBuilder {
             config:                    None,
+            app_name:                  None,
             http_handler:              None,
             grpc_handler:              None,
             http_dispatcher:           None,
@@ -77,9 +84,19 @@ impl EdgeRuntime {
 }
 
 impl EdgeRuntimeBuilder {
-    /// Set the runtime configuration (loaded from env/file when omitted).
+    /// Set the runtime configuration directly, bypassing XDG file loading.
     pub fn config(mut self, config: RuntimeConfig) -> Self {
         self.config = Some(config);
+        self
+    }
+
+    /// Override the XDG application name used for config file discovery.
+    ///
+    /// When `.config()` is not called, `serve()` loads from the XDG chain
+    /// at `$XDG_CONFIG_HOME/<app_name>/application.toml` (and the system
+    /// equivalents).  Defaults to `"swe-edge"`.
+    pub fn app_name(mut self, name: impl Into<String>) -> Self {
+        self.app_name = Some(name.into());
         self
     }
 

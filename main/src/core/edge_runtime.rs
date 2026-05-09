@@ -11,7 +11,9 @@ use crate::api::edge_runtime::EdgeRuntimeBuilder;
 use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::input::{DefaultInput, Input};
 use crate::api::output::DefaultOutput;
-use crate::saf::{load_config, run_until_signal, runtime_manager};
+use crate::saf::{load_config_xdg, run_until_signal, runtime_manager};
+
+const DEFAULT_APP_NAME: &str = "swe-edge";
 
 impl EdgeRuntimeBuilder {
     /// Assemble all registered components and start the runtime.
@@ -20,7 +22,10 @@ impl EdgeRuntimeBuilder {
     pub async fn serve(self) -> RuntimeResult<()> {
         let config = match self.config {
             Some(c) => c,
-            None    => load_config().map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+            None => {
+                let name = self.app_name.as_deref().unwrap_or(DEFAULT_APP_NAME);
+                load_config_xdg(name).map_err(|e| RuntimeError::StartFailed(e.to_string()))?
+            }
         };
 
         // ── Ingress ───────────────────────────────────────────────────────────
