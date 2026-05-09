@@ -27,7 +27,7 @@ parking_lot = "0.12"
 
 # Cross-workspace deps
 edge-proxy            = { path = "../proxy" }
-swe-edge-ingress      = { package = "swe-edge-ingress-main", path = "../ingress/main" }
+swe-edge-ingress      = { package = "swe-edge-ingress-gateway", path = "../ingress/gateway" }
 swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", path = "../egress/grpc/transport" }
 swe-edge-egress-http = { package = "swe-edge-egress-http-transport", path = "../egress/http/transport" }
 
