@@ -8,6 +8,7 @@
 # shutdown_timeout_secs = 30
 # systemd_notify        = false
 # grpc_allow_unauthenticated = false
+# grpc_reflection            = false   # set true to enable grpc.reflection.v1alpha
 
 # ── HTTP TLS ─────────────────────────────────────────────────────────────────
 # Absent = plain HTTP.  Set client_ca_pem_path to enable mTLS.

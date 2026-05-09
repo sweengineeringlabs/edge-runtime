@@ -44,6 +44,12 @@ pub struct RuntimeConfig {
     /// gRPC egress channel config.  When set, `serve()` auto-dials the
     /// channel.  When absent, no gRPC egress client is wired.
     pub egress_grpc: Option<GrpcChannelConfig>,
+
+    // ── gRPC extras ───────────────────────────────────────────────────────────
+    /// Auto-register the gRPC reflection service (`grpc.reflection.v1alpha`).
+    /// Requires at least one `.grpc_route()` call so the service registry is
+    /// populated.  Default `false`.
+    pub grpc_reflection: bool,
 }
 
 impl Default for RuntimeConfig {
@@ -61,6 +67,7 @@ impl Default for RuntimeConfig {
             grpc_allow_unauthenticated: false,
             egress_http:               None,
             egress_grpc:               None,
+            grpc_reflection:           false,
         }
     }
 }

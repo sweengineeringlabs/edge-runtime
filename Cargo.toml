@@ -30,8 +30,9 @@ edge-proxy                = { git = "ssh://git@github.com/sweengineeringlabs/edg
 swe-edge-ingress          = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 swe-edge-egress-grpc      = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 swe-edge-egress-http      = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-ingress-verifier = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-edge-domain               = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+swe-edge-ingress-verifier          = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+swe-edge-ingress-grpc-reflection   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+edge-domain                        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 
 # Workspace-internal
 swe-edge-runtime = { package = "swe-edge-runtime-main", path = "main" }

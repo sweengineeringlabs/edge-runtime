@@ -8,3 +8,4 @@ shutdown_timeout_secs = 30
 systemd_notify        = false
 tenant_id             = ""    # empty = single-tenant mode
 grpc_allow_unauthenticated = false
+grpc_reflection            = false

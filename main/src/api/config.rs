@@ -49,6 +49,7 @@ pub(crate) struct ConfigOverride {
     pub(crate) grpc_allow_unauthenticated: Option<bool>,
     pub(crate) egress_http:              Option<HttpConfig>,
     pub(crate) egress_grpc:              Option<GrpcChannelConfig>,
+    pub(crate) grpc_reflection:          Option<bool>,
 }
 
 impl ConfigOverride {
@@ -71,6 +72,7 @@ impl ConfigOverride {
         if let Some(v) = self.grpc_allow_unauthenticated { base.grpc_allow_unauthenticated = v; }
         if let Some(v) = self.egress_http               { base.egress_http               = Some(v); }
         if let Some(v) = self.egress_grpc               { base.egress_grpc               = Some(v); }
+        if let Some(v) = self.grpc_reflection            { base.grpc_reflection           = v; }
         base
     }
 }

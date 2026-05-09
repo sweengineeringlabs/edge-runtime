@@ -7,6 +7,7 @@ use edge_proxy::new_null_lifecycle_monitor;
 use swe_edge_ingress::{AxumHttpServer, TonicGrpcServer};
 use swe_edge_egress_grpc::create_transport_from_config;
 use swe_edge_egress_http::{default_http_outbound, default_http_outbound_with_config};
+use swe_edge_ingress_grpc_reflection::ReflectionService;
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
@@ -51,6 +52,13 @@ impl EdgeRuntimeBuilder {
             self.grpc_allow_unauthenticated || config.grpc_allow_unauthenticated;
 
         // ── Ingress ───────────────────────────────────────────────────────────
+        // Capture gRPC registry before the dispatcher is consumed into input.
+        let reflection_registry = if config.grpc_reflection {
+            self.grpc_dispatcher.as_ref().map(|d| Arc::clone(d.registry()))
+        } else {
+            None
+        };
+
         let mut input = DefaultInput::empty();
         if let Some(d) = self.http_dispatcher { input = input.with_http(Arc::new(d)); }
         else if let Some(h) = self.http_handler { input = input.with_http(h); }
@@ -117,6 +125,16 @@ impl EdgeRuntimeBuilder {
 
         let (grpc_tx, grpc_rx) = oneshot::channel::<()>();
         let grpc_task = input.grpc().map(|handler| {
+            // Wrap with reflection if enabled and a dispatcher registry was captured.
+            let handler: Arc<dyn swe_edge_ingress::GrpcInbound> =
+                if let Some(registry) = reflection_registry {
+                    Arc::new(crate::core::composite::CompositeGrpcInbound::new(
+                        handler,
+                        Arc::new(ReflectionService::new(registry)),
+                    ))
+                } else {
+                    handler
+                };
             let mut server = TonicGrpcServer::new(grpc_bind, handler);
             if let Some(tls) = grpc_tls { server = server.with_tls(tls); }
             if !self.grpc_interceptors.is_empty() {

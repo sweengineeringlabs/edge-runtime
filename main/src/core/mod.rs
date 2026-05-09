@@ -1,3 +1,4 @@
+mod composite;
 mod config_loader;
 mod edge_runtime;
 pub(crate) mod input;
