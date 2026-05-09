@@ -47,14 +47,14 @@ mod tests {
         }
     }
 
-    /// @covers: ServiceRegistry::new — stores http client, grpc is None.
+    /// @covers: new
     #[test]
     fn test_new_stores_http_client_and_no_grpc() {
         let reg = ServiceRegistry::new(Arc::new(StubHttp), None);
         assert!(reg.grpc().is_none());
     }
 
-    /// @covers: ServiceRegistry::http — returns the stored client.
+    /// @covers: http
     #[test]
     fn test_http_returns_stored_client() {
         let reg = ServiceRegistry::new(Arc::new(StubHttp), None);

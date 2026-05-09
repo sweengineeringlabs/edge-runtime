@@ -157,4 +157,18 @@ mod tests {
         let cfg = RuntimeConfig::default().with_systemd_notify(true);
         assert!(cfg.systemd_notify);
     }
+
+    /// @covers: with_grpc_bind
+    #[test]
+    fn test_with_grpc_bind_sets_addr() {
+        let cfg = RuntimeConfig::default().with_grpc_bind("0.0.0.0:9091");
+        assert_eq!(cfg.grpc_bind, "0.0.0.0:9091");
+    }
+
+    /// @covers: with_tenant_id
+    #[test]
+    fn test_with_tenant_id_sets_field() {
+        let cfg = RuntimeConfig::default().with_tenant_id("tenant-42");
+        assert_eq!(cfg.tenant_id.as_deref(), Some("tenant-42"));
+    }
 }

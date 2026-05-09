@@ -115,7 +115,7 @@ mod tests {
     use super::*;
     use std::sync::Arc;
 
-    /// @covers: runtime_manager — constructs without panic
+    /// @covers: runtime_manager
     #[test]
     fn test_runtime_manager_constructs_without_panic() {
         use swe_edge_ingress::HttpInbound;

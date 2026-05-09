@@ -80,14 +80,14 @@ pub fn validate_config(config: &RuntimeConfig) -> Result<(), RuntimeError> {
 mod tests {
     use super::*;
 
-    /// @covers: load_config — returns defaults when no application.toml present
+    /// @covers: load_config
     #[test]
     fn test_load_config_returns_ok_with_no_toml() {
         let result = load_config();
         assert!(result.is_ok(), "load_config failed: {result:?}");
     }
 
-    /// @covers: load_config_from — accepts valid directory
+    /// @covers: load_config_from
     #[test]
     fn test_load_config_from_accepts_temp_dir() {
         let dir = tempfile::tempdir().unwrap();
@@ -95,10 +95,36 @@ mod tests {
         assert!(result.is_ok());
     }
 
-    /// @covers: load_config_xdg — returns ok for non-existent app
+    /// @covers: load_config_xdg
     #[test]
     fn test_load_config_xdg_returns_ok_for_unknown_app() {
         let result = load_config_xdg("swe-edge-test-nonexistent-xyz");
         assert!(result.is_ok());
+    }
+
+    /// @covers: load_tenant_config
+    #[test]
+    fn test_load_tenant_config_unknown_returns_error() {
+        assert!(load_tenant_config("nonexistent-tenant-xyz").is_err());
+    }
+
+    /// @covers: load_tenant_config_from
+    #[test]
+    fn test_load_tenant_config_from_missing_returns_error() {
+        let dir = tempfile::tempdir().unwrap();
+        assert!(load_tenant_config_from("no-such-tenant", dir.path()).is_err());
+    }
+
+    /// @covers: load_tenant_config_xdg
+    #[test]
+    fn test_load_tenant_config_xdg_missing_returns_error() {
+        assert!(load_tenant_config_xdg("swe-edge-test-xyz", "no-tenant").is_err());
+    }
+
+    /// @covers: validate_config
+    #[test]
+    fn test_validate_config_accepts_defaults() {
+        let cfg = load_config().unwrap();
+        assert!(validate_config(&cfg).is_ok());
     }
 }

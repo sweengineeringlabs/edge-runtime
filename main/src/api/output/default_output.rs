@@ -1,17 +1,8 @@
-//! Outbound gateway contract.
+//! `DefaultOutput` — holds egress adapters by `Arc`.
 
 use std::sync::Arc;
-
 use swe_edge_egress_grpc::GrpcOutbound;
 use swe_edge_egress_http::HttpOutbound;
-
-/// Supplies the egress adapters the runtime uses for outbound calls.
-pub trait Output: Send + Sync {
-    /// HTTP outbound adapter (required).
-    fn http(&self) -> Arc<dyn HttpOutbound>;
-    /// gRPC outbound adapter, if configured.
-    fn grpc(&self) -> Option<Arc<dyn GrpcOutbound>>;
-}
 
 /// Default [`Output`] implementation — holds egress adapters by `Arc`.
 pub struct DefaultOutput {
@@ -42,16 +33,29 @@ mod tests {
         fn send_stream(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
             Box::pin(async { Ok(HttpStreamResponse { status: 200, headers: Default::default(), body: Box::pin(futures::stream::empty()) }) })
         }
-        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
-            Box::pin(async { Ok(()) })
-        }
+        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> { Box::pin(async { Ok(()) }) }
     }
 
-    /// @covers: Output::http
+    /// @covers: new_http
     #[test]
-    fn test_default_output_http_field_accessible() {
-        use std::sync::Arc;
-        let out = DefaultOutput { http: Arc::new(StubHttp), grpc: None };
+    fn test_new_http_creates_output_with_no_grpc() {
+        let out = DefaultOutput::new_http(Arc::new(StubHttp));
         assert!(out.grpc.is_none());
+    }
+
+    /// @covers: with_grpc
+    #[test]
+    fn test_with_grpc_sets_grpc_adapter() {
+        use swe_edge_egress_grpc::{GrpcOutbound, GrpcOutboundError, GrpcOutboundResult,
+            GrpcRequest, GrpcResponse, GrpcStatusCode};
+        struct StubGrpc;
+        impl GrpcOutbound for StubGrpc {
+            fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcOutboundResult<GrpcResponse>>
+            { Box::pin(async { Err(GrpcOutboundError::Status(GrpcStatusCode::Unavailable, "stub".into())) }) }
+            fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>>
+            { Box::pin(async { Ok(()) }) }
+        }
+        let out = DefaultOutput::new_http(Arc::new(StubHttp)).with_grpc(Arc::new(StubGrpc));
+        assert!(out.grpc.is_some());
     }
 }

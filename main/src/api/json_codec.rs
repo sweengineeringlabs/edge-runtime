@@ -3,6 +3,9 @@
 //! These are the function-pointer types used by `http_route` and `grpc_route`
 //! when no explicit codec is supplied by the caller.
 
+/// Marker trait for types that can be used as JSON codecs.
+pub trait JsonCodec: Send + Sync {}
+
 use swe_edge_ingress::{HttpInboundError, HttpRequest, HttpResponse, GrpcInboundError};
 
 /// Default JSON decode: deserialises the HTTP request body into `Req`.
@@ -21,7 +24,7 @@ pub(crate) type JsonGrpcEncodeFn<Resp> = fn(&Resp) -> Vec<u8>;
 mod tests {
     use super::*;
 
-    /// @covers: JsonHttpDecodeFn — type alias is well-formed
+    /// @covers: json_decode
     #[test]
     fn test_json_http_decode_fn_type_alias_is_well_formed() {
         use swe_edge_ingress::HttpRequest;
@@ -33,7 +36,7 @@ mod tests {
         _accepts(sample_decode);
     }
 
-    /// @covers: JsonGrpcDecodeFn — type alias is well-formed
+    /// @covers: grpc_json_decode
     #[test]
     fn test_json_grpc_decode_fn_type_alias_is_well_formed() {
         fn _accepts<Req>(_f: JsonGrpcDecodeFn<Req>) {}

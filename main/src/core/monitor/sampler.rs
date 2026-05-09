@@ -59,9 +59,29 @@ mod tests {
         Arc::new(LoadCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: BackgroundSampler::new
+    /// @covers: new
     #[test]
     fn test_background_sampler_new_does_not_panic() {
         let _s = BackgroundSampler::new(counters(), None);
+    }
+
+    /// @covers: run
+    #[tokio::test(start_paused = true)]
+    async fn test_run_records_gauges_after_one_tick() {
+        use std::time::Duration;
+        let c = counters();
+        c.on_start();
+        let sampler = BackgroundSampler::new(Arc::clone(&c), None);
+        let handle = tokio::spawn(sampler.run());
+        // Yield once to let the task start and reach the first interval.tick().await
+        tokio::task::yield_now().await;
+        // Advance past the 1-second interval so the tick fires
+        tokio::time::advance(Duration::from_secs(2)).await;
+        // Yield again to let the task process the tick
+        tokio::task::yield_now().await;
+        handle.abort();
+        let snaps = c.provider.export();
+        assert!(snaps.iter().any(|s| s.name == "edge_requests_active"),
+            "expected edge_requests_active gauge after tick");
     }
 }

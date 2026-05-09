@@ -74,11 +74,11 @@ mod tests {
         Arc::new(LoadCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: GrpcLoadMonitor::new
+    /// @covers: new
     #[test]
     fn test_grpc_load_monitor_new_does_not_panic() {
-        struct NullGrpc;
-        impl GrpcInbound for NullGrpc {
+        struct GrpcLoadMonitorStub;
+        impl GrpcInbound for GrpcLoadMonitorStub {
             fn handle_unary(&self, _: GrpcRequest, _: RequestContext) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
                 Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
             }
@@ -89,6 +89,6 @@ mod tests {
                 Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
             }
         }
-        let _m = GrpcLoadMonitor::new(Arc::new(NullGrpc), counters());
+        let _m = GrpcLoadMonitor::new(Arc::new(GrpcLoadMonitorStub), counters());
     }
 }

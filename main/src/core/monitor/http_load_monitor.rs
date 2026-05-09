@@ -55,11 +55,11 @@ mod tests {
         Arc::new(LoadCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: HttpLoadMonitor::new
+    /// @covers: new
     #[test]
     fn test_http_load_monitor_new_does_not_panic() {
-        struct NullHttp;
-        impl HttpInbound for NullHttp {
+        struct HttpLoadMonitorStub;
+        impl HttpInbound for HttpLoadMonitorStub {
             fn handle(&self, _: HttpRequest, _: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
@@ -67,14 +67,14 @@ mod tests {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
-        let _m = HttpLoadMonitor::new(Arc::new(NullHttp), counters());
+        let _m = HttpLoadMonitor::new(Arc::new(HttpLoadMonitorStub), counters());
     }
 
-    /// @covers: HttpLoadMonitor::handle — records via provider
+    /// @covers: handle
     #[tokio::test]
     async fn test_http_monitor_handle_records_request_via_provider() {
-        struct OkHttp;
-        impl HttpInbound for OkHttp {
+        struct HttpLoadMonitorOk;
+        impl HttpInbound for HttpLoadMonitorOk {
             fn handle(&self, _: HttpRequest, _: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
@@ -83,7 +83,7 @@ mod tests {
             }
         }
         let c = counters();
-        let m = HttpLoadMonitor::new(Arc::new(OkHttp), Arc::clone(&c));
+        let m = HttpLoadMonitor::new(Arc::new(HttpLoadMonitorOk), Arc::clone(&c));
         m.handle(HttpRequest::get("/"), RequestContext::unauthenticated()).await.unwrap();
         assert_eq!(c.requests_in_flight.load(Ordering::Relaxed), 0);
         let snaps = c.provider.export();

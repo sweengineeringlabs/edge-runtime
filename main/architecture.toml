@@ -1,0 +1,7 @@
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "runtime"
+layout           = "feature"
+
+[config.whitelist.project]
+entries = ["deploy", "features", "scripts", "examples"]

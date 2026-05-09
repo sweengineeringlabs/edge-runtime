@@ -1,9 +1,9 @@
 //! Load monitor — HTTP/gRPC wrappers and background sampler.
 
-mod grpc_monitor;
-mod http_monitor;
+mod grpc_load_monitor;
+mod http_load_monitor;
 mod sampler;
 
-pub(crate) use grpc_monitor::GrpcLoadMonitor;
-pub(crate) use http_monitor::HttpLoadMonitor;
+pub(crate) use grpc_load_monitor::GrpcLoadMonitor;
+pub(crate) use http_load_monitor::HttpLoadMonitor;
 pub(crate) use sampler::BackgroundSampler;
