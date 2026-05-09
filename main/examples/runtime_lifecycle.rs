@@ -20,7 +20,7 @@ use swe_edge_egress_http::{
     HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse,
 };
 use swe_edge_ingress::{
-    HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse,
+    HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{
     runtime_manager, DefaultInput, DefaultOutput, RuntimeConfig, RuntimeManager, RuntimeStatus,
@@ -32,7 +32,7 @@ use edge_proxy::new_null_lifecycle_monitor;
 struct NoopInbound;
 
 impl HttpInbound for NoopInbound {
-    fn handle(&self, _: HttpRequest) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    fn handle(&self, _: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         Box::pin(async { Ok(HttpResponse::new(204, vec![])) })
     }
 

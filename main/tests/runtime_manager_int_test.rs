@@ -21,7 +21,7 @@ use swe_edge_egress_http::{
 };
 use swe_edge_ingress::{
     AxumHttpServer, HttpHealthCheck, HttpInbound, HttpInboundError,
-    HttpInboundResult, HttpRequest, HttpResponse,
+    HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
 };
 
 // ── Shared stubs ──────────────────────────────────────────────────────────────
@@ -51,7 +51,7 @@ impl HttpOutbound for StubHttpOutbound {
 /// Returns 200 with the request method + path as the body.
 struct EchoHandler;
 impl HttpInbound for EchoHandler {
-    fn handle(&self, req: HttpRequest) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    fn handle(&self, req: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         Box::pin(async move {
             let body = format!("{} {}", req.method, req.url).into_bytes();
             Ok(HttpResponse::new(200, body))
@@ -65,7 +65,7 @@ impl HttpInbound for EchoHandler {
 /// Always returns NotFound — exercises the error-to-status mapping.
 struct NotFoundHandler;
 impl HttpInbound for NotFoundHandler {
-    fn handle(&self, _: HttpRequest) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    fn handle(&self, _: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         Box::pin(async { Err(HttpInboundError::NotFound("resource gone".into())) })
     }
     fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {

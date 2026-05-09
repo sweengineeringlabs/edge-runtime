@@ -176,7 +176,7 @@ mod tests {
     use edge_proxy::{HealthReport, LifecycleError};
     use futures::future::BoxFuture;
     use swe_edge_ingress::{
-        HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse,
+        HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
         GrpcInbound, GrpcInboundResult, GrpcHealthCheck, GrpcRequest, GrpcResponse, GrpcMetadata,
     };
     use swe_edge_egress_grpc::{
@@ -199,7 +199,7 @@ mod tests {
 
     struct StubHttpInbound;
     impl swe_edge_ingress::HttpInbound for StubHttpInbound {
-        fn handle(&self, _: HttpRequest) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+        fn handle(&self, _: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
         fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
@@ -209,7 +209,7 @@ mod tests {
 
     struct StubGrpcInbound;
     impl GrpcInbound for StubGrpcInbound {
-        fn handle_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+        fn handle_unary(&self, _: GrpcRequest, _ctx: RequestContext) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
             Box::pin(async {
                 Ok(GrpcResponse { body: vec![], metadata: GrpcMetadata { headers: HashMap::new() } })
             })
