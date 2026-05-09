@@ -35,24 +35,18 @@ chrono.workspace      = true
 parking_lot.workspace = true
 edge-proxy.workspace               = true
 swe-edge-ingress.workspace         = true
-swe-edge-egress-grpc.workspace     = true
-swe-edge-egress-http.workspace     = true
-swe-edge-egress-database.workspace = true
-swe-edge-egress-notification.workspace = true
-swe-edge-egress-payment.workspace  = true
+swe-edge-egress-grpc.workspace = true
+swe-edge-egress-http.workspace = true
 
 [dev-dependencies]
 tokio        = { workspace = true, features = ["rt-multi-thread", "macros", "test-util"] }
 tempfile     = "3"
-reqwest.workspace      = true
-async-trait.workspace  = true
-edge-proxy.workspace               = true
-swe-edge-ingress.workspace         = true
-swe-edge-egress-grpc.workspace     = true
-swe-edge-egress-http.workspace     = true
-swe-edge-egress-database.workspace = true
-swe-edge-egress-notification.workspace = true
-swe-edge-egress-payment.workspace  = true
+reqwest.workspace     = true
+async-trait.workspace = true
+edge-proxy.workspace          = true
+swe-edge-ingress.workspace    = true
+swe-edge-egress-grpc.workspace = true
+swe-edge-egress-http.workspace = true
 
 [lints]
 workspace = true

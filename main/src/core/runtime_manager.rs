@@ -53,7 +53,7 @@ impl RuntimeManager for DefaultRuntimeManager {
 
             if !self.ingress.has_any() {
                 return Err(RuntimeError::StartFailed(
-                    "no ingress transport configured — add http, grpc, or file".into(),
+                    "no ingress transport configured — add http or grpc".into(),
                 ));
             }
 
@@ -62,7 +62,6 @@ impl RuntimeManager for DefaultRuntimeManager {
             // Probe each configured ingress transport to surface misconfigurations early.
             if let Some(h) = self.ingress.http() { let _ = h.health_check().await; }
             if let Some(g) = self.ingress.grpc() { let _ = g.health_check().await; }
-            if let Some(f) = self.ingress.file() { let _ = f.health_check().await; }
 
             // Probe egress.
             let _ = self.egress.http().health_check().await;
@@ -152,13 +151,6 @@ impl RuntimeManager for DefaultRuntimeManager {
                     Err(e) => components.push(ComponentHealth::unhealthy("ingress.grpc", e.to_string())),
                 }
             }
-            if let Some(f) = self.ingress.file() {
-                match f.health_check().await {
-                    Ok(_)  => components.push(ComponentHealth::healthy("ingress.file")),
-                    Err(e) => components.push(ComponentHealth::unhealthy("ingress.file", e.to_string())),
-                }
-            }
-
             // Report egress transport health.
             match self.egress.http().health_check().await {
                 Ok(_)  => components.push(ComponentHealth::healthy("egress.http")),
@@ -186,7 +178,6 @@ mod tests {
     use swe_edge_ingress::{
         HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse,
         GrpcInbound, GrpcInboundResult, GrpcHealthCheck, GrpcRequest, GrpcResponse, GrpcMetadata,
-        FileInbound, FileInboundResult, FileHealthCheck, FileInfo, ListOptions, ListResult, PresignedUrl,
     };
     use swe_edge_egress_grpc::{
         GrpcOutbound, GrpcOutboundError, GrpcOutboundResult,
@@ -194,7 +185,6 @@ mod tests {
         GrpcMetadata as EgressGrpcMetadata,
     };
     use swe_edge_egress_http::{HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse};
-    use chrono::Utc;
     use super::super::input::DefaultInput;
     use super::super::output::DefaultOutput;
 
@@ -226,33 +216,6 @@ mod tests {
         }
         fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
             Box::pin(async { Ok(GrpcHealthCheck { healthy: true, message: None }) })
-        }
-    }
-
-    struct StubFileInbound;
-    impl FileInbound for StubFileInbound {
-        fn read(&self, _: &str) -> BoxFuture<'_, FileInboundResult<Vec<u8>>> {
-            Box::pin(async { Ok(vec![]) })
-        }
-        fn metadata(&self, path: &str) -> BoxFuture<'_, FileInboundResult<FileInfo>> {
-            let p = path.to_string();
-            Box::pin(async move { Ok(FileInfo::new(p, 0)) })
-        }
-        fn list(&self, _: ListOptions) -> BoxFuture<'_, FileInboundResult<ListResult>> {
-            Box::pin(async {
-                Ok(ListResult { files: vec![], prefixes: vec![], next_continuation_token: None, is_truncated: false })
-            })
-        }
-        fn exists(&self, _: &str) -> BoxFuture<'_, FileInboundResult<bool>> {
-            Box::pin(async { Ok(false) })
-        }
-        fn presigned_read_url(&self, _: &str, expires_in_secs: u64) -> BoxFuture<'_, FileInboundResult<PresignedUrl>> {
-            Box::pin(async move {
-                Ok(PresignedUrl { url: "file:///stub".into(), expires_at: Utc::now() + chrono::Duration::seconds(expires_in_secs as i64), method: "GET".into() })
-            })
-        }
-        fn health_check(&self) -> BoxFuture<'_, FileInboundResult<FileHealthCheck>> {
-            Box::pin(async { Ok(FileHealthCheck::healthy()) })
         }
     }
 
@@ -374,18 +337,16 @@ mod tests {
         let names: Vec<&str> = h.components.iter().map(|c| c.name.as_str()).collect();
         assert!(names.contains(&"ingress.grpc"));
         assert!(!names.contains(&"ingress.http"));
-        assert!(!names.contains(&"ingress.file"));
     }
 
-    /// @covers: all-transport ingress
+    /// @covers: all-transport ingress (http + grpc)
     #[tokio::test]
-    async fn test_health_reports_all_configured_transports() {
+    async fn test_health_reports_http_and_grpc_when_both_configured() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
             Arc::new(
                 DefaultInput::new_http(Arc::new(StubHttpInbound))
-                    .with_grpc(Arc::new(StubGrpcInbound))
-                    .with_file(Arc::new(StubFileInbound)),
+                    .with_grpc(Arc::new(StubGrpcInbound)),
             ),
             Arc::new(DefaultOutput::new_http(Arc::new(StubHttpOutbound))),
             Arc::new(StubLifecycle),
@@ -395,7 +356,6 @@ mod tests {
         let names: Vec<&str> = h.components.iter().map(|c| c.name.as_str()).collect();
         assert!(names.contains(&"ingress.http"));
         assert!(names.contains(&"ingress.grpc"));
-        assert!(names.contains(&"ingress.file"));
     }
 
     /// @covers: egress.grpc healthy
