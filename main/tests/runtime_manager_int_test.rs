@@ -15,8 +15,9 @@ use swe_edge_runtime::{
     DefaultInput, DefaultOutput, RuntimeConfig, RuntimeManager, RuntimeStatus,
     runtime_manager,
 };
-use swe_edge_egress::{
+use swe_edge_egress_http::{
     HttpOutbound, HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
+    HttpStreamResponse,
 };
 use swe_edge_ingress::{
     AxumHttpServer, HttpHealthCheck, HttpInbound, HttpInboundError,
@@ -38,6 +39,9 @@ struct StubHttpOutbound;
 impl HttpOutbound for StubHttpOutbound {
     fn send(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<EgressResp>> {
         Box::pin(async { Ok(EgressResp::new(200, vec![])) })
+    }
+    fn send_stream(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+        Box::pin(async { Ok(HttpStreamResponse { status: 200, headers: Default::default(), body: Box::pin(futures::stream::empty()) }) })
     }
     fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
         Box::pin(async { Ok(()) })

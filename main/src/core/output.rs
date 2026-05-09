@@ -2,7 +2,11 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress::{DatabaseGateway, GrpcOutbound, HttpOutbound, NotificationSender, PaymentGateway};
+use swe_edge_egress_database::DatabaseGateway;
+use swe_edge_egress_grpc::GrpcOutbound;
+use swe_edge_egress_http::HttpOutbound;
+use swe_edge_egress_notification::NotificationSender;
+use swe_edge_egress_payment::PaymentGateway;
 
 use crate::api::output::Output;
 

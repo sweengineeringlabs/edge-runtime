@@ -17,7 +17,7 @@ pub use crate::api::input::Input;
 pub use crate::api::output::Output;
 pub use crate::core::input::DefaultInput;
 pub use crate::core::output::DefaultOutput;
-pub use swe_edge_egress::{GrpcMessageStream, GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, TonicGrpcClient};
+pub use swe_edge_egress_grpc::{GrpcMessageStream, GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, TonicGrpcClient};
 
 /// Load config using the default layered chain
 /// (`default.toml` → `application.toml` → env vars).
