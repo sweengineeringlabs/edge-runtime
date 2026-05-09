@@ -13,9 +13,11 @@ use crate::saf::{load_config, run};
 impl EdgeRuntimeBuilder {
     /// Assemble all registered components and start the runtime.
     ///
-    /// Blocks until a shutdown signal (SIGTERM / SIGINT) is received or an
-    /// error occurs.  Returns `Err(RuntimeError::NoTransportConfigured)` when
-    /// neither `http_handler` nor `grpc_handler` was registered.
+    /// Priority for inbound:
+    /// - Routes registered via `http_route` / `grpc_route` (builds dispatcher internally).
+    /// - Fall back to a pre-built handler supplied via `http_handler` / `grpc_handler`.
+    ///
+    /// Returns `Err` when neither routes nor handlers were registered for any transport.
     pub async fn serve(self) -> RuntimeResult<()> {
         let config = match self.config {
             Some(c) => c,
@@ -23,21 +25,30 @@ impl EdgeRuntimeBuilder {
         };
 
         let mut input = DefaultInput::empty();
-        if let Some(h) = self.http_handler {
+
+        // HTTP: internal dispatcher takes precedence over pre-built handler.
+        if let Some(d) = self.http_dispatcher {
+            input = input.with_http(Arc::new(d));
+        } else if let Some(h) = self.http_handler {
             input = input.with_http(h);
         }
-        if let Some(h) = self.grpc_handler {
+
+        // gRPC: same priority rule.
+        if let Some(d) = self.grpc_dispatcher {
+            input = input.with_grpc(Arc::new(d));
+        } else if let Some(h) = self.grpc_handler {
             input = input.with_grpc(h);
         }
+
         if !input.has_any() {
             return Err(RuntimeError::StartFailed(
-                "EdgeRuntimeBuilder: no ingress handler registered (call .http_handler() or .grpc_handler())".into()
+                "EdgeRuntime: no handler registered — call .http_route() or .grpc_route()".into(),
             ));
         }
 
         let egress_http = self.egress_http.ok_or_else(|| {
             RuntimeError::StartFailed(
-                "EdgeRuntimeBuilder: no HTTP egress client registered (call .egress_http())".into()
+                "EdgeRuntime: no HTTP egress client registered — call .egress_http()".into(),
             )
         })?;
         let mut output = DefaultOutput::new_http(egress_http);

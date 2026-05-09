@@ -10,6 +10,11 @@ use crate::core::{DefaultConfigLoader, DefaultRuntimeManager};
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
 pub use crate::api::edge_runtime::{EdgeRuntime, EdgeRuntimeBuilder};
+pub use swe_edge_ingress::{
+    Handler, HandlerError,
+    HttpDecodeFn, HttpEncodeFn,
+    GrpcDecodeFn, GrpcEncodeFn,
+};
 pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;

@@ -36,6 +36,7 @@ chrono.workspace      = true
 parking_lot.workspace = true
 edge-proxy.workspace               = true
 swe-edge-ingress.workspace         = true
+edge-domain                        = { path = "../../domain" }
 swe-edge-egress-grpc.workspace = true
 swe-edge-egress-http.workspace = true
 

@@ -2,81 +2,133 @@
 
 use std::sync::Arc;
 
+use edge_domain::{Handler, HandlerError, HandlerRegistry};
 use edge_proxy::LifecycleMonitor;
 use swe_edge_egress_grpc::GrpcOutbound;
 use swe_edge_egress_http::HttpOutbound;
-use swe_edge_ingress::{GrpcInbound, HttpInbound};
+use swe_edge_ingress::{
+    GrpcDecodeFn, GrpcEncodeFn, GrpcHandlerAdapter, GrpcHandlerRegistryDispatcher,
+    GrpcInbound, GrpcRequest, GrpcResponse,
+    HttpDecodeFn, HttpEncodeFn, HttpHandlerAdapter, HttpHandlerRegistryDispatcher,
+    HttpInbound, HttpRequest, HttpResponse,
+};
 
 use crate::api::service_registry::ServiceRegistry;
 use crate::api::types::RuntimeConfig;
 
 /// Builder for assembling and starting an edge runtime.
 ///
-/// Call [`EdgeRuntime::builder`] to construct one, wire in handlers and egress
-/// clients, then call [`EdgeRuntimeBuilder::serve`] to start the servers.
+/// Wire in handlers via [`http_route`](Self::http_route) /
+/// [`grpc_route`](Self::grpc_route), then call [`serve`](Self::serve).
 ///
 /// ```rust,ignore
 /// EdgeRuntime::builder()
 ///     .config(cfg)
-///     .http_handler(Arc::new(my_http_handler))
+///     .http_route(Arc::new(my_handler), decode, encode)
 ///     .egress_http(Arc::new(http_client))
 ///     .serve()
 ///     .await?;
 /// ```
 pub struct EdgeRuntimeBuilder {
-    pub(crate) config:        Option<RuntimeConfig>,
-    pub(crate) http_handler:  Option<Arc<dyn HttpInbound>>,
-    pub(crate) grpc_handler:  Option<Arc<dyn GrpcInbound>>,
-    pub(crate) egress_http:   Option<Arc<dyn HttpOutbound>>,
-    pub(crate) egress_grpc:   Option<Arc<dyn GrpcOutbound>>,
-    pub(crate) lifecycle:     Option<Arc<dyn LifecycleMonitor>>,
+    pub(crate) config:            Option<RuntimeConfig>,
+    pub(crate) http_handler:      Option<Arc<dyn HttpInbound>>,
+    pub(crate) grpc_handler:      Option<Arc<dyn GrpcInbound>>,
+    pub(crate) http_dispatcher:   Option<HttpHandlerRegistryDispatcher>,
+    pub(crate) grpc_dispatcher:   Option<GrpcHandlerRegistryDispatcher>,
+    pub(crate) egress_http:       Option<Arc<dyn HttpOutbound>>,
+    pub(crate) egress_grpc:       Option<Arc<dyn GrpcOutbound>>,
+    pub(crate) lifecycle:         Option<Arc<dyn LifecycleMonitor>>,
 }
 
 /// Entry-point for the edge runtime.
-///
-/// Use [`EdgeRuntime::builder`] to obtain a [`EdgeRuntimeBuilder`].
 pub struct EdgeRuntime;
 
 impl EdgeRuntime {
     /// Start building an edge runtime.
     pub fn builder() -> EdgeRuntimeBuilder {
         EdgeRuntimeBuilder {
-            config:       None,
-            http_handler: None,
-            grpc_handler: None,
-            egress_http:  None,
-            egress_grpc:  None,
-            lifecycle:    None,
+            config:          None,
+            http_handler:    None,
+            grpc_handler:    None,
+            http_dispatcher: None,
+            grpc_dispatcher: None,
+            egress_http:     None,
+            egress_grpc:     None,
+            lifecycle:       None,
         }
     }
 }
 
 impl EdgeRuntimeBuilder {
-    /// Set the runtime configuration.
+    /// Set the runtime configuration (loaded from env/file when omitted).
     pub fn config(mut self, config: RuntimeConfig) -> Self {
         self.config = Some(config);
         self
     }
 
-    /// Register an HTTP inbound handler.
+    /// Register an HTTP handler under its declared `Handler::pattern()`.
+    ///
+    /// Multiple routes accumulate in an internal dispatcher; you do not need
+    /// to construct `HttpHandlerRegistryDispatcher` or `HttpHandlerAdapter` manually.
+    pub fn http_route<Req, Resp>(
+        mut self,
+        handler: Arc<dyn Handler<Req, Resp>>,
+        decode:  HttpDecodeFn<Req>,
+        encode:  HttpEncodeFn<Resp>,
+    ) -> Self
+    where
+        Req:  Send + 'static,
+        Resp: Send + 'static,
+    {
+        let dispatcher = self.http_dispatcher.get_or_insert_with(|| {
+            HttpHandlerRegistryDispatcher::new(Arc::new(HandlerRegistry::new()))
+        });
+        dispatcher
+            .register(HttpHandlerAdapter::new(handler, decode, encode))
+            .expect("duplicate HTTP route");
+        self
+    }
+
+    /// Register a gRPC handler under its declared `Handler::id()` (the method path).
+    ///
+    /// Multiple routes accumulate in an internal dispatcher; you do not need
+    /// to construct `GrpcHandlerRegistryDispatcher` or `GrpcHandlerAdapter` manually.
+    pub fn grpc_route<Req, Resp>(
+        mut self,
+        handler: Arc<dyn Handler<Req, Resp>>,
+        decode:  GrpcDecodeFn<Req>,
+        encode:  GrpcEncodeFn<Resp>,
+    ) -> Self
+    where
+        Req:  Send + 'static,
+        Resp: Send + 'static,
+    {
+        let dispatcher = self.grpc_dispatcher.get_or_insert_with(|| {
+            GrpcHandlerRegistryDispatcher::new(Arc::new(HandlerRegistry::new()))
+        });
+        dispatcher.register(GrpcHandlerAdapter::new(handler, decode, encode));
+        self
+    }
+
+    /// Supply a pre-built HTTP inbound handler (escape hatch — prefer `http_route`).
     pub fn http_handler(mut self, handler: Arc<dyn HttpInbound>) -> Self {
         self.http_handler = Some(handler);
         self
     }
 
-    /// Register a gRPC inbound handler.
+    /// Supply a pre-built gRPC inbound handler (escape hatch — prefer `grpc_route`).
     pub fn grpc_handler(mut self, handler: Arc<dyn GrpcInbound>) -> Self {
         self.grpc_handler = Some(handler);
         self
     }
 
-    /// Register the HTTP egress client (used for outbound HTTP calls).
+    /// Register the HTTP egress client used for outbound HTTP calls.
     pub fn egress_http(mut self, client: Arc<dyn HttpOutbound>) -> Self {
         self.egress_http = Some(client);
         self
     }
 
-    /// Register the gRPC egress client (used for outbound gRPC calls).
+    /// Register the gRPC egress client used for outbound gRPC calls.
     pub fn egress_grpc(mut self, client: Arc<dyn GrpcOutbound>) -> Self {
         self.egress_grpc = Some(client);
         self
