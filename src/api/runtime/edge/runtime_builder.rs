@@ -34,7 +34,7 @@ pub struct RuntimeBuilder {
     pub(crate) egress_grpc:              Option<Arc<dyn GrpcOutbound>>,
     pub(crate) lifecycle:                 Option<Arc<dyn LifecycleMonitor>>,
     #[cfg(feature = "observability")]
-    pub(crate) tracing_format:            Option<crate::api::observability::TracingFormat>,
+    pub(crate) tracing_format:            Option<crate::api::tracing_format::TracingFormat>,
 }
 
 impl RuntimeBuilder {
@@ -62,7 +62,7 @@ impl RuntimeBuilder {
     /// Only available with the `observability` feature. Idempotent — safe to
     /// call in tests where a subscriber may already be installed.
     #[cfg(feature = "observability")]
-    pub fn with_tracing(mut self, format: crate::api::observability::TracingFormat) -> Self {
+    pub fn with_tracing(mut self, format: crate::api::tracing_format::TracingFormat) -> Self {
         self.tracing_format = Some(format);
         self
     }
@@ -330,7 +330,7 @@ mod tests {
     #[cfg(feature = "observability")]
     #[test]
     fn test_with_tracing_sets_format_field() {
-        use crate::api::observability::TracingFormat;
+        use crate::api::tracing_format::TracingFormat;
         let b = Runtime::builder().with_tracing(TracingFormat::Json);
         assert!(b.tracing_format.is_some());
     }

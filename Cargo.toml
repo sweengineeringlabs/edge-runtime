@@ -58,6 +58,10 @@ name = "runtime_int_test"
 path = "tests/runtime_int_test.rs"
 
 [[test]]
+name = "observability_int_test"
+path = "tests/observability_int_test.rs"
+
+[[test]]
 name = "composite_int_test"
 path = "tests/composite_int_test.rs"
 

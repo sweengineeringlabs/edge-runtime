@@ -1,16 +1,6 @@
 //! Tracing subscriber initialisation — opt-in via the `observability` feature.
 
-/// Output format for the tracing subscriber.
-pub enum TracingFormat {
-    /// Structured JSON lines — for prod log aggregators (Loki, Datadog, CloudWatch).
-    ///
-    /// Each log line is a self-contained JSON object. Current span fields
-    /// (`trace_id`, `session_id`, `agent_id` set by `justobserv_context`) are
-    /// flattened into every event so they appear inline rather than nested.
-    Json,
-    /// Human-readable colour output — for local development.
-    Pretty,
-}
+use crate::api::tracing_format::TracingFormat;
 
 /// Install a `tracing-subscriber` that surfaces `justobserv` context fields
 /// (`trace_id`, `session_id`, `agent_id`) in every log line.
@@ -47,23 +37,29 @@ pub fn init_tracing(format: TracingFormat) {
     }
 }
 
-#[cfg(all(test, feature = "observability"))]
+#[cfg(test)]
 mod tests {
-    use super::*;
+    #[cfg(feature = "observability")]
+    use super::init_tracing;
+    #[cfg(feature = "observability")]
+    use crate::api::tracing_format::TracingFormat;
 
     /// @covers: init_tracing — Json
+    #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_json_does_not_panic() {
         init_tracing(TracingFormat::Json);
     }
 
     /// @covers: init_tracing — Pretty
+    #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_pretty_does_not_panic() {
         init_tracing(TracingFormat::Pretty);
     }
 
     /// @covers: init_tracing — idempotent
+    #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_called_twice_does_not_panic() {
         init_tracing(TracingFormat::Json);
