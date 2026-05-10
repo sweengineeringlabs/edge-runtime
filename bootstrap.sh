@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
-# Bootstrap entry point - delegates to scripts/ci/build.sh
-exec "$(dirname "$0")/main/scripts/ci/build.sh" "$@"
+set -euo pipefail
+
+# Bootstrap script — install dependencies, build, and configure environment
+cargo build

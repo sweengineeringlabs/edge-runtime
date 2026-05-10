@@ -1,16 +1,27 @@
-[workspace]
-resolver = "2"
-members  = ["main"]
-
-[workspace.package]
+[package]
+name         = "swe-edge-runtime-main"
 version      = "0.1.0"
 edition      = "2021"
 license      = "MIT"
 rust-version = "1.75"
 authors      = ["SWE Engineering Labs"]
 repository   = "https://github.com/sweengineeringlabs/edge"
+description  = "edge — process-level runtime: wires ingress + proxy + domain + egress, lifecycle, and systemd notify."
+keywords     = ["daemon", "runtime", "lifecycle", "systemd", "swe"]
+categories   = ["network-programming"]
 
-[workspace.dependencies]
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "runtime"
+
+[lib]
+name = "swe_edge_runtime"
+path = "src/lib.rs"
+
+[features]
+default = []
+
+[dependencies]
 serde       = { version = "1.0", features = ["derive"] }
 toml        = "0.8"
 dirs        = "5"
@@ -19,13 +30,8 @@ thiserror   = "2"
 async-trait = "0.1"
 futures     = "0.3"
 tokio       = { version = "1.0", features = ["rt", "rt-multi-thread", "sync", "signal", "macros", "time", "net"] }
-reqwest     = { version = "0.12", features = ["json"], default-features = false }
 tracing     = "0.1"
-uuid        = { version = "1.0", features = ["v4"] }
-chrono      = { version = "0.4", features = ["serde"] }
 parking_lot = "0.12"
-
-# Cross-workspace git deps — each lives in a sibling workspace root
 edge-proxy                = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 swe-edge-ingress          = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 swe-edge-egress-grpc      = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
@@ -35,9 +41,72 @@ swe-edge-ingress-grpc-reflection   = { git = "ssh://git@github.com/sweengineerin
 edge-domain                        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 swe-observ-metrics                 = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
-# Workspace-internal
-swe-edge-runtime = { package = "swe-edge-runtime-main", path = "main" }
+[dev-dependencies]
+tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
+tempfile     = "3"
+reqwest      = { version = "0.12", features = ["json"], default-features = false }
+async-trait  = "0.1"
+edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+swe-edge-ingress  = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+swe-edge-egress-http = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 
-[workspace.lints.rust]
+[[test]]
+name = "edge_runtime_int_test"
+path = "tests/edge_runtime_int_test.rs"
+
+[[test]]
+name = "composite_int_test"
+path = "tests/composite_int_test.rs"
+
+[[test]]
+name = "json_codec_int_test"
+path = "tests/json_codec_int_test.rs"
+
+[[test]]
+name = "input_int_test"
+path = "tests/input_int_test.rs"
+
+[[test]]
+name = "output_int_test"
+path = "tests/output_int_test.rs"
+
+[[test]]
+name = "runtime_manager_int_test"
+path = "tests/runtime_manager_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "saf_config_loader_int_test"
+path = "tests/saf_config_loader_int_test.rs"
+
+[[test]]
+name = "saf_daemon_int_test"
+path = "tests/saf_daemon_int_test.rs"
+
+[[test]]
+name = "metrics_handler_int_test"
+path = "tests/metrics_handler_int_test.rs"
+
+[[test]]
+name = "dep_coverage_int_test"
+path = "tests/dep_coverage_int_test.rs"
+
+[[test]]
+name = "runner_int_test"
+path = "tests/runner_int_test.rs"
+
+[[test]]
+name = "runtime_result_int_test"
+path = "tests/runtime_result_int_test.rs"
+
+[[test]]
+name = "shared_counters_int_test"
+path = "tests/shared_counters_int_test.rs"
+
+[lints.rust]
 unsafe_code  = "deny"
 missing_docs = "warn"
