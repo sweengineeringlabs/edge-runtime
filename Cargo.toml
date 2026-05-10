@@ -88,6 +88,10 @@ name = "saf_daemon_int_test"
 path = "tests/saf_daemon_int_test.rs"
 
 [[test]]
+name = "saf_lifecycle_monitor_int_test"
+path = "tests/saf_lifecycle_monitor_int_test.rs"
+
+[[test]]
 name = "metrics_handler_int_test"
 path = "tests/metrics_handler_int_test.rs"
 

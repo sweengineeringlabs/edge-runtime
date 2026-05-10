@@ -2,6 +2,7 @@
 
 pub mod config_loader;
 pub mod daemon;
+pub mod lifecycle_monitor;
 
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
@@ -41,6 +42,7 @@ pub use swe_edge_egress_grpc::{GrpcOutbound, GrpcOutboundError, GrpcOutboundResu
 
 // ── Lifecycle / health ────────────────────────────────────────────────────────
 pub use edge_proxy::{LifecycleMonitor, HealthReport, new_null_lifecycle_monitor};
+pub use lifecycle_monitor::observe_lifecycle_monitor;
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
 pub use crate::api::monitor::{
