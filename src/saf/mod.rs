@@ -2,6 +2,7 @@
 
 pub mod config_loader;
 pub mod daemon;
+/// SAF factory for wrapping a [`LifecycleMonitor`] with metrics observation.
 pub mod lifecycle_monitor;
 
 pub use crate::api::config::ConfigError;

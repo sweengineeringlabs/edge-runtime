@@ -6,7 +6,9 @@ use swe_edge_egress_http::HttpOutbound;
 
 /// Supplies the egress adapters the runtime uses for outbound calls.
 pub trait Output: Send + Sync {
+    /// Returns the HTTP outbound client.
     fn http(&self) -> Arc<dyn HttpOutbound>;
+    /// Returns the gRPC outbound client, if configured.
     fn grpc(&self) -> Option<Arc<dyn GrpcOutbound>>;
 }
 

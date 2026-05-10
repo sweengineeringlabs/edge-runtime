@@ -5,14 +5,19 @@ use thiserror::Error;
 /// Errors that can occur during runtime manager operations.
 #[derive(Debug, Error)]
 pub enum RuntimeError {
+    /// Runtime failed to start one or more components.
     #[error("start failed: {0}")]
     StartFailed(String),
+    /// Runtime failed to cleanly stop one or more components.
     #[error("shutdown failed: {0}")]
     ShutdownFailed(String),
+    /// Could not bind the server socket to the configured address.
     #[error("bind failed: {0}")]
     BindFailed(String),
+    /// Unexpected internal error.
     #[error("internal: {0}")]
     Internal(String),
+    /// Graceful shutdown exceeded the configured timeout (seconds).
     #[error("shutdown timed out after {0}s")]
     ShutdownTimeout(u64),
 }

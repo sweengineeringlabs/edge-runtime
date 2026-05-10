@@ -1,7 +1,5 @@
 //! Tracing subscriber initialisation — opt-in via the `observability` feature.
 
-use crate::api::tracing_format::TracingFormat;
-
 /// Install a `tracing-subscriber` that surfaces `justobserv` context fields
 /// (`trace_id`, `session_id`, `agent_id`) in every log line.
 ///
@@ -9,7 +7,7 @@ use crate::api::tracing_format::TracingFormat;
 /// more than once — subsequent calls are silent no-ops because the global
 /// subscriber is already set.
 #[cfg(feature = "observability")]
-pub fn init_tracing(format: TracingFormat) {
+pub fn init_tracing(format: crate::api::tracing_format::TracingFormat) {
     use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
     let filter = EnvFilter::try_from_default_env()
