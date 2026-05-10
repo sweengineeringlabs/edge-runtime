@@ -14,7 +14,6 @@ pub trait Input: Send + Sync {
 mod tests {
     use super::*;
 
-    /// @covers: has_any
     #[test]
     fn test_has_any_returns_false_when_no_transports() {
         struct NoTransport;

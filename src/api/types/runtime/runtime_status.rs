@@ -55,6 +55,7 @@ mod tests {
         assert_eq!(RuntimeStatus::Degraded.to_string(), "degraded");
     }
 
+    /// @covers: is_healthy
     #[test]
     fn test_is_healthy_only_true_for_running() {
         assert!(RuntimeStatus::Running.is_healthy());
@@ -62,6 +63,7 @@ mod tests {
         assert!(!RuntimeStatus::Degraded.is_healthy());
     }
 
+    /// @covers: is_terminal
     #[test]
     fn test_is_terminal_only_true_for_stopped() {
         assert!(RuntimeStatus::Stopped.is_terminal());

@@ -109,7 +109,6 @@ mod tests {
         MetricsHandler::new(counters, "/metrics")
     }
 
-    /// @covers: handle
     #[tokio::test]
     async fn test_handle_get_configured_path_returns_prometheus_text() {
         let h    = handler_with_data();
@@ -122,7 +121,6 @@ mod tests {
         assert_eq!(ct.as_deref(), Some("text/plain; version=0.0.4; charset=utf-8"));
     }
 
-    /// @covers: handle
     #[tokio::test]
     async fn test_handle_get_wrong_path_returns_not_found() {
         let h   = handler_with_data();
@@ -131,7 +129,6 @@ mod tests {
         assert!(matches!(err, HttpInboundError::NotFound(_)));
     }
 
-    /// @covers: handle
     #[tokio::test]
     async fn test_handle_get_path_with_trailing_slash_returns_200() {
         let h    = handler_with_data();
@@ -139,7 +136,6 @@ mod tests {
         assert_eq!(resp.status, 200);
     }
 
-    /// @covers: handle
     #[tokio::test]
     async fn test_handle_non_get_returns_invalid_input_error() {
         let h   = handler_with_data();
@@ -148,7 +144,6 @@ mod tests {
         assert!(matches!(err, HttpInboundError::InvalidInput(_)));
     }
 
-    /// @covers: render_prometheus
     #[test]
     fn test_render_prometheus_formats_type_line_and_value() {
         let provider = create_local_metrics_backend();
@@ -158,7 +153,6 @@ mod tests {
         assert!(out.contains("my_counter 5"));
     }
 
-    /// @covers: health_check
     #[tokio::test]
     async fn test_health_check_returns_healthy() {
         let h  = handler_with_data();
@@ -166,7 +160,6 @@ mod tests {
         assert!(hc.healthy);
     }
 
-    /// @covers: new
     #[test]
     fn test_new_sets_path() {
         let provider = Arc::new(create_local_metrics_backend());

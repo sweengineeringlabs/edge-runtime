@@ -289,7 +289,6 @@ mod tests {
         )
     }
 
-    /// @covers: new
     #[test]
     fn test_new_creates_stopped_status() {
         let m = make_manager();
@@ -327,7 +326,6 @@ mod tests {
         m.shutdown().await.expect("second");
     }
 
-    /// @covers: start no-ingress guard
     #[tokio::test]
     async fn test_start_fails_when_no_ingress_configured() {
         let m = DefaultRuntimeManager::new(
@@ -351,7 +349,6 @@ mod tests {
         assert!(names.contains(&"egress.http"));
     }
 
-    /// @covers: grpc-only ingress
     #[tokio::test]
     async fn test_health_reports_grpc_when_only_grpc_configured() {
         let m = DefaultRuntimeManager::new(
@@ -367,7 +364,6 @@ mod tests {
         assert!(!names.contains(&"ingress.http"));
     }
 
-    /// @covers: all-transport ingress (http + grpc)
     #[tokio::test]
     async fn test_health_reports_http_and_grpc_when_both_configured() {
         let m = DefaultRuntimeManager::new(
@@ -386,7 +382,6 @@ mod tests {
         assert!(names.contains(&"ingress.grpc"));
     }
 
-    /// @covers: egress.grpc healthy
     #[tokio::test]
     async fn test_health_reports_egress_grpc_when_configured() {
         let m = DefaultRuntimeManager::new(
@@ -403,7 +398,6 @@ mod tests {
         assert!(names.contains(&"egress.http"));
     }
 
-    /// @covers: egress.grpc unhealthy
     #[tokio::test]
     async fn test_health_reports_egress_grpc_unhealthy_when_down() {
         let m = DefaultRuntimeManager::new(

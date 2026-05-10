@@ -94,7 +94,6 @@ mod tests {
         Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: new
     #[test]
     fn test_new_counters_start_at_zero() {
         let c = counters();
@@ -122,7 +121,6 @@ mod tests {
         assert!(snaps.iter().any(|s| s.name == "edge_requests_total" && s.value == 1.0));
     }
 
-    /// @covers: on_end
     #[test]
     fn test_on_end_error_records_error_counter() {
         let c = counters();

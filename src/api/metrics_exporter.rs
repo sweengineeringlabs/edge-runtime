@@ -25,7 +25,6 @@ mod tests {
         fn path(&self)     -> &str            { &self.path }
     }
 
-    /// @covers: MetricsExporter
     #[test]
     fn test_metrics_exporter_is_object_safe() {
         fn _assert(_: &dyn MetricsExporter) {}

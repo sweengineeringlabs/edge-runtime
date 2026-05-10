@@ -21,28 +21,24 @@ pub enum ConfigError {
 mod tests {
     use super::*;
 
-    /// @covers: Parse
     #[test]
     fn test_config_error_display_parse() {
         let e = ConfigError::Parse("bad toml".into());
         assert!(e.to_string().contains("parse error"));
     }
 
-    /// @covers: UnknownTenant
     #[test]
     fn test_config_error_display_unknown_tenant() {
         let e = ConfigError::UnknownTenant("ghost".into());
         assert!(e.to_string().contains("ghost"));
     }
 
-    /// @covers: InvalidTenantId
     #[test]
     fn test_config_error_display_invalid_tenant_id() {
         let e = ConfigError::InvalidTenantId("../../etc".into());
         assert!(e.to_string().contains("[a-zA-Z0-9_-]"));
     }
 
-    /// @covers: BadEnvVar
     #[test]
     fn test_config_error_display_bad_env_var() {
         let e = ConfigError::BadEnvVar("SWE_EDGE_SHUTDOWN_TIMEOUT: expected integer".into());

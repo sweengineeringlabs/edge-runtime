@@ -47,7 +47,7 @@ mod tests {
         }
     }
 
-    /// @covers: new
+    /// @covers: grpc
     #[test]
     fn test_new_stores_http_client_and_no_grpc() {
         let reg = ServiceRegistry::new(Arc::new(StubHttp), None);

@@ -14,7 +14,6 @@ pub trait Output: Send + Sync {
 mod tests {
     use super::*;
 
-    /// @covers: http
     #[test]
     fn test_output_is_object_safe() {
         fn _assert(_: &dyn Output) {}

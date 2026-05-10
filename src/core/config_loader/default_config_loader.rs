@@ -189,21 +189,18 @@ mod tests {
         std::fs::File::create(&path).unwrap().write_all(content.as_bytes()).unwrap();
     }
 
-    /// @covers: new
     #[test]
     fn test_new_uses_default_config_dir() {
         let l = DefaultConfigLoader::new();
         assert_eq!(l.config_dirs, vec![PathBuf::from("config")]);
     }
 
-    /// @covers: with_dir
     #[test]
     fn test_with_dir_uses_supplied_path() {
         let l = DefaultConfigLoader::with_dir("/etc/myapp/edge");
         assert_eq!(l.config_dirs, vec![PathBuf::from("/etc/myapp/edge")]);
     }
 
-    /// @covers: with_dir
     #[test]
     fn test_with_dir_load_reads_application_toml_from_supplied_dir() {
         let dir = TempDir::new().unwrap();
@@ -212,7 +209,6 @@ mod tests {
         assert_eq!(cfg.service_name, "consumer-app");
     }
 
-    /// @covers: with_dir
     #[test]
     fn test_with_dir_load_for_tenant_reads_tenant_from_supplied_dir() {
         let dir = TempDir::new().unwrap();
@@ -222,7 +218,6 @@ mod tests {
         assert_eq!(cfg.tenant_id.as_deref(), Some("t1"));
     }
 
-    /// @covers: load
     #[test]
     fn test_load_returns_defaults_when_no_application_toml() {
         let dir = TempDir::new().unwrap();
@@ -232,7 +227,6 @@ mod tests {
         assert!(cfg.tenant_id.is_none());
     }
 
-    /// @covers: load
     #[test]
     fn test_load_applies_application_toml_override() {
         let dir = TempDir::new().unwrap();
@@ -242,7 +236,6 @@ mod tests {
         assert_eq!(cfg.http_bind, "0.0.0.0:8080");
     }
 
-    /// @covers: load_for_tenant
     #[test]
     fn test_load_for_tenant_applies_tenant_toml() {
         let dir = TempDir::new().unwrap();
@@ -254,7 +247,6 @@ mod tests {
         assert_eq!(cfg.tenant_id.as_deref(), Some("acme"));
     }
 
-    /// @covers: load_for_tenant
     #[test]
     fn test_load_for_tenant_missing_file_returns_unknown_tenant_error() {
         let dir = TempDir::new().unwrap();
@@ -262,7 +254,6 @@ mod tests {
         assert!(matches!(err, ConfigError::UnknownTenant(id) if id == "ghost"));
     }
 
-    /// @covers: load_for_tenant
     #[test]
     fn test_load_for_tenant_layers_over_application_toml() {
         let dir = TempDir::new().unwrap();
@@ -273,7 +264,6 @@ mod tests {
         assert_eq!(cfg.shutdown_timeout_secs, 60);
     }
 
-    /// @covers: xdg
     #[test]
     fn test_xdg_higher_priority_dir_wins_over_lower() {
         let sys_dir  = TempDir::new().unwrap();
@@ -287,7 +277,6 @@ mod tests {
         assert_eq!(cfg.service_name, "user"); // last dir wins
     }
 
-    /// @covers: xdg
     #[test]
     fn test_xdg_lower_priority_dir_fills_unset_fields() {
         let sys_dir  = TempDir::new().unwrap();
@@ -302,7 +291,6 @@ mod tests {
         assert_eq!(cfg.shutdown_timeout_secs, 90); // from sys dir, not overridden
     }
 
-    /// @covers: xdg
     #[test]
     fn test_xdg_tenant_found_in_any_dir() {
         let sys_dir  = TempDir::new().unwrap();
@@ -316,7 +304,6 @@ mod tests {
         assert_eq!(cfg.service_name, "corp");
     }
 
-    /// @covers: validate_tenant_id
     #[test]
     fn test_load_for_tenant_rejects_path_traversal_dotdot() {
         let dir = TempDir::new().unwrap();
@@ -324,7 +311,6 @@ mod tests {
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
-    /// @covers: validate_tenant_id
     #[test]
     fn test_load_for_tenant_rejects_absolute_path() {
         let dir = TempDir::new().unwrap();
@@ -332,7 +318,6 @@ mod tests {
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
-    /// @covers: validate_tenant_id
     #[test]
     fn test_load_for_tenant_rejects_slash_in_id() {
         let dir = TempDir::new().unwrap();
@@ -340,7 +325,6 @@ mod tests {
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
-    /// @covers: validate_tenant_id
     #[test]
     fn test_load_for_tenant_rejects_empty_id() {
         let dir = TempDir::new().unwrap();
@@ -348,7 +332,6 @@ mod tests {
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
-    /// @covers: validate_tenant_id
     #[test]
     fn test_load_for_tenant_accepts_valid_alphanum_dash_underscore() {
         let dir = TempDir::new().unwrap();
@@ -357,7 +340,6 @@ mod tests {
         assert_eq!(cfg.service_name, "ok");
     }
 
-    /// @covers: apply_file_if_exists size guard
     #[test]
     fn test_load_rejects_application_toml_exceeding_size_limit() {
         let dir = TempDir::new().unwrap();
@@ -369,7 +351,6 @@ mod tests {
         assert!(err.to_string().contains("1 MiB"));
     }
 
-    /// @covers: parse_shutdown_timeout
     #[test]
     fn test_parse_shutdown_timeout_rejects_non_numeric_value() {
         let err = parse_shutdown_timeout("not-a-number").unwrap_err();
@@ -378,14 +359,12 @@ mod tests {
         assert!(err.to_string().contains("not-a-number"));
     }
 
-    /// @covers: parse_shutdown_timeout
     #[test]
     fn test_parse_shutdown_timeout_rejects_negative_representation() {
         let err = parse_shutdown_timeout("-1").unwrap_err();
         assert!(matches!(err, ConfigError::BadEnvVar(_)));
     }
 
-    /// @covers: parse_shutdown_timeout
     #[test]
     fn test_parse_shutdown_timeout_accepts_valid_integer() {
         assert_eq!(parse_shutdown_timeout("120").unwrap(), 120);

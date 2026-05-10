@@ -32,7 +32,6 @@ mod tests {
         { Box::pin(async { Ok(()) }) }
     }
 
-    /// @covers: http
     #[test]
     fn test_output_http_returns_configured_client() {
         let client: Arc<dyn HttpOutbound> = Arc::new(DefaultOutputStub);
@@ -40,7 +39,6 @@ mod tests {
         let _ = output.http();
     }
 
-    /// @covers: grpc
     #[test]
     fn test_output_grpc_returns_none_when_not_configured() {
         let output = DefaultOutput::new_http(Arc::new(DefaultOutputStub));

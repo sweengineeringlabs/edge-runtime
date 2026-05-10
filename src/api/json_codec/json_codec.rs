@@ -24,7 +24,6 @@ pub(crate) type JsonGrpcEncodeFn<Resp> = fn(&Resp) -> Vec<u8>;
 mod tests {
     use super::*;
 
-    /// @covers: json_decode
     #[test]
     fn test_json_http_decode_fn_type_alias_is_well_formed() {
         use swe_edge_ingress::HttpRequest;
@@ -36,7 +35,6 @@ mod tests {
         _accepts(sample_decode);
     }
 
-    /// @covers: grpc_json_decode
     #[test]
     fn test_json_grpc_decode_fn_type_alias_is_well_formed() {
         fn _accepts<Req>(_f: JsonGrpcDecodeFn<Req>) {}

@@ -79,7 +79,6 @@ mod tests {
         HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: None, timeout: None }
     }
 
-    /// @covers: json_decode
     #[test]
     fn test_json_decode_json_body_deserializes_correctly() {
         let req = post_with_json(serde_json::json!({"text": "hello"}));
@@ -87,7 +86,6 @@ mod tests {
         assert_eq!(msg, CodecPayload { text: "hello".into() });
     }
 
-    /// @covers: json_decode
     #[test]
     fn test_json_decode_raw_body_deserializes_correctly() {
         let req = post_with_raw(br#"{"text":"world"}"#.to_vec());
@@ -95,7 +93,6 @@ mod tests {
         assert_eq!(msg, CodecPayload { text: "world".into() });
     }
 
-    /// @covers: json_decode
     #[test]
     fn test_json_decode_none_body_fails_for_non_nullable_type() {
         let req = post_with_no_body();
@@ -103,7 +100,6 @@ mod tests {
         assert!(result.is_err());
     }
 
-    /// @covers: json_decode
     #[test]
     fn test_json_decode_form_body_returns_invalid_input_error() {
         let req = HttpRequest { body: Some(HttpBody::Form(Default::default())), ..post_with_no_body() };
@@ -111,7 +107,6 @@ mod tests {
         assert!(matches!(result, Err(HttpInboundError::InvalidInput(_))));
     }
 
-    /// @covers: json_encode
     #[test]
     fn test_json_encode_produces_200_with_json_content_type() {
         let resp = json_encode(CodecPayload { text: "ok".into() });
@@ -121,7 +116,6 @@ mod tests {
         assert_eq!(parsed.text, "ok");
     }
 
-    /// @covers: grpc_json_decode
     #[test]
     fn test_grpc_json_decode_deserializes_bytes_correctly() {
         let bytes = br#"{"text":"grpc"}"#;
@@ -129,14 +123,12 @@ mod tests {
         assert_eq!(msg, CodecPayload { text: "grpc".into() });
     }
 
-    /// @covers: grpc_json_decode
     #[test]
     fn test_grpc_json_decode_invalid_bytes_returns_invalid_argument() {
         let result = grpc_json_decode::<CodecPayload>(b"not json");
         assert!(matches!(result, Err(GrpcInboundError::InvalidArgument(_))));
     }
 
-    /// @covers: grpc_json_encode
     #[test]
     fn test_grpc_json_encode_serializes_to_bytes() {
         let msg = CodecPayload { text: "bytes".into() };

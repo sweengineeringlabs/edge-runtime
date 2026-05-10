@@ -57,7 +57,6 @@ mod tests {
         Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: new
     #[test]
     fn test_http_load_monitor_new_does_not_panic() {
         struct HttpLoadMonitorStub;
@@ -72,7 +71,6 @@ mod tests {
         let _m = HttpLoadMonitor::new(Arc::new(HttpLoadMonitorStub), counters());
     }
 
-    /// @covers: handle
     #[tokio::test]
     async fn test_http_monitor_handle_records_request_via_provider() {
         struct HttpLoadMonitorOk;

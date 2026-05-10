@@ -89,7 +89,6 @@ mod tests {
         GrpcRequest::new(method, vec![], std::time::Duration::from_secs(5))
     }
 
-    /// @covers: new
     #[test]
     fn test_new_creates_composite_with_both_handlers() {
         let primary    = Arc::new(CompositeGrpcInboundTracker::default());
@@ -99,7 +98,6 @@ mod tests {
         assert!(!reflection.was_called());
     }
 
-    /// @covers: route
     #[tokio::test]
     async fn test_handle_unary_routes_reflection_path_to_reflection_handler() {
         let primary    = Arc::new(CompositeGrpcInboundTracker::default());
@@ -113,7 +111,6 @@ mod tests {
         assert!(reflection.was_called(), "reflection must be called for reflection path");
     }
 
-    /// @covers: route
     #[tokio::test]
     async fn test_handle_unary_routes_non_reflection_path_to_primary_handler() {
         let primary    = Arc::new(CompositeGrpcInboundTracker::default());

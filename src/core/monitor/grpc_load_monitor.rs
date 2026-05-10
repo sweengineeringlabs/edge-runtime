@@ -76,7 +76,6 @@ mod tests {
         Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: new
     #[test]
     fn test_grpc_load_monitor_new_does_not_panic() {
         struct GrpcLoadMonitorStub;

@@ -158,24 +158,28 @@ mod tests {
         assert!(!cfg.systemd_notify);
     }
 
+    /// @covers: with_service_name
     #[test]
     fn test_with_service_name_sets_name() {
         let cfg = RuntimeConfig::default().with_service_name("my-svc");
         assert_eq!(cfg.service_name, "my-svc");
     }
 
+    /// @covers: with_http_bind
     #[test]
     fn test_with_http_bind_sets_addr() {
         let cfg = RuntimeConfig::default().with_http_bind("127.0.0.1:9090");
         assert_eq!(cfg.http_bind, "127.0.0.1:9090");
     }
 
+    /// @covers: with_shutdown_timeout
     #[test]
     fn test_with_shutdown_timeout_sets_secs() {
         let cfg = RuntimeConfig::default().with_shutdown_timeout(60);
         assert_eq!(cfg.shutdown_timeout_secs, 60);
     }
 
+    /// @covers: with_systemd_notify
     #[test]
     fn test_with_systemd_notify_enables_flag() {
         let cfg = RuntimeConfig::default().with_systemd_notify(true);

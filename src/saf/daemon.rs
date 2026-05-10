@@ -133,4 +133,20 @@ mod tests {
         let lc     = new_null_lifecycle_monitor();
         let _mgr   = runtime_manager(RuntimeConfig::default(), input, output, lc);
     }
+
+    /// @covers: run
+    #[tokio::test]
+    async fn test_run_fails_when_no_ingress_configured() {
+        use edge_proxy::new_null_lifecycle_monitor;
+        use crate::api::{input::DefaultInput, output::DefaultOutput, error::RuntimeError};
+        use swe_edge_egress_http::default_http_outbound;
+
+        let http   = Arc::new(default_http_outbound().expect("http outbound"));
+        let input  = Arc::new(DefaultInput::empty());
+        let output = Arc::new(DefaultOutput::new_http(http));
+        let lc     = new_null_lifecycle_monitor();
+        let err    = run(RuntimeConfig::default(), input, output, lc).await.unwrap_err();
+        assert!(matches!(err, RuntimeError::StartFailed(_)),
+            "expected StartFailed for empty ingress, got: {err:?}");
+    }
 }

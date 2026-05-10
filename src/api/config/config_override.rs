@@ -78,20 +78,17 @@ impl ConfigOverrideBuilder {
 mod tests {
     use super::*;
 
-    /// @covers: from_str
     #[test]
     fn test_from_str_parses_partial_toml() {
         let o = ConfigOverride::from_str(r#"http_bind = "127.0.0.1:9090""#).unwrap();
         assert_eq!(o.http_bind.as_deref(), Some("127.0.0.1:9090"));
     }
 
-    /// @covers: from_str
     #[test]
     fn test_from_str_invalid_toml_returns_error() {
         assert!(ConfigOverride::from_str("not = [valid toml").is_err());
     }
 
-    /// @covers: apply_to
     #[test]
     fn test_apply_to_merges_set_fields() {
         let base = RuntimeConfig::default();
@@ -100,7 +97,6 @@ mod tests {
         assert_eq!(merged.service_name, "acme");
     }
 
-    /// @covers: apply_to
     #[test]
     fn test_apply_to_skips_empty_tenant_id() {
         let base = RuntimeConfig::default();

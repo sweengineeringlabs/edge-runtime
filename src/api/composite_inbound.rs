@@ -12,7 +12,6 @@ pub trait CompositeInbound: Send + Sync {
 mod tests {
     use super::*;
 
-    /// @covers: primary
     #[test]
     fn test_composite_inbound_is_object_safe() {
         fn _accept(_: &dyn CompositeInbound) {}

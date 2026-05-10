@@ -35,13 +35,11 @@ mod tests {
 
     fn valid() -> RuntimeConfig { RuntimeConfig::default() }
 
-    /// @covers: validate
     #[test]
     fn test_validate_accepts_valid_config() {
         assert!(ConfigValidator.validate(&valid()).is_ok());
     }
 
-    /// @covers: validate
     #[test]
     fn test_validate_rejects_empty_http_bind() {
         let mut c = valid();
@@ -49,7 +47,6 @@ mod tests {
         assert!(matches!(ConfigValidator.validate(&c), Err(RuntimeError::StartFailed(_))));
     }
 
-    /// @covers: validate
     #[test]
     fn test_validate_rejects_empty_grpc_bind() {
         let mut c = valid();
@@ -57,7 +54,6 @@ mod tests {
         assert!(matches!(ConfigValidator.validate(&c), Err(RuntimeError::StartFailed(_))));
     }
 
-    /// @covers: validate
     #[test]
     fn test_validate_rejects_zero_shutdown_timeout() {
         let mut c = valid();

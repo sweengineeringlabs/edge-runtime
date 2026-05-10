@@ -29,7 +29,6 @@ mod tests {
         { Box::pin(async { Ok(GrpcHealthCheck::healthy()) }) }
     }
 
-    /// @covers: new
     #[test]
     fn test_composite_grpc_inbound_holds_both_handlers() {
         let primary    = Arc::new(StubGrpc) as Arc<dyn GrpcInbound>;

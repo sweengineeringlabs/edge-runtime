@@ -64,7 +64,6 @@ mod tests {
         }
     }
 
-    /// @covers: run_until_signal
     #[test]
     fn test_run_until_signal_returns_send_future() {
         fn _assert_send<T: Send>(_: T) {}
@@ -72,21 +71,18 @@ mod tests {
         _assert_send(fut);
     }
 
-    /// @covers: run_until_signal
     #[tokio::test]
     async fn test_run_until_signal_starts_and_shuts_down_cleanly() {
         let result = run_until_signal(RunnerOkManager, 30, std::future::ready(())).await;
         assert!(result.is_ok());
     }
 
-    /// @covers: run_until_signal
     #[tokio::test]
     async fn test_run_until_signal_propagates_start_failure() {
         let err = run_until_signal(RunnerFailManager, 30, std::future::ready(())).await.unwrap_err();
         assert!(matches!(err, RuntimeError::StartFailed(_)));
     }
 
-    /// @covers: run_until_signal
     #[tokio::test(start_paused = true)]
     async fn test_run_until_signal_returns_shutdown_timeout_when_drain_exceeds_limit() {
         use std::time::Duration;

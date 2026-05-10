@@ -21,7 +21,6 @@ pub trait Validator {
 mod tests {
     use super::*;
 
-    /// @covers: validate
     #[test]
     fn test_validator_trait_is_usable_as_concrete_impl() {
         struct AlwaysOk;

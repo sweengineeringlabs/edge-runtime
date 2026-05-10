@@ -21,28 +21,24 @@ pub enum RuntimeError {
 mod tests {
     use super::*;
 
-    /// @covers: StartFailed
     #[test]
     fn test_runtime_error_display_start_failed() {
         let e = RuntimeError::StartFailed("port in use".into());
         assert_eq!(e.to_string(), "start failed: port in use");
     }
 
-    /// @covers: ShutdownFailed
     #[test]
     fn test_runtime_error_display_shutdown_failed() {
         let e = RuntimeError::ShutdownFailed("timeout".into());
         assert_eq!(e.to_string(), "shutdown failed: timeout");
     }
 
-    /// @covers: BindFailed
     #[test]
     fn test_runtime_error_display_bind_failed() {
         let e = RuntimeError::BindFailed("addr already in use".into());
         assert_eq!(e.to_string(), "bind failed: addr already in use");
     }
 
-    /// @covers: ShutdownTimeout
     #[test]
     fn test_runtime_error_display_shutdown_timeout() {
         let e = RuntimeError::ShutdownTimeout(30);

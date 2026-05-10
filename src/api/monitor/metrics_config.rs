@@ -25,7 +25,6 @@ impl Default for MetricsConfig {
 mod tests {
     use super::*;
 
-    /// @covers: default
     #[test]
     fn test_metrics_config_default_has_expected_values() {
         let c = MetricsConfig::default();

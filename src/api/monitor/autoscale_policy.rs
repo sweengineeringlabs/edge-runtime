@@ -28,7 +28,6 @@ impl Default for AutoscalePolicy {
 mod tests {
     use super::*;
 
-    /// @covers: default
     #[test]
     fn test_autoscale_policy_defaults_are_positive() {
         let p = AutoscalePolicy::default();

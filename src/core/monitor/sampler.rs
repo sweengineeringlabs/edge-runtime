@@ -61,13 +61,11 @@ mod tests {
         Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
     }
 
-    /// @covers: new
     #[test]
     fn test_background_sampler_new_does_not_panic() {
         let _s = BackgroundSampler::new(counters(), None);
     }
 
-    /// @covers: run
     #[test]
     fn test_run_returns_send_future() {
         fn _assert_send<T: Send>(_: T) {}
@@ -75,7 +73,6 @@ mod tests {
         _assert_send(s.run());
     }
 
-    /// @covers: run
     #[tokio::test(start_paused = true)]
     async fn test_run_records_gauges_after_one_tick() {
         use std::time::Duration;
