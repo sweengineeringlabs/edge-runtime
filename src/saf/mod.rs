@@ -58,5 +58,9 @@ pub use config_loader::{
     validate_config,
 };
 
+// ── Observability ─────────────────────────────────────────────────────────────
+#[cfg(feature = "observability")]
+pub use crate::api::observability::{TracingFormat, init_tracing};
+
 // ── Daemon runner ─────────────────────────────────────────────────────────────
 pub use daemon::{run, runtime_manager};

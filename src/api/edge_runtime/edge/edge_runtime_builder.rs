@@ -33,6 +33,8 @@ pub struct EdgeRuntimeBuilder {
     pub(crate) egress_http:               Option<Arc<dyn HttpOutbound>>,
     pub(crate) egress_grpc:              Option<Arc<dyn GrpcOutbound>>,
     pub(crate) lifecycle:                 Option<Arc<dyn LifecycleMonitor>>,
+    #[cfg(feature = "observability")]
+    pub(crate) tracing_format:            Option<crate::api::observability::TracingFormat>,
 }
 
 impl EdgeRuntimeBuilder {
@@ -54,6 +56,16 @@ impl EdgeRuntimeBuilder {
     pub fn grpc_route_with<Req, Resp>(mut self, handler: Arc<dyn Handler<Req, Resp>>, decode: GrpcDecodeFn<Req>, encode: GrpcEncodeFn<Resp>) -> Self
     where Req: Send + 'static, Resp: Send + 'static,
     { let d = self.grpc_dispatcher.get_or_insert_with(|| GrpcHandlerRegistryDispatcher::new(Arc::new(HandlerRegistry::new()))); d.register(GrpcHandlerAdapter::new(handler, decode, encode)); self }
+
+    /// Install a tracing subscriber before `serve()` starts.
+    ///
+    /// Only available with the `observability` feature. Idempotent — safe to
+    /// call in tests where a subscriber may already be installed.
+    #[cfg(feature = "observability")]
+    pub fn with_tracing(mut self, format: crate::api::observability::TracingFormat) -> Self {
+        self.tracing_format = Some(format);
+        self
+    }
 
     pub fn http_tls(mut self, config: IngressTlsConfig) -> Self { self.http_tls = Some(config); self }
     pub fn grpc_tls(mut self, config: IngressTlsConfig) -> Self { self.grpc_tls = Some(config); self }
@@ -312,5 +324,14 @@ mod tests {
         let encode: HttpEncodeFn<String> = |s: String| HttpResponse::new(200, s.into_bytes());
         let b = EdgeRuntime::builder().http_route_with(Arc::new(Echo), decode, encode);
         assert!(b.http_dispatcher.is_some());
+    }
+
+    /// @covers: with_tracing
+    #[cfg(feature = "observability")]
+    #[test]
+    fn test_with_tracing_sets_format_field() {
+        use crate::api::observability::TracingFormat;
+        let b = EdgeRuntime::builder().with_tracing(TracingFormat::Json);
+        assert!(b.tracing_format.is_some());
     }
 }

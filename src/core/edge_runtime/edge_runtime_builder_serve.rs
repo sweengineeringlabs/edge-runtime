@@ -34,6 +34,11 @@ impl EdgeRuntimeBuilder {
     ///
     /// Blocks until SIGTERM / SIGINT or an error.
     pub async fn serve(self) -> RuntimeResult<()> {
+        #[cfg(feature = "observability")]
+        if let Some(format) = self.tracing_format {
+            crate::api::observability::init_tracing(format);
+        }
+
         let config = match self.config {
             Some(c) => c,
             None => {
