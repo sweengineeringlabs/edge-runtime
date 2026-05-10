@@ -54,8 +54,8 @@ swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", git = "ssh:
 swe-edge-egress-http = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
 
 [[test]]
-name = "edge_runtime_int_test"
-path = "tests/edge_runtime_int_test.rs"
+name = "runtime_int_test"
+path = "tests/runtime_int_test.rs"
 
 [[test]]
 name = "composite_int_test"

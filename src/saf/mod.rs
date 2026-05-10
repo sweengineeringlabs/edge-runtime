@@ -6,7 +6,7 @@ pub mod lifecycle_monitor;
 
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
-pub use crate::api::edge_runtime::{EdgeRuntime, EdgeRuntimeBuilder};
+pub use crate::api::runtime::{Runtime, RuntimeBuilder};
 pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;

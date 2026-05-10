@@ -5,7 +5,7 @@ pub(crate) mod observability;
 pub(crate) mod composite;
 pub(crate) mod config;
 pub(crate) mod config_loader;
-pub(crate) mod edge_runtime;
+pub(crate) mod runtime;
 pub(crate) mod error;
 pub(crate) mod input;
 pub(crate) mod json_codec;

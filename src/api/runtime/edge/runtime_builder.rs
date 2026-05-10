@@ -1,4 +1,4 @@
-//! `EdgeRuntimeBuilder` — fluent builder for assembling an edge runtime.
+//! `RuntimeBuilder` — fluent builder for assembling an edge runtime.
 
 use std::sync::Arc;
 
@@ -18,7 +18,7 @@ use crate::api::service_registry::ServiceRegistry;
 use crate::api::types::RuntimeConfig;
 
 /// Builder for assembling and starting an edge runtime.
-pub struct EdgeRuntimeBuilder {
+pub struct RuntimeBuilder {
     pub(crate) config:                    Option<RuntimeConfig>,
     pub(crate) app_name:                  Option<String>,
     pub(crate) http_handler:              Option<Arc<dyn HttpInbound>>,
@@ -37,7 +37,7 @@ pub struct EdgeRuntimeBuilder {
     pub(crate) tracing_format:            Option<crate::api::observability::TracingFormat>,
 }
 
-impl EdgeRuntimeBuilder {
+impl RuntimeBuilder {
     pub fn config(mut self, config: RuntimeConfig) -> Self { self.config = Some(config); self }
     pub fn app_name(mut self, name: impl Into<String>) -> Self { self.app_name = Some(name.into()); self }
 
@@ -88,12 +88,12 @@ impl EdgeRuntimeBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::edge_runtime::EdgeRuntime;
+    use crate::api::runtime::Runtime;
 
     /// @covers: app_name
     #[test]
     fn test_app_name_sets_field() {
-        let b = EdgeRuntime::builder().app_name("my-svc");
+        let b = Runtime::builder().app_name("my-svc");
         assert_eq!(b.app_name.as_deref(), Some("my-svc"));
     }
 
@@ -101,47 +101,47 @@ mod tests {
     #[test]
     fn test_config_sets_runtime_config() {
         let cfg = RuntimeConfig::default();
-        let b = EdgeRuntime::builder().config(cfg);
+        let b = Runtime::builder().config(cfg);
         assert!(b.config.is_some());
     }
 
     /// @covers: grpc_allow_unauthenticated
     #[test]
     fn test_grpc_allow_unauthenticated_sets_flag() {
-        assert!(EdgeRuntime::builder().grpc_allow_unauthenticated().grpc_allow_unauthenticated);
+        assert!(Runtime::builder().grpc_allow_unauthenticated().grpc_allow_unauthenticated);
     }
 
     /// @covers: build_registry
     #[test]
     fn test_build_registry_returns_none_without_egress_http() {
-        assert!(EdgeRuntime::builder().build_registry().is_none());
+        assert!(Runtime::builder().build_registry().is_none());
     }
 
     /// @covers: egress_http
     #[test]
     fn test_egress_http_sets_field() {
         let client = Arc::new(swe_edge_egress_http::default_http_outbound().unwrap());
-        assert!(EdgeRuntime::builder().egress_http(client).egress_http.is_some());
+        assert!(Runtime::builder().egress_http(client).egress_http.is_some());
     }
 
     /// @covers: http_tls
     #[test]
     fn test_http_tls_sets_field() {
-        let b = EdgeRuntime::builder().http_tls(IngressTlsConfig::tls("c.pem", "k.pem"));
+        let b = Runtime::builder().http_tls(IngressTlsConfig::tls("c.pem", "k.pem"));
         assert!(b.http_tls.is_some());
     }
 
     /// @covers: grpc_tls
     #[test]
     fn test_grpc_tls_sets_field() {
-        let b = EdgeRuntime::builder().grpc_tls(IngressTlsConfig::tls("c.pem", "k.pem"));
+        let b = Runtime::builder().grpc_tls(IngressTlsConfig::tls("c.pem", "k.pem"));
         assert!(b.grpc_tls.is_some());
     }
 
     /// @covers: lifecycle
     #[test]
     fn test_lifecycle_sets_field() {
-        let b = EdgeRuntime::builder().lifecycle(edge_proxy::new_null_lifecycle_monitor());
+        let b = Runtime::builder().lifecycle(edge_proxy::new_null_lifecycle_monitor());
         assert!(b.lifecycle.is_some());
     }
 
@@ -158,7 +158,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>>
             { Box::pin(async { Ok(HttpHealthCheck::healthy()) }) }
         }
-        assert!(EdgeRuntime::builder().http_handler(Arc::new(Stub)).http_handler.is_some());
+        assert!(Runtime::builder().http_handler(Arc::new(Stub)).http_handler.is_some());
     }
 
     /// @covers: grpc_handler
@@ -177,7 +177,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>>
             { Box::pin(async { Ok(GrpcHealthCheck::healthy()) }) }
         }
-        assert!(EdgeRuntime::builder().grpc_handler(Arc::new(Stub)).grpc_handler.is_some());
+        assert!(Runtime::builder().grpc_handler(Arc::new(Stub)).grpc_handler.is_some());
     }
 
     /// @covers: egress_grpc
@@ -193,7 +193,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>>
             { Box::pin(async { Ok(()) }) }
         }
-        assert!(EdgeRuntime::builder().egress_grpc(Arc::new(Stub)).egress_grpc.is_some());
+        assert!(Runtime::builder().egress_grpc(Arc::new(Stub)).egress_grpc.is_some());
     }
 
     /// @covers: http_bearer_auth
@@ -205,14 +205,14 @@ mod tests {
             fn verify(&self, _: &str) -> Result<Claims, VerifierError>
             { Err(VerifierError::Invalid("stub".into())) }
         }
-        assert!(EdgeRuntime::builder().http_bearer_auth(Arc::new(Stub)).http_bearer_verifier.is_some());
+        assert!(Runtime::builder().http_bearer_auth(Arc::new(Stub)).http_bearer_verifier.is_some());
     }
 
     /// @covers: grpc_auth
     #[test]
     fn test_grpc_auth_is_chainable_with_allow_unauthenticated() {
         // grpc_auth and grpc_allow_unauthenticated can both be called on the same builder
-        let b = EdgeRuntime::builder().grpc_allow_unauthenticated();
+        let b = Runtime::builder().grpc_allow_unauthenticated();
         assert!(b.grpc_allow_unauthenticated);
     }
 
@@ -229,7 +229,7 @@ mod tests {
             where 'life0: 'async_trait, Self: 'async_trait
             { Box::pin(async { Ok("pong".into()) }) }
         }
-        let b = EdgeRuntime::builder().http_route(Arc::new(Ping));
+        let b = Runtime::builder().http_route(Arc::new(Ping));
         assert!(b.http_dispatcher.is_some());
     }
 
@@ -246,7 +246,7 @@ mod tests {
             where 'life0: 'async_trait, Self: 'async_trait
             { Box::pin(async move { Ok(req) }) }
         }
-        let b = EdgeRuntime::builder().grpc_route(Arc::new(Echo));
+        let b = Runtime::builder().grpc_route(Arc::new(Echo));
         assert!(b.grpc_dispatcher.is_some());
     }
 
@@ -266,7 +266,7 @@ mod tests {
         }
         let decode: HttpDecodeFn<String> = |_: &HttpRequest| Ok("hi".into());
         let encode: HttpEncodeFn<String> = |s: String| HttpResponse::new(200, s.into_bytes());
-        let b = EdgeRuntime::builder().http_route_with(Arc::new(Echo), decode, encode);
+        let b = Runtime::builder().http_route_with(Arc::new(Echo), decode, encode);
         assert!(b.http_dispatcher.is_some());
     }
 
@@ -286,7 +286,7 @@ mod tests {
         }
         let decode: GrpcDecodeFn<Vec<u8>> = |b| Ok(b.to_vec());
         let encode: GrpcEncodeFn<Vec<u8>> = |v: &Vec<u8>| v.clone();
-        let b = EdgeRuntime::builder().grpc_route_with(Arc::new(Echo), decode, encode);
+        let b = Runtime::builder().grpc_route_with(Arc::new(Echo), decode, encode);
         assert!(b.grpc_dispatcher.is_some());
     }
 
@@ -304,7 +304,7 @@ mod tests {
         }
         let decode: GrpcDecodeFn<Vec<u8>> = |b| Ok(b.to_vec());
         let encode: GrpcEncodeFn<Vec<u8>> = |v: &Vec<u8>| v.clone();
-        let b = EdgeRuntime::builder().grpc_route_with(Arc::new(Echo), decode, encode);
+        let b = Runtime::builder().grpc_route_with(Arc::new(Echo), decode, encode);
         assert!(b.grpc_dispatcher.is_some());
     }
 
@@ -322,7 +322,7 @@ mod tests {
         }
         let decode: HttpDecodeFn<String> = |_r: &HttpRequest| Ok("hello".into());
         let encode: HttpEncodeFn<String> = |s: String| HttpResponse::new(200, s.into_bytes());
-        let b = EdgeRuntime::builder().http_route_with(Arc::new(Echo), decode, encode);
+        let b = Runtime::builder().http_route_with(Arc::new(Echo), decode, encode);
         assert!(b.http_dispatcher.is_some());
     }
 
@@ -331,7 +331,7 @@ mod tests {
     #[test]
     fn test_with_tracing_sets_format_field() {
         use crate::api::observability::TracingFormat;
-        let b = EdgeRuntime::builder().with_tracing(TracingFormat::Json);
+        let b = Runtime::builder().with_tracing(TracingFormat::Json);
         assert!(b.tracing_format.is_some());
     }
 }

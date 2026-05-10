@@ -7,7 +7,7 @@ use swe_edge_egress_http::HttpOutbound;
 
 /// Holds egress clients that handlers may use to make outbound calls.
 ///
-/// Constructed by [`EdgeRuntimeBuilder::build_registry`] and passed to
+/// Constructed by [`RuntimeBuilder::build_registry`] and passed to
 /// handler constructors at startup — not per-request.  Share it via
 /// `Arc<ServiceRegistry>`.
 pub struct ServiceRegistry {

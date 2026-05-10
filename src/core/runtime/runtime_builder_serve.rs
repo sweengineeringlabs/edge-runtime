@@ -1,7 +1,7 @@
-//! `EdgeRuntimeBuilder::serve()` implementation.
+//! `RuntimeBuilder::serve()` implementation.
 
 /// Primary type for this module (matches filename for Rule 89).
-pub(crate) struct EdgeRuntimeBuilderServe;
+pub(crate) struct RuntimeBuilderServe;
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -14,7 +14,7 @@ use swe_edge_ingress_grpc_reflection::ReflectionService;
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
-use crate::api::edge_runtime::EdgeRuntimeBuilder;
+use crate::api::runtime::RuntimeBuilder;
 use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::input::{DefaultInput, Input};
 use swe_observ_metrics::create_local_metrics_backend;
@@ -29,7 +29,7 @@ use crate::core::runtime_manager::DefaultRuntimeManager;
 
 const DEFAULT_APP_NAME: &str = "swe-edge";
 
-impl EdgeRuntimeBuilder {
+impl RuntimeBuilder {
     /// Assemble all registered components and start the runtime.
     ///
     /// Blocks until SIGTERM / SIGINT or an error.
@@ -84,7 +84,7 @@ impl EdgeRuntimeBuilder {
 
         if !input.has_any() {
             return Err(RuntimeError::StartFailed(
-                "EdgeRuntime: no handler registered — call .http_route() or .grpc_route()".into(),
+                "Runtime: no handler registered — call .http_route() or .grpc_route()".into(),
             ));
         }
 
@@ -244,14 +244,14 @@ async fn wait_for_signal() {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::edge_runtime::EdgeRuntime;
+    use crate::api::runtime::Runtime;
     use crate::api::error::RuntimeError;
 
     /// @covers: serve
     #[test]
     fn test_serve_returns_start_failed_when_no_handler_registered() {
         let rt     = tokio::runtime::Runtime::new().unwrap();
-        let result = rt.block_on(EdgeRuntime::builder().grpc_allow_unauthenticated().serve());
+        let result = rt.block_on(Runtime::builder().grpc_allow_unauthenticated().serve());
         assert!(
             matches!(result, Err(RuntimeError::StartFailed(_))),
             "expected StartFailed, got: {result:?}",

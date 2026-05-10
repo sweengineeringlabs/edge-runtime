@@ -8,7 +8,7 @@ use crate::api::runtime_manager::RuntimeManager;
 /// Start `manager`, await `signal`, then shut down within `shutdown_timeout_secs`.
 ///
 /// Consumers should use [`crate::saf::daemon::run`] or
-/// [`EdgeRuntimeBuilder::serve`](crate::api::edge_runtime::EdgeRuntimeBuilder).
+/// [`RuntimeBuilder::serve`](crate::api::runtime::RuntimeBuilder).
 pub(crate) async fn run_until_signal<F>(
     manager:               impl RuntimeManager,
     shutdown_timeout_secs: u64,

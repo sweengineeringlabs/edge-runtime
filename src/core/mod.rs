@@ -1,6 +1,6 @@
 mod composite;
 mod config_loader;
-mod edge_runtime;
+mod runtime;
 pub(crate) mod runner;
 pub(crate) mod validator;
 pub(crate) mod input;

@@ -1,11 +1,11 @@
 //! Integration tests that exercise cross-crate dependencies (Rule 95).
 
 use std::sync::Arc;
-use swe_edge_runtime::{EdgeRuntime, RuntimeConfig};
+use swe_edge_runtime::{Runtime, RuntimeConfig};
 
 // ── edge-domain ───────────────────────────────────────────────────────────────
 
-/// Exercises edge-domain via the EdgeRuntimeBuilder HTTP route path.
+/// Exercises edge-domain via the RuntimeBuilder HTTP route path.
 #[tokio::test]
 async fn test_edge_domain_handler_registered_via_builder() {
     use edge_domain::{Handler, HandlerError};
@@ -20,7 +20,7 @@ async fn test_edge_domain_handler_registered_via_builder() {
     }
 
     // http_route succeeding without panic confirms edge-domain Handler is wired
-    let b = EdgeRuntime::builder().http_route(Arc::new(PingHandler));
+    let b = Runtime::builder().http_route(Arc::new(PingHandler));
     // build_registry returns None (no egress) but the builder is valid
     assert!(b.build_registry().is_none());
 }
@@ -41,7 +41,7 @@ fn test_ingress_verifier_wired_via_bearer_auth() {
     };
     let verifier = JwtVerifier::from_config(&cfg).expect("jwt verifier");
     // Wiring the verifier to the builder exercises the TokenVerifier trait path
-    let b = EdgeRuntime::builder().http_bearer_auth(Arc::new(verifier));
+    let b = Runtime::builder().http_bearer_auth(Arc::new(verifier));
     assert!(b.build_registry().is_none()); // egress not set, but builder is valid
 }
 
@@ -62,7 +62,7 @@ fn test_egress_grpc_wired_via_builder() {
         { Box::pin(async { Ok(()) }) }
     }
 
-    let b = EdgeRuntime::builder().egress_grpc(Arc::new(StubGrpc));
+    let b = Runtime::builder().egress_grpc(Arc::new(StubGrpc));
     // build_registry is None because no egress_http is set
     assert!(b.build_registry().is_none());
 }

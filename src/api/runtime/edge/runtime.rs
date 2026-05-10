@@ -1,15 +1,15 @@
-//! `EdgeRuntime` — zero-size entry-point; use `EdgeRuntime::builder()`.
+//! `Runtime` — zero-size entry-point; use `Runtime::builder()`.
 
-use super::edge_runtime_builder::EdgeRuntimeBuilder;
+use super::runtime_builder::RuntimeBuilder;
 use swe_edge_ingress::GrpcInboundInterceptorChain;
 
 /// Entry-point for the edge runtime.
-pub struct EdgeRuntime;
+pub struct Runtime;
 
-impl EdgeRuntime {
+impl Runtime {
     /// Create a new builder for assembling an edge runtime.
-    pub fn builder() -> EdgeRuntimeBuilder {
-        EdgeRuntimeBuilder {
+    pub fn builder() -> RuntimeBuilder {
+        RuntimeBuilder {
             config:                    None,
             app_name:                  None,
             http_handler:              None,
@@ -37,7 +37,7 @@ mod tests {
     /// @covers: builder
     #[test]
     fn test_builder_starts_with_all_fields_none() {
-        let b = EdgeRuntime::builder();
+        let b = Runtime::builder();
         assert!(b.config.is_none() && b.app_name.is_none() && b.egress_http.is_none());
     }
 }

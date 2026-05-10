@@ -4,7 +4,7 @@
 //! This file satisfies the per-module test-file requirement and verifies
 //! the observable codec contract via the public `http_route` API.
 
-use swe_edge_runtime::{EdgeRuntime, RuntimeConfig};
+use swe_edge_runtime::{Runtime, RuntimeConfig};
 
 /// @covers: json_codec — http_route accepts a handler without explicit codec
 #[test]
@@ -29,7 +29,7 @@ fn test_http_route_accepts_handler_with_auto_json_codec() {
     }
 
     let cfg = RuntimeConfig::default();
-    let _builder = EdgeRuntime::builder()
+    let _builder = Runtime::builder()
         .config(cfg)
         .http_route(Arc::new(EchoHandler));
 }
