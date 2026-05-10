@@ -59,6 +59,30 @@ impl TrafficCounters {
     }
 }
 
+/// Fluent builder for [`TrafficCounters`], allowing custom ring-buffer capacity.
+struct TrafficCountersBuilder {
+    provider: Arc<dyn MetricsProvider>,
+    capacity: usize,
+}
+
+impl TrafficCountersBuilder {
+    fn new(provider: Arc<dyn MetricsProvider>) -> Self {
+        Self { provider, capacity: RING_CAPACITY }
+    }
+
+    fn ring_capacity(mut self, n: usize) -> Self { self.capacity = n; self }
+
+    fn build(self) -> TrafficCounters {
+        TrafficCounters {
+            provider:             self.provider,
+            requests_in_flight:   AtomicI64::new(0),
+            requests_since_tick:  AtomicU64::new(0),
+            errors_since_tick:    AtomicU64::new(0),
+            latency_ring:         Mutex::new(RingBuffer::new(self.capacity)),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -116,5 +140,20 @@ mod tests {
         c.on_end(500, false);
         let snaps = c.export();
         assert!(!snaps.is_empty());
+    }
+
+    #[test]
+    fn test_traffic_counters_builder_starts_at_zero() {
+        let c = TrafficCountersBuilder::new(Arc::new(create_local_metrics_backend())).build();
+        assert_eq!(c.requests_in_flight.load(Ordering::Relaxed), 0);
+        assert_eq!(c.requests_since_tick.load(Ordering::Relaxed), 0);
+    }
+
+    #[test]
+    fn test_traffic_counters_builder_ring_capacity_is_honoured() {
+        let c = TrafficCountersBuilder::new(Arc::new(create_local_metrics_backend()))
+            .ring_capacity(8)
+            .build();
+        assert_eq!(c.latency_ring.lock().buf.len(), 8);
     }
 }

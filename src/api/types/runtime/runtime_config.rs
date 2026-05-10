@@ -129,6 +129,22 @@ impl RuntimeConfig {
     }
 }
 
+/// Fluent builder for [`RuntimeConfig`].
+struct RuntimeConfigBuilder {
+    inner: RuntimeConfig,
+}
+
+impl RuntimeConfigBuilder {
+    fn new() -> Self { Self { inner: RuntimeConfig::default() } }
+    fn service_name(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_service_name(v); self }
+    fn http_bind(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_http_bind(v); self }
+    fn grpc_bind(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_grpc_bind(v); self }
+    fn shutdown_timeout_secs(mut self, v: u64) -> Self { self.inner = self.inner.with_shutdown_timeout(v); self }
+    fn systemd_notify(mut self, v: bool) -> Self { self.inner = self.inner.with_systemd_notify(v); self }
+    fn tenant_id(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_tenant_id(v); self }
+    fn build(self) -> RuntimeConfig { self.inner }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -178,5 +194,17 @@ mod tests {
     fn test_with_tenant_id_sets_field() {
         let cfg = RuntimeConfig::default().with_tenant_id("tenant-42");
         assert_eq!(cfg.tenant_id.as_deref(), Some("tenant-42"));
+    }
+
+    #[test]
+    fn test_runtime_config_builder_sets_fields() {
+        let cfg = RuntimeConfigBuilder::new()
+            .service_name("edge-svc")
+            .http_bind("127.0.0.1:8081")
+            .shutdown_timeout_secs(45)
+            .build();
+        assert_eq!(cfg.service_name, "edge-svc");
+        assert_eq!(cfg.http_bind, "127.0.0.1:8081");
+        assert_eq!(cfg.shutdown_timeout_secs, 45);
     }
 }

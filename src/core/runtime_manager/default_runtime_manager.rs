@@ -42,6 +42,32 @@ impl DefaultRuntimeManager {
 
 impl crate::api::runtime_manager::DefaultRuntimeManager for DefaultRuntimeManager {}
 
+/// Fluent builder for [`DefaultRuntimeManager`].
+struct DefaultRuntimeManagerBuilder {
+    config:    Option<RuntimeConfig>,
+    ingress:   Option<Arc<dyn Input>>,
+    egress:    Option<Arc<dyn Output>>,
+    lifecycle: Option<Arc<dyn edge_proxy::LifecycleMonitor>>,
+}
+
+impl DefaultRuntimeManagerBuilder {
+    fn new() -> Self {
+        Self { config: None, ingress: None, egress: None, lifecycle: None }
+    }
+    fn config(mut self, c: RuntimeConfig) -> Self { self.config = Some(c); self }
+    fn ingress(mut self, i: Arc<dyn Input>) -> Self { self.ingress = Some(i); self }
+    fn egress(mut self, e: Arc<dyn Output>) -> Self { self.egress = Some(e); self }
+    fn lifecycle(mut self, l: Arc<dyn edge_proxy::LifecycleMonitor>) -> Self { self.lifecycle = Some(l); self }
+    fn build(self) -> DefaultRuntimeManager {
+        DefaultRuntimeManager::new(
+            self.config.expect("config required"),
+            self.ingress.expect("ingress required"),
+            self.egress.expect("egress required"),
+            self.lifecycle.expect("lifecycle required"),
+        )
+    }
+}
+
 impl RuntimeManager for DefaultRuntimeManager {
     fn start(&self) -> BoxFuture<'_, RuntimeResult<()>> {
         Box::pin(async move {
@@ -395,5 +421,16 @@ mod tests {
             !grpc_comp.healthy,
             "egress.grpc must be unhealthy when health_check returns Err"
         );
+    }
+
+    #[test]
+    fn test_default_runtime_manager_builder_creates_stopped_manager() {
+        let m = DefaultRuntimeManagerBuilder::new()
+            .config(RuntimeConfig::default())
+            .ingress(Arc::new(DefaultInput::new_http(Arc::new(DefaultRuntimeManagerStubHttp))))
+            .egress(Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))))
+            .lifecycle(Arc::new(DefaultRuntimeManagerStubLifecycle))
+            .build();
+        assert_eq!(*m.status.lock(), RuntimeStatus::Stopped);
     }
 }
