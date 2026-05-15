@@ -16,7 +16,6 @@ pub enum TracingFormat {
 mod tests {
     use super::*;
 
-    /// @covers: TracingFormat — variants are constructible
     #[test]
     fn test_tracing_format_variants_are_constructible() {
         let _json   = TracingFormat::Json;

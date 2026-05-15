@@ -42,21 +42,21 @@ mod tests {
     #[cfg(feature = "observability")]
     use crate::api::tracing_format::TracingFormat;
 
-    /// @covers: init_tracing — Json
+    /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_json_does_not_panic() {
         init_tracing(TracingFormat::Json);
     }
 
-    /// @covers: init_tracing — Pretty
+    /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_pretty_does_not_panic() {
         init_tracing(TracingFormat::Pretty);
     }
 
-    /// @covers: init_tracing — idempotent
+    /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_called_twice_does_not_panic() {
