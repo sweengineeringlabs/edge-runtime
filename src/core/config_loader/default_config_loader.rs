@@ -452,14 +452,14 @@ mod tests {
 
     #[derive(Debug, Default, serde::Deserialize, PartialEq)]
     #[serde(default)]
-    struct TestSection { value: String, count: u32 }
+    struct DefaultConfigLoaderSection { value: String, count: u32 }
 
     #[test]
     fn test_load_section_reads_from_application_toml() {
         let dir = TempDir::new().unwrap();
         write(dir.path(), "application.toml",
             "[my_section]\nvalue = \"hello\"\ncount = 7");
-        let section: TestSection = loader_in(dir.path()).load_section("my_section").unwrap();
+        let section: DefaultConfigLoaderSection = loader_in(dir.path()).load_section("my_section").unwrap();
         assert_eq!(section.value, "hello");
         assert_eq!(section.count, 7);
     }
@@ -467,9 +467,9 @@ mod tests {
     #[test]
     fn test_load_section_falls_back_to_default_when_key_absent() {
         let dir = TempDir::new().unwrap();
-        let section: TestSection = loader_in(dir.path())
+        let section: DefaultConfigLoaderSection = loader_in(dir.path())
             .load_section("nonexistent_section").unwrap();
-        assert_eq!(section, TestSection::default());
+        assert_eq!(section, DefaultConfigLoaderSection::default());
     }
 
     #[test]
@@ -481,7 +481,7 @@ mod tests {
         let loader = DefaultConfigLoader {
             config_dirs: vec![low.path().to_path_buf(), high.path().to_path_buf()],
         };
-        let section: TestSection = loader.load_section("s").unwrap();
+        let section: DefaultConfigLoaderSection = loader.load_section("s").unwrap();
         assert_eq!(section.value, "high");
     }
 
@@ -490,7 +490,7 @@ mod tests {
         let dir = TempDir::new().unwrap();
         write(dir.path(), "application.toml",
             "[outer.inner]\nvalue = \"deep\"\ncount = 3");
-        let section: TestSection = loader_in(dir.path()).load_section("outer.inner").unwrap();
+        let section: DefaultConfigLoaderSection = loader_in(dir.path()).load_section("outer.inner").unwrap();
         assert_eq!(section.value, "deep");
         assert_eq!(section.count, 3);
     }
