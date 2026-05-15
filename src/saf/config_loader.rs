@@ -168,7 +168,8 @@ mod tests {
     /// @covers: load_section
     #[test]
     fn test_load_section_returns_observability_tracing_defaults() {
-        use crate::api::config::{TracingConfig, TracingLevel};
+        use crate::api::config::TracingConfig;
+        use swe_edge_observ_config::TracingLevel;
         let cfg: TracingConfig = load_section("observability.tracing").unwrap();
         assert!(cfg.enabled);
         assert_eq!(cfg.level, TracingLevel::Info);

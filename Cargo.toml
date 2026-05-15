@@ -20,11 +20,12 @@ path = "src/lib.rs"
 
 [features]
 default = []
-observability = ["dep:tracing-subscriber"]
+observability = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
 
 [dependencies]
 serde       = { version = "1.0", features = ["derive"] }
 toml        = "0.8"
+swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
 dirs        = "5"
 serde_json  = "1.0"
 thiserror   = "2"

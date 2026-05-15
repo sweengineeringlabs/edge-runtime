@@ -1,13 +1,9 @@
-//! Config error type, partial-override deserialization, and observability config.
+//! Config error type and partial-override deserialization.
+//! Observability types are re-exported from swe-edge-observ-config.
 
 pub(crate) mod config_error;
 pub(crate) mod config_override;
-pub(crate) mod observability_config;
-pub(crate) mod tracing_config;
-pub(crate) mod tracing_level;
 
 pub use config_error::ConfigError;
-pub use observability_config::ObservabilityConfig;
-pub use tracing_config::TracingConfig;
-pub use tracing_level::TracingLevel;
+pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig};
 pub(crate) use config_override::ConfigOverride;

@@ -2,7 +2,6 @@
 
 pub(crate) mod composite_inbound;
 pub(crate) mod observability;
-pub(crate) mod tracing_format;
 pub(crate) mod composite;
 pub(crate) mod config;
 pub(crate) mod config_loader;

@@ -497,7 +497,8 @@ mod tests {
 
     #[test]
     fn test_load_section_observability_tracing_reads_from_default_toml() {
-        use crate::api::config::{TracingConfig, TracingLevel};
+        use crate::api::config::TracingConfig;
+        use swe_edge_observ_config::TracingLevel;
         let dir = TempDir::new().unwrap();
         let cfg: TracingConfig = loader_in(dir.path())
             .load_section("observability.tracing").unwrap();
@@ -507,7 +508,8 @@ mod tests {
 
     #[test]
     fn test_load_section_application_toml_overrides_default_toml_tracing() {
-        use crate::api::config::{TracingConfig, TracingLevel};
+        use crate::api::config::TracingConfig;
+        use swe_edge_observ_config::TracingLevel;
         let dir = TempDir::new().unwrap();
         write(dir.path(), "application.toml",
             "[observability.tracing]\nlevel = \"debug\"");

@@ -61,9 +61,7 @@ pub use config_loader::{
 };
 
 // ── Observability ─────────────────────────────────────────────────────────────
-pub use crate::api::config::{ObservabilityConfig, TracingConfig, TracingLevel};
-#[cfg(feature = "observability")]
-pub use crate::api::tracing_format::TracingFormat;
+pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 #[cfg(feature = "observability")]
 pub use crate::api::observability::init_tracing;
 

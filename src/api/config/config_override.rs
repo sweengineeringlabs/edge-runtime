@@ -5,8 +5,8 @@ use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
+use swe_edge_observ_config::ObservabilityConfig;
 use crate::api::config::config_error::ConfigError;
-use crate::api::config::observability_config::ObservabilityConfig;
 use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
 use crate::api::types::RuntimeConfig;
 
@@ -119,7 +119,7 @@ mod tests {
         let o = ConfigOverride::from_str(toml).unwrap();
         let merged = o.apply_to(base);
         let tracing = &merged.observability.unwrap().tracing;
-        assert_eq!(tracing.level, crate::api::config::tracing_level::TracingLevel::Debug);
+        assert_eq!(tracing.level, swe_edge_observ_config::TracingLevel::Debug);
     }
 
     #[test]
