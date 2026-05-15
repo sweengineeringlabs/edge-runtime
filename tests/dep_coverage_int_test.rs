@@ -91,7 +91,7 @@ fn test_reflection_service_can_be_constructed_with_empty_registry() {
 /// Exercises swe-edge-ingress-verifier directly via JwtVerifier.
 #[test]
 fn test_jwt_verifier_rejects_invalid_token_directly() {
-    use swe_edge_ingress_verifier::{JwtVerifier, JwtConfig, JwtKey};
+    use swe_edge_ingress_verifier::{JwtVerifier, JwtConfig, JwtKey, TokenVerifier};
     let secret: Vec<u8> = b"test-secret-key-that-is-long-enough".to_vec();
     let cfg = JwtConfig {
         key:               JwtKey::Hs256 { secret },
