@@ -24,8 +24,7 @@ impl Runtime {
             egress_http:               None,
             egress_grpc:               None,
             lifecycle:                 None,
-            #[cfg(feature = "observability")]
-            tracing_format:            None,
+            tracing_config:            None,
         }
     }
 }

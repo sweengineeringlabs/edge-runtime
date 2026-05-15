@@ -57,9 +57,11 @@ pub use config_loader::{
     load_tenant_config, load_tenant_config_from,
     load_config_xdg, load_tenant_config_xdg,
     validate_config,
+    load_section, load_section_from, load_section_xdg,
 };
 
 // ── Observability ─────────────────────────────────────────────────────────────
+pub use crate::api::config::{ObservabilityConfig, TracingConfig, TracingLevel};
 #[cfg(feature = "observability")]
 pub use crate::api::tracing_format::TracingFormat;
 #[cfg(feature = "observability")]

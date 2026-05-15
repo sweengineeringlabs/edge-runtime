@@ -5,9 +5,10 @@ use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
+use crate::api::config::config_error::ConfigError;
+use crate::api::config::observability_config::ObservabilityConfig;
 use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
 use crate::api::types::RuntimeConfig;
-use crate::api::config::config_error::ConfigError;
 
 /// A partial `RuntimeConfig` — all fields optional so any
 /// subset of keys can be present in a TOML overlay file.
@@ -29,6 +30,7 @@ pub(crate) struct ConfigOverride {
     pub(crate) grpc_reflection:            Option<bool>,
     pub(crate) metrics:                    Option<MetricsConfig>,
     pub(crate) autoscale:                  Option<AutoscalePolicy>,
+    pub(crate) observability:              Option<ObservabilityConfig>,
 }
 
 impl ConfigOverride {
@@ -52,6 +54,7 @@ impl ConfigOverride {
         if let Some(v) = self.grpc_reflection            { base.grpc_reflection           = v; }
         if let Some(v) = self.metrics                    { base.metrics                   = Some(v); }
         if let Some(v) = self.autoscale                  { base.autoscale                 = Some(v); }
+        if let Some(v) = self.observability              { base.observability             = Some(v); }
         base
     }
 }
@@ -103,6 +106,20 @@ mod tests {
         let o = ConfigOverride::from_str(r#"tenant_id = """#).unwrap();
         let merged = o.apply_to(base);
         assert!(merged.tenant_id.is_none());
+    }
+
+    #[test]
+    fn test_apply_to_propagates_observability_section() {
+        let base = RuntimeConfig::default();
+        let toml = r#"
+            [observability.tracing]
+            level  = "debug"
+            format = "json"
+        "#;
+        let o = ConfigOverride::from_str(toml).unwrap();
+        let merged = o.apply_to(base);
+        let tracing = &merged.observability.unwrap().tracing;
+        assert_eq!(tracing.level, crate::api::config::tracing_level::TracingLevel::Debug);
     }
 
     #[test]

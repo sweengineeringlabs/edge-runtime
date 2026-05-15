@@ -9,3 +9,9 @@ systemd_notify        = false
 tenant_id             = ""    # empty = single-tenant mode
 grpc_allow_unauthenticated = false
 grpc_reflection            = false
+
+[observability.tracing]
+enabled = true
+format  = "pretty"   # pretty | json
+level   = "info"     # trace | debug | info | warn | error
+# filter = ""        # optional: "my_crate=debug,tower=warn"

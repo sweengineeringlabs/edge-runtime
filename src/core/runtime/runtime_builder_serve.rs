@@ -34,11 +34,6 @@ impl RuntimeBuilder {
     ///
     /// Blocks until SIGTERM / SIGINT or an error.
     pub async fn serve(self) -> RuntimeResult<()> {
-        #[cfg(feature = "observability")]
-        if let Some(format) = self.tracing_format {
-            crate::api::observability::init_tracing(format);
-        }
-
         let config = match self.config {
             Some(c) => c,
             None => {
@@ -47,6 +42,16 @@ impl RuntimeBuilder {
                     .map_err(|e| RuntimeError::StartFailed(e.to_string()))?
             }
         };
+
+        // Builder explicit wins; fall back to [observability.tracing] from TOML.
+        #[cfg(feature = "observability")]
+        {
+            let tracing_cfg = self.tracing_config.as_ref()
+                .or_else(|| config.observability.as_ref().map(|o| &o.tracing));
+            if let Some(cfg) = tracing_cfg {
+                crate::api::observability::init_tracing(cfg);
+            }
+        }
 
         // ── Resolve TLS / auth: builder explicit wins, else fall back to config ─
         let http_tls = self.http_tls.or_else(|| config.http_tls.clone());

@@ -76,6 +76,43 @@ pub fn validate_config(config: &RuntimeConfig) -> Result<(), RuntimeError> {
     ConfigValidator.validate(config)
 }
 
+/// Load an arbitrary TOML section from the default config chain.
+///
+/// `key` is a dotted path, e.g. `"observability.tracing"` or
+/// `"application.completion"`.  Each config directory's `application.toml`
+/// layers over the shipped `default.toml`.
+///
+/// ```rust,ignore
+/// let tracing: TracingConfig = load_section("observability.tracing")?;
+/// ```
+pub fn load_section<T>(key: &str) -> Result<T, ConfigError>
+where
+    T: serde::de::DeserializeOwned + Default,
+{
+    DefaultConfigLoader::new().load_section(key)
+}
+
+/// Load an arbitrary TOML section from an explicit config directory.
+pub fn load_section_from<T>(
+    key: &str,
+    dir: impl Into<std::path::PathBuf>,
+) -> Result<T, ConfigError>
+where
+    T: serde::de::DeserializeOwned + Default,
+{
+    DefaultConfigLoader::with_dir(dir).load_section(key)
+}
+
+/// Load an arbitrary TOML section following the XDG Base Directory chain.
+///
+/// Layer order matches [`load_config_xdg`].
+pub fn load_section_xdg<T>(app_name: &str, key: &str) -> Result<T, ConfigError>
+where
+    T: serde::de::DeserializeOwned + Default,
+{
+    DefaultConfigLoader::xdg(app_name).load_section(key)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -126,5 +163,35 @@ mod tests {
     fn test_validate_config_accepts_defaults() {
         let cfg = load_config().unwrap();
         assert!(validate_config(&cfg).is_ok());
+    }
+
+    /// @covers: load_section
+    #[test]
+    fn test_load_section_returns_observability_tracing_defaults() {
+        use crate::api::config::{TracingConfig, TracingLevel};
+        let cfg: TracingConfig = load_section("observability.tracing").unwrap();
+        assert!(cfg.enabled);
+        assert_eq!(cfg.level, TracingLevel::Info);
+    }
+
+    /// @covers: load_section_from
+    #[test]
+    fn test_load_section_from_reads_section_from_supplied_dir() {
+        use crate::api::config::TracingConfig;
+        use std::io::Write as _;
+        let dir = tempfile::tempdir().unwrap();
+        let mut f = std::fs::File::create(dir.path().join("application.toml")).unwrap();
+        writeln!(f, "[observability.tracing]\nenabled = false").unwrap();
+        let cfg: TracingConfig = load_section_from("observability.tracing", dir.path()).unwrap();
+        assert!(!cfg.enabled);
+    }
+
+    /// @covers: load_section_xdg
+    #[test]
+    fn test_load_section_xdg_returns_defaults_for_unknown_app() {
+        use crate::api::config::TracingConfig;
+        let cfg: TracingConfig =
+            load_section_xdg("swe-edge-test-nonexistent-xyz", "observability.tracing").unwrap();
+        assert!(cfg.enabled);
     }
 }

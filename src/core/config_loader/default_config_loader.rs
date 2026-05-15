@@ -130,6 +130,83 @@ impl DefaultConfigLoader {
     }
 }
 
+/// Merge two `toml::Value`s — for tables, overlay keys win; for scalars, overlay wins.
+fn merge_toml(base: toml::Value, overlay: toml::Value) -> toml::Value {
+    match (base, overlay) {
+        (toml::Value::Table(mut b), toml::Value::Table(o)) => {
+            for (k, v) in o { b.insert(k, v); }
+            toml::Value::Table(b)
+        }
+        (_, o) => o,
+    }
+}
+
+impl DefaultConfigLoader {
+    /// Load an arbitrary TOML section from the layered config chain.
+    ///
+    /// `key` is a dotted path into the config tree, e.g.
+    /// `"observability.tracing"` or `"application.completion"`.
+    ///
+    /// Layer order (later wins):
+    /// 1. Shipped `default.toml` (embedded at compile time)
+    /// 2. Each config directory's `application.toml`
+    ///
+    /// The resulting table is deserialized into `T`.  Missing keys use
+    /// `T`'s `#[serde(default)]` values.  Returns `ConfigError::Parse`
+    /// if the section is present but cannot be deserialized.  Returns
+    /// `Ok(T::default())` if the key is absent from all sources (requires
+    /// `T: Default`).
+    pub(crate) fn load_section<T>(&self, key: &str) -> Result<T, ConfigError>
+    where
+        T: serde::de::DeserializeOwned + Default,
+    {
+        let mut merged = toml::Value::Table(toml::map::Map::new());
+
+        // Shipped defaults.
+        let default_val: toml::Value = toml::from_str(DEFAULT_TOML)
+            .map_err(|e| ConfigError::Parse(e.to_string()))?;
+        if let Some(section) = extract_dotted(&default_val, key) {
+            merged = merge_toml(merged, section);
+        }
+
+        // Each application.toml in priority order.
+        for dir in &self.config_dirs {
+            let path = dir.join("application.toml");
+            if !path.exists() { continue; }
+            let meta = std::fs::metadata(&path)
+                .map_err(|e| ConfigError::Io(format!("{}: {e}", path.display())))?;
+            if meta.len() > MAX_CONFIG_FILE_BYTES {
+                return Err(ConfigError::Io(format!(
+                    "{}: config file exceeds the 1 MiB limit ({} bytes)",
+                    path.display(), meta.len(),
+                )));
+            }
+            let text = std::fs::read_to_string(&path)
+                .map_err(|e| ConfigError::Io(format!("{}: {e}", path.display())))?;
+            let val: toml::Value = toml::from_str(&text)
+                .map_err(|e| ConfigError::Parse(e.to_string()))?;
+            if let Some(section) = extract_dotted(&val, key) {
+                merged = merge_toml(merged, section);
+            }
+        }
+
+        if matches!(merged, toml::Value::Table(ref t) if t.is_empty()) {
+            return Ok(T::default());
+        }
+
+        merged.try_into().map_err(|e: toml::de::Error| ConfigError::Parse(e.to_string()))
+    }
+}
+
+/// Walk a dotted key path (e.g. `"observability.tracing"`) into a `toml::Value`.
+fn extract_dotted(val: &toml::Value, key: &str) -> Option<toml::Value> {
+    let mut current = val;
+    for part in key.split('.') {
+        current = current.get(part)?;
+    }
+    Some(current.clone())
+}
+
 fn parse_shutdown_timeout(v: &str) -> Result<u64, ConfigError> {
     v.parse::<u64>().map_err(|_| {
         ConfigError::BadEnvVar(format!(
@@ -369,5 +446,74 @@ mod tests {
     fn test_parse_shutdown_timeout_accepts_valid_integer() {
         assert_eq!(parse_shutdown_timeout("120").unwrap(), 120);
         assert_eq!(parse_shutdown_timeout("0").unwrap(), 0);
+    }
+
+    // ── load_section ────────────────────────────────────────────────────────
+
+    #[derive(Debug, Default, serde::Deserialize, PartialEq)]
+    #[serde(default)]
+    struct TestSection { value: String, count: u32 }
+
+    #[test]
+    fn test_load_section_reads_from_application_toml() {
+        let dir = TempDir::new().unwrap();
+        write(dir.path(), "application.toml",
+            "[my_section]\nvalue = \"hello\"\ncount = 7");
+        let section: TestSection = loader_in(dir.path()).load_section("my_section").unwrap();
+        assert_eq!(section.value, "hello");
+        assert_eq!(section.count, 7);
+    }
+
+    #[test]
+    fn test_load_section_falls_back_to_default_when_key_absent() {
+        let dir = TempDir::new().unwrap();
+        let section: TestSection = loader_in(dir.path())
+            .load_section("nonexistent_section").unwrap();
+        assert_eq!(section, TestSection::default());
+    }
+
+    #[test]
+    fn test_load_section_later_application_toml_overrides_earlier() {
+        let low = TempDir::new().unwrap();
+        let high = TempDir::new().unwrap();
+        write(low.path(),  "application.toml", "[s]\nvalue = \"low\"");
+        write(high.path(), "application.toml", "[s]\nvalue = \"high\"");
+        let loader = DefaultConfigLoader {
+            config_dirs: vec![low.path().to_path_buf(), high.path().to_path_buf()],
+        };
+        let section: TestSection = loader.load_section("s").unwrap();
+        assert_eq!(section.value, "high");
+    }
+
+    #[test]
+    fn test_load_section_supports_dotted_key_path() {
+        let dir = TempDir::new().unwrap();
+        write(dir.path(), "application.toml",
+            "[outer.inner]\nvalue = \"deep\"\ncount = 3");
+        let section: TestSection = loader_in(dir.path()).load_section("outer.inner").unwrap();
+        assert_eq!(section.value, "deep");
+        assert_eq!(section.count, 3);
+    }
+
+    #[test]
+    fn test_load_section_observability_tracing_reads_from_default_toml() {
+        use crate::api::config::{TracingConfig, TracingLevel};
+        let dir = TempDir::new().unwrap();
+        let cfg: TracingConfig = loader_in(dir.path())
+            .load_section("observability.tracing").unwrap();
+        assert!(cfg.enabled);
+        assert_eq!(cfg.level, TracingLevel::Info);
+    }
+
+    #[test]
+    fn test_load_section_application_toml_overrides_default_toml_tracing() {
+        use crate::api::config::{TracingConfig, TracingLevel};
+        let dir = TempDir::new().unwrap();
+        write(dir.path(), "application.toml",
+            "[observability.tracing]\nlevel = \"debug\"");
+        let cfg: TracingConfig = loader_in(dir.path())
+            .load_section("observability.tracing").unwrap();
+        assert_eq!(cfg.level, TracingLevel::Debug);
+        assert!(cfg.enabled); // inherited from default.toml
     }
 }

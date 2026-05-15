@@ -7,6 +7,7 @@ use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
 pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
+pub use crate::api::config::ObservabilityConfig;
 
 /// Configuration for the runtime manager.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,6 +61,11 @@ pub struct RuntimeConfig {
     /// Has no effect if `metrics` is absent.
     pub autoscale: Option<AutoscalePolicy>,
 
+    // ── Observability ─────────────────────────────────────────────────────────
+    /// Tracing subscriber and observability settings (`[observability]` section).
+    /// Absent = use `TracingConfig` defaults when `with_tracing()` is called.
+    pub observability: Option<ObservabilityConfig>,
+
     // ── Deployment ────────────────────────────────────────────────────────────
     /// Directory containing deployment artifacts (systemd units, manifests, etc.).
     /// Absent = use the bundled defaults shipped with the runtime.
@@ -86,6 +92,7 @@ impl Default for RuntimeConfig {
             grpc_reflection:           false,
             metrics:                   None,
             autoscale:                 None,
+            observability:             None,
             deploy_dir:                None,
         }
     }
@@ -156,6 +163,11 @@ mod tests {
         assert_eq!(cfg.grpc_bind, "0.0.0.0:50051");
         assert_eq!(cfg.shutdown_timeout_secs, 30);
         assert!(!cfg.systemd_notify);
+    }
+
+    #[test]
+    fn test_default_runtime_config_has_no_observability() {
+        assert!(RuntimeConfig::default().observability.is_none());
     }
 
     /// @covers: with_service_name
