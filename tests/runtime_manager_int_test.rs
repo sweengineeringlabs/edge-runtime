@@ -12,7 +12,7 @@ use tokio::sync::oneshot;
 
 use edge_proxy::{HealthReport, LifecycleError, LifecycleMonitor};
 use swe_edge_runtime::{
-    DefaultInput, DefaultOutput, RuntimeConfig, RuntimeManager, RuntimeStatus,
+    DefaultIngress, DefaultEgress, RuntimeConfig, RuntimeManager, RuntimeStatus,
     runtime_manager,
 };
 use swe_edge_egress_http::{
@@ -85,8 +85,8 @@ async fn start_daemon_stack(
     let base_url = format!("http://{addr}");
 
     let config  = RuntimeConfig::default().with_systemd_notify(false);
-    let ingress = Arc::new(DefaultInput::new_http(handler.clone()));
-    let egress  = Arc::new(DefaultOutput::new_http(Arc::new(StubHttpOutbound)));
+    let ingress = Arc::new(DefaultIngress::new_http(handler.clone()));
+    let egress  = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpOutbound)));
     let mgr     = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
 
     mgr.start().await.expect("RuntimeManager::start failed");
@@ -108,8 +108,8 @@ async fn start_daemon_stack(
 async fn test_runtime_manager_start_and_shutdown_round_trip() {
     let handler: Arc<dyn HttpInbound> = Arc::new(EchoHandler);
     let config  = RuntimeConfig::default().with_systemd_notify(false);
-    let ingress = Arc::new(DefaultInput::new_http(handler));
-    let egress  = Arc::new(DefaultOutput::new_http(Arc::new(StubHttpOutbound)));
+    let ingress = Arc::new(DefaultIngress::new_http(handler));
+    let egress  = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpOutbound)));
     let mgr     = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
 
     mgr.start().await.expect("start ok");
@@ -123,8 +123,8 @@ async fn test_runtime_manager_start_and_shutdown_round_trip() {
 async fn test_runtime_manager_health_reports_ingress_and_egress() {
     let handler: Arc<dyn HttpInbound> = Arc::new(EchoHandler);
     let config  = RuntimeConfig::default().with_systemd_notify(false);
-    let ingress = Arc::new(DefaultInput::new_http(handler));
-    let egress  = Arc::new(DefaultOutput::new_http(Arc::new(StubHttpOutbound)));
+    let ingress = Arc::new(DefaultIngress::new_http(handler));
+    let egress  = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpOutbound)));
     let mgr     = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
 
     mgr.start().await.expect("start ok");

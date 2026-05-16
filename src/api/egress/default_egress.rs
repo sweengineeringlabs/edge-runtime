@@ -1,17 +1,17 @@
-//! `DefaultOutput` — holds egress adapters by `Arc`.
+//! `DefaultEgress` — holds egress adapters by `Arc`.
 
 use std::sync::Arc;
 use swe_edge_egress_grpc::GrpcOutbound;
 use swe_edge_egress_http::HttpOutbound;
 
-/// Default [`Output`] implementation — holds egress adapters by `Arc`.
-pub struct DefaultOutput {
+/// Default [`Egress`] implementation — holds egress adapters by `Arc`.
+pub struct DefaultEgress {
     pub(crate) http: Arc<dyn HttpOutbound>,
     pub(crate) grpc: Option<Arc<dyn GrpcOutbound>>,
 }
 
-impl DefaultOutput {
-    /// Construct a gateway with only an HTTP outbound adapter.
+impl DefaultEgress {
+    /// Construct with only an HTTP outbound adapter.
     pub fn new_http(http: Arc<dyn HttpOutbound>) -> Self { Self { http, grpc: None } }
     /// Add (or replace) the gRPC outbound transport.
     pub fn with_grpc(mut self, grpc: Arc<dyn GrpcOutbound>) -> Self {
@@ -38,8 +38,8 @@ mod tests {
 
     /// @covers: new_http
     #[test]
-    fn test_new_http_creates_output_with_no_grpc() {
-        let out = DefaultOutput::new_http(Arc::new(StubHttp));
+    fn test_new_http_creates_egress_with_no_grpc() {
+        let out = DefaultEgress::new_http(Arc::new(StubHttp));
         assert!(out.grpc.is_none());
     }
 
@@ -55,7 +55,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>>
             { Box::pin(async { Ok(()) }) }
         }
-        let out = DefaultOutput::new_http(Arc::new(StubHttp)).with_grpc(Arc::new(StubGrpc));
+        let out = DefaultEgress::new_http(Arc::new(StubHttp)).with_grpc(Arc::new(StubGrpc));
         assert!(out.grpc.is_some());
     }
 }

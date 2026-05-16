@@ -1,9 +1,9 @@
-//! Coverage for core/output.rs — DefaultOutput trait impl.
+//! Coverage for api/egress — DefaultEgress trait impl.
 
 use std::sync::Arc;
 use futures::future::BoxFuture;
 use swe_edge_egress_http::{HttpOutbound, HttpOutboundResult, HttpRequest, HttpResponse, HttpStreamResponse};
-use swe_edge_runtime::{DefaultOutput, Output};
+use swe_edge_runtime::{DefaultEgress, Egress};
 
 struct StubHttp;
 impl HttpOutbound for StubHttp {
@@ -18,10 +18,10 @@ impl HttpOutbound for StubHttp {
     }
 }
 
-/// @covers: DefaultOutput trait impl — http()
+/// @covers: DefaultEgress trait impl — http()
 #[test]
-fn test_default_output_http_returns_configured_adapter() {
-    let output = DefaultOutput::new_http(Arc::new(StubHttp));
-    let _ = output.http();
-    assert!(output.grpc().is_none());
+fn test_default_egress_http_returns_configured_adapter() {
+    let egress = DefaultEgress::new_http(Arc::new(StubHttp));
+    let _ = egress.http();
+    assert!(egress.grpc().is_none());
 }

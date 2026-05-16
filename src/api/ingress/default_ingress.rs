@@ -1,15 +1,15 @@
-//! `DefaultInput` — holds ingress adapters by `Arc`.
+//! `DefaultIngress` — holds ingress adapters by `Arc`.
 
 use std::sync::Arc;
 use swe_edge_ingress::{GrpcInbound, HttpInbound};
 
-/// Default [`Input`] implementation — holds optional ingress adapters by `Arc`.
-pub struct DefaultInput {
+/// Default [`Ingress`] implementation — holds optional ingress adapters by `Arc`.
+pub struct DefaultIngress {
     pub(crate) http: Option<Arc<dyn HttpInbound>>,
     pub(crate) grpc: Option<Arc<dyn GrpcInbound>>,
 }
 
-impl DefaultInput {
+impl DefaultIngress {
     /// Start with HTTP as the sole transport.
     pub fn new_http(http: Arc<dyn HttpInbound>) -> Self { Self { http: Some(http), grpc: None } }
     /// Start with gRPC as the sole transport.
@@ -22,7 +22,7 @@ impl DefaultInput {
     pub fn with_grpc(mut self, grpc: Arc<dyn GrpcInbound>) -> Self { self.grpc = Some(grpc); self }
 }
 
-impl crate::api::input::Input for DefaultInput {
+impl crate::api::ingress::Ingress for DefaultIngress {
     fn http(&self) -> Option<Arc<dyn HttpInbound>> { self.http.clone() }
     fn grpc(&self) -> Option<Arc<dyn GrpcInbound>> { self.grpc.clone() }
 }
@@ -34,7 +34,7 @@ mod tests {
     /// @covers: empty
     #[test]
     fn test_empty_has_no_transports() {
-        let i = DefaultInput::empty();
+        let i = DefaultIngress::empty();
         assert!(i.http.is_none() && i.grpc.is_none());
     }
 
@@ -51,7 +51,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>>
             { Box::pin(async { Ok(HttpHealthCheck::healthy()) }) }
         }
-        let i = DefaultInput::new_http(Arc::new(Stub));
+        let i = DefaultIngress::new_http(Arc::new(Stub));
         assert!(i.http.is_some() && i.grpc.is_none());
     }
 
@@ -68,7 +68,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>>
             { Box::pin(async { Ok(HttpHealthCheck::healthy()) }) }
         }
-        let i = DefaultInput::empty().with_http(Arc::new(Stub));
+        let i = DefaultIngress::empty().with_http(Arc::new(Stub));
         assert!(i.http.is_some());
     }
 
@@ -88,7 +88,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>>
             { Box::pin(async { Ok(GrpcHealthCheck::healthy()) }) }
         }
-        let i = DefaultInput::new_grpc(Arc::new(Stub));
+        let i = DefaultIngress::new_grpc(Arc::new(Stub));
         assert!(i.grpc.is_some() && i.http.is_none());
     }
 
@@ -108,7 +108,7 @@ mod tests {
             fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>>
             { Box::pin(async { Ok(GrpcHealthCheck::healthy()) }) }
         }
-        let i = DefaultInput::empty().with_grpc(Arc::new(Stub));
+        let i = DefaultIngress::empty().with_grpc(Arc::new(Stub));
         assert!(i.grpc.is_some());
     }
 }

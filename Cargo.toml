@@ -72,12 +72,12 @@ name = "json_codec_int_test"
 path = "tests/json_codec_int_test.rs"
 
 [[test]]
-name = "input_int_test"
-path = "tests/input_int_test.rs"
+name = "ingress_int_test"
+path = "tests/ingress_int_test.rs"
 
 [[test]]
-name = "output_int_test"
-path = "tests/output_int_test.rs"
+name = "egress_int_test"
+path = "tests/egress_int_test.rs"
 
 [[test]]
 name = "runtime_manager_int_test"

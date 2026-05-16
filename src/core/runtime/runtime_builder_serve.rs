@@ -16,11 +16,11 @@ use tokio::sync::oneshot;
 
 use crate::api::runtime::RuntimeBuilder;
 use crate::api::error::{RuntimeError, RuntimeResult};
-use crate::api::input::{DefaultInput, Input};
+use crate::api::ingress::{DefaultIngress, Ingress};
 use swe_observ_metrics::create_local_metrics_backend;
 use crate::api::config_loader::ConfigLoader;
 use crate::api::monitor::{TrafficCounters, SharedCounters};
-use crate::api::output::DefaultOutput;
+use crate::api::egress::DefaultEgress;
 use crate::core::config_loader::DefaultConfigLoader;
 use crate::core::monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
 use crate::core::metrics_handler::MetricsHandler;
@@ -80,7 +80,7 @@ impl RuntimeBuilder {
             None
         };
 
-        let mut input = DefaultInput::empty();
+        let mut input = DefaultIngress::empty();
         if let Some(d) = self.http_dispatcher { input = input.with_http(Arc::new(d)); }
         else if let Some(h) = self.http_handler { input = input.with_http(h); }
 
@@ -121,7 +121,7 @@ impl RuntimeBuilder {
                 None
             };
 
-        let mut output = DefaultOutput::new_http(egress_http);
+        let mut output = DefaultEgress::new_http(egress_http);
         if let Some(g) = egress_grpc { output = output.with_grpc(g); }
 
         let lifecycle = self.lifecycle.unwrap_or_else(|| new_null_lifecycle_monitor());

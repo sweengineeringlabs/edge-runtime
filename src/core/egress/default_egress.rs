@@ -1,13 +1,13 @@
-//! [`Output`] trait impl for [`DefaultOutput`].
+//! [`Egress`] trait impl for [`DefaultEgress`].
 
 use std::sync::Arc;
 
 use swe_edge_egress_grpc::GrpcOutbound;
 use swe_edge_egress_http::HttpOutbound;
 
-use crate::api::output::{DefaultOutput, Output};
+use crate::api::egress::{DefaultEgress, Egress};
 
-impl Output for DefaultOutput {
+impl Egress for DefaultEgress {
     fn http(&self) -> Arc<dyn HttpOutbound>         { self.http.clone() }
     fn grpc(&self) -> Option<Arc<dyn GrpcOutbound>> { self.grpc.clone() }
 }
@@ -18,10 +18,10 @@ mod tests {
     use std::sync::Arc;
     use futures::future::BoxFuture;
     use swe_edge_egress_http::{HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamResponse};
-    use crate::api::output::DefaultOutput;
+    use crate::api::egress::DefaultEgress;
 
-    struct DefaultOutputStub;
-    impl HttpOutbound for DefaultOutputStub {
+    struct DefaultEgressStub;
+    impl HttpOutbound for DefaultEgressStub {
         fn send(&self, _: swe_edge_egress_http::HttpRequest)
             -> BoxFuture<'_, HttpOutboundResult<swe_edge_egress_http::HttpResponse>>
         { Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) }) }
@@ -33,15 +33,15 @@ mod tests {
     }
 
     #[test]
-    fn test_output_http_returns_configured_client() {
-        let client: Arc<dyn HttpOutbound> = Arc::new(DefaultOutputStub);
-        let output = DefaultOutput::new_http(Arc::clone(&client));
-        let _ = output.http();
+    fn test_egress_http_returns_configured_client() {
+        let client: Arc<dyn HttpOutbound> = Arc::new(DefaultEgressStub);
+        let egress = DefaultEgress::new_http(Arc::clone(&client));
+        let _ = egress.http();
     }
 
     #[test]
-    fn test_output_grpc_returns_none_when_not_configured() {
-        let output = DefaultOutput::new_http(Arc::new(DefaultOutputStub));
-        assert!(output.grpc().is_none());
+    fn test_egress_grpc_returns_none_when_not_configured() {
+        let egress = DefaultEgress::new_http(Arc::new(DefaultEgressStub));
+        assert!(egress.grpc().is_none());
     }
 }

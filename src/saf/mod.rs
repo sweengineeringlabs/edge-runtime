@@ -13,8 +13,8 @@ pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 pub use crate::api::types::runtime_health::ComponentHealth;
-pub use crate::api::input::{DefaultInput, Input};
-pub use crate::api::output::{DefaultOutput, Output};
+pub use crate::api::ingress::{DefaultIngress, Ingress};
+pub use crate::api::egress::{DefaultEgress, Egress};
 
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_verifier::{TokenVerifier, JwtVerifier, JwtConfig, JwtKey, Claims, VerifierError};

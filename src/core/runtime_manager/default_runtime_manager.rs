@@ -10,13 +10,13 @@ use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::runtime_manager::RuntimeManager;
 use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 use crate::api::types::runtime_health::ComponentHealth;
-use crate::api::input::Input;
-use crate::api::output::Output;
+use crate::api::ingress::Ingress;
+use crate::api::egress::Egress;
 
 pub(crate) struct DefaultRuntimeManager {
     config:     RuntimeConfig,
-    ingress:    Arc<dyn Input>,
-    egress:     Arc<dyn Output>,
+    ingress:    Arc<dyn Ingress>,
+    egress:     Arc<dyn Egress>,
     lifecycle:  Arc<dyn LifecycleMonitor>,
     status:     Arc<Mutex<RuntimeStatus>>,
     started_at: Arc<Mutex<Option<Instant>>>,
@@ -25,8 +25,8 @@ pub(crate) struct DefaultRuntimeManager {
 impl DefaultRuntimeManager {
     pub(crate) fn new(
         config:    RuntimeConfig,
-        ingress:   Arc<dyn Input>,
-        egress:    Arc<dyn Output>,
+        ingress:   Arc<dyn Ingress>,
+        egress:    Arc<dyn Egress>,
         lifecycle: Arc<dyn LifecycleMonitor>,
     ) -> Self {
         Self {
@@ -45,8 +45,8 @@ impl crate::api::runtime_manager::DefaultRuntimeManager for DefaultRuntimeManage
 /// Fluent builder for [`DefaultRuntimeManager`].
 struct DefaultRuntimeManagerBuilder {
     config:    Option<RuntimeConfig>,
-    ingress:   Option<Arc<dyn Input>>,
-    egress:    Option<Arc<dyn Output>>,
+    ingress:   Option<Arc<dyn Ingress>>,
+    egress:    Option<Arc<dyn Egress>>,
     lifecycle: Option<Arc<dyn edge_proxy::LifecycleMonitor>>,
 }
 
@@ -55,8 +55,8 @@ impl DefaultRuntimeManagerBuilder {
         Self { config: None, ingress: None, egress: None, lifecycle: None }
     }
     fn config(mut self, c: RuntimeConfig) -> Self { self.config = Some(c); self }
-    fn ingress(mut self, i: Arc<dyn Input>) -> Self { self.ingress = Some(i); self }
-    fn egress(mut self, e: Arc<dyn Output>) -> Self { self.egress = Some(e); self }
+    fn ingress(mut self, i: Arc<dyn Ingress>) -> Self { self.ingress = Some(i); self }
+    fn egress(mut self, e: Arc<dyn Egress>) -> Self { self.egress = Some(e); self }
     fn lifecycle(mut self, l: Arc<dyn edge_proxy::LifecycleMonitor>) -> Self { self.lifecycle = Some(l); self }
     fn build(self) -> DefaultRuntimeManager {
         DefaultRuntimeManager::new(
@@ -213,8 +213,8 @@ mod tests {
         GrpcMetadata as EgressGrpcMetadata,
     };
     use swe_edge_egress_http::{HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse};
-    use crate::api::input::DefaultInput;
-    use crate::api::output::DefaultOutput;
+    use crate::api::ingress::DefaultIngress;
+    use crate::api::egress::DefaultEgress;
 
     struct DefaultRuntimeManagerStubLifecycle;
 
@@ -283,8 +283,8 @@ mod tests {
     fn make_manager() -> DefaultRuntimeManager {
         DefaultRuntimeManager::new(
             RuntimeConfig::default().with_systemd_notify(false),
-            Arc::new(DefaultInput::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
-            Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
+            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         )
     }
@@ -330,8 +330,8 @@ mod tests {
     async fn test_start_fails_when_no_ingress_configured() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultInput::empty()),
-            Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultIngress::empty()),
+            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         let err = m.start().await.unwrap_err();
@@ -353,8 +353,8 @@ mod tests {
     async fn test_health_reports_grpc_when_only_grpc_configured() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultInput::new_grpc(Arc::new(DefaultRuntimeManagerStubGrpc))),
-            Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultIngress::new_grpc(Arc::new(DefaultRuntimeManagerStubGrpc))),
+            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         m.start().await.expect("start ok");
@@ -369,10 +369,10 @@ mod tests {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
             Arc::new(
-                DefaultInput::new_http(Arc::new(DefaultRuntimeManagerStubHttp))
+                DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))
                     .with_grpc(Arc::new(DefaultRuntimeManagerStubGrpc)),
             ),
-            Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         m.start().await.expect("start ok");
@@ -386,8 +386,8 @@ mod tests {
     async fn test_health_reports_egress_grpc_when_configured() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultInput::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
-            Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
+            Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
+            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
                 .with_grpc(Arc::new(DefaultRuntimeManagerStubGrpcOut))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
@@ -402,8 +402,8 @@ mod tests {
     async fn test_health_reports_egress_grpc_unhealthy_when_down() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultInput::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
-            Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
+            Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
+            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
                 .with_grpc(Arc::new(DefaultRuntimeManagerDownGrpcOut))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
@@ -421,8 +421,8 @@ mod tests {
     fn test_default_runtime_manager_builder_creates_stopped_manager() {
         let m = DefaultRuntimeManagerBuilder::new()
             .config(RuntimeConfig::default())
-            .ingress(Arc::new(DefaultInput::new_http(Arc::new(DefaultRuntimeManagerStubHttp))))
-            .egress(Arc::new(DefaultOutput::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))))
+            .ingress(Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))))
+            .egress(Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))))
             .lifecycle(Arc::new(DefaultRuntimeManagerStubLifecycle))
             .build();
         assert_eq!(*m.status.lock(), RuntimeStatus::Stopped);
