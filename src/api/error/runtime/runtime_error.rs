@@ -22,6 +22,12 @@ pub enum RuntimeError {
     ShutdownTimeout(u64),
 }
 
+impl From<crate::api::config::ConfigError> for RuntimeError {
+    fn from(e: crate::api::config::ConfigError) -> Self {
+        RuntimeError::StartFailed(e.to_string())
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
