@@ -1,5 +1,7 @@
 //! API layer — runtime trait contracts and public types.
 
+pub(crate) mod application_config_builder;
+pub(crate) mod default_config_builder;
 pub(crate) mod composite_inbound;
 pub(crate) mod observability;
 pub(crate) mod composite;
