@@ -24,7 +24,7 @@ use swe_edge_ingress::{
     HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{
-    runtime_manager, DefaultInput, DefaultOutput, RuntimeConfig, RuntimeManager, RuntimeStatus,
+    runtime_manager, DefaultEgress, DefaultIngress, RuntimeConfig, RuntimeManager, RuntimeStatus,
 };
 
 // ── stub inbound ──────────────────────────────────────────────────────────────
@@ -82,10 +82,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("http:     {}", config.http_bind);
     println!("timeout:  {}s", config.shutdown_timeout_secs);
 
-    // 2. Assemble gateways — DefaultInput and DefaultOutput accept `Arc<dyn Trait>`
+    // 2. Assemble gateways — DefaultIngress and DefaultEgress accept `Arc<dyn Trait>`
     //    so the runtime never names or imports concrete adapter types.
-    let ingress = Arc::new(DefaultInput::new_http(Arc::new(NoopInbound)));
-    let egress = Arc::new(DefaultOutput::new_http(Arc::new(NoopOutbound)));
+    let ingress = Arc::new(DefaultIngress::new_http(Arc::new(NoopInbound)));
+    let egress = Arc::new(DefaultEgress::new_http(Arc::new(NoopOutbound)));
     let lifecycle = new_null_lifecycle_monitor();
 
     // 3. Build the RuntimeManager via the SAF factory (returns `impl RuntimeManager`).

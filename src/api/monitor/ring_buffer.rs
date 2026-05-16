@@ -44,7 +44,7 @@ mod tests {
             rb.push(i * 1_000);
         }
         let p99 = rb.p99_ms();
-        assert!(p99 >= 98.0 && p99 <= 100.0, "p99={p99}");
+        assert!((98.0_f64..=100.0).contains(&p99), "p99={p99}");
     }
 
     /// @covers: p99_ms

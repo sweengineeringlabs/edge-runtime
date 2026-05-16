@@ -128,8 +128,6 @@ mod tests {
         use crate::api::types::RuntimeConfig;
         use edge_proxy::new_null_lifecycle_monitor;
         use swe_edge_egress_http::default_http_outbound;
-        use swe_edge_ingress::HttpInbound;
-
         let http = Arc::new(default_http_outbound().expect("default http outbound"));
         let input = Arc::new(DefaultIngress::empty());
         let output = Arc::new(DefaultEgress::new_http(http));

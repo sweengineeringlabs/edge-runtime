@@ -6,7 +6,8 @@ use swe_edge_runtime::{RuntimeError, RuntimeResult};
 #[test]
 fn test_runtime_result_ok_holds_value() {
     let r: RuntimeResult<u32> = Ok(42);
-    assert_eq!(r.unwrap(), 42);
+    let Ok(v) = r else { panic!("expected Ok") };
+    assert_eq!(v, 42);
 }
 
 /// @covers: RuntimeResult

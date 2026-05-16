@@ -13,15 +13,15 @@ pub fn init_tracing(config: &TracingConfig) {
     swe_edge_observ_config::init_tracing(config);
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "observability"))]
 mod tests {
     use super::*;
-    use swe_edge_observ_config::{TracingFormat, TracingLevel};
 
     /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_json_does_not_panic() {
+        use swe_edge_observ_config::TracingFormat;
         let cfg = TracingConfig {
             format: TracingFormat::Json,
             ..TracingConfig::default()
@@ -59,6 +59,7 @@ mod tests {
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_with_custom_level_does_not_panic() {
+        use swe_edge_observ_config::TracingLevel;
         let cfg = TracingConfig {
             level: TracingLevel::Warn,
             ..TracingConfig::default()
