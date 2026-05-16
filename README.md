@@ -13,15 +13,15 @@ lifecycle yourself.
 use std::sync::Arc;
 use swe_edge_runtime::{
     run, Runtime, RuntimeConfig,
-    DefaultInput, DefaultOutput,
+    DefaultIngress, DefaultEgress,
     new_null_lifecycle_monitor,
 };
 
 #[tokio::main]
 async fn main() {
-    let config   = RuntimeConfig::default();
-    let ingress  = Arc::new(DefaultInput::empty());   // swap with real handler
-    let egress   = Arc::new(DefaultOutput::empty());  // swap with real client
+    let config    = RuntimeConfig::default();
+    let ingress   = Arc::new(DefaultIngress::empty());   // swap with real handler
+    let egress    = Arc::new(DefaultEgress::new_http(Arc::new(http_client)));
     let lifecycle = new_null_lifecycle_monitor();
 
     run(config, ingress, egress, lifecycle).await.unwrap();
