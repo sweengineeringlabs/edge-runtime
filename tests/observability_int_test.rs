@@ -1,7 +1,7 @@
 //! Integration tests for `init_tracing` and `TracingFormat`.
 
 #[cfg(feature = "observability")]
-use swe_edge_runtime::{TracingFormat, init_tracing};
+use swe_edge_runtime::{init_tracing, TracingFormat};
 
 /// @covers: init_tracing — Json format installs without panic
 #[cfg(feature = "observability")]

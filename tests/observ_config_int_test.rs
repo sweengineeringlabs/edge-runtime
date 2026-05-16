@@ -2,8 +2,8 @@
 //! the runtime SAF (load_section, TracingConfig, ObservabilityConfig).
 
 use swe_edge_runtime::{
-    load_section, load_section_from,
-    TracingConfig, TracingFormat, TracingLevel, ObservabilityConfig,
+    load_section, load_section_from, ObservabilityConfig, TracingConfig, TracingFormat,
+    TracingLevel,
 };
 
 /// @covers: load_section
@@ -30,7 +30,8 @@ fn test_observ_config_int_load_section_from_applies_application_toml_override() 
     std::fs::write(
         dir.path().join("application.toml"),
         "[observability.tracing]\nenabled = false\nlevel = \"warn\"",
-    ).unwrap();
+    )
+    .unwrap();
     let cfg: TracingConfig = load_section_from("observability.tracing", dir.path()).unwrap();
     assert!(!cfg.enabled);
     assert_eq!(cfg.level, TracingLevel::Warn);

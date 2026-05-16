@@ -22,7 +22,10 @@ mod tests {
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_json_does_not_panic() {
-        let cfg = TracingConfig { format: TracingFormat::Json, ..TracingConfig::default() };
+        let cfg = TracingConfig {
+            format: TracingFormat::Json,
+            ..TracingConfig::default()
+        };
         init_tracing(&cfg);
     }
 
@@ -45,7 +48,10 @@ mod tests {
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_disabled_is_noop() {
-        let cfg = TracingConfig { enabled: false, ..TracingConfig::default() };
+        let cfg = TracingConfig {
+            enabled: false,
+            ..TracingConfig::default()
+        };
         init_tracing(&cfg);
     }
 
@@ -53,7 +59,10 @@ mod tests {
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_with_custom_level_does_not_panic() {
-        let cfg = TracingConfig { level: TracingLevel::Warn, ..TracingConfig::default() };
+        let cfg = TracingConfig {
+            level: TracingLevel::Warn,
+            ..TracingConfig::default()
+        };
         init_tracing(&cfg);
     }
 

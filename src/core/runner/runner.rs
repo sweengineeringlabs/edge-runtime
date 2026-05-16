@@ -10,9 +10,9 @@ use crate::api::runtime_manager::RuntimeManager;
 /// Consumers should use [`crate::saf::daemon::run`] or
 /// [`RuntimeBuilder::serve`](crate::api::runtime::RuntimeBuilder).
 pub(crate) async fn run_until_signal<F>(
-    manager:               impl RuntimeManager,
+    manager: impl RuntimeManager,
     shutdown_timeout_secs: u64,
-    signal:                F,
+    signal: F,
 ) -> RuntimeResult<()>
 where
     F: std::future::Future<Output = ()>,
@@ -20,7 +20,10 @@ where
     manager.start().await?;
     tracing::info!("daemon ready — awaiting shutdown signal");
     signal.await;
-    tracing::info!(timeout_secs = shutdown_timeout_secs, "shutdown signal received — draining");
+    tracing::info!(
+        timeout_secs = shutdown_timeout_secs,
+        "shutdown signal received — draining"
+    );
     tokio::time::timeout(
         Duration::from_secs(shutdown_timeout_secs),
         manager.shutdown(),
@@ -32,15 +35,25 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use futures::future::BoxFuture;
     use crate::api::types::{RuntimeHealth, RuntimeStatus};
+    use futures::future::BoxFuture;
 
     struct RunnerOkManager;
     impl RuntimeManager for RunnerOkManager {
-        fn start(&self)    -> BoxFuture<'_, RuntimeResult<()>> { Box::pin(async { Ok(()) }) }
-        fn shutdown(&self) -> BoxFuture<'_, RuntimeResult<()>> { Box::pin(async { Ok(()) }) }
-        fn health(&self)   -> BoxFuture<'_, RuntimeHealth> {
-            Box::pin(async { RuntimeHealth { status: RuntimeStatus::Running, components: vec![], uptime_secs: 0 } })
+        fn start(&self) -> BoxFuture<'_, RuntimeResult<()>> {
+            Box::pin(async { Ok(()) })
+        }
+        fn shutdown(&self) -> BoxFuture<'_, RuntimeResult<()>> {
+            Box::pin(async { Ok(()) })
+        }
+        fn health(&self) -> BoxFuture<'_, RuntimeHealth> {
+            Box::pin(async {
+                RuntimeHealth {
+                    status: RuntimeStatus::Running,
+                    components: vec![],
+                    uptime_secs: 0,
+                }
+            })
         }
     }
 
@@ -49,18 +62,36 @@ mod tests {
         fn start(&self) -> BoxFuture<'_, RuntimeResult<()>> {
             Box::pin(async { Err(RuntimeError::StartFailed("injected".into())) })
         }
-        fn shutdown(&self) -> BoxFuture<'_, RuntimeResult<()>> { Box::pin(async { Ok(()) }) }
+        fn shutdown(&self) -> BoxFuture<'_, RuntimeResult<()>> {
+            Box::pin(async { Ok(()) })
+        }
         fn health(&self) -> BoxFuture<'_, RuntimeHealth> {
-            Box::pin(async { RuntimeHealth { status: RuntimeStatus::Stopped, components: vec![], uptime_secs: 0 } })
+            Box::pin(async {
+                RuntimeHealth {
+                    status: RuntimeStatus::Stopped,
+                    components: vec![],
+                    uptime_secs: 0,
+                }
+            })
         }
     }
 
     struct RunnerHangManager;
     impl RuntimeManager for RunnerHangManager {
-        fn start(&self)    -> BoxFuture<'_, RuntimeResult<()>> { Box::pin(async { Ok(()) }) }
-        fn shutdown(&self) -> BoxFuture<'_, RuntimeResult<()>> { Box::pin(std::future::pending()) }
+        fn start(&self) -> BoxFuture<'_, RuntimeResult<()>> {
+            Box::pin(async { Ok(()) })
+        }
+        fn shutdown(&self) -> BoxFuture<'_, RuntimeResult<()>> {
+            Box::pin(std::future::pending())
+        }
         fn health(&self) -> BoxFuture<'_, RuntimeHealth> {
-            Box::pin(async { RuntimeHealth { status: RuntimeStatus::Running, components: vec![], uptime_secs: 0 } })
+            Box::pin(async {
+                RuntimeHealth {
+                    status: RuntimeStatus::Running,
+                    components: vec![],
+                    uptime_secs: 0,
+                }
+            })
         }
     }
 
@@ -79,7 +110,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_run_until_signal_propagates_start_failure() {
-        let err = run_until_signal(RunnerFailManager, 30, std::future::ready(())).await.unwrap_err();
+        let err = run_until_signal(RunnerFailManager, 30, std::future::ready(()))
+            .await
+            .unwrap_err();
         assert!(matches!(err, RuntimeError::StartFailed(_)));
     }
 

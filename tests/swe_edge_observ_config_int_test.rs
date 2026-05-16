@@ -1,6 +1,6 @@
 //! Integration tests proving swe-edge-observ-config coverage through the runtime.
 
-use swe_edge_observ_config::{TracingConfig, TracingFormat, TracingLevel, ObservabilityConfig};
+use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 
 /// @covers: swe-edge-observ-config — TracingConfig accessible via runtime SAF
 #[test]
@@ -17,7 +17,7 @@ fn test_swe_edge_observ_config_int_observability_config_toml_round_trip() {
     let toml = "[tracing]\nlevel = \"warn\"\nformat = \"json\"\nenabled = false";
     let cfg: ObservabilityConfig = toml::from_str(toml).unwrap();
     assert!(!cfg.tracing.enabled);
-    assert_eq!(cfg.tracing.level,  TracingLevel::Warn);
+    assert_eq!(cfg.tracing.level, TracingLevel::Warn);
     assert_eq!(cfg.tracing.format, TracingFormat::Json);
 }
 

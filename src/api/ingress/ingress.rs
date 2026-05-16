@@ -10,7 +10,9 @@ pub trait Ingress: Send + Sync {
     /// Returns the gRPC inbound adapter, if configured.
     fn grpc(&self) -> Option<Arc<dyn GrpcInbound>>;
     /// Returns `true` when at least one transport is configured.
-    fn has_any(&self) -> bool { self.http().is_some() || self.grpc().is_some() }
+    fn has_any(&self) -> bool {
+        self.http().is_some() || self.grpc().is_some()
+    }
 }
 
 #[cfg(test)]
@@ -21,8 +23,12 @@ mod tests {
     fn test_has_any_returns_false_when_no_transports() {
         struct NoTransport;
         impl Ingress for NoTransport {
-            fn http(&self) -> Option<Arc<dyn HttpInbound>> { None }
-            fn grpc(&self) -> Option<Arc<dyn GrpcInbound>> { None }
+            fn http(&self) -> Option<Arc<dyn HttpInbound>> {
+                None
+            }
+            fn grpc(&self) -> Option<Arc<dyn GrpcInbound>> {
+                None
+            }
         }
         assert!(!NoTransport.has_any());
     }

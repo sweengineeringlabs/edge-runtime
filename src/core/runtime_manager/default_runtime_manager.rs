@@ -6,27 +6,27 @@ use parking_lot::Mutex;
 
 use edge_proxy::{HealthStatus, LifecycleMonitor};
 
-use crate::api::error::{RuntimeError, RuntimeResult};
-use crate::api::runtime_manager::RuntimeManager;
-use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
-use crate::api::types::runtime_health::ComponentHealth;
-use crate::api::ingress::Ingress;
 use crate::api::egress::Egress;
+use crate::api::error::{RuntimeError, RuntimeResult};
+use crate::api::ingress::Ingress;
+use crate::api::runtime_manager::RuntimeManager;
+use crate::api::types::runtime_health::ComponentHealth;
+use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 
 pub(crate) struct DefaultRuntimeManager {
-    config:     RuntimeConfig,
-    ingress:    Arc<dyn Ingress>,
-    egress:     Arc<dyn Egress>,
-    lifecycle:  Arc<dyn LifecycleMonitor>,
-    status:     Arc<Mutex<RuntimeStatus>>,
+    config: RuntimeConfig,
+    ingress: Arc<dyn Ingress>,
+    egress: Arc<dyn Egress>,
+    lifecycle: Arc<dyn LifecycleMonitor>,
+    status: Arc<Mutex<RuntimeStatus>>,
     started_at: Arc<Mutex<Option<Instant>>>,
 }
 
 impl DefaultRuntimeManager {
     pub(crate) fn new(
-        config:    RuntimeConfig,
-        ingress:   Arc<dyn Ingress>,
-        egress:    Arc<dyn Egress>,
+        config: RuntimeConfig,
+        ingress: Arc<dyn Ingress>,
+        egress: Arc<dyn Egress>,
         lifecycle: Arc<dyn LifecycleMonitor>,
     ) -> Self {
         Self {
@@ -34,7 +34,7 @@ impl DefaultRuntimeManager {
             ingress,
             egress,
             lifecycle,
-            status:     Arc::new(Mutex::new(RuntimeStatus::Stopped)),
+            status: Arc::new(Mutex::new(RuntimeStatus::Stopped)),
             started_at: Arc::new(Mutex::new(None)),
         }
     }
@@ -44,20 +44,37 @@ impl crate::api::runtime_manager::DefaultRuntimeManager for DefaultRuntimeManage
 
 /// Fluent builder for [`DefaultRuntimeManager`].
 struct DefaultRuntimeManagerBuilder {
-    config:    Option<RuntimeConfig>,
-    ingress:   Option<Arc<dyn Ingress>>,
-    egress:    Option<Arc<dyn Egress>>,
+    config: Option<RuntimeConfig>,
+    ingress: Option<Arc<dyn Ingress>>,
+    egress: Option<Arc<dyn Egress>>,
     lifecycle: Option<Arc<dyn edge_proxy::LifecycleMonitor>>,
 }
 
 impl DefaultRuntimeManagerBuilder {
     fn new() -> Self {
-        Self { config: None, ingress: None, egress: None, lifecycle: None }
+        Self {
+            config: None,
+            ingress: None,
+            egress: None,
+            lifecycle: None,
+        }
     }
-    fn config(mut self, c: RuntimeConfig) -> Self { self.config = Some(c); self }
-    fn ingress(mut self, i: Arc<dyn Ingress>) -> Self { self.ingress = Some(i); self }
-    fn egress(mut self, e: Arc<dyn Egress>) -> Self { self.egress = Some(e); self }
-    fn lifecycle(mut self, l: Arc<dyn edge_proxy::LifecycleMonitor>) -> Self { self.lifecycle = Some(l); self }
+    fn config(mut self, c: RuntimeConfig) -> Self {
+        self.config = Some(c);
+        self
+    }
+    fn ingress(mut self, i: Arc<dyn Ingress>) -> Self {
+        self.ingress = Some(i);
+        self
+    }
+    fn egress(mut self, e: Arc<dyn Egress>) -> Self {
+        self.egress = Some(e);
+        self
+    }
+    fn lifecycle(mut self, l: Arc<dyn edge_proxy::LifecycleMonitor>) -> Self {
+        self.lifecycle = Some(l);
+        self
+    }
     fn build(self) -> DefaultRuntimeManager {
         DefaultRuntimeManager::new(
             self.config.expect("config required"),
@@ -88,12 +105,18 @@ impl RuntimeManager for DefaultRuntimeManager {
             self.lifecycle.start_background_tasks().await;
 
             // Probe each configured ingress transport to surface misconfigurations early.
-            if let Some(h) = self.ingress.http() { let _ = h.health_check().await; }
-            if let Some(g) = self.ingress.grpc() { let _ = g.health_check().await; }
+            if let Some(h) = self.ingress.http() {
+                let _ = h.health_check().await;
+            }
+            if let Some(g) = self.ingress.grpc() {
+                let _ = g.health_check().await;
+            }
 
             // Probe egress.
             let _ = self.egress.http().health_check().await;
-            if let Some(g) = self.egress.grpc() { let _ = g.health_check().await; }
+            if let Some(g) = self.egress.grpc() {
+                let _ = g.health_check().await;
+            }
 
             {
                 let mut s = self.status.lock();
@@ -169,29 +192,39 @@ impl RuntimeManager for DefaultRuntimeManager {
             // Report health for each configured ingress transport.
             if let Some(h) = self.ingress.http() {
                 match h.health_check().await {
-                    Ok(_)  => components.push(ComponentHealth::healthy("ingress.http")),
-                    Err(e) => components.push(ComponentHealth::unhealthy("ingress.http", e.to_string())),
+                    Ok(_) => components.push(ComponentHealth::healthy("ingress.http")),
+                    Err(e) => {
+                        components.push(ComponentHealth::unhealthy("ingress.http", e.to_string()))
+                    }
                 }
             }
             if let Some(g) = self.ingress.grpc() {
                 match g.health_check().await {
-                    Ok(_)  => components.push(ComponentHealth::healthy("ingress.grpc")),
-                    Err(e) => components.push(ComponentHealth::unhealthy("ingress.grpc", e.to_string())),
+                    Ok(_) => components.push(ComponentHealth::healthy("ingress.grpc")),
+                    Err(e) => {
+                        components.push(ComponentHealth::unhealthy("ingress.grpc", e.to_string()))
+                    }
                 }
             }
             // Report egress transport health.
             match self.egress.http().health_check().await {
-                Ok(_)  => components.push(ComponentHealth::healthy("egress.http")),
+                Ok(_) => components.push(ComponentHealth::healthy("egress.http")),
                 Err(e) => components.push(ComponentHealth::unhealthy("egress.http", e.to_string())),
             }
             if let Some(g) = self.egress.grpc() {
                 match g.health_check().await {
-                    Ok(_)  => components.push(ComponentHealth::healthy("egress.grpc")),
-                    Err(e) => components.push(ComponentHealth::unhealthy("egress.grpc", e.to_string())),
+                    Ok(_) => components.push(ComponentHealth::healthy("egress.grpc")),
+                    Err(e) => {
+                        components.push(ComponentHealth::unhealthy("egress.grpc", e.to_string()))
+                    }
                 }
             }
 
-            RuntimeHealth { status, components, uptime_secs }
+            RuntimeHealth {
+                status,
+                components,
+                uptime_secs,
+            }
         })
     }
 }
@@ -199,35 +232,45 @@ impl RuntimeManager for DefaultRuntimeManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::collections::HashMap;
+    use crate::api::egress::DefaultEgress;
+    use crate::api::ingress::DefaultIngress;
     use async_trait::async_trait;
     use edge_proxy::{HealthReport, LifecycleError};
     use futures::future::BoxFuture;
-    use swe_edge_ingress::{
-        HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
-        GrpcInbound, GrpcInboundResult, GrpcHealthCheck, GrpcRequest, GrpcResponse, GrpcMetadata,
-    };
+    use std::collections::HashMap;
     use swe_edge_egress_grpc::{
-        GrpcOutbound, GrpcOutboundError, GrpcOutboundResult,
+        GrpcMetadata as EgressGrpcMetadata, GrpcOutbound, GrpcOutboundError, GrpcOutboundResult,
         GrpcRequest as EgressGrpcRequest, GrpcResponse as EgressGrpcResponse,
-        GrpcMetadata as EgressGrpcMetadata,
     };
-    use swe_edge_egress_http::{HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse};
-    use crate::api::ingress::DefaultIngress;
-    use crate::api::egress::DefaultEgress;
+    use swe_edge_egress_http::{
+        HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
+        HttpStreamResponse,
+    };
+    use swe_edge_ingress::{
+        GrpcHealthCheck, GrpcInbound, GrpcInboundResult, GrpcMetadata, GrpcRequest, GrpcResponse,
+        HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
+    };
 
     struct DefaultRuntimeManagerStubLifecycle;
 
     #[async_trait]
     impl LifecycleMonitor for DefaultRuntimeManagerStubLifecycle {
-        async fn health(&self) -> HealthReport { HealthReport::from_components(vec![]) }
+        async fn health(&self) -> HealthReport {
+            HealthReport::from_components(vec![])
+        }
         async fn start_background_tasks(&self) {}
-        async fn shutdown(&self) -> Result<(), LifecycleError> { Ok(()) }
+        async fn shutdown(&self) -> Result<(), LifecycleError> {
+            Ok(())
+        }
     }
 
     struct DefaultRuntimeManagerStubHttp;
     impl swe_edge_ingress::HttpInbound for DefaultRuntimeManagerStubHttp {
-        fn handle(&self, _: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+        fn handle(
+            &self,
+            _: HttpRequest,
+            _ctx: RequestContext,
+        ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
         fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
@@ -237,13 +280,27 @@ mod tests {
 
     struct DefaultRuntimeManagerStubGrpc;
     impl GrpcInbound for DefaultRuntimeManagerStubGrpc {
-        fn handle_unary(&self, _: GrpcRequest, _ctx: RequestContext) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+        fn handle_unary(
+            &self,
+            _: GrpcRequest,
+            _ctx: RequestContext,
+        ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
             Box::pin(async {
-                Ok(GrpcResponse { body: vec![], metadata: GrpcMetadata { headers: HashMap::new() } })
+                Ok(GrpcResponse {
+                    body: vec![],
+                    metadata: GrpcMetadata {
+                        headers: HashMap::new(),
+                    },
+                })
             })
         }
         fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
-            Box::pin(async { Ok(GrpcHealthCheck { healthy: true, message: None }) })
+            Box::pin(async {
+                Ok(GrpcHealthCheck {
+                    healthy: true,
+                    message: None,
+                })
+            })
         }
     }
 
@@ -252,8 +309,17 @@ mod tests {
         fn send(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<EgressResp>> {
             Box::pin(async { Ok(EgressResp::new(200, vec![])) })
         }
-        fn send_stream(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
-            Box::pin(async { Ok(HttpStreamResponse { status: 200, headers: Default::default(), body: Box::pin(futures::stream::empty()) }) })
+        fn send_stream(
+            &self,
+            _: EgressReq,
+        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+            Box::pin(async {
+                Ok(HttpStreamResponse {
+                    status: 200,
+                    headers: Default::default(),
+                    body: Box::pin(futures::stream::empty()),
+                })
+            })
         }
         fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
             Box::pin(async { Ok(()) })
@@ -262,8 +328,16 @@ mod tests {
 
     struct DefaultRuntimeManagerStubGrpcOut;
     impl GrpcOutbound for DefaultRuntimeManagerStubGrpcOut {
-        fn call_unary(&self, _: EgressGrpcRequest) -> BoxFuture<'_, GrpcOutboundResult<EgressGrpcResponse>> {
-            Box::pin(async { Ok(EgressGrpcResponse { body: vec![], metadata: EgressGrpcMetadata::default() }) })
+        fn call_unary(
+            &self,
+            _: EgressGrpcRequest,
+        ) -> BoxFuture<'_, GrpcOutboundResult<EgressGrpcResponse>> {
+            Box::pin(async {
+                Ok(EgressGrpcResponse {
+                    body: vec![],
+                    metadata: EgressGrpcMetadata::default(),
+                })
+            })
         }
         fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
             Box::pin(async { Ok(()) })
@@ -272,7 +346,10 @@ mod tests {
 
     struct DefaultRuntimeManagerDownGrpcOut;
     impl GrpcOutbound for DefaultRuntimeManagerDownGrpcOut {
-        fn call_unary(&self, _: EgressGrpcRequest) -> BoxFuture<'_, GrpcOutboundResult<EgressGrpcResponse>> {
+        fn call_unary(
+            &self,
+            _: EgressGrpcRequest,
+        ) -> BoxFuture<'_, GrpcOutboundResult<EgressGrpcResponse>> {
             Box::pin(async { Err(GrpcOutboundError::Unavailable("down".into())) })
         }
         fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
@@ -283,8 +360,12 @@ mod tests {
     fn make_manager() -> DefaultRuntimeManager {
         DefaultRuntimeManager::new(
             RuntimeConfig::default().with_systemd_notify(false),
-            Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
-            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultIngress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttp,
+            ))),
+            Arc::new(DefaultEgress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttpOut,
+            ))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         )
     }
@@ -331,7 +412,9 @@ mod tests {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
             Arc::new(DefaultIngress::empty()),
-            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultEgress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttpOut,
+            ))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         let err = m.start().await.unwrap_err();
@@ -353,8 +436,12 @@ mod tests {
     async fn test_health_reports_grpc_when_only_grpc_configured() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultIngress::new_grpc(Arc::new(DefaultRuntimeManagerStubGrpc))),
-            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultIngress::new_grpc(Arc::new(
+                DefaultRuntimeManagerStubGrpc,
+            ))),
+            Arc::new(DefaultEgress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttpOut,
+            ))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         m.start().await.expect("start ok");
@@ -372,7 +459,9 @@ mod tests {
                 DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))
                     .with_grpc(Arc::new(DefaultRuntimeManagerStubGrpc)),
             ),
-            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))),
+            Arc::new(DefaultEgress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttpOut,
+            ))),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         m.start().await.expect("start ok");
@@ -386,15 +475,22 @@ mod tests {
     async fn test_health_reports_egress_grpc_when_configured() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
-            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
-                .with_grpc(Arc::new(DefaultRuntimeManagerStubGrpcOut))),
+            Arc::new(DefaultIngress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttp,
+            ))),
+            Arc::new(
+                DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
+                    .with_grpc(Arc::new(DefaultRuntimeManagerStubGrpcOut)),
+            ),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         m.start().await.expect("start ok");
         let h = m.health().await;
         let names: Vec<&str> = h.components.iter().map(|c| c.name.as_str()).collect();
-        assert!(names.contains(&"egress.grpc"), "egress.grpc must appear in health report");
+        assert!(
+            names.contains(&"egress.grpc"),
+            "egress.grpc must appear in health report"
+        );
         assert!(names.contains(&"egress.http"));
     }
 
@@ -402,14 +498,21 @@ mod tests {
     async fn test_health_reports_egress_grpc_unhealthy_when_down() {
         let m = DefaultRuntimeManager::new(
             RuntimeConfig::default(),
-            Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))),
-            Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
-                .with_grpc(Arc::new(DefaultRuntimeManagerDownGrpcOut))),
+            Arc::new(DefaultIngress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttp,
+            ))),
+            Arc::new(
+                DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))
+                    .with_grpc(Arc::new(DefaultRuntimeManagerDownGrpcOut)),
+            ),
             Arc::new(DefaultRuntimeManagerStubLifecycle),
         );
         m.start().await.expect("start ok");
         let h = m.health().await;
-        let grpc_comp = h.components.iter().find(|c| c.name == "egress.grpc")
+        let grpc_comp = h
+            .components
+            .iter()
+            .find(|c| c.name == "egress.grpc")
             .expect("egress.grpc component must be present");
         assert!(
             !grpc_comp.healthy,
@@ -421,8 +524,12 @@ mod tests {
     fn test_default_runtime_manager_builder_creates_stopped_manager() {
         let m = DefaultRuntimeManagerBuilder::new()
             .config(RuntimeConfig::default())
-            .ingress(Arc::new(DefaultIngress::new_http(Arc::new(DefaultRuntimeManagerStubHttp))))
-            .egress(Arc::new(DefaultEgress::new_http(Arc::new(DefaultRuntimeManagerStubHttpOut))))
+            .ingress(Arc::new(DefaultIngress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttp,
+            ))))
+            .egress(Arc::new(DefaultEgress::new_http(Arc::new(
+                DefaultRuntimeManagerStubHttpOut,
+            ))))
             .lifecycle(Arc::new(DefaultRuntimeManagerStubLifecycle))
             .build();
         assert_eq!(*m.status.lock(), RuntimeStatus::Stopped);

@@ -1,13 +1,19 @@
 //! Coverage for api/ingress — DefaultIngress trait impl.
 
-use std::sync::Arc;
 use futures::future::BoxFuture;
-use swe_edge_ingress::{HttpInbound, HttpInboundResult, HttpHealthCheck, HttpRequest, HttpResponse, RequestContext};
+use std::sync::Arc;
+use swe_edge_ingress::{
+    HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
+};
 use swe_edge_runtime::{DefaultIngress, Ingress};
 
 struct Stub;
 impl HttpInbound for Stub {
-    fn handle(&self, _: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    fn handle(
+        &self,
+        _: HttpRequest,
+        _ctx: RequestContext,
+    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
     }
     fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {

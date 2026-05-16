@@ -34,13 +34,17 @@ impl DefaultConfigLoader {
         let dir = env::var("SWE_EDGE_CONFIG_DIR")
             .map(PathBuf::from)
             .unwrap_or_else(|_| PathBuf::from("config"));
-        Self { config_dirs: vec![dir] }
+        Self {
+            config_dirs: vec![dir],
+        }
     }
 
     /// Use a single explicit directory — for consumer apps that own
     /// their config path rather than relying on env or cwd.
     pub(crate) fn with_dir(dir: impl Into<PathBuf>) -> Self {
-        Self { config_dirs: vec![dir.into()] }
+        Self {
+            config_dirs: vec![dir.into()],
+        }
     }
 
     /// Build the full XDG Base Directory chain for `app_name`.
@@ -57,8 +61,7 @@ impl DefaultConfigLoader {
 
         // XDG_CONFIG_DIRS — system-wide, colon-separated, lowest priority.
         // The spec lists them highest-to-lowest, so reverse before applying.
-        let xdg_config_dirs = env::var("XDG_CONFIG_DIRS")
-            .unwrap_or_else(|_| "/etc/xdg".to_owned());
+        let xdg_config_dirs = env::var("XDG_CONFIG_DIRS").unwrap_or_else(|_| "/etc/xdg".to_owned());
         for segment in xdg_config_dirs.split(':').rev() {
             if !segment.is_empty() {
                 dirs.push(PathBuf::from(segment).join(app_name));
@@ -109,16 +112,24 @@ impl DefaultConfigLoader {
     }
 
     fn apply_env(mut cfg: RuntimeConfig) -> Result<RuntimeConfig, ConfigError> {
-        if let Ok(v) = env::var("SWE_EDGE_SERVICE_NAME")  { cfg.service_name = v; }
-        if let Ok(v) = env::var("SWE_EDGE_HTTP_BIND")     { cfg.http_bind    = v; }
-        if let Ok(v) = env::var("SWE_EDGE_GRPC_BIND")     { cfg.grpc_bind    = v; }
+        if let Ok(v) = env::var("SWE_EDGE_SERVICE_NAME") {
+            cfg.service_name = v;
+        }
+        if let Ok(v) = env::var("SWE_EDGE_HTTP_BIND") {
+            cfg.http_bind = v;
+        }
+        if let Ok(v) = env::var("SWE_EDGE_GRPC_BIND") {
+            cfg.grpc_bind = v;
+        }
         if let Ok(v) = env::var("SWE_EDGE_SHUTDOWN_TIMEOUT") {
             cfg.shutdown_timeout_secs = parse_shutdown_timeout(&v)?;
         }
         if let Ok(v) = env::var("SWE_EDGE_SYSTEMD_NOTIFY") {
             cfg.systemd_notify = matches!(v.to_lowercase().as_str(), "1" | "true" | "yes");
         }
-        if let Ok(v) = env::var("SWE_EDGE_TENANT_ID") { cfg.tenant_id = Some(v); }
+        if let Ok(v) = env::var("SWE_EDGE_TENANT_ID") {
+            cfg.tenant_id = Some(v);
+        }
         Ok(cfg)
     }
 
@@ -134,7 +145,9 @@ impl DefaultConfigLoader {
 fn merge_toml(base: toml::Value, overlay: toml::Value) -> toml::Value {
     match (base, overlay) {
         (toml::Value::Table(mut b), toml::Value::Table(o)) => {
-            for (k, v) in o { b.insert(k, v); }
+            for (k, v) in o {
+                b.insert(k, v);
+            }
             toml::Value::Table(b)
         }
         (_, o) => o,
@@ -163,8 +176,8 @@ impl DefaultConfigLoader {
         let mut merged = toml::Value::Table(toml::map::Map::new());
 
         // Shipped defaults.
-        let default_val: toml::Value = toml::from_str(DEFAULT_TOML)
-            .map_err(|e| ConfigError::Parse(e.to_string()))?;
+        let default_val: toml::Value =
+            toml::from_str(DEFAULT_TOML).map_err(|e| ConfigError::Parse(e.to_string()))?;
         if let Some(section) = extract_dotted(&default_val, key) {
             merged = merge_toml(merged, section);
         }
@@ -172,19 +185,22 @@ impl DefaultConfigLoader {
         // Each application.toml in priority order.
         for dir in &self.config_dirs {
             let path = dir.join("application.toml");
-            if !path.exists() { continue; }
+            if !path.exists() {
+                continue;
+            }
             let meta = std::fs::metadata(&path)
                 .map_err(|e| ConfigError::Io(format!("{}: {e}", path.display())))?;
             if meta.len() > MAX_CONFIG_FILE_BYTES {
                 return Err(ConfigError::Io(format!(
                     "{}: config file exceeds the 1 MiB limit ({} bytes)",
-                    path.display(), meta.len(),
+                    path.display(),
+                    meta.len(),
                 )));
             }
             let text = std::fs::read_to_string(&path)
                 .map_err(|e| ConfigError::Io(format!("{}: {e}", path.display())))?;
-            let val: toml::Value = toml::from_str(&text)
-                .map_err(|e| ConfigError::Parse(e.to_string()))?;
+            let val: toml::Value =
+                toml::from_str(&text).map_err(|e| ConfigError::Parse(e.to_string()))?;
             if let Some(section) = extract_dotted(&val, key) {
                 merged = merge_toml(merged, section);
             }
@@ -194,7 +210,9 @@ impl DefaultConfigLoader {
             return Ok(T::default());
         }
 
-        merged.try_into().map_err(|e: toml::de::Error| ConfigError::Parse(e.to_string()))
+        merged
+            .try_into()
+            .map_err(|e: toml::de::Error| ConfigError::Parse(e.to_string()))
     }
 }
 
@@ -220,7 +238,11 @@ fn parse_shutdown_timeout(v: &str) -> Result<u64, ConfigError> {
 /// Only `[a-zA-Z0-9_-]` are allowed — every other character (`.`, `/`, `\`,
 /// NUL, whitespace) can be abused in path construction.
 fn validate_tenant_id(id: &str) -> Result<(), ConfigError> {
-    if id.is_empty() || !id.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-') {
+    if id.is_empty()
+        || !id
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+    {
         return Err(ConfigError::InvalidTenantId(id.to_owned()));
     }
     Ok(())
@@ -263,7 +285,10 @@ mod tests {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent).unwrap();
         }
-        std::fs::File::create(&path).unwrap().write_all(content.as_bytes()).unwrap();
+        std::fs::File::create(&path)
+            .unwrap()
+            .write_all(content.as_bytes())
+            .unwrap();
     }
 
     #[test]
@@ -281,7 +306,11 @@ mod tests {
     #[test]
     fn test_with_dir_load_reads_application_toml_from_supplied_dir() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "application.toml", r#"service_name = "consumer-app""#);
+        write(
+            dir.path(),
+            "application.toml",
+            r#"service_name = "consumer-app""#,
+        );
         let cfg = loader_in(dir.path()).load().unwrap();
         assert_eq!(cfg.service_name, "consumer-app");
     }
@@ -307,7 +336,11 @@ mod tests {
     #[test]
     fn test_load_applies_application_toml_override() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "application.toml", r#"service_name = "ops-edge""#);
+        write(
+            dir.path(),
+            "application.toml",
+            r#"service_name = "ops-edge""#,
+        );
         let cfg = loader_in(dir.path()).load().unwrap();
         assert_eq!(cfg.service_name, "ops-edge");
         assert_eq!(cfg.http_bind, "0.0.0.0:8080");
@@ -316,8 +349,11 @@ mod tests {
     #[test]
     fn test_load_for_tenant_applies_tenant_toml() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "tenants/acme.toml",
-            "service_name = \"acme-edge\"\nhttp_bind = \"0.0.0.0:8081\"");
+        write(
+            dir.path(),
+            "tenants/acme.toml",
+            "service_name = \"acme-edge\"\nhttp_bind = \"0.0.0.0:8081\"",
+        );
         let cfg = loader_in(dir.path()).load_for_tenant("acme").unwrap();
         assert_eq!(cfg.service_name, "acme-edge");
         assert_eq!(cfg.http_bind, "0.0.0.0:8081");
@@ -334,7 +370,7 @@ mod tests {
     #[test]
     fn test_load_for_tenant_layers_over_application_toml() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "application.toml",  "shutdown_timeout_secs = 60");
+        write(dir.path(), "application.toml", "shutdown_timeout_secs = 60");
         write(dir.path(), "tenants/beta.toml", "service_name = \"beta\"");
         let cfg = loader_in(dir.path()).load_for_tenant("beta").unwrap();
         assert_eq!(cfg.service_name, "beta");
@@ -343,10 +379,14 @@ mod tests {
 
     #[test]
     fn test_xdg_higher_priority_dir_wins_over_lower() {
-        let sys_dir  = TempDir::new().unwrap();
+        let sys_dir = TempDir::new().unwrap();
         let user_dir = TempDir::new().unwrap();
-        write(sys_dir.path(),  "application.toml", "service_name = \"sys\"");
-        write(user_dir.path(), "application.toml", "service_name = \"user\"");
+        write(sys_dir.path(), "application.toml", "service_name = \"sys\"");
+        write(
+            user_dir.path(),
+            "application.toml",
+            "service_name = \"user\"",
+        );
         let loader = DefaultConfigLoader {
             config_dirs: vec![sys_dir.path().to_path_buf(), user_dir.path().to_path_buf()],
         };
@@ -356,10 +396,18 @@ mod tests {
 
     #[test]
     fn test_xdg_lower_priority_dir_fills_unset_fields() {
-        let sys_dir  = TempDir::new().unwrap();
+        let sys_dir = TempDir::new().unwrap();
         let user_dir = TempDir::new().unwrap();
-        write(sys_dir.path(),  "application.toml", "shutdown_timeout_secs = 90");
-        write(user_dir.path(), "application.toml", "service_name = \"user\"");
+        write(
+            sys_dir.path(),
+            "application.toml",
+            "shutdown_timeout_secs = 90",
+        );
+        write(
+            user_dir.path(),
+            "application.toml",
+            "service_name = \"user\"",
+        );
         let loader = DefaultConfigLoader {
             config_dirs: vec![sys_dir.path().to_path_buf(), user_dir.path().to_path_buf()],
         };
@@ -370,10 +418,14 @@ mod tests {
 
     #[test]
     fn test_xdg_tenant_found_in_any_dir() {
-        let sys_dir  = TempDir::new().unwrap();
+        let sys_dir = TempDir::new().unwrap();
         let user_dir = TempDir::new().unwrap();
         // Tenant only in sys dir — user dir has no tenants/
-        write(sys_dir.path(), "tenants/corp.toml", "service_name = \"corp\"");
+        write(
+            sys_dir.path(),
+            "tenants/corp.toml",
+            "service_name = \"corp\"",
+        );
         let loader = DefaultConfigLoader {
             config_dirs: vec![sys_dir.path().to_path_buf(), user_dir.path().to_path_buf()],
         };
@@ -384,21 +436,27 @@ mod tests {
     #[test]
     fn test_load_for_tenant_rejects_path_traversal_dotdot() {
         let dir = TempDir::new().unwrap();
-        let err = loader_in(dir.path()).load_for_tenant("../../etc/passwd").unwrap_err();
+        let err = loader_in(dir.path())
+            .load_for_tenant("../../etc/passwd")
+            .unwrap_err();
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
     #[test]
     fn test_load_for_tenant_rejects_absolute_path() {
         let dir = TempDir::new().unwrap();
-        let err = loader_in(dir.path()).load_for_tenant("/etc/passwd").unwrap_err();
+        let err = loader_in(dir.path())
+            .load_for_tenant("/etc/passwd")
+            .unwrap_err();
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
     #[test]
     fn test_load_for_tenant_rejects_slash_in_id() {
         let dir = TempDir::new().unwrap();
-        let err = loader_in(dir.path()).load_for_tenant("foo/bar").unwrap_err();
+        let err = loader_in(dir.path())
+            .load_for_tenant("foo/bar")
+            .unwrap_err();
         assert!(matches!(err, ConfigError::InvalidTenantId(_)));
     }
 
@@ -412,8 +470,14 @@ mod tests {
     #[test]
     fn test_load_for_tenant_accepts_valid_alphanum_dash_underscore() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "tenants/tenant-01_prod.toml", "service_name = \"ok\"");
-        let cfg = loader_in(dir.path()).load_for_tenant("tenant-01_prod").unwrap();
+        write(
+            dir.path(),
+            "tenants/tenant-01_prod.toml",
+            "service_name = \"ok\"",
+        );
+        let cfg = loader_in(dir.path())
+            .load_for_tenant("tenant-01_prod")
+            .unwrap();
         assert_eq!(cfg.service_name, "ok");
     }
 
@@ -452,14 +516,21 @@ mod tests {
 
     #[derive(Debug, Default, serde::Deserialize, PartialEq)]
     #[serde(default)]
-    struct DefaultConfigLoaderSection { value: String, count: u32 }
+    struct DefaultConfigLoaderSection {
+        value: String,
+        count: u32,
+    }
 
     #[test]
     fn test_load_section_reads_from_application_toml() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "application.toml",
-            "[my_section]\nvalue = \"hello\"\ncount = 7");
-        let section: DefaultConfigLoaderSection = loader_in(dir.path()).load_section("my_section").unwrap();
+        write(
+            dir.path(),
+            "application.toml",
+            "[my_section]\nvalue = \"hello\"\ncount = 7",
+        );
+        let section: DefaultConfigLoaderSection =
+            loader_in(dir.path()).load_section("my_section").unwrap();
         assert_eq!(section.value, "hello");
         assert_eq!(section.count, 7);
     }
@@ -468,7 +539,8 @@ mod tests {
     fn test_load_section_falls_back_to_default_when_key_absent() {
         let dir = TempDir::new().unwrap();
         let section: DefaultConfigLoaderSection = loader_in(dir.path())
-            .load_section("nonexistent_section").unwrap();
+            .load_section("nonexistent_section")
+            .unwrap();
         assert_eq!(section, DefaultConfigLoaderSection::default());
     }
 
@@ -476,7 +548,7 @@ mod tests {
     fn test_load_section_later_application_toml_overrides_earlier() {
         let low = TempDir::new().unwrap();
         let high = TempDir::new().unwrap();
-        write(low.path(),  "application.toml", "[s]\nvalue = \"low\"");
+        write(low.path(), "application.toml", "[s]\nvalue = \"low\"");
         write(high.path(), "application.toml", "[s]\nvalue = \"high\"");
         let loader = DefaultConfigLoader {
             config_dirs: vec![low.path().to_path_buf(), high.path().to_path_buf()],
@@ -488,9 +560,13 @@ mod tests {
     #[test]
     fn test_load_section_supports_dotted_key_path() {
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "application.toml",
-            "[outer.inner]\nvalue = \"deep\"\ncount = 3");
-        let section: DefaultConfigLoaderSection = loader_in(dir.path()).load_section("outer.inner").unwrap();
+        write(
+            dir.path(),
+            "application.toml",
+            "[outer.inner]\nvalue = \"deep\"\ncount = 3",
+        );
+        let section: DefaultConfigLoaderSection =
+            loader_in(dir.path()).load_section("outer.inner").unwrap();
         assert_eq!(section.value, "deep");
         assert_eq!(section.count, 3);
     }
@@ -501,7 +577,8 @@ mod tests {
         use swe_edge_observ_config::TracingLevel;
         let dir = TempDir::new().unwrap();
         let cfg: TracingConfig = loader_in(dir.path())
-            .load_section("observability.tracing").unwrap();
+            .load_section("observability.tracing")
+            .unwrap();
         assert!(cfg.enabled);
         assert_eq!(cfg.level, TracingLevel::Info);
     }
@@ -511,10 +588,14 @@ mod tests {
         use crate::api::config::TracingConfig;
         use swe_edge_observ_config::TracingLevel;
         let dir = TempDir::new().unwrap();
-        write(dir.path(), "application.toml",
-            "[observability.tracing]\nlevel = \"debug\"");
+        write(
+            dir.path(),
+            "application.toml",
+            "[observability.tracing]\nlevel = \"debug\"",
+        );
         let cfg: TracingConfig = loader_in(dir.path())
-            .load_section("observability.tracing").unwrap();
+            .load_section("observability.tracing")
+            .unwrap();
         assert_eq!(cfg.level, TracingLevel::Debug);
         assert!(cfg.enabled); // inherited from default.toml
     }

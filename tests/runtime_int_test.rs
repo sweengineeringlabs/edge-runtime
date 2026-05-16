@@ -1,6 +1,6 @@
 //! Integration tests for `RuntimeBuilder`.
 
-use swe_edge_runtime::{Runtime, IngressTlsConfig, RuntimeConfig};
+use swe_edge_runtime::{IngressTlsConfig, Runtime, RuntimeConfig};
 
 /// @covers: builder — builder is constructible with no arguments
 #[test]

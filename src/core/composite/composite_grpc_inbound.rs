@@ -5,8 +5,8 @@ use std::sync::Arc;
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
 use swe_edge_ingress::{
-    GrpcHealthCheck, GrpcInbound, GrpcInboundResult, GrpcMessageStream,
-    GrpcMetadata, GrpcRequest, GrpcResponse,
+    GrpcHealthCheck, GrpcInbound, GrpcInboundResult, GrpcMessageStream, GrpcMetadata, GrpcRequest,
+    GrpcResponse,
 };
 
 pub(crate) use crate::api::composite::composite_grpc_inbound::CompositeGrpcInbound;
@@ -14,11 +14,11 @@ pub(crate) use crate::api::composite::composite_grpc_inbound::CompositeGrpcInbou
 const REFLECTION_PREFIX: &str = "/grpc.reflection.";
 
 impl CompositeGrpcInbound {
-    pub(crate) fn new(
-        primary:    Arc<dyn GrpcInbound>,
-        reflection: Arc<dyn GrpcInbound>,
-    ) -> Self {
-        Self { primary, reflection }
+    pub(crate) fn new(primary: Arc<dyn GrpcInbound>, reflection: Arc<dyn GrpcInbound>) -> Self {
+        Self {
+            primary,
+            reflection,
+        }
     }
 
     fn route(&self, method: &str) -> Arc<dyn GrpcInbound> {
@@ -34,7 +34,7 @@ impl GrpcInbound for CompositeGrpcInbound {
     fn handle_unary(
         &self,
         request: GrpcRequest,
-        ctx:     RequestContext,
+        ctx: RequestContext,
     ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
         let handler = self.route(&request.method);
         Box::pin(async move { handler.handle_unary(request, ctx).await })
@@ -42,10 +42,10 @@ impl GrpcInbound for CompositeGrpcInbound {
 
     fn handle_stream(
         &self,
-        method:   String,
+        method: String,
         metadata: GrpcMetadata,
         messages: GrpcMessageStream,
-        ctx:      RequestContext,
+        ctx: RequestContext,
     ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
         let handler = self.route(&method);
         Box::pin(async move { handler.handle_stream(method, metadata, messages, ctx).await })
@@ -59,24 +59,38 @@ impl GrpcInbound for CompositeGrpcInbound {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
     use futures::future::BoxFuture;
     use parking_lot::Mutex;
+    use std::sync::Arc;
     use swe_edge_ingress::{GrpcInboundError, GrpcMetadata, GrpcRequest};
 
     #[derive(Default)]
-    struct CompositeGrpcInboundTracker { called: Mutex<bool> }
+    struct CompositeGrpcInboundTracker {
+        called: Mutex<bool>,
+    }
 
     impl CompositeGrpcInboundTracker {
-        fn was_called(&self) -> bool { *self.called.lock() }
+        fn was_called(&self) -> bool {
+            *self.called.lock()
+        }
     }
 
     impl GrpcInbound for CompositeGrpcInboundTracker {
-        fn handle_unary(&self, _req: GrpcRequest, _ctx: RequestContext) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+        fn handle_unary(
+            &self,
+            _req: GrpcRequest,
+            _ctx: RequestContext,
+        ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
             *self.called.lock() = true;
             Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
         }
-        fn handle_stream(&self, _m: String, _md: GrpcMetadata, _ms: GrpcMessageStream, _ctx: RequestContext) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
+        fn handle_stream(
+            &self,
+            _m: String,
+            _md: GrpcMetadata,
+            _ms: GrpcMessageStream,
+            _ctx: RequestContext,
+        ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
             *self.called.lock() = true;
             Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
         }
@@ -91,36 +105,58 @@ mod tests {
 
     #[test]
     fn test_new_creates_composite_with_both_handlers() {
-        let primary    = Arc::new(CompositeGrpcInboundTracker::default());
+        let primary = Arc::new(CompositeGrpcInboundTracker::default());
         let reflection = Arc::new(CompositeGrpcInboundTracker::default());
-        let _composite = CompositeGrpcInbound::new(Arc::clone(&primary) as Arc<dyn GrpcInbound>, Arc::clone(&reflection) as Arc<dyn GrpcInbound>);
+        let _composite = CompositeGrpcInbound::new(
+            Arc::clone(&primary) as Arc<dyn GrpcInbound>,
+            Arc::clone(&reflection) as Arc<dyn GrpcInbound>,
+        );
         assert!(!primary.was_called());
         assert!(!reflection.was_called());
     }
 
     #[tokio::test]
     async fn test_handle_unary_routes_reflection_path_to_reflection_handler() {
-        let primary    = Arc::new(CompositeGrpcInboundTracker::default());
+        let primary = Arc::new(CompositeGrpcInboundTracker::default());
         let reflection = Arc::new(CompositeGrpcInboundTracker::default());
-        let composite  = CompositeGrpcInbound::new(
-            Arc::clone(&primary)    as Arc<dyn GrpcInbound>,
+        let composite = CompositeGrpcInbound::new(
+            Arc::clone(&primary) as Arc<dyn GrpcInbound>,
             Arc::clone(&reflection) as Arc<dyn GrpcInbound>,
         );
-        let _ = composite.handle_unary(req("/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo"), RequestContext::unauthenticated()).await;
-        assert!(!primary.was_called(), "primary must not be called for reflection path");
-        assert!(reflection.was_called(), "reflection must be called for reflection path");
+        let _ = composite
+            .handle_unary(
+                req("/grpc.reflection.v1alpha.ServerReflection/ServerReflectionInfo"),
+                RequestContext::unauthenticated(),
+            )
+            .await;
+        assert!(
+            !primary.was_called(),
+            "primary must not be called for reflection path"
+        );
+        assert!(
+            reflection.was_called(),
+            "reflection must be called for reflection path"
+        );
     }
 
     #[tokio::test]
     async fn test_handle_unary_routes_non_reflection_path_to_primary_handler() {
-        let primary    = Arc::new(CompositeGrpcInboundTracker::default());
+        let primary = Arc::new(CompositeGrpcInboundTracker::default());
         let reflection = Arc::new(CompositeGrpcInboundTracker::default());
-        let composite  = CompositeGrpcInbound::new(
-            Arc::clone(&primary)    as Arc<dyn GrpcInbound>,
+        let composite = CompositeGrpcInbound::new(
+            Arc::clone(&primary) as Arc<dyn GrpcInbound>,
             Arc::clone(&reflection) as Arc<dyn GrpcInbound>,
         );
-        let _ = composite.handle_unary(req("/my.Service/Method"), RequestContext::unauthenticated()).await;
-        assert!(primary.was_called(), "primary must be called for non-reflection path");
-        assert!(!reflection.was_called(), "reflection must not be called for non-reflection path");
+        let _ = composite
+            .handle_unary(req("/my.Service/Method"), RequestContext::unauthenticated())
+            .await;
+        assert!(
+            primary.was_called(),
+            "primary must be called for non-reflection path"
+        );
+        assert!(
+            !reflection.was_called(),
+            "reflection must not be called for non-reflection path"
+        );
     }
 }

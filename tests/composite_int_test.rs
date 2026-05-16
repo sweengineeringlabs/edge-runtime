@@ -11,6 +11,9 @@ use swe_edge_runtime::Runtime;
 #[test]
 fn test_builder_with_grpc_reflection_flag_is_accepted() {
     let cfg = swe_edge_runtime::RuntimeConfig::default();
-    let cfg = swe_edge_runtime::RuntimeConfig { grpc_reflection: true, ..cfg };
+    let cfg = swe_edge_runtime::RuntimeConfig {
+        grpc_reflection: true,
+        ..cfg
+    };
     let _builder = Runtime::builder().config(cfg);
 }

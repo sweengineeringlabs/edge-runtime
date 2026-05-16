@@ -10,21 +10,21 @@ impl Runtime {
     /// Create a new builder for assembling an edge runtime.
     pub fn builder() -> RuntimeBuilder {
         RuntimeBuilder {
-            config:                    None,
-            app_name:                  None,
-            http_handler:              None,
-            grpc_handler:              None,
-            http_dispatcher:           None,
-            grpc_dispatcher:           None,
-            http_tls:                  None,
-            grpc_tls:                  None,
-            http_bearer_verifier:      None,
-            grpc_interceptors:         GrpcInboundInterceptorChain::new(),
+            config: None,
+            app_name: None,
+            http_handler: None,
+            grpc_handler: None,
+            http_dispatcher: None,
+            grpc_dispatcher: None,
+            http_tls: None,
+            grpc_tls: None,
+            http_bearer_verifier: None,
+            grpc_interceptors: GrpcInboundInterceptorChain::new(),
             grpc_allow_unauthenticated: false,
-            egress_http:               None,
-            egress_grpc:               None,
-            lifecycle:                 None,
-            tracing_config:            None,
+            egress_http: None,
+            egress_grpc: None,
+            lifecycle: None,
+            tracing_config: None,
         }
     }
 }

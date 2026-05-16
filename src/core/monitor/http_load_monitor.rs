@@ -11,7 +11,7 @@ use crate::api::monitor::SharedCounters;
 
 /// Wraps an `HttpInbound` handler; records load metrics on every request.
 pub(crate) struct HttpLoadMonitor {
-    inner:    Arc<dyn HttpInbound>,
+    inner: Arc<dyn HttpInbound>,
     counters: SharedCounters,
 }
 
@@ -27,7 +27,7 @@ impl HttpInbound for HttpLoadMonitor {
     fn handle(
         &self,
         request: HttpRequest,
-        ctx:     RequestContext,
+        ctx: RequestContext,
     ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         self.counters.on_start();
         let counters = Arc::clone(&self.counters);
@@ -48,20 +48,26 @@ impl HttpInbound for HttpLoadMonitor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
-    use std::sync::atomic::Ordering;
-    use swe_observ_metrics::create_local_metrics_backend;
     use crate::api::monitor::TrafficCounters;
+    use std::sync::atomic::Ordering;
+    use std::sync::Arc;
+    use swe_observ_metrics::create_local_metrics_backend;
 
     fn counters() -> SharedCounters {
-        Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
+        Arc::new(TrafficCounters::new(Arc::new(
+            create_local_metrics_backend(),
+        )))
     }
 
     #[test]
     fn test_http_load_monitor_new_does_not_panic() {
         struct HttpLoadMonitorStub;
         impl HttpInbound for HttpLoadMonitorStub {
-            fn handle(&self, _: HttpRequest, _: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            fn handle(
+                &self,
+                _: HttpRequest,
+                _: RequestContext,
+            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
             fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
@@ -75,7 +81,11 @@ mod tests {
     async fn test_http_monitor_handle_records_request_via_provider() {
         struct HttpLoadMonitorOk;
         impl HttpInbound for HttpLoadMonitorOk {
-            fn handle(&self, _: HttpRequest, _: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            fn handle(
+                &self,
+                _: HttpRequest,
+                _: RequestContext,
+            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
             fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
@@ -84,9 +94,13 @@ mod tests {
         }
         let c = counters();
         let m = HttpLoadMonitor::new(Arc::new(HttpLoadMonitorOk), Arc::clone(&c));
-        m.handle(HttpRequest::get("/"), RequestContext::unauthenticated()).await.unwrap();
+        m.handle(HttpRequest::get("/"), RequestContext::unauthenticated())
+            .await
+            .unwrap();
         assert_eq!(c.requests_in_flight.load(Ordering::Relaxed), 0);
         let snaps = c.provider.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_requests_total" && s.value == 1.0));
+        assert!(snaps
+            .iter()
+            .any(|s| s.name == "edge_requests_total" && s.value == 1.0));
     }
 }

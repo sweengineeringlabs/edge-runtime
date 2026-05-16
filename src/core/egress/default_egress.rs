@@ -8,28 +8,41 @@ use swe_edge_egress_http::HttpOutbound;
 use crate::api::egress::{DefaultEgress, Egress};
 
 impl Egress for DefaultEgress {
-    fn http(&self) -> Arc<dyn HttpOutbound>         { self.http.clone() }
-    fn grpc(&self) -> Option<Arc<dyn GrpcOutbound>> { self.grpc.clone() }
+    fn http(&self) -> Arc<dyn HttpOutbound> {
+        self.http.clone()
+    }
+    fn grpc(&self) -> Option<Arc<dyn GrpcOutbound>> {
+        self.grpc.clone()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::sync::Arc;
-    use futures::future::BoxFuture;
-    use swe_edge_egress_http::{HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamResponse};
     use crate::api::egress::DefaultEgress;
+    use futures::future::BoxFuture;
+    use std::sync::Arc;
+    use swe_edge_egress_http::{
+        HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamResponse,
+    };
 
     struct DefaultEgressStub;
     impl HttpOutbound for DefaultEgressStub {
-        fn send(&self, _: swe_edge_egress_http::HttpRequest)
-            -> BoxFuture<'_, HttpOutboundResult<swe_edge_egress_http::HttpResponse>>
-        { Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) }) }
-        fn send_stream(&self, _: swe_edge_egress_http::HttpRequest)
-            -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>>
-        { Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) }) }
-        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>>
-        { Box::pin(async { Ok(()) }) }
+        fn send(
+            &self,
+            _: swe_edge_egress_http::HttpRequest,
+        ) -> BoxFuture<'_, HttpOutboundResult<swe_edge_egress_http::HttpResponse>> {
+            Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) })
+        }
+        fn send_stream(
+            &self,
+            _: swe_edge_egress_http::HttpRequest,
+        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+            Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) })
+        }
+        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+            Box::pin(async { Ok(()) })
+        }
     }
 
     #[test]

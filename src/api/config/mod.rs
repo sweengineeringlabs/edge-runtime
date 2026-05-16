@@ -5,5 +5,5 @@ pub(crate) mod config_error;
 pub(crate) mod config_override;
 
 pub use config_error::ConfigError;
-pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig};
 pub(crate) use config_override::ConfigOverride;
+pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig};

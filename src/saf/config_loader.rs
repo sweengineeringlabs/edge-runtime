@@ -93,10 +93,7 @@ where
 }
 
 /// Load an arbitrary TOML section from an explicit config directory.
-pub fn load_section_from<T>(
-    key: &str,
-    dir: impl Into<std::path::PathBuf>,
-) -> Result<T, ConfigError>
+pub fn load_section_from<T>(key: &str, dir: impl Into<std::path::PathBuf>) -> Result<T, ConfigError>
 where
     T: serde::de::DeserializeOwned + Default,
 {

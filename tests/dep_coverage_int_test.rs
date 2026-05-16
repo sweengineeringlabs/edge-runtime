@@ -14,9 +14,15 @@ async fn test_edge_domain_handler_registered_via_builder() {
 
     #[async_trait::async_trait]
     impl Handler<String, String> for PingHandler {
-        fn id(&self) -> &str { "ping" }
-        fn pattern(&self) -> &str { "/ping" }
-        async fn execute(&self, _: String) -> Result<String, HandlerError> { Ok("pong".into()) }
+        fn id(&self) -> &str {
+            "ping"
+        }
+        fn pattern(&self) -> &str {
+            "/ping"
+        }
+        async fn execute(&self, _: String) -> Result<String, HandlerError> {
+            Ok("pong".into())
+        }
     }
 
     // http_route succeeding without panic confirms edge-domain Handler is wired
@@ -30,14 +36,14 @@ async fn test_edge_domain_handler_registered_via_builder() {
 /// Exercises the JWT verifier integration through the builder.
 #[test]
 fn test_ingress_verifier_wired_via_bearer_auth() {
-    use swe_edge_runtime::{JwtVerifier, JwtConfig, JwtKey};
+    use swe_edge_runtime::{JwtConfig, JwtKey, JwtVerifier};
 
     let secret: Vec<u8> = b"super-secret-test-key-32-bytes!!".to_vec();
     let cfg = JwtConfig {
-        key:              JwtKey::Hs256 { secret },
-        required_issuer:  None,
+        key: JwtKey::Hs256 { secret },
+        required_issuer: None,
         required_audience: None,
-        leeway_seconds:   0,
+        leeway_seconds: 0,
     };
     let verifier = JwtVerifier::from_config(&cfg).expect("jwt verifier");
     // Wiring the verifier to the builder exercises the TokenVerifier trait path
@@ -51,15 +57,24 @@ fn test_ingress_verifier_wired_via_bearer_auth() {
 #[test]
 fn test_egress_grpc_wired_via_builder() {
     use futures::future::BoxFuture;
+    use swe_edge_egress_grpc::{
+        GrpcOutboundError, GrpcOutboundResult, GrpcRequest, GrpcResponse, GrpcStatusCode,
+    };
     use swe_edge_runtime::GrpcOutbound;
-    use swe_edge_egress_grpc::{GrpcOutboundError, GrpcOutboundResult, GrpcRequest, GrpcResponse, GrpcStatusCode};
 
     struct StubGrpc;
     impl GrpcOutbound for StubGrpc {
-        fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcOutboundResult<GrpcResponse>>
-        { Box::pin(async { Err(GrpcOutboundError::Status(GrpcStatusCode::Unavailable, "stub".into())) }) }
-        fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>>
-        { Box::pin(async { Ok(()) }) }
+        fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcOutboundResult<GrpcResponse>> {
+            Box::pin(async {
+                Err(GrpcOutboundError::Status(
+                    GrpcStatusCode::Unavailable,
+                    "stub".into(),
+                ))
+            })
+        }
+        fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
+            Box::pin(async { Ok(()) })
+        }
     }
 
     let b = Runtime::builder().egress_grpc(Arc::new(StubGrpc));
@@ -72,16 +87,19 @@ fn test_egress_grpc_wired_via_builder() {
 /// Exercises gRPC reflection flag in RuntimeConfig.
 #[test]
 fn test_grpc_reflection_config_field_respected() {
-    let cfg = RuntimeConfig { grpc_reflection: true, ..RuntimeConfig::default() };
+    let cfg = RuntimeConfig {
+        grpc_reflection: true,
+        ..RuntimeConfig::default()
+    };
     assert!(cfg.grpc_reflection);
 }
 
 /// Exercises swe-edge-ingress-grpc-reflection directly via ReflectionService.
 #[test]
 fn test_reflection_service_can_be_constructed_with_empty_registry() {
+    use edge_domain::HandlerRegistry;
     use std::sync::Arc;
     use swe_edge_ingress_grpc_reflection::ReflectionService;
-    use edge_domain::HandlerRegistry;
     let registry = Arc::new(HandlerRegistry::new());
     let _svc = ReflectionService::new(registry);
 }
@@ -91,15 +109,15 @@ fn test_reflection_service_can_be_constructed_with_empty_registry() {
 /// Exercises swe-edge-ingress-verifier directly via JwtVerifier.
 #[test]
 fn test_jwt_verifier_rejects_invalid_token_directly() {
-    use swe_edge_ingress_verifier::{JwtVerifier, JwtConfig, JwtKey, TokenVerifier};
+    use swe_edge_ingress_verifier::{JwtConfig, JwtKey, JwtVerifier, TokenVerifier};
     let secret: Vec<u8> = b"test-secret-key-that-is-long-enough".to_vec();
     let cfg = JwtConfig {
-        key:               JwtKey::Hs256 { secret },
-        required_issuer:   None,
+        key: JwtKey::Hs256 { secret },
+        required_issuer: None,
         required_audience: None,
-        leeway_seconds:    0,
+        leeway_seconds: 0,
     };
     let verifier = JwtVerifier::from_config(&cfg).expect("create verifier");
-    let result   = verifier.verify("not.a.jwt");
+    let result = verifier.verify("not.a.jwt");
     assert!(result.is_err(), "invalid token must be rejected");
 }

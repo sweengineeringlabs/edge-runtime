@@ -1,11 +1,13 @@
 //! Integration tests for the Prometheus metrics endpoint.
 
 use std::sync::Arc;
-use swe_edge_runtime::{TrafficCounters, SharedCounters};
+use swe_edge_runtime::{SharedCounters, TrafficCounters};
 use swe_observ_metrics::create_local_metrics_backend;
 
 fn make_counters() -> SharedCounters {
-    Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
+    Arc::new(TrafficCounters::new(Arc::new(
+        create_local_metrics_backend(),
+    )))
 }
 
 /// @covers: on_end
@@ -15,7 +17,9 @@ fn test_traffic_counters_integrates_with_metrics_backend() {
     c.on_start();
     c.on_end(1_000, false);
     let snaps = c.export();
-    assert!(snaps.iter().any(|s| s.name == "edge_requests_total" && s.value == 1.0));
+    assert!(snaps
+        .iter()
+        .any(|s| s.name == "edge_requests_total" && s.value == 1.0));
 }
 
 /// @covers: on_end

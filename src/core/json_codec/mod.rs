@@ -2,4 +2,4 @@
 
 pub(crate) mod codec;
 
-pub(crate) use codec::{json_decode, json_encode, grpc_json_decode, grpc_json_encode};
+pub(crate) use codec::{grpc_json_decode, grpc_json_encode, json_decode, json_encode};

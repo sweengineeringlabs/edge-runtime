@@ -6,7 +6,7 @@ use crate::api::monitor::{AutoscalePolicy, SharedCounters};
 /// autoscale thresholds.
 pub(crate) struct BackgroundSampler {
     counters: SharedCounters,
-    policy:   Option<AutoscalePolicy>,
+    policy: Option<AutoscalePolicy>,
 }
 
 impl crate::api::monitor::Sampler for BackgroundSampler {}
@@ -22,28 +22,37 @@ impl BackgroundSampler {
             interval.tick().await;
 
             let active = self.counters.requests_in_flight.load(Ordering::Relaxed) as f64;
-            let rps    = self.counters.requests_since_tick.swap(0, Ordering::Relaxed) as f64;
-            let eps    = self.counters.errors_since_tick.swap(0, Ordering::Relaxed) as f64;
-            let p99    = self.counters.latency_ring.lock().p99_ms();
+            let rps = self.counters.requests_since_tick.swap(0, Ordering::Relaxed) as f64;
+            let eps = self.counters.errors_since_tick.swap(0, Ordering::Relaxed) as f64;
+            let p99 = self.counters.latency_ring.lock().p99_ms();
 
             let p = &*self.counters.provider;
-            p.record_gauge("edge_requests_active",        active, &[]);
-            p.record_gauge("edge_requests_per_second",    rps,    &[]);
-            p.record_gauge("edge_errors_per_second",      eps,    &[]);
-            p.record_gauge("edge_request_latency_p99_ms", p99,    &[]);
+            p.record_gauge("edge_requests_active", active, &[]);
+            p.record_gauge("edge_requests_per_second", rps, &[]);
+            p.record_gauge("edge_errors_per_second", eps, &[]);
+            p.record_gauge("edge_request_latency_p99_ms", p99, &[]);
 
             if let Some(ref policy) = self.policy {
                 if active as u64 > policy.requests_active_max {
-                    tracing::warn!(active, max = policy.requests_active_max,
-                        "scale-out signal: requests_active exceeded threshold");
+                    tracing::warn!(
+                        active,
+                        max = policy.requests_active_max,
+                        "scale-out signal: requests_active exceeded threshold"
+                    );
                 }
                 if rps as u64 > policy.requests_per_sec_max {
-                    tracing::warn!(rps, max = policy.requests_per_sec_max,
-                        "scale-out signal: requests_per_second exceeded threshold");
+                    tracing::warn!(
+                        rps,
+                        max = policy.requests_per_sec_max,
+                        "scale-out signal: requests_per_second exceeded threshold"
+                    );
                 }
                 if p99 > policy.latency_p99_ms_max {
-                    tracing::warn!(p99_ms = p99, max = policy.latency_p99_ms_max,
-                        "scale-out signal: latency_p99_ms exceeded threshold");
+                    tracing::warn!(
+                        p99_ms = p99,
+                        max = policy.latency_p99_ms_max,
+                        "scale-out signal: latency_p99_ms exceeded threshold"
+                    );
                 }
             }
         }
@@ -53,12 +62,14 @@ impl BackgroundSampler {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::monitor::TrafficCounters;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
-    use crate::api::monitor::TrafficCounters;
 
     fn counters() -> SharedCounters {
-        Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
+        Arc::new(TrafficCounters::new(Arc::new(
+            create_local_metrics_backend(),
+        )))
     }
 
     #[test]
@@ -88,7 +99,9 @@ mod tests {
         tokio::task::yield_now().await;
         handle.abort();
         let snaps = c.provider.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_requests_active"),
-            "expected edge_requests_active gauge after tick");
+        assert!(
+            snaps.iter().any(|s| s.name == "edge_requests_active"),
+            "expected edge_requests_active gauge after tick"
+        );
     }
 }

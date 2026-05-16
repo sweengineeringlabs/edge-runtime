@@ -3,9 +3,9 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use crate::api::egress::Egress;
 use crate::api::error::RuntimeResult;
 use crate::api::ingress::Ingress;
-use crate::api::egress::Egress;
 use crate::api::runtime_manager::RuntimeManager;
 use crate::api::types::RuntimeConfig;
 use crate::core::runner::run_until_signal;
@@ -15,9 +15,9 @@ use edge_proxy::LifecycleMonitor;
 /// Assemble a [`RuntimeManager`] from the supplied config, ingress, egress,
 /// and lifecycle monitor.
 pub fn runtime_manager(
-    config:    RuntimeConfig,
-    ingress:   Arc<dyn Ingress>,
-    egress:    Arc<dyn Egress>,
+    config: RuntimeConfig,
+    ingress: Arc<dyn Ingress>,
+    egress: Arc<dyn Egress>,
     lifecycle: Arc<dyn LifecycleMonitor>,
 ) -> impl RuntimeManager {
     DefaultRuntimeManager::new(config, ingress, egress, lifecycle)
@@ -35,23 +35,25 @@ pub fn runtime_manager(
 /// a gRPC transport, a gRPC server is spawned against `config.grpc_bind`.
 /// Both servers are signalled to drain before `RuntimeManager::shutdown`.
 pub async fn run(
-    config:    RuntimeConfig,
-    ingress:   Arc<dyn Ingress>,
-    egress:    Arc<dyn Egress>,
+    config: RuntimeConfig,
+    ingress: Arc<dyn Ingress>,
+    egress: Arc<dyn Egress>,
     lifecycle: Arc<dyn LifecycleMonitor>,
 ) -> RuntimeResult<()> {
     use swe_edge_ingress::{AxumHttpServer, TonicGrpcServer};
     use tokio::sync::oneshot;
 
     let timeout_secs = config.shutdown_timeout_secs;
-    let http_bind    = config.http_bind.clone();
-    let grpc_bind    = config.grpc_bind.clone();
+    let http_bind = config.http_bind.clone();
+    let grpc_bind = config.grpc_bind.clone();
 
     let (http_shutdown_tx, http_shutdown_rx) = oneshot::channel::<()>();
     let http_task = ingress.http().map(|handler| {
         let server = AxumHttpServer::new(http_bind, handler);
         tokio::spawn(async move {
-            let signal = async move { let _ = http_shutdown_rx.await; };
+            let signal = async move {
+                let _ = http_shutdown_rx.await;
+            };
             if let Err(e) = server.serve(signal).await {
                 tracing::error!("HTTP server error: {e}");
             }
@@ -62,14 +64,16 @@ pub async fn run(
     let grpc_task = ingress.grpc().map(|handler| {
         let server = TonicGrpcServer::new(grpc_bind, handler);
         tokio::spawn(async move {
-            let signal = async move { let _ = grpc_shutdown_rx.await; };
+            let signal = async move {
+                let _ = grpc_shutdown_rx.await;
+            };
             if let Err(e) = server.serve(signal).await {
                 tracing::error!("gRPC server error: {e}");
             }
         })
     });
 
-    let mgr    = runtime_manager(config, ingress, egress, lifecycle);
+    let mgr = runtime_manager(config, ingress, egress, lifecycle);
     let result = run_until_signal(mgr, timeout_secs, wait_for_signal()).await;
 
     let _ = http_shutdown_tx.send(());
@@ -92,7 +96,9 @@ async fn wait_for_signal() {
         let mut sigterm = match signal(SignalKind::terminate()) {
             Ok(s) => s,
             Err(e) => {
-                tracing::warn!("could not register SIGTERM handler: {e} — falling back to SIGINT only");
+                tracing::warn!(
+                    "could not register SIGTERM handler: {e} — falling back to SIGINT only"
+                );
                 let _ = tokio::signal::ctrl_c().await;
                 return;
             }
@@ -109,7 +115,6 @@ async fn wait_for_signal() {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -118,35 +123,37 @@ mod tests {
     /// @covers: runtime_manager
     #[test]
     fn test_runtime_manager_constructs_without_panic() {
-        use swe_edge_ingress::HttpInbound;
-        use edge_proxy::new_null_lifecycle_monitor;
-        use crate::api::types::RuntimeConfig;
-        use crate::api::ingress::DefaultIngress;
         use crate::api::egress::DefaultEgress;
+        use crate::api::ingress::DefaultIngress;
+        use crate::api::types::RuntimeConfig;
+        use edge_proxy::new_null_lifecycle_monitor;
         use swe_edge_egress_http::default_http_outbound;
+        use swe_edge_ingress::HttpInbound;
 
-        let http = Arc::new(
-            default_http_outbound().expect("default http outbound"),
-        );
-        let input  = Arc::new(DefaultIngress::empty());
+        let http = Arc::new(default_http_outbound().expect("default http outbound"));
+        let input = Arc::new(DefaultIngress::empty());
         let output = Arc::new(DefaultEgress::new_http(http));
-        let lc     = new_null_lifecycle_monitor();
-        let _mgr   = runtime_manager(RuntimeConfig::default(), input, output, lc);
+        let lc = new_null_lifecycle_monitor();
+        let _mgr = runtime_manager(RuntimeConfig::default(), input, output, lc);
     }
 
     /// @covers: run
     #[tokio::test]
     async fn test_run_fails_when_no_ingress_configured() {
+        use crate::api::{egress::DefaultEgress, error::RuntimeError, ingress::DefaultIngress};
         use edge_proxy::new_null_lifecycle_monitor;
-        use crate::api::{ingress::DefaultIngress, egress::DefaultEgress, error::RuntimeError};
         use swe_edge_egress_http::default_http_outbound;
 
-        let http   = Arc::new(default_http_outbound().expect("http outbound"));
-        let input  = Arc::new(DefaultIngress::empty());
+        let http = Arc::new(default_http_outbound().expect("http outbound"));
+        let input = Arc::new(DefaultIngress::empty());
         let output = Arc::new(DefaultEgress::new_http(http));
-        let lc     = new_null_lifecycle_monitor();
-        let err    = run(RuntimeConfig::default(), input, output, lc).await.unwrap_err();
-        assert!(matches!(err, RuntimeError::StartFailed(_)),
-            "expected StartFailed for empty ingress, got: {err:?}");
+        let lc = new_null_lifecycle_monitor();
+        let err = run(RuntimeConfig::default(), input, output, lc)
+            .await
+            .unwrap_err();
+        assert!(
+            matches!(err, RuntimeError::StartFailed(_)),
+            "expected StartFailed for empty ingress, got: {err:?}"
+        );
     }
 }

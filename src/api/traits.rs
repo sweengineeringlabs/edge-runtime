@@ -21,8 +21,10 @@ mod tests {
         struct AlwaysOk;
         impl Validator for AlwaysOk {
             type Target = ();
-            type Error  = ();
-            fn validate(&self, _: &()) -> Result<(), ()> { Ok(()) }
+            type Error = ();
+            fn validate(&self, _: &()) -> Result<(), ()> {
+                Ok(())
+            }
         }
         assert!(AlwaysOk.validate(&()).is_ok());
     }

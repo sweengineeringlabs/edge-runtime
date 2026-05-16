@@ -6,7 +6,7 @@
 /// Marker trait for types that can be used as JSON codecs.
 pub trait JsonCodec: Send + Sync {}
 
-use swe_edge_ingress::{HttpInboundError, HttpRequest, HttpResponse, GrpcInboundError};
+use swe_edge_ingress::{GrpcInboundError, HttpInboundError, HttpRequest, HttpResponse};
 
 /// Default JSON decode: deserialises the HTTP request body into `Req`.
 pub(crate) type JsonHttpDecodeFn<Req> = fn(&HttpRequest) -> Result<Req, HttpInboundError>;
@@ -29,7 +29,9 @@ mod tests {
         use swe_edge_ingress::HttpRequest;
         fn _accepts<Req>(_f: JsonHttpDecodeFn<Req>) {}
         fn sample_decode(req: &HttpRequest) -> Result<String, HttpInboundError> {
-            req.body.as_ref().map(|_| "ok".to_string())
+            req.body
+                .as_ref()
+                .map(|_| "ok".to_string())
                 .ok_or_else(|| HttpInboundError::InvalidInput("empty".into()))
         }
         _accepts(sample_decode);
@@ -39,7 +41,8 @@ mod tests {
     fn test_json_grpc_decode_fn_type_alias_is_well_formed() {
         fn _accepts<Req>(_f: JsonGrpcDecodeFn<Req>) {}
         fn sample_decode(b: &[u8]) -> Result<String, GrpcInboundError> {
-            std::str::from_utf8(b).map(|s| s.to_string())
+            std::str::from_utf8(b)
+                .map(|s| s.to_string())
                 .map_err(|e| GrpcInboundError::InvalidArgument(e.to_string()))
         }
         _accepts(sample_decode);

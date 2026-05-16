@@ -9,7 +9,7 @@ use swe_observ_metrics::MetricsProvider;
 ///
 /// Values: `1.0` = Healthy, `0.5` = Degraded, `0.0` = Unhealthy.
 pub(crate) struct MetricsLifecycleMonitor {
-    inner:    Arc<dyn LifecycleMonitor>,
+    inner: Arc<dyn LifecycleMonitor>,
     provider: Arc<dyn MetricsProvider>,
 }
 
@@ -17,7 +17,7 @@ impl crate::api::monitor::LifecycleObserver for MetricsLifecycleMonitor {}
 
 impl MetricsLifecycleMonitor {
     pub(crate) fn new(
-        inner:    Arc<dyn LifecycleMonitor>,
+        inner: Arc<dyn LifecycleMonitor>,
         provider: Arc<dyn MetricsProvider>,
     ) -> Self {
         Self { inner, provider }
@@ -25,8 +25,8 @@ impl MetricsLifecycleMonitor {
 
     fn score(status: HealthStatus) -> f64 {
         match status {
-            HealthStatus::Healthy   => 1.0,
-            HealthStatus::Degraded  => 0.5,
+            HealthStatus::Healthy => 1.0,
+            HealthStatus::Degraded => 0.5,
             HealthStatus::Unhealthy => 0.0,
         }
     }
@@ -63,7 +63,7 @@ impl LifecycleMonitor for MetricsLifecycleMonitor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_proxy::{HealthStatus, new_null_lifecycle_monitor};
+    use edge_proxy::{new_null_lifecycle_monitor, HealthStatus};
     use swe_observ_metrics::create_local_metrics_backend;
 
     fn provider() -> Arc<dyn MetricsProvider> {
@@ -81,8 +81,12 @@ mod tests {
         let m = MetricsLifecycleMonitor::new(new_null_lifecycle_monitor(), Arc::clone(&p));
         m.health().await;
         let snaps = p.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_component_health" && s.value == 1.0),
-            "expected edge_component_health=1.0, got {snaps:?}");
+        assert!(
+            snaps
+                .iter()
+                .any(|s| s.name == "edge_component_health" && s.value == 1.0),
+            "expected edge_component_health=1.0, got {snaps:?}"
+        );
     }
 
     #[tokio::test]
@@ -93,12 +97,16 @@ mod tests {
         let m = MetricsLifecycleMonitor::new(inner, Arc::clone(&p));
         m.health().await;
         let snaps = p.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_component_health"),
-            "expected edge_component_health gauge, got {snaps:?}");
-        assert!(snaps.iter().any(|s| s.name == "edge_component_health"
-            && s.value == HealthStatus::Unhealthy as i32 as f64
-            || s.value == 0.0),
-            "expected unhealthy score after shutdown, got {snaps:?}");
+        assert!(
+            snaps.iter().any(|s| s.name == "edge_component_health"),
+            "expected edge_component_health gauge, got {snaps:?}"
+        );
+        assert!(
+            snaps.iter().any(|s| s.name == "edge_component_health"
+                && s.value == HealthStatus::Unhealthy as i32 as f64
+                || s.value == 0.0),
+            "expected unhealthy score after shutdown, got {snaps:?}"
+        );
     }
 
     #[tokio::test]
