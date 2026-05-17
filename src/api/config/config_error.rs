@@ -22,6 +22,15 @@ pub enum ConfigError {
     BadEnvVar(String),
 }
 
+impl From<swe_edge_config::ConfigError> for ConfigError {
+    fn from(e: swe_edge_config::ConfigError) -> Self {
+        match e {
+            swe_edge_config::ConfigError::Parse(s) => ConfigError::Parse(s),
+            swe_edge_config::ConfigError::Io(s) => ConfigError::Io(s),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

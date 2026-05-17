@@ -80,7 +80,11 @@ pub fn validate_config(config: &RuntimeConfig) -> Result<(), RuntimeError> {
 ///
 /// `key` is a dotted path, e.g. `"observability.tracing"` or
 /// `"application.completion"`.  Each config directory's `application.toml`
-/// layers over the shipped `default.toml`.
+/// layers over the previous (later wins).  Returns `Ok(T::default())` when the
+/// key is absent from all sources.
+///
+/// Delegates to [`swe_edge_config::load_section`] — library crates that only
+/// need section loading should depend on `swe-edge-config` directly.
 ///
 /// ```rust,ignore
 /// let tracing: TracingConfig = load_section("observability.tracing")?;
@@ -89,25 +93,28 @@ pub fn load_section<T>(key: &str) -> Result<T, ConfigError>
 where
     T: serde::de::DeserializeOwned + Default,
 {
-    DefaultConfigLoader::new().load_section(key)
+    swe_edge_config::load_section(key).map_err(Into::into)
 }
 
 /// Load an arbitrary TOML section from an explicit config directory.
+///
+/// Delegates to [`swe_edge_config::load_section_from`].
 pub fn load_section_from<T>(key: &str, dir: impl Into<std::path::PathBuf>) -> Result<T, ConfigError>
 where
     T: serde::de::DeserializeOwned + Default,
 {
-    DefaultConfigLoader::with_dir(dir).load_section(key)
+    swe_edge_config::load_section_from(key, dir).map_err(Into::into)
 }
 
 /// Load an arbitrary TOML section following the XDG Base Directory chain.
 ///
-/// Layer order matches [`load_config_xdg`].
+/// Layer order matches [`load_config_xdg`]. Delegates to
+/// [`swe_edge_config::load_section_xdg`].
 pub fn load_section_xdg<T>(app_name: &str, key: &str) -> Result<T, ConfigError>
 where
     T: serde::de::DeserializeOwned + Default,
 {
-    DefaultConfigLoader::xdg(app_name).load_section(key)
+    swe_edge_config::load_section_xdg(app_name, key).map_err(Into::into)
 }
 
 #[cfg(test)]
