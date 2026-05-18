@@ -234,7 +234,6 @@ mod tests {
     use super::*;
     use crate::api::egress::DefaultEgress;
     use crate::api::ingress::DefaultIngress;
-    use async_trait::async_trait;
     use edge_proxy::{HealthReport, LifecycleError};
     use futures::future::BoxFuture;
     use std::collections::HashMap;
@@ -253,14 +252,15 @@ mod tests {
 
     struct DefaultRuntimeManagerStubLifecycle;
 
-    #[async_trait]
     impl LifecycleMonitor for DefaultRuntimeManagerStubLifecycle {
-        async fn health(&self) -> HealthReport {
-            HealthReport::from_components(vec![])
+        fn health(&self) -> BoxFuture<'_, HealthReport> {
+            Box::pin(async { HealthReport::from_components(vec![]) })
         }
-        async fn start_background_tasks(&self) {}
-        async fn shutdown(&self) -> Result<(), LifecycleError> {
-            Ok(())
+        fn start_background_tasks(&self) -> BoxFuture<'_, ()> {
+            Box::pin(async {})
+        }
+        fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>> {
+            Box::pin(async { Ok(()) })
         }
     }
 

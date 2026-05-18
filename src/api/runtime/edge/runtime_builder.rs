@@ -376,14 +376,7 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/ping"
             }
-            fn execute<'life0, 'async_trait>(
-                &'life0 self,
-                _: String,
-            ) -> BoxFuture<'async_trait, Result<String, HandlerError>>
-            where
-                'life0: 'async_trait,
-                Self: 'async_trait,
-            {
+            fn execute(&self, _: String) -> BoxFuture<'_, Result<String, HandlerError>> {
                 Box::pin(async { Ok("pong".into()) })
             }
         }
@@ -404,14 +397,7 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute<'life0, 'async_trait>(
-                &'life0 self,
-                req: String,
-            ) -> BoxFuture<'async_trait, Result<String, HandlerError>>
-            where
-                'life0: 'async_trait,
-                Self: 'async_trait,
-            {
+            fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
                 Box::pin(async move { Ok(req) })
             }
         }
@@ -433,14 +419,7 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute<'life0, 'async_trait>(
-                &'life0 self,
-                req: String,
-            ) -> BoxFuture<'async_trait, Result<String, HandlerError>>
-            where
-                'life0: 'async_trait,
-                Self: 'async_trait,
-            {
+            fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
                 Box::pin(async move { Ok(req) })
             }
         }
@@ -464,14 +443,7 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute<'life0, 'async_trait>(
-                &'life0 self,
-                req: Vec<u8>,
-            ) -> BoxFuture<'async_trait, Result<Vec<u8>, HandlerError>>
-            where
-                'life0: 'async_trait,
-                Self: 'async_trait,
-            {
+            fn execute(&self, req: Vec<u8>) -> BoxFuture<'_, Result<Vec<u8>, HandlerError>> {
                 Box::pin(async move { Ok(req) })
             }
         }
@@ -485,9 +457,9 @@ mod tests {
     #[tokio::test]
     async fn test_grpc_route_with_registers_handler() {
         use edge_domain::{Handler, HandlerError};
+        use futures::future::BoxFuture;
         use swe_edge_ingress::{GrpcDecodeFn, GrpcEncodeFn};
         struct Echo;
-        #[async_trait::async_trait]
         impl Handler<Vec<u8>, Vec<u8>> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -495,8 +467,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            async fn execute(&self, req: Vec<u8>) -> Result<Vec<u8>, HandlerError> {
-                Ok(req)
+            fn execute(&self, req: Vec<u8>) -> BoxFuture<'_, Result<Vec<u8>, HandlerError>> {
+                Box::pin(async move { Ok(req) })
             }
         }
         let decode: GrpcDecodeFn<Vec<u8>> = |b| Ok(b.to_vec());
@@ -509,9 +481,9 @@ mod tests {
     #[tokio::test]
     async fn test_http_route_with_registers_handler() {
         use edge_domain::{Handler, HandlerError};
+        use futures::future::BoxFuture;
         use swe_edge_ingress::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
         struct Echo;
-        #[async_trait::async_trait]
         impl Handler<String, String> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -519,8 +491,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            async fn execute(&self, req: String) -> Result<String, HandlerError> {
-                Ok(req)
+            fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
+                Box::pin(async move { Ok(req) })
             }
         }
         let decode: HttpDecodeFn<String> = |_r: &HttpRequest| Ok("hello".into());

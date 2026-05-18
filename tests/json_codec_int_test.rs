@@ -9,7 +9,7 @@ use swe_edge_runtime::{Runtime, RuntimeConfig};
 /// @covers: json_codec — http_route accepts a handler without explicit codec
 #[test]
 fn test_http_route_accepts_handler_with_auto_json_codec() {
-    use async_trait::async_trait;
+    use futures::future::BoxFuture;
     use serde::{Deserialize, Serialize};
     use std::sync::Arc;
     use swe_edge_runtime::{Handler, HandlerError};
@@ -25,7 +25,6 @@ fn test_http_route_accepts_handler_with_auto_json_codec() {
 
     struct EchoHandler;
 
-    #[async_trait]
     impl Handler<Req, Resp> for EchoHandler {
         fn id(&self) -> &str {
             "echo"
@@ -33,8 +32,8 @@ fn test_http_route_accepts_handler_with_auto_json_codec() {
         fn pattern(&self) -> &str {
             "/echo"
         }
-        async fn execute(&self, req: Req) -> Result<Resp, HandlerError> {
-            Ok(Resp { text: req.prompt })
+        fn execute(&self, req: Req) -> BoxFuture<'_, Result<Resp, HandlerError>> {
+            Box::pin(async move { Ok(Resp { text: req.prompt }) })
         }
     }
 

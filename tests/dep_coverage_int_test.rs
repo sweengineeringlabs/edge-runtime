@@ -12,7 +12,6 @@ async fn test_edge_domain_handler_registered_via_builder() {
 
     struct PingHandler;
 
-    #[async_trait::async_trait]
     impl Handler<String, String> for PingHandler {
         fn id(&self) -> &str {
             "ping"
@@ -20,8 +19,8 @@ async fn test_edge_domain_handler_registered_via_builder() {
         fn pattern(&self) -> &str {
             "/ping"
         }
-        async fn execute(&self, _: String) -> Result<String, HandlerError> {
-            Ok("pong".into())
+        fn execute(&self, _: String) -> futures::future::BoxFuture<'_, Result<String, HandlerError>> {
+            Box::pin(async { Ok("pong".into()) })
         }
     }
 
