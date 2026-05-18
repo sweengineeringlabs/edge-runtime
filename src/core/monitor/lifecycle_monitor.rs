@@ -52,7 +52,7 @@ impl LifecycleMonitor for MetricsLifecycleMonitor {
     }
 
     async fn start_background_tasks(&self) {
-        self.inner.start_background_tasks().await;
+        self.inner.start_background_tasks().await
     }
 
     async fn shutdown(&self) -> Result<(), LifecycleError> {
