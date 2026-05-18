@@ -26,15 +26,14 @@ use swe_edge_runtime::{
 
 struct StubLifecycle;
 
+#[async_trait::async_trait]
 impl LifecycleMonitor for StubLifecycle {
-    fn health(&self) -> BoxFuture<'_, HealthReport> {
-        Box::pin(async { HealthReport::from_components(vec![]) })
+    async fn health(&self) -> HealthReport {
+        HealthReport::from_components(vec![])
     }
-    fn start_background_tasks(&self) -> BoxFuture<'_, ()> {
-        Box::pin(async {})
-    }
-    fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>> {
-        Box::pin(async { Ok(()) })
+    async fn start_background_tasks(&self) {}
+    async fn shutdown(&self) -> Result<(), LifecycleError> {
+        Ok(())
     }
 }
 

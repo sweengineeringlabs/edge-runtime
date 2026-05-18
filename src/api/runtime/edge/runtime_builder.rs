@@ -367,8 +367,8 @@ mod tests {
     #[test]
     fn test_http_route_builds_dispatcher() {
         use edge_domain::{Handler, HandlerError};
-        use futures::future::BoxFuture;
         struct Ping;
+        #[async_trait::async_trait]
         impl Handler<String, String> for Ping {
             fn id(&self) -> &str {
                 "ping"
@@ -376,8 +376,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/ping"
             }
-            fn execute(&self, _: String) -> BoxFuture<'_, Result<String, HandlerError>> {
-                Box::pin(async { Ok("pong".into()) })
+            async fn execute(&self, _: String) -> Result<String, HandlerError> {
+                Ok("pong".into())
             }
         }
         let b = Runtime::builder().http_route(Arc::new(Ping));
@@ -388,8 +388,8 @@ mod tests {
     #[test]
     fn test_grpc_route_builds_dispatcher() {
         use edge_domain::{Handler, HandlerError};
-        use futures::future::BoxFuture;
         struct Echo;
+        #[async_trait::async_trait]
         impl Handler<String, String> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -397,8 +397,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
-                Box::pin(async move { Ok(req) })
+            async fn execute(&self, req: String) -> Result<String, HandlerError> {
+                Ok(req)
             }
         }
         let b = Runtime::builder().grpc_route(Arc::new(Echo));
@@ -409,9 +409,9 @@ mod tests {
     #[test]
     fn test_http_route_with_builds_dispatcher() {
         use edge_domain::{Handler, HandlerError};
-        use futures::future::BoxFuture;
         use swe_edge_ingress::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
         struct Echo;
+        #[async_trait::async_trait]
         impl Handler<String, String> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -419,8 +419,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
-                Box::pin(async move { Ok(req) })
+            async fn execute(&self, req: String) -> Result<String, HandlerError> {
+                Ok(req)
             }
         }
         let decode: HttpDecodeFn<String> = |_: &HttpRequest| Ok("hi".into());
@@ -433,9 +433,9 @@ mod tests {
     #[test]
     fn test_grpc_route_with_builds_dispatcher() {
         use edge_domain::{Handler, HandlerError};
-        use futures::future::BoxFuture;
         use swe_edge_ingress::{GrpcDecodeFn, GrpcEncodeFn};
         struct Echo;
+        #[async_trait::async_trait]
         impl Handler<Vec<u8>, Vec<u8>> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -443,8 +443,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute(&self, req: Vec<u8>) -> BoxFuture<'_, Result<Vec<u8>, HandlerError>> {
-                Box::pin(async move { Ok(req) })
+            async fn execute(&self, req: Vec<u8>) -> Result<Vec<u8>, HandlerError> {
+                Ok(req)
             }
         }
         let decode: GrpcDecodeFn<Vec<u8>> = |b| Ok(b.to_vec());
@@ -457,9 +457,9 @@ mod tests {
     #[tokio::test]
     async fn test_grpc_route_with_registers_handler() {
         use edge_domain::{Handler, HandlerError};
-        use futures::future::BoxFuture;
         use swe_edge_ingress::{GrpcDecodeFn, GrpcEncodeFn};
         struct Echo;
+        #[async_trait::async_trait]
         impl Handler<Vec<u8>, Vec<u8>> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -467,8 +467,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute(&self, req: Vec<u8>) -> BoxFuture<'_, Result<Vec<u8>, HandlerError>> {
-                Box::pin(async move { Ok(req) })
+            async fn execute(&self, req: Vec<u8>) -> Result<Vec<u8>, HandlerError> {
+                Ok(req)
             }
         }
         let decode: GrpcDecodeFn<Vec<u8>> = |b| Ok(b.to_vec());
@@ -481,9 +481,9 @@ mod tests {
     #[tokio::test]
     async fn test_http_route_with_registers_handler() {
         use edge_domain::{Handler, HandlerError};
-        use futures::future::BoxFuture;
         use swe_edge_ingress::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
         struct Echo;
+        #[async_trait::async_trait]
         impl Handler<String, String> for Echo {
             fn id(&self) -> &str {
                 "echo"
@@ -491,8 +491,8 @@ mod tests {
             fn pattern(&self) -> &str {
                 "/echo"
             }
-            fn execute(&self, req: String) -> BoxFuture<'_, Result<String, HandlerError>> {
-                Box::pin(async move { Ok(req) })
+            async fn execute(&self, req: String) -> Result<String, HandlerError> {
+                Ok(req)
             }
         }
         let decode: HttpDecodeFn<String> = |_r: &HttpRequest| Ok("hello".into());

@@ -46,6 +46,7 @@ edge-domain                        = { git = "ssh://git@github.com/sweengineerin
 swe-observ-metrics                 = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 [dev-dependencies]
+async-trait = "0.1"
 tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
 tempfile     = "3"
 swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
