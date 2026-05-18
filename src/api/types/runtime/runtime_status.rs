@@ -22,11 +22,11 @@ pub enum RuntimeStatus {
 impl fmt::Display for RuntimeStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Self::Starting  => write!(f, "starting"),
-            Self::Running   => write!(f, "running"),
-            Self::Stopping  => write!(f, "stopping"),
-            Self::Stopped   => write!(f, "stopped"),
-            Self::Degraded  => write!(f, "degraded"),
+            Self::Starting => write!(f, "starting"),
+            Self::Running => write!(f, "running"),
+            Self::Stopping => write!(f, "stopping"),
+            Self::Stopped => write!(f, "stopped"),
+            Self::Degraded => write!(f, "degraded"),
         }
     }
 }
@@ -49,9 +49,9 @@ mod tests {
 
     #[test]
     fn test_display_returns_lowercase_name() {
-        assert_eq!(RuntimeStatus::Running.to_string(),  "running");
+        assert_eq!(RuntimeStatus::Running.to_string(), "running");
         assert_eq!(RuntimeStatus::Stopping.to_string(), "stopping");
-        assert_eq!(RuntimeStatus::Stopped.to_string(),  "stopped");
+        assert_eq!(RuntimeStatus::Stopped.to_string(), "stopped");
         assert_eq!(RuntimeStatus::Degraded.to_string(), "degraded");
     }
 

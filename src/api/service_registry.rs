@@ -22,10 +22,14 @@ impl ServiceRegistry {
     }
 
     /// Return the HTTP egress client.
-    pub fn http(&self) -> &Arc<dyn HttpOutbound> { &self.http }
+    pub fn http(&self) -> &Arc<dyn HttpOutbound> {
+        &self.http
+    }
 
     /// Return the gRPC egress client, if one was registered.
-    pub fn grpc(&self) -> Option<&Arc<dyn GrpcOutbound>> { self.grpc.as_ref() }
+    pub fn grpc(&self) -> Option<&Arc<dyn GrpcOutbound>> {
+        self.grpc.as_ref()
+    }
 }
 
 #[cfg(test)]
@@ -39,8 +43,17 @@ mod tests {
         fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
-        fn send_stream(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
-            Box::pin(async { Ok(HttpStreamResponse { status: 200, headers: Default::default(), body: Box::pin(futures::stream::empty()) }) })
+        fn send_stream(
+            &self,
+            _: HttpRequest,
+        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+            Box::pin(async {
+                Ok(HttpStreamResponse {
+                    status: 200,
+                    headers: Default::default(),
+                    body: Box::pin(futures::stream::empty()),
+                })
+            })
         }
         fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
             Box::pin(async { Ok(()) })

@@ -14,25 +14,29 @@
 
 use std::sync::Arc;
 
+use edge_proxy::new_null_lifecycle_monitor;
 use futures::future::BoxFuture;
 use swe_edge_egress_http::{
-    HttpOutbound, HttpOutboundResult,
-    HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse,
+    HttpOutbound, HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
+    HttpStreamResponse,
 };
 use swe_edge_ingress::{
     HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{
-    runtime_manager, DefaultInput, DefaultOutput, RuntimeConfig, RuntimeManager, RuntimeStatus,
+    runtime_manager, DefaultEgress, DefaultIngress, RuntimeConfig, RuntimeManager, RuntimeStatus,
 };
-use edge_proxy::new_null_lifecycle_monitor;
 
 // ── stub inbound ──────────────────────────────────────────────────────────────
 
 struct NoopInbound;
 
 impl HttpInbound for NoopInbound {
-    fn handle(&self, _: HttpRequest, _ctx: RequestContext) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    fn handle(
+        &self,
+        _: HttpRequest,
+        _ctx: RequestContext,
+    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         Box::pin(async { Ok(HttpResponse::new(204, vec![])) })
     }
 
@@ -51,7 +55,13 @@ impl HttpOutbound for NoopOutbound {
     }
 
     fn send_stream(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
-        Box::pin(async { Ok(HttpStreamResponse { status: 200, headers: Default::default(), body: Box::pin(futures::stream::empty()) }) })
+        Box::pin(async {
+            Ok(HttpStreamResponse {
+                status: 200,
+                headers: Default::default(),
+                body: Box::pin(futures::stream::empty()),
+            })
+        })
     }
 
     fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
@@ -72,10 +82,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("http:     {}", config.http_bind);
     println!("timeout:  {}s", config.shutdown_timeout_secs);
 
-    // 2. Assemble gateways — DefaultInput and DefaultOutput accept `Arc<dyn Trait>`
+    // 2. Assemble gateways — DefaultIngress and DefaultEgress accept `Arc<dyn Trait>`
     //    so the runtime never names or imports concrete adapter types.
-    let ingress   = Arc::new(DefaultInput::new_http(Arc::new(NoopInbound)));
-    let egress    = Arc::new(DefaultOutput::new_http(Arc::new(NoopOutbound)));
+    let ingress = Arc::new(DefaultIngress::new_http(Arc::new(NoopInbound)));
+    let egress = Arc::new(DefaultEgress::new_http(Arc::new(NoopOutbound)));
     let lifecycle = new_null_lifecycle_monitor();
 
     // 3. Build the RuntimeManager via the SAF factory (returns `impl RuntimeManager`).

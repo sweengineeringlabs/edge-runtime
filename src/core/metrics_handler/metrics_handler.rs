@@ -8,8 +8,8 @@ use std::sync::Arc;
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
 use swe_edge_ingress::{
-    HttpHealthCheck, HttpInbound, HttpInboundError, HttpInboundResult,
-    HttpMethod, HttpRequest, HttpResponse,
+    HttpHealthCheck, HttpInbound, HttpInboundError, HttpInboundResult, HttpMethod, HttpRequest,
+    HttpResponse,
 };
 use swe_observ_metrics::{MetricType, MetricsProvider};
 
@@ -22,12 +22,15 @@ use crate::api::monitor::SharedCounters;
 /// (default `/metrics`); all other paths return `404 Not Found`.
 pub(crate) struct MetricsHandler {
     counters: SharedCounters,
-    path:     String,
+    path: String,
 }
 
 impl MetricsHandler {
     pub(crate) fn new(counters: SharedCounters, path: impl Into<String>) -> Self {
-        Self { counters, path: path.into() }
+        Self {
+            counters,
+            path: path.into(),
+        }
     }
 }
 
@@ -37,24 +40,28 @@ impl HttpInbound for MetricsHandler {
     fn handle(
         &self,
         request: HttpRequest,
-        _ctx:    RequestContext,
+        _ctx: RequestContext,
     ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
         let provider = Arc::clone(&self.counters.provider);
-        let path     = self.path.clone();
+        let path = self.path.clone();
         Box::pin(async move {
             if request.method != HttpMethod::Get {
                 return Err(HttpInboundError::InvalidInput(
                     "metrics endpoint only accepts GET".into(),
                 ));
             }
-            let req_path = request.url
-                .split('?').next().unwrap_or(&request.url)
+            let req_path = request
+                .url
+                .split('?')
+                .next()
+                .unwrap_or(&request.url)
                 .trim_end_matches('/');
             let cfg_path = path.trim_end_matches('/');
             if req_path != cfg_path {
-                return Err(HttpInboundError::NotFound(
-                    format!("not found: {}", request.url),
-                ));
+                return Err(HttpInboundError::NotFound(format!(
+                    "not found: {}",
+                    request.url
+                )));
             }
             let body = render_prometheus(&*provider);
             let mut resp = HttpResponse::new(200, body.into_bytes());
@@ -76,15 +83,17 @@ fn render_prometheus(provider: &dyn MetricsProvider) -> String {
     let mut out = String::new();
     for snap in provider.export() {
         let type_str = match snap.metric_type {
-            MetricType::Counter   => "counter",
-            MetricType::Gauge     => "gauge",
+            MetricType::Counter => "counter",
+            MetricType::Gauge => "gauge",
             MetricType::Histogram => "gauge", // exported as gauge via export()
         };
         out.push_str(&format!("# TYPE {} {}\n", snap.name, type_str));
         let labels = if snap.labels.is_empty() {
             String::new()
         } else {
-            let parts: Vec<String> = snap.labels.iter()
+            let parts: Vec<String> = snap
+                .labels
+                .iter()
                 .map(|(k, v)| format!("{k}=\"{v}\""))
                 .collect();
             format!("{{{}}}", parts.join(","))
@@ -97,9 +106,9 @@ fn render_prometheus(provider: &dyn MetricsProvider) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::monitor::TrafficCounters;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
-    use crate::api::monitor::TrafficCounters;
 
     fn handler_with_data() -> MetricsHandler {
         let provider = Arc::new(create_local_metrics_backend());
@@ -111,36 +120,67 @@ mod tests {
 
     #[tokio::test]
     async fn test_handle_get_configured_path_returns_prometheus_text() {
-        let h    = handler_with_data();
-        let resp = h.handle(HttpRequest::get("/metrics"), RequestContext::unauthenticated()).await.unwrap();
+        let h = handler_with_data();
+        let resp = h
+            .handle(
+                HttpRequest::get("/metrics"),
+                RequestContext::unauthenticated(),
+            )
+            .await
+            .unwrap();
         assert_eq!(resp.status, 200);
-        let ct   = resp.header("content-type").map(str::to_owned);
+        let ct = resp.header("content-type").map(str::to_owned);
         let body = String::from_utf8(resp.body).unwrap();
-        assert!(body.contains("edge_requests_total"), "missing counter in: {body}");
-        assert!(body.contains("edge_requests_active"), "missing gauge in: {body}");
-        assert_eq!(ct.as_deref(), Some("text/plain; version=0.0.4; charset=utf-8"));
+        assert!(
+            body.contains("edge_requests_total"),
+            "missing counter in: {body}"
+        );
+        assert!(
+            body.contains("edge_requests_active"),
+            "missing gauge in: {body}"
+        );
+        assert_eq!(
+            ct.as_deref(),
+            Some("text/plain; version=0.0.4; charset=utf-8")
+        );
     }
 
     #[tokio::test]
     async fn test_handle_get_wrong_path_returns_not_found() {
-        let h   = handler_with_data();
-        let err = h.handle(HttpRequest::get("/healthz"), RequestContext::unauthenticated())
-            .await.unwrap_err();
+        let h = handler_with_data();
+        let err = h
+            .handle(
+                HttpRequest::get("/healthz"),
+                RequestContext::unauthenticated(),
+            )
+            .await
+            .unwrap_err();
         assert!(matches!(err, HttpInboundError::NotFound(_)));
     }
 
     #[tokio::test]
     async fn test_handle_get_path_with_trailing_slash_returns_200() {
-        let h    = handler_with_data();
-        let resp = h.handle(HttpRequest::get("/metrics/"), RequestContext::unauthenticated()).await.unwrap();
+        let h = handler_with_data();
+        let resp = h
+            .handle(
+                HttpRequest::get("/metrics/"),
+                RequestContext::unauthenticated(),
+            )
+            .await
+            .unwrap();
         assert_eq!(resp.status, 200);
     }
 
     #[tokio::test]
     async fn test_handle_non_get_returns_invalid_input_error() {
-        let h   = handler_with_data();
-        let err = h.handle(HttpRequest::post("/metrics"), RequestContext::unauthenticated())
-            .await.unwrap_err();
+        let h = handler_with_data();
+        let err = h
+            .handle(
+                HttpRequest::post("/metrics"),
+                RequestContext::unauthenticated(),
+            )
+            .await
+            .unwrap_err();
         assert!(matches!(err, HttpInboundError::InvalidInput(_)));
     }
 
@@ -155,7 +195,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_health_check_returns_healthy() {
-        let h  = handler_with_data();
+        let h = handler_with_data();
         let hc = h.health_check().await.unwrap();
         assert!(hc.healthy);
     }

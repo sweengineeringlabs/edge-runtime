@@ -12,15 +12,19 @@ fn test_validate_config_accepts_default_config() {
 /// @covers: validate_config — empty http_bind is rejected
 #[test]
 fn test_validate_config_rejects_empty_http_bind() {
-    let mut config = RuntimeConfig::default();
-    config.http_bind = "".into();
+    let config = RuntimeConfig {
+        http_bind: "".into(),
+        ..RuntimeConfig::default()
+    };
     assert!(validate_config(&config).is_err());
 }
 
 /// @covers: validate_config — zero shutdown timeout is rejected
 #[test]
 fn test_validate_config_rejects_zero_shutdown_timeout() {
-    let mut config = RuntimeConfig::default();
-    config.shutdown_timeout_secs = 0;
+    let config = RuntimeConfig {
+        shutdown_timeout_secs: 0,
+        ..RuntimeConfig::default()
+    };
     assert!(validate_config(&config).is_err());
 }

@@ -6,6 +6,7 @@ use swe_edge_egress_http::HttpConfig;
 use swe_edge_ingress::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
+pub use crate::api::config::ObservabilityConfig;
 pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
 
 /// Configuration for the runtime manager.
@@ -55,10 +56,15 @@ pub struct RuntimeConfig {
 
     // ── Observability / auto-scaling ──────────────────────────────────────────
     /// Prometheus metrics endpoint.  Absent = metrics server not started.
-    pub metrics:   Option<MetricsConfig>,
+    pub metrics: Option<MetricsConfig>,
     /// Auto-scale threshold policy.  Checked every second by the sampler.
     /// Has no effect if `metrics` is absent.
     pub autoscale: Option<AutoscalePolicy>,
+
+    // ── Observability ─────────────────────────────────────────────────────────
+    /// Tracing subscriber and observability settings (`[observability]` section).
+    /// Absent = use `TracingConfig` defaults when `with_tracing()` is called.
+    pub observability: Option<ObservabilityConfig>,
 
     // ── Deployment ────────────────────────────────────────────────────────────
     /// Directory containing deployment artifacts (systemd units, manifests, etc.).
@@ -71,22 +77,23 @@ pub struct RuntimeConfig {
 impl Default for RuntimeConfig {
     fn default() -> Self {
         Self {
-            service_name:              "swe-edge".into(),
-            http_bind:                 "0.0.0.0:8080".into(),
-            grpc_bind:                 "0.0.0.0:50051".into(),
-            shutdown_timeout_secs:     30,
-            systemd_notify:            false,
-            tenant_id:                 None,
-            http_tls:                  None,
-            grpc_tls:                  None,
-            http_auth:                 None,
+            service_name: "swe-edge".into(),
+            http_bind: "0.0.0.0:8080".into(),
+            grpc_bind: "0.0.0.0:50051".into(),
+            shutdown_timeout_secs: 30,
+            systemd_notify: false,
+            tenant_id: None,
+            http_tls: None,
+            grpc_tls: None,
+            http_auth: None,
             grpc_allow_unauthenticated: false,
-            egress_http:               None,
-            egress_grpc:               None,
-            grpc_reflection:           false,
-            metrics:                   None,
-            autoscale:                 None,
-            deploy_dir:                None,
+            egress_http: None,
+            egress_grpc: None,
+            grpc_reflection: false,
+            metrics: None,
+            autoscale: None,
+            observability: None,
+            deploy_dir: None,
         }
     }
 }
@@ -135,14 +142,38 @@ struct RuntimeConfigBuilder {
 }
 
 impl RuntimeConfigBuilder {
-    fn new() -> Self { Self { inner: RuntimeConfig::default() } }
-    fn service_name(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_service_name(v); self }
-    fn http_bind(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_http_bind(v); self }
-    fn grpc_bind(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_grpc_bind(v); self }
-    fn shutdown_timeout_secs(mut self, v: u64) -> Self { self.inner = self.inner.with_shutdown_timeout(v); self }
-    fn systemd_notify(mut self, v: bool) -> Self { self.inner = self.inner.with_systemd_notify(v); self }
-    fn tenant_id(mut self, v: impl Into<String>) -> Self { self.inner = self.inner.with_tenant_id(v); self }
-    fn build(self) -> RuntimeConfig { self.inner }
+    fn new() -> Self {
+        Self {
+            inner: RuntimeConfig::default(),
+        }
+    }
+    fn service_name(mut self, v: impl Into<String>) -> Self {
+        self.inner = self.inner.with_service_name(v);
+        self
+    }
+    fn http_bind(mut self, v: impl Into<String>) -> Self {
+        self.inner = self.inner.with_http_bind(v);
+        self
+    }
+    fn grpc_bind(mut self, v: impl Into<String>) -> Self {
+        self.inner = self.inner.with_grpc_bind(v);
+        self
+    }
+    fn shutdown_timeout_secs(mut self, v: u64) -> Self {
+        self.inner = self.inner.with_shutdown_timeout(v);
+        self
+    }
+    fn systemd_notify(mut self, v: bool) -> Self {
+        self.inner = self.inner.with_systemd_notify(v);
+        self
+    }
+    fn tenant_id(mut self, v: impl Into<String>) -> Self {
+        self.inner = self.inner.with_tenant_id(v);
+        self
+    }
+    fn build(self) -> RuntimeConfig {
+        self.inner
+    }
 }
 
 #[cfg(test)]
@@ -156,6 +187,11 @@ mod tests {
         assert_eq!(cfg.grpc_bind, "0.0.0.0:50051");
         assert_eq!(cfg.shutdown_timeout_secs, 30);
         assert!(!cfg.systemd_notify);
+    }
+
+    #[test]
+    fn test_default_runtime_config_has_no_observability() {
+        assert!(RuntimeConfig::default().observability.is_none());
     }
 
     /// @covers: with_service_name

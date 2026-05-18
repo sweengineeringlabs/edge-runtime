@@ -12,24 +12,30 @@ pub trait MetricsExporter: Send + Sync {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::monitor::TrafficCounters;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
-    use crate::api::monitor::TrafficCounters;
 
     struct StubExporter {
         counters: SharedCounters,
-        path:     String,
+        path: String,
     }
     impl MetricsExporter for StubExporter {
-        fn counters(&self) -> &SharedCounters { &self.counters }
-        fn path(&self)     -> &str            { &self.path }
+        fn counters(&self) -> &SharedCounters {
+            &self.counters
+        }
+        fn path(&self) -> &str {
+            &self.path
+        }
     }
 
     #[test]
     fn test_metrics_exporter_is_object_safe() {
         fn _assert(_: &dyn MetricsExporter) {}
         let e = StubExporter {
-            counters: Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend()))),
+            counters: Arc::new(TrafficCounters::new(Arc::new(
+                create_local_metrics_backend(),
+            ))),
             path: "/metrics".into(),
         };
         _assert(&e);

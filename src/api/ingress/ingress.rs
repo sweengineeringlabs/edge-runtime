@@ -1,16 +1,18 @@
-//! `Input` — ingress adapter contract.
+//! `Ingress` — ingress adapter contract.
 
 use std::sync::Arc;
 use swe_edge_ingress::{GrpcInbound, HttpInbound};
 
 /// Supplies the ingress adapters the runtime binds traffic through.
-pub trait Input: Send + Sync {
+pub trait Ingress: Send + Sync {
     /// Returns the HTTP inbound adapter, if configured.
     fn http(&self) -> Option<Arc<dyn HttpInbound>>;
     /// Returns the gRPC inbound adapter, if configured.
     fn grpc(&self) -> Option<Arc<dyn GrpcInbound>>;
     /// Returns `true` when at least one transport is configured.
-    fn has_any(&self) -> bool { self.http().is_some() || self.grpc().is_some() }
+    fn has_any(&self) -> bool {
+        self.http().is_some() || self.grpc().is_some()
+    }
 }
 
 #[cfg(test)]
@@ -20,9 +22,13 @@ mod tests {
     #[test]
     fn test_has_any_returns_false_when_no_transports() {
         struct NoTransport;
-        impl Input for NoTransport {
-            fn http(&self) -> Option<Arc<dyn HttpInbound>> { None }
-            fn grpc(&self) -> Option<Arc<dyn GrpcInbound>> { None }
+        impl Ingress for NoTransport {
+            fn http(&self) -> Option<Arc<dyn HttpInbound>> {
+                None
+            }
+            fn grpc(&self) -> Option<Arc<dyn GrpcInbound>> {
+                None
+            }
         }
         assert!(!NoTransport.has_any());
     }

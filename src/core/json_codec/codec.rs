@@ -8,9 +8,7 @@ pub(crate) struct Codec;
 
 impl crate::api::json_codec::Codec for Codec {}
 
-use swe_edge_ingress::{
-    GrpcInboundError, HttpBody, HttpInboundError, HttpRequest, HttpResponse,
-};
+use swe_edge_ingress::{GrpcInboundError, HttpBody, HttpInboundError, HttpRequest, HttpResponse};
 
 /// Default HTTP decode: JSON body → `Req`.
 ///
@@ -23,8 +21,9 @@ pub(crate) fn json_decode<Req: serde::de::DeserializeOwned>(
     match &req.body {
         Some(HttpBody::Json(v)) => serde_json::from_value(v.clone())
             .map_err(|e| HttpInboundError::InvalidInput(e.to_string())),
-        Some(HttpBody::Raw(b)) => serde_json::from_slice(b)
-            .map_err(|e| HttpInboundError::InvalidInput(e.to_string())),
+        Some(HttpBody::Raw(b)) => {
+            serde_json::from_slice(b).map_err(|e| HttpInboundError::InvalidInput(e.to_string()))
+        }
         None => serde_json::from_slice(b"null")
             .map_err(|e| HttpInboundError::InvalidInput(e.to_string())),
         Some(_) => Err(HttpInboundError::InvalidInput(
@@ -38,7 +37,8 @@ pub(crate) fn json_encode<Resp: serde::Serialize>(resp: Resp) -> HttpResponse {
     match serde_json::to_vec(&resp) {
         Ok(body) => {
             let mut r = HttpResponse::new(200, body);
-            r.headers.insert("content-type".into(), "application/json".into());
+            r.headers
+                .insert("content-type".into(), "application/json".into());
             r
         }
         Err(e) => HttpResponse::new(500, e.to_string().into_bytes()),
@@ -49,8 +49,7 @@ pub(crate) fn json_encode<Resp: serde::Serialize>(resp: Resp) -> HttpResponse {
 pub(crate) fn grpc_json_decode<Req: serde::de::DeserializeOwned>(
     bytes: &[u8],
 ) -> Result<Req, GrpcInboundError> {
-    serde_json::from_slice(bytes)
-        .map_err(|e| GrpcInboundError::InvalidArgument(e.to_string()))
+    serde_json::from_slice(bytes).map_err(|e| GrpcInboundError::InvalidArgument(e.to_string()))
 }
 
 /// Default gRPC encode: `Resp` → raw bytes via JSON.
@@ -65,32 +64,65 @@ mod tests {
     use swe_edge_ingress::{HttpBody, HttpMethod, HttpRequest};
 
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
-    struct CodecPayload { text: String }
+    struct CodecPayload {
+        text: String,
+    }
 
     fn post_with_json(v: serde_json::Value) -> HttpRequest {
-        HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: Some(HttpBody::Json(v)), timeout: None }
+        HttpRequest {
+            method: HttpMethod::Post,
+            url: "/".into(),
+            headers: Default::default(),
+            query: Default::default(),
+            body: Some(HttpBody::Json(v)),
+            timeout: None,
+        }
     }
 
     fn post_with_raw(b: Vec<u8>) -> HttpRequest {
-        HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: Some(HttpBody::Raw(b)), timeout: None }
+        HttpRequest {
+            method: HttpMethod::Post,
+            url: "/".into(),
+            headers: Default::default(),
+            query: Default::default(),
+            body: Some(HttpBody::Raw(b)),
+            timeout: None,
+        }
     }
 
     fn post_with_no_body() -> HttpRequest {
-        HttpRequest { method: HttpMethod::Post, url: "/".into(), headers: Default::default(), query: Default::default(), body: None, timeout: None }
+        HttpRequest {
+            method: HttpMethod::Post,
+            url: "/".into(),
+            headers: Default::default(),
+            query: Default::default(),
+            body: None,
+            timeout: None,
+        }
     }
 
     #[test]
     fn test_json_decode_json_body_deserializes_correctly() {
         let req = post_with_json(serde_json::json!({"text": "hello"}));
         let msg: CodecPayload = json_decode(&req).unwrap();
-        assert_eq!(msg, CodecPayload { text: "hello".into() });
+        assert_eq!(
+            msg,
+            CodecPayload {
+                text: "hello".into()
+            }
+        );
     }
 
     #[test]
     fn test_json_decode_raw_body_deserializes_correctly() {
         let req = post_with_raw(br#"{"text":"world"}"#.to_vec());
         let msg: CodecPayload = json_decode(&req).unwrap();
-        assert_eq!(msg, CodecPayload { text: "world".into() });
+        assert_eq!(
+            msg,
+            CodecPayload {
+                text: "world".into()
+            }
+        );
     }
 
     #[test]
@@ -102,7 +134,10 @@ mod tests {
 
     #[test]
     fn test_json_decode_form_body_returns_invalid_input_error() {
-        let req = HttpRequest { body: Some(HttpBody::Form(Default::default())), ..post_with_no_body() };
+        let req = HttpRequest {
+            body: Some(HttpBody::Form(Default::default())),
+            ..post_with_no_body()
+        };
         let result = json_decode::<CodecPayload>(&req);
         assert!(matches!(result, Err(HttpInboundError::InvalidInput(_))));
     }
@@ -120,7 +155,12 @@ mod tests {
     fn test_grpc_json_decode_deserializes_bytes_correctly() {
         let bytes = br#"{"text":"grpc"}"#;
         let msg: CodecPayload = grpc_json_decode(bytes).unwrap();
-        assert_eq!(msg, CodecPayload { text: "grpc".into() });
+        assert_eq!(
+            msg,
+            CodecPayload {
+                text: "grpc".into()
+            }
+        );
     }
 
     #[test]
@@ -131,7 +171,9 @@ mod tests {
 
     #[test]
     fn test_grpc_json_encode_serializes_to_bytes() {
-        let msg = CodecPayload { text: "bytes".into() };
+        let msg = CodecPayload {
+            text: "bytes".into(),
+        };
         let bytes = grpc_json_encode(&msg);
         let decoded: CodecPayload = serde_json::from_slice(&bytes).unwrap();
         assert_eq!(decoded, msg);

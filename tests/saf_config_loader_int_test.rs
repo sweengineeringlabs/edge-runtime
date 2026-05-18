@@ -1,9 +1,8 @@
 //! Public-API integration tests for saf config-loading functions.
 
 use swe_edge_runtime::{
-    load_config, load_config_from, load_config_xdg,
-    load_tenant_config, load_tenant_config_from, load_tenant_config_xdg,
-    validate_config,
+    load_config, load_config_from, load_config_xdg, load_tenant_config, load_tenant_config_from,
+    load_tenant_config_xdg, validate_config,
 };
 
 /// @covers: load_config

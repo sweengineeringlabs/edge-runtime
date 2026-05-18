@@ -1,66 +1,80 @@
-//! Tracing subscriber initialisation — opt-in via the `observability` feature.
+//! Tracing subscriber initialisation — delegates to swe-edge-observ-config.
 
-/// Install a `tracing-subscriber` that surfaces `justobserv` context fields
-/// (`trace_id`, `session_id`, `agent_id`) in every log line.
-///
-/// Respects `RUST_LOG` for filter level (defaults to `info`). Safe to call
-/// more than once — subsequent calls are silent no-ops because the global
-/// subscriber is already set.
 #[cfg(feature = "observability")]
-pub fn init_tracing(format: crate::api::tracing_format::TracingFormat) {
-    use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use swe_edge_observ_config::TracingConfig;
 
-    let filter = EnvFilter::try_from_default_env()
-        .unwrap_or_else(|_| EnvFilter::new("info"));
-
-    match format {
-        TracingFormat::Json => {
-            let _ = tracing_subscriber::registry()
-                .with(filter)
-                .with(
-                    fmt::layer()
-                        .json()
-                        .flatten_event(true)
-                        .with_current_span(true)
-                        .with_span_list(false),
-                )
-                .try_init();
-        }
-        TracingFormat::Pretty => {
-            let _ = tracing_subscriber::registry()
-                .with(filter)
-                .with(fmt::layer().pretty())
-                .try_init();
-        }
-    }
+/// Install a `tracing-subscriber` driven by `config`.
+///
+/// Requires the `observability` feature. Idempotent — safe to call multiple
+/// times. Does nothing when `config.enabled` is `false`. `RUST_LOG` overrides
+/// `config.level` and `config.filter`.
+#[cfg(feature = "observability")]
+pub fn init_tracing(config: &TracingConfig) {
+    swe_edge_observ_config::init_tracing(config);
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "observability"))]
 mod tests {
-    #[cfg(feature = "observability")]
-    use super::init_tracing;
-    #[cfg(feature = "observability")]
-    use crate::api::tracing_format::TracingFormat;
+    use super::*;
 
-    /// @covers: init_tracing — Json
+    /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_json_does_not_panic() {
-        init_tracing(TracingFormat::Json);
+        use swe_edge_observ_config::TracingFormat;
+        let cfg = TracingConfig {
+            format: TracingFormat::Json,
+            ..TracingConfig::default()
+        };
+        init_tracing(&cfg);
     }
 
-    /// @covers: init_tracing — Pretty
+    /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_pretty_does_not_panic() {
-        init_tracing(TracingFormat::Pretty);
+        init_tracing(&TracingConfig::default());
     }
 
-    /// @covers: init_tracing — idempotent
+    /// @covers: init_tracing
     #[cfg(feature = "observability")]
     #[test]
     fn test_init_tracing_called_twice_does_not_panic() {
-        init_tracing(TracingFormat::Json);
-        init_tracing(TracingFormat::Pretty);
+        init_tracing(&TracingConfig::default());
+        init_tracing(&TracingConfig::default());
+    }
+
+    /// @covers: init_tracing
+    #[cfg(feature = "observability")]
+    #[test]
+    fn test_init_tracing_disabled_is_noop() {
+        let cfg = TracingConfig {
+            enabled: false,
+            ..TracingConfig::default()
+        };
+        init_tracing(&cfg);
+    }
+
+    /// @covers: init_tracing
+    #[cfg(feature = "observability")]
+    #[test]
+    fn test_init_tracing_with_custom_level_does_not_panic() {
+        use swe_edge_observ_config::TracingLevel;
+        let cfg = TracingConfig {
+            level: TracingLevel::Warn,
+            ..TracingConfig::default()
+        };
+        init_tracing(&cfg);
+    }
+
+    /// @covers: init_tracing
+    #[cfg(feature = "observability")]
+    #[test]
+    fn test_init_tracing_with_filter_does_not_panic() {
+        let cfg = TracingConfig {
+            filter: Some("tower=warn".into()),
+            ..TracingConfig::default()
+        };
+        init_tracing(&cfg);
     }
 }

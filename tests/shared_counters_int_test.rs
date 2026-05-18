@@ -5,7 +5,9 @@ use swe_edge_runtime::{SharedCounters, TrafficCounters};
 use swe_observ_metrics::create_local_metrics_backend;
 
 fn make_shared() -> SharedCounters {
-    Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
+    Arc::new(TrafficCounters::new(Arc::new(
+        create_local_metrics_backend(),
+    )))
 }
 
 /// @covers: SharedCounters

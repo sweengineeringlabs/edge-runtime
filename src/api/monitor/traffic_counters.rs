@@ -13,26 +13,25 @@ const RING_CAPACITY: usize = 1024;
 /// Shared load state — wraps a `MetricsProvider` for durable metric storage
 /// and a ring buffer for accurate p99 latency computation.
 pub struct TrafficCounters {
-    pub(crate) provider:             Arc<dyn MetricsProvider>,
+    pub(crate) provider: Arc<dyn MetricsProvider>,
     /// Signed so concurrent add/sub never underflows to u64::MAX.
-    pub(crate) requests_in_flight:   AtomicI64,
+    pub(crate) requests_in_flight: AtomicI64,
     /// Reset to 0 each tick by the background sampler.
-    pub(crate) requests_since_tick:  AtomicU64,
-    pub(crate) errors_since_tick:    AtomicU64,
+    pub(crate) requests_since_tick: AtomicU64,
+    pub(crate) errors_since_tick: AtomicU64,
     /// Ring buffer of request latencies in microseconds.
-    pub(crate) latency_ring:         Mutex<RingBuffer>,
+    pub(crate) latency_ring: Mutex<RingBuffer>,
 }
-
 
 impl TrafficCounters {
     /// Construct with the supplied metrics provider.
     pub fn new(provider: Arc<dyn MetricsProvider>) -> Self {
         Self {
             provider,
-            requests_in_flight:  AtomicI64::new(0),
+            requests_in_flight: AtomicI64::new(0),
             requests_since_tick: AtomicU64::new(0),
-            errors_since_tick:   AtomicU64::new(0),
-            latency_ring:        Mutex::new(RingBuffer::new(RING_CAPACITY)),
+            errors_since_tick: AtomicU64::new(0),
+            latency_ring: Mutex::new(RingBuffer::new(RING_CAPACITY)),
         }
     }
 
@@ -50,7 +49,8 @@ impl TrafficCounters {
     pub fn on_end(&self, latency_us: u64, is_error: bool) {
         self.requests_in_flight.fetch_sub(1, Ordering::Relaxed);
         self.requests_since_tick.fetch_add(1, Ordering::Relaxed);
-        self.provider.record_counter("edge_requests_total", 1.0, &[]);
+        self.provider
+            .record_counter("edge_requests_total", 1.0, &[]);
         if is_error {
             self.errors_since_tick.fetch_add(1, Ordering::Relaxed);
             self.provider.record_counter("edge_errors_total", 1.0, &[]);
@@ -67,18 +67,24 @@ struct TrafficCountersBuilder {
 
 impl TrafficCountersBuilder {
     fn new(provider: Arc<dyn MetricsProvider>) -> Self {
-        Self { provider, capacity: RING_CAPACITY }
+        Self {
+            provider,
+            capacity: RING_CAPACITY,
+        }
     }
 
-    fn ring_capacity(mut self, n: usize) -> Self { self.capacity = n; self }
+    fn ring_capacity(mut self, n: usize) -> Self {
+        self.capacity = n;
+        self
+    }
 
     fn build(self) -> TrafficCounters {
         TrafficCounters {
-            provider:             self.provider,
-            requests_in_flight:   AtomicI64::new(0),
-            requests_since_tick:  AtomicU64::new(0),
-            errors_since_tick:    AtomicU64::new(0),
-            latency_ring:         Mutex::new(RingBuffer::new(self.capacity)),
+            provider: self.provider,
+            requests_in_flight: AtomicI64::new(0),
+            requests_since_tick: AtomicU64::new(0),
+            errors_since_tick: AtomicU64::new(0),
+            latency_ring: Mutex::new(RingBuffer::new(self.capacity)),
         }
     }
 }
@@ -86,12 +92,14 @@ impl TrafficCountersBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::monitor::shared_counters::SharedCounters;
     use std::sync::atomic::Ordering;
     use swe_observ_metrics::create_local_metrics_backend;
-    use crate::api::monitor::shared_counters::SharedCounters;
 
     fn counters() -> SharedCounters {
-        Arc::new(TrafficCounters::new(Arc::new(create_local_metrics_backend())))
+        Arc::new(TrafficCounters::new(Arc::new(
+            create_local_metrics_backend(),
+        )))
     }
 
     #[test]
@@ -118,7 +126,9 @@ mod tests {
         assert_eq!(c.requests_in_flight.load(Ordering::Relaxed), 0);
         assert_eq!(c.requests_since_tick.load(Ordering::Relaxed), 1);
         let snaps = c.provider.export();
-        assert!(snaps.iter().any(|s| s.name == "edge_requests_total" && s.value == 1.0));
+        assert!(snaps
+            .iter()
+            .any(|s| s.name == "edge_requests_total" && s.value == 1.0));
     }
 
     #[test]

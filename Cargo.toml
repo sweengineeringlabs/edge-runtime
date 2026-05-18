@@ -2,8 +2,8 @@
 name         = "swe-edge-runtime-main"
 version      = "0.1.0"
 edition      = "2021"
-license      = "MIT"
-rust-version = "1.75"
+license      = "MIT OR Apache-2.0"
+rust-version = "1.95"
 authors      = ["SWE Engineering Labs"]
 repository   = "https://github.com/sweengineeringlabs/edge"
 description  = "edge — process-level runtime: wires ingress + proxy + domain + egress, lifecycle, and systemd notify."
@@ -20,38 +20,41 @@ path = "src/lib.rs"
 
 [features]
 default = []
-observability = ["dep:tracing-subscriber"]
+observability = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
 
 [dependencies]
 serde       = { version = "1.0", features = ["derive"] }
 toml        = "0.8"
+swe-edge-config        = { path = "../config/swe-edge-config" }
+swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
 dirs        = "5"
 serde_json  = "1.0"
 thiserror   = "2"
-async-trait = "0.1"
 futures     = "0.3"
+async-trait = "0.1"
 tokio       = { version = "1.0", features = ["rt", "rt-multi-thread", "sync", "signal", "macros", "time", "net"] }
 tracing     = "0.1"
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
 parking_lot = "0.12"
-edge-proxy                = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-ingress          = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-egress-grpc      = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-egress-http      = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-ingress-verifier          = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-ingress-grpc-reflection   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-edge-domain                        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+edge-proxy                = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress          = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-grpc      = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-http      = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress-verifier          = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress-grpc-reflection   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+edge-domain                        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 swe-observ-metrics                 = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 [dev-dependencies]
+async-trait = "0.1"
 tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
 tempfile     = "3"
+swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
 reqwest      = { version = "0.12", features = ["json"], default-features = false }
-async-trait  = "0.1"
-edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-ingress  = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
-swe-edge-egress-http = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", branch = "dev" }
+edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress  = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-http = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 
 [[test]]
 name = "runtime_int_test"
@@ -70,12 +73,12 @@ name = "json_codec_int_test"
 path = "tests/json_codec_int_test.rs"
 
 [[test]]
-name = "input_int_test"
-path = "tests/input_int_test.rs"
+name = "ingress_int_test"
+path = "tests/ingress_int_test.rs"
 
 [[test]]
-name = "output_int_test"
-path = "tests/output_int_test.rs"
+name = "egress_int_test"
+path = "tests/egress_int_test.rs"
 
 [[test]]
 name = "runtime_manager_int_test"
@@ -104,6 +107,14 @@ path = "tests/metrics_handler_int_test.rs"
 [[test]]
 name = "dep_coverage_int_test"
 path = "tests/dep_coverage_int_test.rs"
+
+[[test]]
+name = "observ_config_int_test"
+path = "tests/observ_config_int_test.rs"
+
+[[test]]
+name = "swe_edge_observ_config_int_test"
+path = "tests/swe_edge_observ_config_int_test.rs"
 
 [[test]]
 name = "runner_int_test"

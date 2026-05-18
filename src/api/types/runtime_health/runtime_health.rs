@@ -7,7 +7,7 @@ use crate::api::types::RuntimeStatus;
 #[derive(Debug, Clone)]
 pub struct RuntimeHealth {
     /// Overall runtime status (Starting, Running, Stopping, Stopped).
-    pub status:     RuntimeStatus,
+    pub status: RuntimeStatus,
     /// Per-subsystem health snapshots.
     pub components: Vec<ComponentHealth>,
     /// Seconds elapsed since the runtime started.
