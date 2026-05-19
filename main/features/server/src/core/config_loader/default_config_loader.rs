@@ -8,7 +8,7 @@ use crate::api::config_loader::ConfigLoader;
 use crate::api::types::RuntimeConfig;
 
 /// Shipped defaults embedded at compile time.
-const DEFAULT_TOML: &str = include_str!("../../../config/default.toml");
+const DEFAULT_TOML: &str = include_str!("../../../../../config/default.toml");
 
 /// Refuse to read a config file larger than this — prevents accidental or
 /// deliberate memory exhaustion via an oversized TOML blob.
