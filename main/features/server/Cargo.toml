@@ -1,0 +1,144 @@
+[package]
+name         = "swe-edge-runtime-main"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description  = "edge — process-level runtime: wires ingress + proxy + domain + egress, lifecycle, and systemd notify."
+keywords     = ["daemon", "runtime", "lifecycle", "systemd", "swe"]
+categories   = ["network-programming"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "runtime"
+
+[lib]
+name = "swe_edge_runtime"
+path = "src/lib.rs"
+
+[features]
+default = []
+observability  = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
+message-broker = ["dep:swe-edge-runtime-message-broker"]
+scheduler      = ["dep:swe-edge-runtime-scheduler"]
+
+[dependencies]
+serde.workspace      = true
+serde_json.workspace = true
+thiserror.workspace  = true
+futures.workspace    = true
+async-trait.workspace = true
+tokio.workspace      = true
+tracing.workspace    = true
+parking_lot.workspace = true
+toml        = "0.8"
+dirs        = "5"
+tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
+
+swe-edge-config        = { path = "../../../../config/swe-edge-config" }
+swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
+
+swe-edge-runtime-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }
+swe-edge-runtime-scheduler      = { path = "../scheduler", optional = true }
+
+edge-proxy                       = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress                 = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-http             = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress-verifier        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress-grpc-reflection = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+edge-domain                      = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-observ-metrics               = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
+
+[dev-dependencies]
+swe-edge-runtime-message-broker = { path = "../message-broker", features = ["tokio-rt"] }
+async-trait.workspace  = true
+tokio        = { workspace = true, features = ["rt-multi-thread", "macros", "test-util"] }
+tempfile     = "3"
+swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
+reqwest      = { version = "0.12", features = ["json"], default-features = false }
+edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress     = { package = "swe-edge-ingress-gateway",        git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-egress-http = { package = "swe-edge-egress-http-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+
+[[test]]
+name = "runtime_int_test"
+path = "tests/runtime_int_test.rs"
+
+[[test]]
+name = "observability_int_test"
+path = "tests/observability_int_test.rs"
+
+[[test]]
+name = "composite_int_test"
+path = "tests/composite_int_test.rs"
+
+[[test]]
+name = "json_codec_int_test"
+path = "tests/json_codec_int_test.rs"
+
+[[test]]
+name = "ingress_int_test"
+path = "tests/ingress_int_test.rs"
+
+[[test]]
+name = "egress_int_test"
+path = "tests/egress_int_test.rs"
+
+[[test]]
+name = "runtime_manager_int_test"
+path = "tests/runtime_manager_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "saf_config_loader_int_test"
+path = "tests/saf_config_loader_int_test.rs"
+
+[[test]]
+name = "saf_daemon_int_test"
+path = "tests/saf_daemon_int_test.rs"
+
+[[test]]
+name = "saf_lifecycle_monitor_int_test"
+path = "tests/saf_lifecycle_monitor_int_test.rs"
+
+[[test]]
+name = "metrics_handler_int_test"
+path = "tests/metrics_handler_int_test.rs"
+
+[[test]]
+name = "dep_coverage_int_test"
+path = "tests/dep_coverage_int_test.rs"
+
+[[test]]
+name = "observ_config_int_test"
+path = "tests/observ_config_int_test.rs"
+
+[[test]]
+name = "swe_edge_observ_config_int_test"
+path = "tests/swe_edge_observ_config_int_test.rs"
+
+[[test]]
+name = "runner_int_test"
+path = "tests/runner_int_test.rs"
+
+[[test]]
+name = "runtime_result_int_test"
+path = "tests/runtime_result_int_test.rs"
+
+[[test]]
+name = "shared_counters_int_test"
+path = "tests/shared_counters_int_test.rs"
+
+[[test]]
+name = "message_broker_runtime_int_test"
+path = "tests/message_broker_runtime_int_test.rs"
+
+[lints]
+workspace = true

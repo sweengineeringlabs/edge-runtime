@@ -1,140 +1,26 @@
-[package]
-name         = "swe-edge-runtime-main"
+[workspace]
+resolver = "2"
+members  = ["main/features/*"]
+
+[workspace.package]
 version      = "0.1.0"
 edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
 authors      = ["SWE Engineering Labs"]
 repository   = "https://github.com/sweengineeringlabs/edge"
-description  = "edge — process-level runtime: wires ingress + proxy + domain + egress, lifecycle, and systemd notify."
-keywords     = ["daemon", "runtime", "lifecycle", "systemd", "swe"]
-categories   = ["network-programming"]
 
-[package.metadata.struct-engine]
-application_type = "lib"
-service_type     = "runtime"
+[workspace.dependencies]
+serde        = { version = "1.0", features = ["derive"] }
+serde_json   = "1.0"
+thiserror    = "2"
+futures      = "0.3"
+tokio        = { version = "1.0", features = ["rt-multi-thread", "sync", "signal", "macros", "time", "net"] }
+tracing      = { version = "0.1", default-features = false }
+bytes        = "1"
+async-trait  = "0.1"
+parking_lot  = "0.12"
 
-[lib]
-name = "swe_edge_runtime"
-path = "src/lib.rs"
-
-[features]
-default = []
-observability = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
-message-broker = ["dep:swe-edge-message-broker"]
-
-[dependencies]
-serde       = { version = "1.0", features = ["derive"] }
-toml        = "0.8"
-swe-edge-config        = { path = "../config/swe-edge-config" }
-swe-edge-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }
-swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
-dirs        = "5"
-serde_json  = "1.0"
-thiserror   = "2"
-futures     = "0.3"
-async-trait = "0.1"
-tokio       = { version = "1.0", features = ["rt", "rt-multi-thread", "sync", "signal", "macros", "time", "net"] }
-tracing     = "0.1"
-tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
-parking_lot = "0.12"
-edge-proxy                = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-ingress          = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-grpc      = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-http      = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-ingress-verifier          = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-ingress-grpc-reflection   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-edge-domain                        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-observ-metrics                 = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
-
-[dev-dependencies]
-swe-edge-message-broker = { path = "../message-broker", features = ["tokio-rt"] }
-async-trait = "0.1"
-tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
-tempfile     = "3"
-swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
-reqwest      = { version = "0.12", features = ["json"], default-features = false }
-edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-ingress  = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-http = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-
-[[test]]
-name = "runtime_int_test"
-path = "tests/runtime_int_test.rs"
-
-[[test]]
-name = "observability_int_test"
-path = "tests/observability_int_test.rs"
-
-[[test]]
-name = "composite_int_test"
-path = "tests/composite_int_test.rs"
-
-[[test]]
-name = "json_codec_int_test"
-path = "tests/json_codec_int_test.rs"
-
-[[test]]
-name = "ingress_int_test"
-path = "tests/ingress_int_test.rs"
-
-[[test]]
-name = "egress_int_test"
-path = "tests/egress_int_test.rs"
-
-[[test]]
-name = "runtime_manager_int_test"
-path = "tests/runtime_manager_int_test.rs"
-
-[[test]]
-name = "validator_int_test"
-path = "tests/validator_int_test.rs"
-
-[[test]]
-name = "saf_config_loader_int_test"
-path = "tests/saf_config_loader_int_test.rs"
-
-[[test]]
-name = "saf_daemon_int_test"
-path = "tests/saf_daemon_int_test.rs"
-
-[[test]]
-name = "saf_lifecycle_monitor_int_test"
-path = "tests/saf_lifecycle_monitor_int_test.rs"
-
-[[test]]
-name = "metrics_handler_int_test"
-path = "tests/metrics_handler_int_test.rs"
-
-[[test]]
-name = "dep_coverage_int_test"
-path = "tests/dep_coverage_int_test.rs"
-
-[[test]]
-name = "observ_config_int_test"
-path = "tests/observ_config_int_test.rs"
-
-[[test]]
-name = "swe_edge_observ_config_int_test"
-path = "tests/swe_edge_observ_config_int_test.rs"
-
-[[test]]
-name = "runner_int_test"
-path = "tests/runner_int_test.rs"
-
-[[test]]
-name = "runtime_result_int_test"
-path = "tests/runtime_result_int_test.rs"
-
-[[test]]
-name = "shared_counters_int_test"
-path = "tests/shared_counters_int_test.rs"
-
-[[test]]
-name = "message_broker_runtime_int_test"
-path = "tests/message_broker_runtime_int_test.rs"
-
-[lints.rust]
+[workspace.lints.rust]
 unsafe_code  = "deny"
 missing_docs = "warn"
