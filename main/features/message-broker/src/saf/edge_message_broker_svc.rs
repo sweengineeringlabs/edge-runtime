@@ -4,7 +4,6 @@
 use crate::api::broker::broker_error::BrokerError;
 #[cfg(any(feature = "tokio-rt", feature = "nats"))]
 use crate::api::broker::message_broker::MessageBroker;
-use crate::api::traits::Validator;
 #[cfg(feature = "tokio-rt")]
 use crate::core::broker::InMemoryMessageBroker;
 #[cfg(feature = "nats")]
@@ -31,11 +30,6 @@ pub fn in_memory_broker() -> impl MessageBroker + Clone {
 #[cfg(feature = "nats")]
 pub async fn nats_broker(url: &str) -> Result<impl MessageBroker, BrokerError> {
     NatsMessageBroker::connect(url).await
-}
-
-/// Validate a value that implements [`Validator`].
-pub fn validate<V: Validator>(v: &V) -> Result<(), String> {
-    v.validate()
 }
 
 #[cfg(test)]
