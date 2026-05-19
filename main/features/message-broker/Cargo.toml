@@ -30,7 +30,7 @@ futures.workspace  = true
 thiserror          = "1.0"
 tracing.workspace  = true
 tokio      = { workspace = true, features = ["sync", "rt"], optional = true }
-async-nats = { version = "0.35", optional = true }
+async-nats = { version = "0.48", optional = true }
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["rt-multi-thread", "macros"] }
