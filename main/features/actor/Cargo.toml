@@ -19,17 +19,20 @@ name = "swe_edge_runtime_actor"
 path = "src/lib.rs"
 
 [features]
-default   = []
+default   = ["tokio-rt"]
 tokio-rt  = ["dep:tokio"]
+async-std-rt = ["dep:async-std"]
 
 [dependencies]
 futures.workspace  = true
 thiserror          = "1.0"
 tracing.workspace  = true
 tokio      = { workspace = true, features = ["sync", "rt"], optional = true }
+async-std  = { version = "1.12", features = ["attributes"], optional = true }
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["rt-multi-thread", "macros"] }
+async-std = { version = "1.12", features = ["attributes"] }
 futures.workspace = true
 bytes.workspace   = true
 
