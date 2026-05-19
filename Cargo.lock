@@ -2683,7 +2683,33 @@ dependencies = [
 ]
 
 [[package]]
-name = "swe-edge-runtime-main"
+name = "swe-edge-runtime-message-broker"
+version = "0.1.0"
+dependencies = [
+ "async-nats",
+ "bytes",
+ "futures",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "swe-edge-runtime-scheduler"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "edge-domain",
+ "futures",
+ "serde",
+ "thiserror 2.0.18",
+ "tokio",
+ "toml",
+ "tracing",
+]
+
+[[package]]
+name = "swe-edge-runtime-server"
 version = "0.1.0"
 dependencies = [
  "async-trait",
@@ -2711,32 +2737,6 @@ dependencies = [
  "toml",
  "tracing",
  "tracing-subscriber",
-]
-
-[[package]]
-name = "swe-edge-runtime-message-broker"
-version = "0.1.0"
-dependencies = [
- "async-nats",
- "bytes",
- "futures",
- "thiserror 1.0.69",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "swe-edge-runtime-scheduler"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "edge-domain",
- "futures",
- "serde",
- "thiserror 2.0.18",
- "tokio",
- "toml",
- "tracing",
 ]
 
 [[package]]

@@ -1,8 +1,5 @@
 //! Core interface contracts for `swe-edge-runtime-scheduler`.
 
-#[allow(unused_imports)]
-pub use crate::api::scheduler::Scheduler;
-
 /// Validates that a value is in a legal state before use.
 #[allow(dead_code)]
 pub trait Validator {

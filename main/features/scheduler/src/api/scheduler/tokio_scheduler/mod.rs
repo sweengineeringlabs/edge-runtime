@@ -2,5 +2,4 @@
 //!
 //! The tokio scheduler implementation lives in `core/`; its contract is the
 //! [`Scheduler`] trait defined in `api/scheduler/scheduler.rs`.
-#[allow(unused_imports)]
 pub use crate::api::scheduler::Scheduler;
