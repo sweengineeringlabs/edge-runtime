@@ -1,5 +1,10 @@
-//! SPI — Service Provider Interface extension point for alternative runtime implementations.
+//! SPI — Service Provider Interface for runtime implementations.
 //!
-//! The SPI layer is reserved for consumer-provided extensions and alternative
-//! implementations of the Actor API (e.g., async-std, embassy). The default
-//! implementation is in core/.
+//! Providers extend and override core/ logic for specific runtimes.
+//! Each runtime (tokio, async-std, etc.) implements the provider interface here.
+
+#[cfg(feature = "tokio-rt")]
+pub mod tokio;
+
+#[cfg(feature = "tokio-rt")]
+pub(crate) use tokio::{spawn_tokio_actor, spawn_tokio_actor_with_stop};

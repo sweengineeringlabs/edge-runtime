@@ -3,8 +3,9 @@
 use tokio::sync::mpsc;
 
 use crate::api::{Actor, ActorContext};
+use crate::core::Message;
 
-use super::actor_handle::{Message, TokioActorHandle};
+use super::actor_handle::TokioActorHandle;
 use super::stop_handle::TokioStopHandle;
 
 /// Bounded channel capacity for actor mailboxes.

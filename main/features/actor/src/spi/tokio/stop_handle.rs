@@ -6,8 +6,7 @@ use futures::future::BoxFuture;
 use tokio::sync::mpsc;
 
 use crate::api::{Actor, StopHandle};
-
-use super::actor_handle::Message;
+use crate::core::Message;
 
 /// Tokio-backed stop handle implementation.
 pub(crate) struct TokioStopHandle<A: Actor> {

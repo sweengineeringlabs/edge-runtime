@@ -6,14 +6,7 @@ use futures::future::BoxFuture;
 use tokio::sync::mpsc;
 
 use crate::api::{Actor, ActorHandle as ActorHandleTrait, MailboxError};
-
-/// Message wrapper for the actor's internal queue.
-pub(super) enum Message<A: Actor> {
-    /// User-sent message to the actor.
-    Msg(A::Message),
-    /// Signal to stop the actor.
-    Stop,
-}
+use crate::core::Message;
 
 /// Tokio-backed actor handle implementation.
 pub(crate) struct TokioActorHandle<A: Actor> {
