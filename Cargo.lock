@@ -2671,6 +2671,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "swe-edge-runtime-actor"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "futures",
+ "thiserror 1.0.69",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
 name = "swe-edge-runtime-message-broker"
 version = "0.1.0"
 dependencies = [
