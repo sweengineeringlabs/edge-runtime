@@ -5,12 +5,12 @@
 //!
 //! Consumers who need a standalone binary with no tokio boilerplate depend on
 //! this crate and call [`run`] or [`RuntimeBuilderExt::run`] instead.
+//!
+//! Single entry point: [`crate::saf`] (edge_runtime_scheduler_svc).
 
 mod api;
 mod core;
 mod saf;
 mod spi;
 
-pub use crate::api::scheduler::{Scheduler, SchedulerError, SchedulerResult};
-pub use crate::api::traits::Validator;
 pub use crate::saf::*;
