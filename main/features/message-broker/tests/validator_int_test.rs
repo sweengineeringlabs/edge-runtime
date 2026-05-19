@@ -1,6 +1,6 @@
 //! Tests for the [`Validator`] trait contract.
 
-use swe_edge_message_broker::Validator;
+use swe_edge_runtime_message_broker::Validator;
 
 #[test]
 fn test_custom_validator_ok_path() {

@@ -31,6 +31,7 @@ thiserror          = "1.0"
 tracing.workspace  = true
 tokio      = { workspace = true, features = ["sync", "rt"], optional = true }
 async-nats = { version = "0.48", optional = true }
+uuid       = { version = "1.0", features = ["v4"] }
 
 [dev-dependencies]
 tokio   = { workspace = true, features = ["rt-multi-thread", "macros"] }
@@ -52,6 +53,14 @@ path = "tests/edge_message_broker_svc_int_test.rs"
 [[test]]
 name = "validator_int_test"
 path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "task_queue_int_test"
+path = "tests/task_queue_int_test.rs"
+
+[[test]]
+name = "edge_saf_int_test"
+path = "tests/edge_saf_int_test.rs"
 
 [[example]]
 name = "in_memory_broker"

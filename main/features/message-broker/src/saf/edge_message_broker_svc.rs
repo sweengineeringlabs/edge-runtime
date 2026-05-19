@@ -58,7 +58,8 @@ mod tests {
     #[cfg(feature = "tokio-rt")]
     #[test]
     fn test_validate_returns_ok_for_valid_broker() {
+        use crate::api::traits::Validator;
         use crate::core::broker::InMemoryMessageBroker;
-        assert!(validate(&InMemoryMessageBroker::new()).is_ok());
+        assert!(InMemoryMessageBroker::new().validate().is_ok());
     }
 }

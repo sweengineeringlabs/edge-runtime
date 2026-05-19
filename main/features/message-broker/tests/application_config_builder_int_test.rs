@@ -1,6 +1,6 @@
 //! Integration tests for [`ApplicationConfigBuilder`].
 
-use swe_edge_message_broker::ApplicationConfigBuilder;
+use swe_edge_runtime_message_broker::ApplicationConfigBuilder;
 
 /// @covers: ApplicationConfigBuilder
 #[test]

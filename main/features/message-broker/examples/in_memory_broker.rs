@@ -7,7 +7,7 @@
 #[tokio::main]
 async fn main() {
     use futures::StreamExt as _;
-    use swe_edge_message_broker::{in_memory_broker, Message, MessageBroker as _};
+    use swe_edge_runtime_message_broker::{in_memory_broker, Message, MessageBroker as _};
 
     let broker = in_memory_broker();
 

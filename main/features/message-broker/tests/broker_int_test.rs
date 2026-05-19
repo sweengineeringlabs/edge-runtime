@@ -1,10 +1,10 @@
-//! Integration tests for [`swe_edge_message_broker`].
+//! Integration tests for [`swe_edge_runtime_message_broker`].
 
 #[cfg(feature = "tokio-rt")]
 mod in_memory_tests {
     use bytes::Bytes;
     use futures::StreamExt;
-    use swe_edge_message_broker::{in_memory_broker, Message, MessageBroker};
+    use swe_edge_runtime_message_broker::{in_memory_broker, Message, MessageBroker};
 
     /// @covers: in_memory_broker
     #[tokio::test]
