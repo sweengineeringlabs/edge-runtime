@@ -5,9 +5,9 @@ use crate::api::broker::broker_error::BrokerError;
 #[cfg(any(feature = "tokio-rt", feature = "nats"))]
 use crate::api::broker::message_broker::MessageBroker;
 #[cfg(feature = "tokio-rt")]
-use crate::core::broker::InMemoryMessageBroker;
+use crate::spi::InMemoryMessageBroker;
 #[cfg(feature = "nats")]
-use crate::core::broker::NatsMessageBroker;
+use crate::spi::NatsMessageBroker;
 
 /// Construct an in-memory broker backed by [`tokio::sync::broadcast`].
 ///
@@ -34,7 +34,6 @@ pub async fn nats_broker(url: &str) -> Result<impl MessageBroker, BrokerError> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     /// @covers: in_memory_broker
     #[cfg(feature = "tokio-rt")]
@@ -59,7 +58,7 @@ mod tests {
     #[test]
     fn test_validate_returns_ok_for_valid_broker() {
         use crate::api::traits::Validator;
-        use crate::core::broker::InMemoryMessageBroker;
+        use crate::spi::InMemoryMessageBroker;
         assert!(InMemoryMessageBroker::new().validate().is_ok());
     }
 }

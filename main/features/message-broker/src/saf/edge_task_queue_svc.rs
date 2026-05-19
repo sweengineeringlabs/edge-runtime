@@ -13,9 +13,9 @@ use crate::api::task_queue::queue_error::QueueError;
 #[cfg(any(feature = "tokio-rt", feature = "nats"))]
 use crate::api::task_queue::task_queue::TaskQueue;
 #[cfg(feature = "tokio-rt")]
-use crate::core::task_queue::in_memory_task_queue::InMemoryTaskQueue;
+use crate::spi::InMemoryTaskQueue;
 #[cfg(feature = "nats")]
-use crate::core::task_queue::nats_task_queue::NatsTaskQueue;
+use crate::spi::NatsTaskQueue;
 
 /// Construct an in-memory task queue backed by [`tokio::sync::mpsc`].
 ///
@@ -63,7 +63,6 @@ pub async fn nats_task_queue(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
 
     /// @covers: in_memory_task_queue
     #[cfg(feature = "tokio-rt")]

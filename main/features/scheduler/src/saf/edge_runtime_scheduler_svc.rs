@@ -6,7 +6,7 @@ use crate::api::scheduler::Scheduler;
 #[cfg(feature = "tokio-rt")]
 use crate::api::traits::Validator;
 #[cfg(feature = "tokio-rt")]
-use crate::core::scheduler::TokioScheduler;
+use crate::spi::TokioScheduler;
 
 /// Validate a value that implements [`Validator`].
 #[cfg(feature = "tokio-rt")]
