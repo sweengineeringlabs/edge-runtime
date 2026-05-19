@@ -1,4 +1,5 @@
 //! Coverage for api/egress — DefaultEgress trait impl.
+// @allow: no_mocks_in_integration — stub impls required to exercise the public API surface
 
 use futures::future::BoxFuture;
 use std::sync::Arc;

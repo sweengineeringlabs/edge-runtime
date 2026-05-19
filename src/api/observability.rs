@@ -13,8 +13,9 @@ pub fn init_tracing(config: &TracingConfig) {
     swe_edge_observ_config::init_tracing(config);
 }
 
-#[cfg(all(test, feature = "observability"))]
+#[cfg(test)]
 mod tests {
+    #[cfg(feature = "observability")]
     use super::*;
 
     /// @covers: init_tracing

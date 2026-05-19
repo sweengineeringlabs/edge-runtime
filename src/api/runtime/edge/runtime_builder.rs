@@ -33,6 +33,9 @@ pub struct RuntimeBuilder {
     pub(crate) egress_grpc: Option<Arc<dyn GrpcOutbound>>,
     pub(crate) lifecycle: Option<Arc<dyn LifecycleMonitor>>,
     pub(crate) tracing_config: Option<crate::api::config::TracingConfig>,
+    #[cfg(feature = "message-broker")]
+    pub(crate) message_broker:
+        Option<Arc<dyn swe_edge_message_broker::MessageBroker>>,
 }
 
 impl RuntimeBuilder {
@@ -171,6 +174,19 @@ impl RuntimeBuilder {
         self
     }
 
+    /// Attach a message broker for health monitoring during runtime lifecycle.
+    ///
+    /// The runtime probes [`MessageBroker::health_check`] on startup and
+    /// includes `"message-broker"` in every [`RuntimeHealth`] report.
+    #[cfg(feature = "message-broker")]
+    pub fn with_message_broker(
+        mut self,
+        broker: impl swe_edge_message_broker::MessageBroker + 'static,
+    ) -> Self {
+        self.message_broker = Some(Arc::new(broker));
+        self
+    }
+
     /// Build a [`ServiceRegistry`] from the configured egress clients, if any.
     pub fn build_registry(&self) -> Option<Arc<ServiceRegistry>> {
         self.egress_http.as_ref().map(|http| {
@@ -186,6 +202,36 @@ impl RuntimeBuilder {
 mod tests {
     use super::*;
     use crate::api::runtime::Runtime;
+
+    /// @covers: with_message_broker
+    #[cfg(feature = "message-broker")]
+    #[test]
+    fn test_with_message_broker_sets_field() {
+        use swe_edge_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+        struct RuntimeBuilderStubBroker;
+        impl MessageBroker for RuntimeBuilderStubBroker {
+            fn publish<'a>(
+                &'a self,
+                _: &'a str,
+                _: Message,
+            ) -> futures::future::BoxFuture<'a, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Ok(())))
+            }
+            fn subscribe<'a>(
+                &'a self,
+                _: &'a str,
+            ) -> futures::future::BoxFuture<'a, Result<MessageStream, BrokerError>> {
+                Box::pin(futures::future::ready(Ok(
+                    Box::pin(futures::stream::empty()) as MessageStream,
+                )))
+            }
+            fn health_check(&self) -> futures::future::BoxFuture<'_, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Ok(())))
+            }
+        }
+        let b = Runtime::builder().with_message_broker(RuntimeBuilderStubBroker);
+        assert!(b.message_broker.is_some());
+    }
 
     /// @covers: app_name
     #[test]

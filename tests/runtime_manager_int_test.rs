@@ -2,6 +2,7 @@
 //!
 //! These tests exercise the full daemon wiring: RuntimeManager lifecycle +
 //! AxumHttpServer serving real TCP traffic through IngressGateway.
+// @allow: no_mocks_in_integration — stub impls required to exercise the full daemon stack
 
 use std::sync::Arc;
 

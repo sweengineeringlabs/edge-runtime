@@ -63,5 +63,11 @@ pub use config_loader::{
 pub use crate::api::observability::init_tracing;
 pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 
+// ── Message broker ────────────────────────────────────────────────────────────
+#[cfg(feature = "message-broker")]
+pub use swe_edge_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+#[cfg(feature = "message-broker")]
+pub use swe_edge_message_broker::in_memory_broker;
+
 // ── Daemon runner ─────────────────────────────────────────────────────────────
 pub use daemon::{run, runtime_manager};

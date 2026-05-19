@@ -244,7 +244,18 @@ impl RuntimeBuilder {
                 (None, None)
             };
 
-        let mgr = DefaultRuntimeManager::new(config, Arc::new(input), Arc::new(output), lifecycle);
+        #[cfg(not(feature = "message-broker"))]
+        let mgr =
+            DefaultRuntimeManager::new(config, Arc::new(input), Arc::new(output), lifecycle);
+        #[cfg(feature = "message-broker")]
+        let mgr = {
+            let mut m =
+                DefaultRuntimeManager::new(config, Arc::new(input), Arc::new(output), lifecycle);
+            if let Some(broker) = self.message_broker {
+                m = m.with_message_broker(broker);
+            }
+            m
+        };
         let result = run_until_signal(mgr, timeout_secs, wait_for_signal()).await;
 
         let _ = http_tx.send(());

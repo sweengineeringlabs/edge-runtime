@@ -20,6 +20,8 @@ pub(crate) struct DefaultRuntimeManager {
     lifecycle: Arc<dyn LifecycleMonitor>,
     status: Arc<Mutex<RuntimeStatus>>,
     started_at: Arc<Mutex<Option<Instant>>>,
+    #[cfg(feature = "message-broker")]
+    message_broker: Option<Arc<dyn swe_edge_message_broker::MessageBroker>>,
 }
 
 impl DefaultRuntimeManager {
@@ -36,8 +38,21 @@ impl DefaultRuntimeManager {
             lifecycle,
             status: Arc::new(Mutex::new(RuntimeStatus::Stopped)),
             started_at: Arc::new(Mutex::new(None)),
+            #[cfg(feature = "message-broker")]
+            message_broker: None,
         }
     }
+
+    /// Attach a message broker for health monitoring and lifecycle probing.
+    #[cfg(feature = "message-broker")]
+    pub(crate) fn with_message_broker(
+        mut self,
+        broker: Arc<dyn swe_edge_message_broker::MessageBroker>,
+    ) -> Self {
+        self.message_broker = Some(broker);
+        self
+    }
+
 }
 
 impl crate::api::runtime_manager::DefaultRuntimeManager for DefaultRuntimeManager {}
@@ -116,6 +131,12 @@ impl RuntimeManager for DefaultRuntimeManager {
             let _ = self.egress.http().health_check().await;
             if let Some(g) = self.egress.grpc() {
                 let _ = g.health_check().await;
+            }
+
+            // Probe message broker if configured.
+            #[cfg(feature = "message-broker")]
+            if let Some(broker) = &self.message_broker {
+                let _ = broker.health_check().await;
             }
 
             {
@@ -216,6 +237,20 @@ impl RuntimeManager for DefaultRuntimeManager {
                     Ok(_) => components.push(ComponentHealth::healthy("egress.grpc")),
                     Err(e) => {
                         components.push(ComponentHealth::unhealthy("egress.grpc", e.to_string()))
+                    }
+                }
+            }
+
+            // Report message broker health if configured.
+            #[cfg(feature = "message-broker")]
+            if let Some(broker) = &self.message_broker {
+                match broker.health_check().await {
+                    Ok(_) => components.push(ComponentHealth::healthy("message-broker")),
+                    Err(e) => {
+                        components.push(ComponentHealth::unhealthy(
+                            "message-broker",
+                            e.to_string(),
+                        ))
                     }
                 }
             }
@@ -516,6 +551,113 @@ mod tests {
         assert!(
             !grpc_comp.healthy,
             "egress.grpc must be unhealthy when health_check returns Err"
+        );
+    }
+
+    #[cfg(feature = "message-broker")]
+    #[test]
+    fn test_with_message_broker_sets_broker_field() {
+        use swe_edge_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+        struct DefaultRuntimeManagerStubBroker;
+        impl MessageBroker for DefaultRuntimeManagerStubBroker {
+            fn publish<'a>(
+                &'a self,
+                _: &'a str,
+                _: Message,
+            ) -> futures::future::BoxFuture<'a, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Ok(())))
+            }
+            fn subscribe<'a>(
+                &'a self,
+                _: &'a str,
+            ) -> futures::future::BoxFuture<'a, Result<MessageStream, BrokerError>> {
+                Box::pin(futures::future::ready(Ok(
+                    Box::pin(futures::stream::empty()) as MessageStream,
+                )))
+            }
+            fn health_check(&self) -> futures::future::BoxFuture<'_, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Ok(())))
+            }
+        }
+        let m = make_manager().with_message_broker(Arc::new(DefaultRuntimeManagerStubBroker));
+        assert!(m.message_broker.is_some());
+    }
+
+    #[cfg(feature = "message-broker")]
+    #[tokio::test]
+    async fn test_with_message_broker_appears_in_health_report() {
+        use swe_edge_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+        struct DefaultRuntimeManagerHealthyBroker;
+        impl MessageBroker for DefaultRuntimeManagerHealthyBroker {
+            fn publish<'a>(
+                &'a self,
+                _: &'a str,
+                _: Message,
+            ) -> futures::future::BoxFuture<'a, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Ok(())))
+            }
+            fn subscribe<'a>(
+                &'a self,
+                _: &'a str,
+            ) -> futures::future::BoxFuture<'a, Result<MessageStream, BrokerError>> {
+                Box::pin(futures::future::ready(Ok(
+                    Box::pin(futures::stream::empty()) as MessageStream,
+                )))
+            }
+            fn health_check(&self) -> futures::future::BoxFuture<'_, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Ok(())))
+            }
+        }
+        let m = make_manager().with_message_broker(Arc::new(DefaultRuntimeManagerHealthyBroker));
+        m.start().await.expect("start ok");
+        let h = m.health().await;
+        let names: Vec<&str> = h.components.iter().map(|c| c.name.as_str()).collect();
+        assert!(
+            names.contains(&"message-broker"),
+            "message-broker must appear in health report"
+        );
+    }
+
+    #[cfg(feature = "message-broker")]
+    #[tokio::test]
+    async fn test_with_message_broker_unhealthy_reports_component_as_unhealthy() {
+        use swe_edge_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+        struct DefaultRuntimeManagerDownBroker;
+        impl MessageBroker for DefaultRuntimeManagerDownBroker {
+            fn publish<'a>(
+                &'a self,
+                _: &'a str,
+                _: Message,
+            ) -> futures::future::BoxFuture<'a, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Err(BrokerError::Unavailable(
+                    "down".into(),
+                ))))
+            }
+            fn subscribe<'a>(
+                &'a self,
+                _: &'a str,
+            ) -> futures::future::BoxFuture<'a, Result<MessageStream, BrokerError>> {
+                Box::pin(futures::future::ready(Err(BrokerError::Unavailable(
+                    "down".into(),
+                ))))
+            }
+            fn health_check(&self) -> futures::future::BoxFuture<'_, Result<(), BrokerError>> {
+                Box::pin(futures::future::ready(Err(BrokerError::Unavailable(
+                    "unreachable".into(),
+                ))))
+            }
+        }
+        let m = make_manager().with_message_broker(Arc::new(DefaultRuntimeManagerDownBroker));
+        m.start().await.expect("start ok");
+        let h = m.health().await;
+        let comp = h
+            .components
+            .iter()
+            .find(|c| c.name == "message-broker")
+            .expect("message-broker component must be present");
+        assert!(
+            !comp.healthy,
+            "message-broker must be unhealthy when health_check returns Err"
         );
     }
 

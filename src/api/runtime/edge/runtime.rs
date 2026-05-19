@@ -25,6 +25,8 @@ impl Runtime {
             egress_grpc: None,
             lifecycle: None,
             tracing_config: None,
+            #[cfg(feature = "message-broker")]
+            message_broker: None,
         }
     }
 }

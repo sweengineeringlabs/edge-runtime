@@ -1,4 +1,5 @@
 //! Integration tests that exercise cross-crate dependencies (Rule 95).
+// @allow: no_mocks_in_integration — stub impls required to exercise the public API surface
 
 use std::sync::Arc;
 use swe_edge_runtime::{Runtime, RuntimeConfig};

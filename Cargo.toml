@@ -21,11 +21,13 @@ path = "src/lib.rs"
 [features]
 default = []
 observability = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
+message-broker = ["dep:swe-edge-message-broker"]
 
 [dependencies]
 serde       = { version = "1.0", features = ["derive"] }
 toml        = "0.8"
 swe-edge-config        = { path = "../config/swe-edge-config" }
+swe-edge-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }
 swe-edge-observ-config = { path = "../observ-config/swe-edge-observ-config" }
 dirs        = "5"
 serde_json  = "1.0"
@@ -46,6 +48,7 @@ edge-domain                        = { git = "ssh://git@github.com/sweengineerin
 swe-observ-metrics                 = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 [dev-dependencies]
+swe-edge-message-broker = { path = "../message-broker", features = ["tokio-rt"] }
 async-trait = "0.1"
 tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
 tempfile     = "3"
@@ -127,6 +130,10 @@ path = "tests/runtime_result_int_test.rs"
 [[test]]
 name = "shared_counters_int_test"
 path = "tests/shared_counters_int_test.rs"
+
+[[test]]
+name = "message_broker_runtime_int_test"
+path = "tests/message_broker_runtime_int_test.rs"
 
 [lints.rust]
 unsafe_code  = "deny"

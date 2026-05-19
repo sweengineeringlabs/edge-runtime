@@ -422,7 +422,7 @@ checksum = "92773504d58c093f6de2459af4af33faa518c13451eb8f2b5698ed3d36e7c813"
 [[package]]
 name = "edge-domain"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "parking_lot",
@@ -432,7 +432,7 @@ dependencies = [
 [[package]]
 name = "edge-proxy"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "edge-domain",
@@ -2081,7 +2081,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-auth"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "base64",
@@ -2103,7 +2103,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-breaker"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2120,7 +2120,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-cache"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2137,7 +2137,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-cassette"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2158,7 +2158,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-grpc-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "bytes",
@@ -2179,7 +2179,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-http-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "bytes",
@@ -2206,7 +2206,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-oauth"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2222,7 +2222,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-rate"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "http",
@@ -2238,7 +2238,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-retry"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "http",
@@ -2253,7 +2253,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-tls"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "http",
  "reqwest",
@@ -2266,7 +2266,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-gateway"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "base64",
@@ -2291,7 +2291,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-reflection"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "edge-domain",
@@ -2307,7 +2307,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "bytes",
@@ -2334,7 +2334,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-http-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "async-trait",
  "axum 0.8.9",
@@ -2361,7 +2361,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-tls"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "rustls",
  "rustls-pemfile",
@@ -2373,7 +2373,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-verifier"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#2d22b02fbd06a563a2317d2e7918c4f39c1a0c0b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
  "edge-domain",
  "jsonwebtoken",
@@ -2381,6 +2381,17 @@ dependencies = [
  "serde_json",
  "subtle",
  "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
+name = "swe-edge-message-broker"
+version = "0.1.0"
+dependencies = [
+ "bytes",
+ "futures",
+ "thiserror 1.0.69",
+ "tokio",
  "tracing",
 ]
 
@@ -2412,6 +2423,7 @@ dependencies = [
  "swe-edge-ingress-gateway",
  "swe-edge-ingress-grpc-reflection",
  "swe-edge-ingress-verifier",
+ "swe-edge-message-broker",
  "swe-edge-observ-config",
  "swe_justobserv_metrics",
  "tempfile",
