@@ -8,7 +8,7 @@
 //! All access to implementation details goes through the factory functions.
 
 #[cfg(feature = "tokio-rt")]
-pub(crate) mod edge_actor_svc;
+mod edge_runtime_actor_svc;
 
 #[cfg(feature = "tokio-rt")]
-pub use edge_actor_svc::{spawn_actor, spawn_actor_with_stop};
+pub use edge_runtime_actor_svc::{spawn_actor, spawn_actor_with_stop};

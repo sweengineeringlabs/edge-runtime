@@ -1,93 +1,14 @@
-//! Tokio-backed actor mailbox implementation.
+//! Tokio-backed actor mailbox — message loop and spawn functions.
 
-use std::sync::Arc;
-
-use futures::future::BoxFuture;
 use tokio::sync::mpsc;
 
-use crate::api::{Actor, ActorContext, ActorHandle as ActorHandleTrait, MailboxError, StopHandle};
+use crate::api::{Actor, ActorContext};
+
+use super::tokio_actor_handle::{Message, TokioActorHandle};
+use super::tokio_stop_handle::TokioStopHandle;
 
 /// Bounded channel capacity for actor mailboxes.
 const MAILBOX_CAPACITY: usize = 1024;
-
-/// Message wrapper for the actor's internal queue.
-enum Message<A: Actor> {
-    /// User-sent message to the actor.
-    Msg(A::Message),
-    /// Signal to stop the actor.
-    Stop,
-}
-
-/// Tokio-backed actor handle implementation.
-pub(crate) struct TokioActorHandle<A: Actor> {
-    tx: Arc<mpsc::Sender<Message<A>>>,
-}
-
-impl<A: Actor> Clone for TokioActorHandle<A> {
-    fn clone(&self) -> Self {
-        Self {
-            tx: Arc::clone(&self.tx),
-        }
-    }
-}
-
-impl<A: Actor> ActorHandleTrait<A::Message> for TokioActorHandle<A> {
-    fn tell(&self, msg: A::Message) -> BoxFuture<'_, Result<(), MailboxError>> {
-        let tx = Arc::clone(&self.tx);
-        Box::pin(async move {
-            tx.send(Message::Msg(msg))
-                .await
-                .map_err(|_| MailboxError::Closed)
-        })
-    }
-}
-
-impl<A: Actor> TokioActorHandle<A> {
-    /// Send a message and wait for a response (request-reply).
-    ///
-    /// Returns the actor's response on success, or `MailboxError` if:
-    /// - The mailbox is full
-    /// - The actor stopped
-    /// - The reply channel dropped unexpectedly
-    ///
-    /// The closure receives a `tokio::sync::oneshot::Sender<R>` to send the response.
-    ///
-    /// Note: This is a convenience method. Alternatively, include a reply channel
-    /// in your message type and use `tell()` instead.
-    #[allow(dead_code)]
-    pub async fn ask<R: Send + 'static>(
-        &self,
-        msg: impl FnOnce(tokio::sync::oneshot::Sender<R>) -> A::Message,
-    ) -> Result<R, MailboxError> {
-        let (reply_tx, reply_rx) = tokio::sync::oneshot::channel();
-        let actor_msg = msg(reply_tx);
-
-        self.tell(actor_msg).await?;
-        reply_rx.await.map_err(|_| MailboxError::ReplyDropped)
-    }
-}
-
-/// Tokio-backed stop handle implementation.
-pub(crate) struct TokioStopHandle<A: Actor> {
-    tx: Arc<mpsc::Sender<Message<A>>>,
-}
-
-impl<A: Actor> Clone for TokioStopHandle<A> {
-    fn clone(&self) -> Self {
-        Self {
-            tx: Arc::clone(&self.tx),
-        }
-    }
-}
-
-impl<A: Actor> StopHandle for TokioStopHandle<A> {
-    fn stop(&self) -> BoxFuture<'_, ()> {
-        let tx = Arc::clone(&self.tx);
-        Box::pin(async move {
-            let _ = tx.send(Message::Stop).await;
-        })
-    }
-}
 
 /// Spawn a tokio actor and return a handle to send messages.
 ///
@@ -96,7 +17,7 @@ impl<A: Actor> StopHandle for TokioStopHandle<A> {
 /// continue processing until the current message finishes.
 pub(crate) fn spawn_tokio_actor<A: Actor>(actor: A) -> TokioActorHandle<A> {
     let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
-    let tx = Arc::new(tx);
+    let tx = std::sync::Arc::new(tx);
 
     tokio::spawn(run_actor_loop(actor, rx));
 
@@ -111,12 +32,12 @@ pub(crate) fn spawn_tokio_actor_with_stop<A: Actor>(
     actor: A,
 ) -> (TokioActorHandle<A>, TokioStopHandle<A>) {
     let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
-    let tx = Arc::new(tx);
+    let tx = std::sync::Arc::new(tx);
 
     tokio::spawn(run_actor_loop(actor, rx));
 
     let handle = TokioActorHandle {
-        tx: Arc::clone(&tx),
+        tx: std::sync::Arc::clone(&tx),
     };
     let stop = TokioStopHandle { tx };
 
@@ -146,6 +67,9 @@ async fn run_actor_loop<A: Actor>(mut actor: A, mut rx: mpsc::Receiver<Message<A
 #[cfg(test)]
 mod tests {
     use super::*;
+    use futures::future::BoxFuture;
+
+    use crate::api::{ActorHandle, StopHandle};
 
     struct TestActor {
         count: i32,

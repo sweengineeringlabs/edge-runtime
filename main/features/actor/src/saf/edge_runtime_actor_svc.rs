@@ -1,7 +1,9 @@
 //! SAF — actor spawn factories.
 
 use crate::api::{Actor, ActorHandle, StopHandle};
-use crate::spi::tokio_actor_mailbox::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
+
+#[cfg(feature = "tokio-rt")]
+use crate::spi::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
 
 /// Spawn an actor with no lifecycle management.
 ///
