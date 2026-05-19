@@ -3,7 +3,7 @@
 use crate::api::{Actor, ActorHandle, StopHandle};
 
 #[cfg(feature = "tokio-rt")]
-use crate::spi::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
+use crate::core::tokio::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
 
 /// Spawn an actor with no lifecycle management.
 ///
