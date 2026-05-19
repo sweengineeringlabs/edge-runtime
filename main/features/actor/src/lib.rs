@@ -13,6 +13,6 @@
 pub use crate::gateway::*;
 
 mod api;
-mod core;
 mod gateway;
 mod saf;
+mod spi;

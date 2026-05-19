@@ -1,4 +1,4 @@
-//! [`TokioActor`] — tokio-backed concurrent message loop.
+//! Tokio-backed actor mailbox implementation.
 
 use std::sync::Arc;
 
