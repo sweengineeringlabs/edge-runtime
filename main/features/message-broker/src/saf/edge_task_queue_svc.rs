@@ -1,4 +1,12 @@
 //! SAF — task queue public factory surface.
+//!
+//! The SAF layer re-exports traits from api/ only. Implementation types
+//! (InMemoryTaskQueue, NatsTaskQueue) are never exposed directly — consumers
+//! receive them as `impl TaskQueue` from factory functions.
+//!
+//! SAF does NOT import from core/ directly and does NOT re-export core types.
+//! All access to implementation details goes through the factory functions,
+//! which return opaque trait objects.
 
 #[cfg(feature = "nats")]
 use crate::api::task_queue::queue_error::QueueError;
@@ -22,29 +30,35 @@ pub fn in_memory_task_queue() -> impl TaskQueue + Clone {
 
 /// Connect to a NATS server and return a task queue handle.
 ///
-/// Utilizes NATS JetStream with consumer groups for competing consumer semantics.
+/// Utilizes NATS JetStream with competing consumer semantics.
+///
+/// # Parameters
+///
+/// - `nats_url`: NATS server URL (e.g., `nats://localhost:4222`)
+/// - `stream_name`: JetStream stream name for tasks
+/// - `consumer_group`: Consumer group for competing consumers
 ///
 /// # Errors
 ///
-/// Returns [`QueueError::Connection`] if the NATS server is unreachable.
+/// Returns [`QueueError::Connection`] if the NATS server is unreachable or
+/// if stream/consumer setup fails.
 ///
 /// Requires the `nats` feature.
 #[cfg(feature = "nats")]
 pub async fn nats_task_queue(
-    context: async_nats::jetstream::Context,
+    nats_url: &str,
     stream_name: String,
     consumer_group: String,
 ) -> Result<impl TaskQueue, QueueError> {
-    NatsTaskQueue::new(context, stream_name, consumer_group).await
-}
+    // SAF does NOT expose async_nats::jetstream::Context — that's an implementation detail.
+    // Instead, SAF takes generic parameters and constructs the context internally.
+    let connection = async_nats::connect(nats_url)
+        .await
+        .map_err(|e| QueueError::Connection(e.to_string()))?;
 
-/// Wrapper around [`TaskQueue::enqueue`] for testing purposes.
-#[cfg(test)]
-pub fn validate_task_queue_trait<T: TaskQueue>(queue: &T) -> Result<(), String> {
-    // This function wraps the TaskQueue trait to satisfy rule 106
-    // All task queue implementations must implement the TaskQueue trait
-    let _ = queue;
-    Ok(())
+    let jetstream_context = async_nats::jetstream::new(connection);
+
+    NatsTaskQueue::new(jetstream_context, stream_name, consumer_group).await
 }
 
 #[cfg(test)]
