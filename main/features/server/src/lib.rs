@@ -4,7 +4,6 @@
 
 mod api;
 mod core;
-mod gateway;
 mod saf;
 
-pub use gateway::output::*;
+pub use crate::saf::*;

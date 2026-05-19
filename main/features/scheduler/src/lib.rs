@@ -8,8 +8,9 @@
 
 mod api;
 mod core;
-mod gateway;
 mod saf;
 mod spi;
 
-pub use gateway::*;
+pub use crate::api::scheduler::{Scheduler, SchedulerError, SchedulerResult};
+pub use crate::api::traits::Validator;
+pub use crate::saf::*;

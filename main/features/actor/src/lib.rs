@@ -7,13 +7,14 @@
 //! messages sequentially. This crate provides:
 //!
 //! - **API layer**: [`Actor`] trait, [`ActorHandle`], [`ActorContext`], [`MailboxError`], [`StopHandle`]
-//! - **Core layer**: [`crate::core::actor::TokioActor`] — tokio-backed concurrent message loop
 //! - **SAF layer**: [`spawn_actor`], [`spawn_actor_with_stop`] — opaque factory functions
 
-pub use crate::gateway::*;
+pub use crate::api::{Actor, ActorContext, ActorHandle, MailboxError, StopHandle};
+
+#[cfg(feature = "tokio-rt")]
+pub use crate::saf::{spawn_actor, spawn_actor_with_stop};
 
 mod api;
 mod core;
-mod gateway;
 mod saf;
 mod spi;
