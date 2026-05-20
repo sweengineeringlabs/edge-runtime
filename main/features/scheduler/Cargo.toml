@@ -1,0 +1,54 @@
+[package]
+name         = "swe-edge-runtime-scheduler"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description  = "edge — async scheduler: runtime-agnostic Scheduler trait plus an optional tokio-backed implementation."
+keywords     = ["scheduler", "runtime", "tokio", "executor", "swe"]
+categories   = ["network-programming", "asynchronous"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "scheduler"
+
+[lib]
+name = "swe_edge_runtime_scheduler"
+path = "src/lib.rs"
+
+[features]
+default  = ["tokio-rt"]
+tokio-rt = ["dep:tokio", "dep:serde"]
+
+[dependencies]
+thiserror = "2"
+tracing.workspace = true
+tokio   = { workspace = true, features = ["rt-multi-thread", "signal", "sync", "time", "macros"], optional = true }
+serde   = { workspace = true, optional = true }
+
+[dev-dependencies]
+async-trait.workspace = true
+edge-domain = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+toml        = "0.8"
+futures.workspace = true
+
+[[example]]
+name = "custom_scheduler"
+path = "examples/custom_scheduler.rs"
+
+[[test]]
+name = "scheduler_int_test"
+path = "tests/scheduler_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"
+
+[lints]
+workspace = true

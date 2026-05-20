@@ -1,0 +1,8 @@
+# Runtime scheduler configuration defaults.
+# Consumers override these values in their own application.toml.
+
+[scheduler]
+# workers           = 4       # worker thread count (default: num_cpus)
+# thread_stack_kib  = 8192    # stack size per thread in KiB
+# max_blocking_threads = 512  # blocking pool ceiling
+# thread_name       = "swe-edge-worker"

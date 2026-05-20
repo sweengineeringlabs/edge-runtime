@@ -1,0 +1,14 @@
+[project]
+name = "swe-edge-runtime-scheduler"
+application_type = "lib"
+
+[whitelist]
+allow = [
+  ".gitignore", "architecture.toml",
+  "bootstrap.ps1", "bootstrap.sh",
+  "Cargo.lock", "Cargo.toml",
+  "CHANGELOG.md", "config", "deny.toml",
+  "docs", "examples",
+  "README.md", "SECURITY.md",
+  "src", "target", "tests",
+]

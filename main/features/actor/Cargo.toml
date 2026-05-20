@@ -1,0 +1,52 @@
+[package]
+name         = "swe-edge-runtime-actor"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description  = "edge — actor: encapsulated state machine with tell/ask semantics and optional lifecycle management."
+keywords     = ["actor", "async", "message-passing", "encapsulated-state", "swe"]
+categories   = ["asynchronous", "concurrency"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "actor"
+
+[lib]
+name = "swe_edge_runtime_actor"
+path = "src/lib.rs"
+
+[features]
+default   = ["tokio-rt"]
+tokio-rt  = ["dep:tokio"]
+async-std-rt = ["dep:async-std"]
+
+[dependencies]
+futures.workspace  = true
+thiserror          = "1.0"
+tracing.workspace  = true
+tokio      = { workspace = true, features = ["sync", "rt"], optional = true }
+async-std  = { version = "1.12", features = ["attributes"], optional = true }
+
+[dev-dependencies]
+tokio   = { workspace = true, features = ["rt-multi-thread", "macros"] }
+async-std = { version = "1.12", features = ["attributes"] }
+futures.workspace = true
+bytes.workspace   = true
+
+[[test]]
+name = "actor_int_test"
+path = "tests/actor_int_test.rs"
+
+[[test]]
+name = "edge_saf_int_test"
+path = "tests/edge_saf_int_test.rs"
+
+[[example]]
+name = "counter_actor"
+path = "examples/counter_actor.rs"
+
+[lints]
+workspace = true
