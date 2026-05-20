@@ -1,0 +1,70 @@
+[package]
+name         = "swe-edge-runtime-message-broker"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description  = "edge — message broker: runtime-agnostic MessageBroker trait with in-memory, NATS, and Kafka backends."
+keywords     = ["message-broker", "pubsub", "nats", "async", "swe"]
+categories   = ["network-programming", "asynchronous"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "message-broker"
+
+[lib]
+name = "swe_edge_runtime_message_broker"
+path = "src/lib.rs"
+
+[features]
+default  = []
+tokio-rt = ["dep:tokio"]
+nats     = ["dep:async-nats"]
+kafka    = []
+
+[dependencies]
+bytes.workspace    = true
+futures.workspace  = true
+thiserror          = "1.0"
+tracing.workspace  = true
+tokio      = { workspace = true, features = ["sync", "rt"], optional = true }
+async-nats = { version = "0.48", optional = true }
+uuid       = { version = "1.0", features = ["v4"] }
+
+[dev-dependencies]
+tokio   = { workspace = true, features = ["rt-multi-thread", "macros"] }
+futures.workspace = true
+bytes.workspace   = true
+
+[[test]]
+name = "broker_int_test"
+path = "tests/broker_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"
+
+[[test]]
+name = "edge_message_broker_svc_int_test"
+path = "tests/edge_message_broker_svc_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "task_queue_int_test"
+path = "tests/task_queue_int_test.rs"
+
+[[test]]
+name = "edge_saf_int_test"
+path = "tests/edge_saf_int_test.rs"
+
+[[example]]
+name = "in_memory_broker"
+path = "examples/in_memory_broker.rs"
+
+[lints]
+workspace = true
