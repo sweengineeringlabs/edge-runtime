@@ -1,6 +1,7 @@
 //! API layer — runtime trait contracts and public types.
 
 pub(crate) mod application_config_builder;
+pub(crate) mod architecture_config_builder;
 pub(crate) mod composite;
 pub(crate) mod composite_inbound;
 pub(crate) mod config;
