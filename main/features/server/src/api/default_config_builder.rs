@@ -3,6 +3,7 @@
 //! Corresponds to `config/default.toml`.
 
 /// Builder for runtime default (shipped) configuration.
+#[allow(dead_code)]
 pub struct DefaultConfigBuilder {
     _private: (),
 }
