@@ -35,10 +35,6 @@ toml        = "0.8"
 futures.workspace = true
 
 [[test]]
-name = "scheduler_int_test"
-path = "tests/scheduler_int_test.rs"
-
-[[test]]
 name = "validator_int_test"
 path = "tests/validator_int_test.rs"
 
