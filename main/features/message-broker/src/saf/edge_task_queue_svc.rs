@@ -11,7 +11,7 @@
 #[cfg(feature = "nats")]
 use crate::api::task_queue::queue_error::QueueError;
 #[cfg(any(feature = "tokio-rt", feature = "nats"))]
-use crate::api::task_queue::task_queue::TaskQueue;
+use crate::api::task_queue::TaskQueue;
 #[cfg(feature = "tokio-rt")]
 use crate::spi::InMemoryTaskQueue;
 #[cfg(feature = "nats")]

@@ -5,10 +5,7 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use tokio::sync::mpsc;
 
-use crate::api::task_queue::queue_error::QueueError;
-use crate::api::task_queue::task::Task;
-use crate::api::task_queue::task_handle::TaskHandle;
-use crate::api::task_queue::task_queue::TaskQueue;
+use crate::api::task_queue::{QueueError, Task, TaskHandle, TaskQueue};
 
 /// Capacity of the task queue channel.
 const CHANNEL_CAPACITY: usize = 1024;
