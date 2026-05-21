@@ -4,4 +4,4 @@ mod in_memory_message_broker;
 mod in_memory_task_queue;
 
 pub(crate) use in_memory_message_broker::in_memory_message_broker::InMemoryMessageBroker;
-pub(crate) use in_memory_task_queue::in_memory_task_queue::InMemoryTaskQueue;
+pub(crate) use in_memory_task_queue::InMemoryTaskQueue;
