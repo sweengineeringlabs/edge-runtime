@@ -66,14 +66,14 @@ pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingForm
 // ── Scheduler ─────────────────────────────────────────────────────────────────
 #[cfg(feature = "scheduler")]
 pub use swe_edge_runtime_scheduler::{
-    tokio_scheduler, Scheduler, SchedulerError, SchedulerResult, TokioSchedulerConfig,
+    tokio_scheduler, Scheduler, SchedulerResult, TokioSchedulerConfig,
 };
 
 // ── Message broker ────────────────────────────────────────────────────────────
 #[cfg(feature = "message-broker")]
 pub use swe_edge_runtime_message_broker::in_memory_broker;
 #[cfg(feature = "message-broker")]
-pub use swe_edge_runtime_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+pub use swe_edge_runtime_message_broker::{Message, MessageBroker, MessageStream};
 
 // ── Daemon runner ─────────────────────────────────────────────────────────────
 pub use daemon::{run, runtime_manager};

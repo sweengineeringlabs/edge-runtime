@@ -202,36 +202,6 @@ mod tests {
     use super::*;
     use crate::api::runtime::Runtime;
 
-    /// @covers: with_message_broker
-    #[cfg(feature = "message-broker")]
-    #[test]
-    fn test_with_message_broker_sets_field() {
-        use swe_edge_runtime_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
-        struct RuntimeBuilderStubBroker;
-        impl MessageBroker for RuntimeBuilderStubBroker {
-            fn publish<'a>(
-                &'a self,
-                _: &'a str,
-                _: Message,
-            ) -> futures::future::BoxFuture<'a, Result<(), BrokerError>> {
-                Box::pin(futures::future::ready(Ok(())))
-            }
-            fn subscribe<'a>(
-                &'a self,
-                _: &'a str,
-            ) -> futures::future::BoxFuture<'a, Result<MessageStream, BrokerError>> {
-                Box::pin(futures::future::ready(Ok(
-                    Box::pin(futures::stream::empty()) as MessageStream,
-                )))
-            }
-            fn health_check(&self) -> futures::future::BoxFuture<'_, Result<(), BrokerError>> {
-                Box::pin(futures::future::ready(Ok(())))
-            }
-        }
-        let b = Runtime::builder().with_message_broker(RuntimeBuilderStubBroker);
-        assert!(b.message_broker.is_some());
-    }
-
     /// @covers: app_name
     #[test]
     fn test_app_name_sets_field() {

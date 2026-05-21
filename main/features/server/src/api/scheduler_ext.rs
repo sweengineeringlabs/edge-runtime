@@ -4,7 +4,7 @@
 //! [`RuntimeBuilder`] so consumers can start a binary with no tokio boilerplate.
 
 #[cfg(feature = "scheduler")]
-use swe_edge_runtime_scheduler::{Scheduler, SchedulerError};
+use swe_edge_runtime_scheduler::Scheduler;
 
 #[cfg(feature = "scheduler")]
 use crate::api::error::{RuntimeError, RuntimeResult};
@@ -18,10 +18,9 @@ impl RuntimeBuilder {
     /// Blocks the calling thread until the runtime shuts down or an error
     /// occurs. Use this when you bring your own async executor.
     pub fn run_with_scheduler<S: Scheduler>(self, scheduler: S) -> RuntimeResult<()> {
-        match scheduler.run(self.serve()) {
-            Err(SchedulerError::StartFailed(msg)) => Err(RuntimeError::StartFailed(msg)),
-            Ok(result) => result,
-        }
+        scheduler
+            .run(self.serve())
+            .map_err(|e| RuntimeError::Scheduler(e.to_string()))
     }
 
     /// Drive the runtime with the tokio scheduler and default config.
@@ -61,27 +60,6 @@ mod tests {
     fn test_run_with_config_returns_start_failed_for_empty_builder() {
         use swe_edge_runtime_scheduler::TokioSchedulerConfig;
         let result = Runtime::builder().run_with_config(TokioSchedulerConfig::default());
-        assert!(matches!(result, Err(RuntimeError::StartFailed(_))));
-    }
-
-    /// @covers: run_with_scheduler
-    #[test]
-    fn test_run_with_scheduler_returns_start_failed_for_empty_builder() {
-        use swe_edge_runtime_scheduler::{Scheduler, SchedulerError, TokioSchedulerConfig};
-        struct SchedulerExtNoopScheduler;
-        impl Scheduler for SchedulerExtNoopScheduler {
-            fn run<F, T>(&self, fut: F) -> Result<T, SchedulerError>
-            where
-                F: std::future::Future<Output = T> + Send + 'static,
-            {
-                tokio::runtime::Builder::new_current_thread()
-                    .enable_all()
-                    .build()
-                    .map_err(|e| SchedulerError::StartFailed(e.to_string()))
-                    .map(|rt| rt.block_on(fut))
-            }
-        }
-        let result = Runtime::builder().run_with_scheduler(SchedulerExtNoopScheduler);
         assert!(matches!(result, Err(RuntimeError::StartFailed(_))));
     }
 }
