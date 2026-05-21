@@ -34,10 +34,6 @@ edge-domain = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = 
 toml        = "0.8"
 futures.workspace = true
 
-[[example]]
-name = "custom_scheduler"
-path = "examples/custom_scheduler.rs"
-
 [[test]]
 name = "scheduler_int_test"
 path = "tests/scheduler_int_test.rs"
