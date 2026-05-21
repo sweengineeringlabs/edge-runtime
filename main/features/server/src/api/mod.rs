@@ -18,7 +18,6 @@ pub(crate) mod observability;
 pub(crate) mod runner;
 pub(crate) mod runtime;
 pub(crate) mod runtime_manager;
-pub(crate) mod scheduler_ext;
 pub(crate) mod service_registry;
 pub(crate) mod traits;
 pub(crate) mod types;
