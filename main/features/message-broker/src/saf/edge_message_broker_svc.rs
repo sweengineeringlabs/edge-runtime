@@ -39,6 +39,8 @@ mod tests {
     #[cfg(feature = "tokio-rt")]
     #[test]
     fn test_in_memory_broker_factory_produces_working_broker() {
+        use crate::api::broker::MessageBroker;
+        use crate::in_memory_broker;
         use futures::executor::block_on;
         let broker = in_memory_broker();
         block_on(async move {

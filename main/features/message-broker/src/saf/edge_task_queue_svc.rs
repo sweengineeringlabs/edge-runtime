@@ -68,6 +68,8 @@ mod tests {
     #[cfg(feature = "tokio-rt")]
     #[test]
     fn test_in_memory_task_queue_factory_produces_working_queue() {
+        use crate::api::task_queue::TaskQueue;
+        use crate::in_memory_task_queue;
         use futures::executor::block_on;
         let queue = in_memory_task_queue();
         block_on(async move {
