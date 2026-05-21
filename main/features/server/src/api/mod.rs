@@ -23,3 +23,6 @@ pub(crate) mod service_registry;
 pub(crate) mod traits;
 pub(crate) mod types;
 pub(crate) mod validator;
+
+pub use application_config_builder::ApplicationConfigBuilder;
+pub use architecture_config_builder::ArchitectureConfigBuilder;
