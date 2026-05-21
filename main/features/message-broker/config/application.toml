@@ -1,5 +1,0 @@
-# Message broker configuration defaults.
-# Consumers override these values in their own application.toml.
-
-[broker]
-# nats_url = "nats://localhost:4222"
