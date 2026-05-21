@@ -4,6 +4,7 @@
 ///
 /// Implementations must validate actor configurations and state invariants
 /// before and after actor initialization.
+#[allow(dead_code)]
 pub trait Validator {
     /// Validate actor mailbox configuration or state.
     ///
