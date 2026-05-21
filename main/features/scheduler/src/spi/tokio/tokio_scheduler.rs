@@ -91,7 +91,7 @@ mod tests {
     #[test]
     fn test_run_executes_future_and_returns_ok() {
         let result: Result<(), SchedulerError> =
-            TokioScheduler::new(TokioSchedulerConfig::default(), "t").run(async { () });
+            TokioScheduler::new(TokioSchedulerConfig::default(), "t").run(async {});
         assert!(result.is_ok());
     }
 
@@ -109,7 +109,7 @@ mod tests {
             workers: NonZeroUsize::new(2),
             ..Default::default()
         };
-        let result: Result<(), SchedulerError> = TokioScheduler::new(cfg, "t").run(async { () });
+        let result: Result<(), SchedulerError> = TokioScheduler::new(cfg, "t").run(async {});
         assert!(result.is_ok());
     }
 }
