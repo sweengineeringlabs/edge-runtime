@@ -67,7 +67,6 @@ mod tests {
 
     enum TestMessage {
         Inc,
-        GetCount(tokio::sync::oneshot::Sender<i32>),
     }
 
     impl Actor for TestActor {
@@ -81,9 +80,6 @@ mod tests {
             Box::pin(async move {
                 match msg {
                     TestMessage::Inc => self.count += 1,
-                    TestMessage::GetCount(tx) => {
-                        let _ = tx.send(self.count);
-                    }
                 }
             })
         }
