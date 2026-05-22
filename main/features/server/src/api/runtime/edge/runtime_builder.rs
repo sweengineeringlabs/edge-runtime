@@ -296,7 +296,7 @@ mod tests {
     fn test_grpc_handler_sets_field() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress_http::{
+        use swe_edge_ingress_grpc::{
             GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
             GrpcRequest, GrpcResponse,
         };
