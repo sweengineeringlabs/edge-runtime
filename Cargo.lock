@@ -686,12 +686,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain"
+version = "0.1.0"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c48a5f4b5b098f60490f646df9cc466fd0b3"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "edge-proxy"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c48a5f4b5b098f60490f646df9cc466fd0b3"
 dependencies = [
- "async-trait",
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
+ "futures",
  "parking_lot",
  "serde",
  "thiserror 2.0.18",
@@ -2704,43 +2715,15 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-reflection"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c48a5f4b5b098f60490f646df9cc466fd0b3"
 dependencies = [
- "async-trait",
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
  "futures",
  "parking_lot",
  "serde",
- "swe-edge-ingress-grpc-transport 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
+ "swe-edge-ingress-grpc-transport",
  "thiserror 2.0.18",
  "tokio",
- "tracing",
-]
-
-[[package]]
-name = "swe-edge-ingress-grpc-transport"
-version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
-dependencies = [
- "async-trait",
- "bytes",
- "edge-domain",
- "futures",
- "http",
- "http-body",
- "http-body-util",
- "hyper",
- "hyper-util",
- "parking_lot",
- "serde",
- "sha2",
- "swe-edge-ingress-tls 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
- "swe_justobserv_context",
- "swe_justobserv_metrics",
- "thiserror 2.0.18",
- "tokio",
- "tokio-util",
- "tonic",
  "tracing",
 ]
 
@@ -2751,7 +2734,7 @@ source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c
 dependencies = [
  "async-trait",
  "bytes",
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
  "futures",
  "http",
  "http-body",
@@ -2761,7 +2744,7 @@ dependencies = [
  "parking_lot",
  "serde",
  "sha2",
- "swe-edge-ingress-tls 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48)",
+ "swe-edge-ingress-tls",
  "swe_justobserv_context",
  "swe_justobserv_metrics",
  "thiserror 2.0.18",
@@ -2779,7 +2762,7 @@ dependencies = [
  "async-trait",
  "axum 0.8.9",
  "bytes",
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
  "futures",
  "http",
  "hyper",
@@ -2788,8 +2771,8 @@ dependencies = [
  "parking_lot",
  "serde",
  "serde_json",
- "swe-edge-ingress-tls 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48)",
- "swe-edge-ingress-verifier 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48)",
+ "swe-edge-ingress-tls",
+ "swe-edge-ingress-verifier",
  "swe_justobserv_context",
  "swe_justobserv_metrics",
  "thiserror 2.0.18",
@@ -2800,18 +2783,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-tls"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
-dependencies = [
- "rustls",
- "rustls-pemfile",
- "serde",
- "thiserror 2.0.18",
- "tokio-rustls",
-]
-
-[[package]]
-name = "swe-edge-ingress-tls"
-version = "0.1.0"
 source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c48a5f4b5b098f60490f646df9cc466fd0b3"
 dependencies = [
  "rustls",
@@ -2824,23 +2795,9 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-verifier"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
-dependencies = [
- "edge-domain",
- "jsonwebtoken",
- "serde",
- "serde_json",
- "subtle",
- "thiserror 2.0.18",
- "tracing",
-]
-
-[[package]]
-name = "swe-edge-ingress-verifier"
-version = "0.1.0"
 source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c48a5f4b5b098f60490f646df9cc466fd0b3"
 dependencies = [
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
  "jsonwebtoken",
  "serde",
  "serde_json",
@@ -2888,7 +2845,7 @@ name = "swe-edge-runtime-scheduler"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
  "futures",
  "serde",
  "thiserror 2.0.18",
@@ -2903,7 +2860,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "dirs",
- "edge-domain",
+ "edge-domain 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48)",
  "edge-proxy",
  "futures",
  "parking_lot",
@@ -2914,9 +2871,9 @@ dependencies = [
  "swe-edge-egress-grpc-transport",
  "swe-edge-egress-http-transport",
  "swe-edge-ingress-grpc-reflection",
- "swe-edge-ingress-grpc-transport 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48)",
+ "swe-edge-ingress-grpc-transport",
  "swe-edge-ingress-http-transport",
- "swe-edge-ingress-verifier 0.1.0 (git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4)",
+ "swe-edge-ingress-verifier",
  "swe-edge-observ-config",
  "swe-edge-runtime-message-broker",
  "swe-edge-runtime-scheduler",
