@@ -5,6 +5,7 @@
 mod edge_message_broker_svc;
 mod edge_task_queue_svc;
 
+pub use crate::api::application_config_builder::ApplicationConfigBuilder;
 pub use crate::api::broker::BrokerError;
 pub use crate::api::broker::Message;
 pub use crate::api::broker::MessageBroker;
