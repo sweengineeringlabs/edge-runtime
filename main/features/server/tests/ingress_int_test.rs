@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 use std::sync::Arc;
-use swe_edge_ingress::{
+use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{DefaultIngress, Ingress};

@@ -15,7 +15,7 @@ use swe_edge_egress_http::{
     HttpEgress, HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
     HttpStreamResponse,
 };
-use swe_edge_ingress::{
+use swe_edge_ingress_http::{
     AxumHttpServer, HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest,
     HttpResponse, RequestContext,
 };
