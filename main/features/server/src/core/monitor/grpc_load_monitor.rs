@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
-use swe_edge_ingress_http::{
+use swe_edge_ingress_grpc::{
     GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMessageStream, GrpcMetadata, GrpcRequest,
     GrpcResponse,
 };

@@ -119,7 +119,7 @@ mod tests {
     fn test_new_grpc_sets_grpc_transport() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress_http::{
+        use swe_edge_ingress_grpc::{
             GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
             GrpcRequest, GrpcResponse,
         };
@@ -154,7 +154,7 @@ mod tests {
     fn test_with_grpc_adds_transport() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress_http::{
+        use swe_edge_ingress_grpc::{
             GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
             GrpcRequest, GrpcResponse,
         };

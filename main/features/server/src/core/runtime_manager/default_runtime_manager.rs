@@ -275,8 +275,10 @@ mod tests {
     use swe_edge_egress_http::{
         HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse,
     };
-    use swe_edge_ingress_http::{
+    use swe_edge_ingress_grpc::{
         GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMetadata, GrpcRequest, GrpcResponse,
+    };
+    use swe_edge_ingress_http::{
         HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
     };
 
