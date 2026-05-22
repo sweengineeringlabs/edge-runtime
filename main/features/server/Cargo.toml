@@ -50,7 +50,7 @@ swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",
 swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   git = "ssh://git@github.com/sweengineeringlabs/edge.git", rev = "7a64c48" }
 swe-edge-ingress-verifier        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", rev = "7a64c48" }
 swe-edge-ingress-grpc-reflection = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", rev = "7a64c48" }
-edge-domain                      = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", rev = "7a64c48" }
+edge-domain                      = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 swe-observ-metrics               = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 [dev-dependencies]
