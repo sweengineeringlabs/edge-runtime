@@ -20,7 +20,7 @@ use swe_edge_egress_http::{
     HttpEgress, HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
     HttpStreamResponse,
 };
-use swe_edge_ingress::{
+use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{
