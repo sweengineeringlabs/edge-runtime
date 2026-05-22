@@ -269,16 +269,15 @@ mod tests {
     use futures::future::BoxFuture;
     use std::collections::HashMap;
     use swe_edge_egress_grpc::{
-        GrpcMetadata as EgressGrpcMetadata, GrpcOutbound, GrpcOutboundError, GrpcOutboundResult,
+        GrpcEgress, GrpcEgressError, GrpcEgressResult, GrpcMetadata as EgressGrpcMetadata,
         GrpcRequest as EgressGrpcRequest, GrpcResponse as EgressGrpcResponse,
     };
     use swe_edge_egress_http::{
-        HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
-        HttpStreamResponse,
+        HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp, HttpStreamResponse,
     };
-    use swe_edge_ingress::{
-        GrpcHealthCheck, GrpcInbound, GrpcInboundResult, GrpcMetadata, GrpcRequest, GrpcResponse,
-        HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
+    use swe_edge_ingress_http::{
+        GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMetadata, GrpcRequest, GrpcResponse,
+        HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
     };
 
     struct DefaultRuntimeManagerStubLifecycle;
@@ -295,26 +294,26 @@ mod tests {
     }
 
     struct DefaultRuntimeManagerStubHttp;
-    impl swe_edge_ingress::HttpInbound for DefaultRuntimeManagerStubHttp {
+    impl swe_edge_ingress_http::HttpIngress for DefaultRuntimeManagerStubHttp {
         fn handle(
             &self,
             _: HttpRequest,
             _ctx: RequestContext,
-        ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+        ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
-        fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+        fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
             Box::pin(async { Ok(HttpHealthCheck::healthy()) })
         }
     }
 
     struct DefaultRuntimeManagerStubGrpc;
-    impl GrpcInbound for DefaultRuntimeManagerStubGrpc {
+    impl GrpcIngress for DefaultRuntimeManagerStubGrpc {
         fn handle_unary(
             &self,
             _: GrpcRequest,
             _ctx: RequestContext,
-        ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+        ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
             Box::pin(async {
                 Ok(GrpcResponse {
                     body: vec![],
@@ -324,7 +323,7 @@ mod tests {
                 })
             })
         }
-        fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+        fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
             Box::pin(async {
                 Ok(GrpcHealthCheck {
                     healthy: true,
@@ -335,14 +334,11 @@ mod tests {
     }
 
     struct DefaultRuntimeManagerStubHttpOut;
-    impl swe_edge_egress_http::HttpOutbound for DefaultRuntimeManagerStubHttpOut {
-        fn send(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<EgressResp>> {
+    impl swe_edge_egress_http::HttpEgress for DefaultRuntimeManagerStubHttpOut {
+        fn send(&self, _: EgressReq) -> BoxFuture<'_, HttpEgressResult<EgressResp>> {
             Box::pin(async { Ok(EgressResp::new(200, vec![])) })
         }
-        fn send_stream(
-            &self,
-            _: EgressReq,
-        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+        fn send_stream(&self, _: EgressReq) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
             Box::pin(async {
                 Ok(HttpStreamResponse {
                     status: 200,
@@ -351,17 +347,17 @@ mod tests {
                 })
             })
         }
-        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+        fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     struct DefaultRuntimeManagerStubGrpcOut;
-    impl GrpcOutbound for DefaultRuntimeManagerStubGrpcOut {
+    impl GrpcEgress for DefaultRuntimeManagerStubGrpcOut {
         fn call_unary(
             &self,
             _: EgressGrpcRequest,
-        ) -> BoxFuture<'_, GrpcOutboundResult<EgressGrpcResponse>> {
+        ) -> BoxFuture<'_, GrpcEgressResult<EgressGrpcResponse>> {
             Box::pin(async {
                 Ok(EgressGrpcResponse {
                     body: vec![],
@@ -369,21 +365,21 @@ mod tests {
                 })
             })
         }
-        fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
+        fn health_check(&self) -> BoxFuture<'_, GrpcEgressResult<()>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     struct DefaultRuntimeManagerDownGrpcOut;
-    impl GrpcOutbound for DefaultRuntimeManagerDownGrpcOut {
+    impl GrpcEgress for DefaultRuntimeManagerDownGrpcOut {
         fn call_unary(
             &self,
             _: EgressGrpcRequest,
-        ) -> BoxFuture<'_, GrpcOutboundResult<EgressGrpcResponse>> {
-            Box::pin(async { Err(GrpcOutboundError::Unavailable("down".into())) })
+        ) -> BoxFuture<'_, GrpcEgressResult<EgressGrpcResponse>> {
+            Box::pin(async { Err(GrpcEgressError::Unavailable("down".into())) })
         }
-        fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
-            Box::pin(async { Err(GrpcOutboundError::Unavailable("unreachable".into())) })
+        fn health_check(&self) -> BoxFuture<'_, GrpcEgressResult<()>> {
+            Box::pin(async { Err(GrpcEgressError::Unavailable("unreachable".into())) })
         }
     }
 

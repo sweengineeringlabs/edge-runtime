@@ -12,11 +12,11 @@ use tokio::sync::oneshot;
 
 use edge_proxy::{HealthReport, LifecycleError, LifecycleMonitor};
 use swe_edge_egress_http::{
-    HttpOutbound, HttpOutboundResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
+    HttpEgress, HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
     HttpStreamResponse,
 };
 use swe_edge_ingress::{
-    AxumHttpServer, HttpHealthCheck, HttpInbound, HttpInboundError, HttpInboundResult, HttpRequest,
+    AxumHttpServer, HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest,
     HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{
@@ -38,12 +38,12 @@ impl LifecycleMonitor for StubLifecycle {
     }
 }
 
-struct StubHttpOutbound;
-impl HttpOutbound for StubHttpOutbound {
-    fn send(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<EgressResp>> {
+struct StubHttpEgress;
+impl HttpEgress for StubHttpEgress {
+    fn send(&self, _: EgressReq) -> BoxFuture<'_, HttpEgressResult<EgressResp>> {
         Box::pin(async { Ok(EgressResp::new(200, vec![])) })
     }
-    fn send_stream(&self, _: EgressReq) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+    fn send_stream(&self, _: EgressReq) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
         Box::pin(async {
             Ok(HttpStreamResponse {
                 status: 200,
@@ -52,40 +52,40 @@ impl HttpOutbound for StubHttpOutbound {
             })
         })
     }
-    fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
         Box::pin(async { Ok(()) })
     }
 }
 
 /// Returns 200 with the request method + path as the body.
 struct EchoHandler;
-impl HttpInbound for EchoHandler {
+impl HttpIngress for EchoHandler {
     fn handle(
         &self,
         req: HttpRequest,
         _ctx: RequestContext,
-    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async move {
             let body = format!("{} {}", req.method, req.url).into_bytes();
             Ok(HttpResponse::new(200, body))
         })
     }
-    fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
         Box::pin(async { Ok(HttpHealthCheck::healthy()) })
     }
 }
 
 /// Always returns NotFound — exercises the error-to-status mapping.
 struct NotFoundHandler;
-impl HttpInbound for NotFoundHandler {
+impl HttpIngress for NotFoundHandler {
     fn handle(
         &self,
         _: HttpRequest,
         _ctx: RequestContext,
-    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
-        Box::pin(async { Err(HttpInboundError::NotFound("resource gone".into())) })
+    ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
+        Box::pin(async { Err(HttpIngressError::NotFound("resource gone".into())) })
     }
-    fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
         Box::pin(async { Ok(HttpHealthCheck::healthy()) })
     }
 }
@@ -95,7 +95,7 @@ impl HttpInbound for NotFoundHandler {
 /// Wire up the full daemon stack: RuntimeManager + AxumHttpServer on a free port.
 /// Returns (base_url, runtime_manager, shutdown_trigger).
 async fn start_daemon_stack(
-    handler: Arc<dyn HttpInbound>,
+    handler: Arc<dyn HttpIngress>,
 ) -> (String, impl RuntimeManager, oneshot::Sender<()>) {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
@@ -103,7 +103,7 @@ async fn start_daemon_stack(
 
     let config = RuntimeConfig::default().with_systemd_notify(false);
     let ingress = Arc::new(DefaultIngress::new_http(handler.clone()));
-    let egress = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpOutbound)));
+    let egress = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpEgress)));
     let mgr = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
 
     mgr.start().await.expect("RuntimeManager::start failed");
@@ -125,10 +125,10 @@ async fn start_daemon_stack(
 /// @covers: runtime_manager — start transitions to Running, health reports components
 #[tokio::test]
 async fn test_runtime_manager_start_and_shutdown_round_trip() {
-    let handler: Arc<dyn HttpInbound> = Arc::new(EchoHandler);
+    let handler: Arc<dyn HttpIngress> = Arc::new(EchoHandler);
     let config = RuntimeConfig::default().with_systemd_notify(false);
     let ingress = Arc::new(DefaultIngress::new_http(handler));
-    let egress = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpOutbound)));
+    let egress = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpEgress)));
     let mgr = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
 
     mgr.start().await.expect("start ok");
@@ -140,10 +140,10 @@ async fn test_runtime_manager_start_and_shutdown_round_trip() {
 /// @covers: runtime_manager — health reports ingress and egress component names
 #[tokio::test]
 async fn test_runtime_manager_health_reports_ingress_and_egress() {
-    let handler: Arc<dyn HttpInbound> = Arc::new(EchoHandler);
+    let handler: Arc<dyn HttpIngress> = Arc::new(EchoHandler);
     let config = RuntimeConfig::default().with_systemd_notify(false);
     let ingress = Arc::new(DefaultIngress::new_http(handler));
-    let egress = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpOutbound)));
+    let egress = Arc::new(DefaultEgress::new_http(Arc::new(StubHttpEgress)));
     let mgr = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
 
     mgr.start().await.expect("start ok");
@@ -153,7 +153,7 @@ async fn test_runtime_manager_health_reports_ingress_and_egress() {
     assert!(names.contains(&"egress.http"));
 }
 
-/// Full stack: real TCP request through IngressGateway → AxumHttpServer → HttpInbound handler.
+/// Full stack: real TCP request through IngressGateway → AxumHttpServer → HttpIngress handler.
 #[tokio::test]
 async fn test_http_get_request_flows_end_to_end_through_daemon_stack() {
     let (base, mgr, shutdown_tx) = start_daemon_stack(Arc::new(EchoHandler)).await;

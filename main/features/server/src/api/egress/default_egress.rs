@@ -1,22 +1,22 @@
 //! `DefaultEgress` — holds egress adapters by `Arc`.
 
 use std::sync::Arc;
-use swe_edge_egress_grpc::GrpcOutbound;
-use swe_edge_egress_http::HttpOutbound;
+use swe_edge_egress_grpc::GrpcEgress;
+use swe_edge_egress_http::HttpEgress;
 
 /// Default [`Egress`] implementation — holds egress adapters by `Arc`.
 pub struct DefaultEgress {
-    pub(crate) http: Arc<dyn HttpOutbound>,
-    pub(crate) grpc: Option<Arc<dyn GrpcOutbound>>,
+    pub(crate) http: Arc<dyn HttpEgress>,
+    pub(crate) grpc: Option<Arc<dyn GrpcEgress>>,
 }
 
 impl DefaultEgress {
     /// Construct with only an HTTP outbound adapter.
-    pub fn new_http(http: Arc<dyn HttpOutbound>) -> Self {
+    pub fn new_http(http: Arc<dyn HttpEgress>) -> Self {
         Self { http, grpc: None }
     }
     /// Add (or replace) the gRPC outbound transport.
-    pub fn with_grpc(mut self, grpc: Arc<dyn GrpcOutbound>) -> Self {
+    pub fn with_grpc(mut self, grpc: Arc<dyn GrpcEgress>) -> Self {
         self.grpc = Some(grpc);
         self
     }
@@ -26,17 +26,17 @@ impl DefaultEgress {
 mod tests {
     use super::*;
     use futures::future::BoxFuture;
-    use swe_edge_egress_http::{HttpOutboundResult, HttpRequest, HttpResponse, HttpStreamResponse};
+    use swe_edge_egress_http::{HttpEgressResult, HttpRequest, HttpResponse, HttpStreamResponse};
 
     struct StubHttp;
-    impl HttpOutbound for StubHttp {
-        fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
+    impl HttpEgress for StubHttp {
+        fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
         fn send_stream(
             &self,
             _: HttpRequest,
-        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+        ) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
             Box::pin(async {
                 Ok(HttpStreamResponse {
                     status: 200,
@@ -45,7 +45,7 @@ mod tests {
                 })
             })
         }
-        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+        fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
             Box::pin(async { Ok(()) })
         }
     }
@@ -61,23 +61,20 @@ mod tests {
     #[test]
     fn test_with_grpc_sets_grpc_adapter() {
         use swe_edge_egress_grpc::{
-            GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, GrpcRequest, GrpcResponse,
+            GrpcEgress, GrpcEgressError, GrpcEgressResult, GrpcRequest, GrpcResponse,
             GrpcStatusCode,
         };
         struct StubGrpc;
-        impl GrpcOutbound for StubGrpc {
-            fn call_unary(
-                &self,
-                _: GrpcRequest,
-            ) -> BoxFuture<'_, GrpcOutboundResult<GrpcResponse>> {
+        impl GrpcEgress for StubGrpc {
+            fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcEgressResult<GrpcResponse>> {
                 Box::pin(async {
-                    Err(GrpcOutboundError::Status(
+                    Err(GrpcEgressError::Status(
                         GrpcStatusCode::Unavailable,
                         "stub".into(),
                     ))
                 })
             }
-            fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
+            fn health_check(&self) -> BoxFuture<'_, GrpcEgressResult<()>> {
                 Box::pin(async { Ok(()) })
             }
         }

@@ -44,9 +44,10 @@ swe-edge-runtime-message-broker = { path = "../message-broker", optional = true,
 swe-edge-runtime-scheduler      = { path = "../scheduler", optional = true }
 
 edge-proxy                       = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-ingress                 = { package = "swe-edge-ingress-gateway",       git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-http             = { package = "swe-edge-egress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  path = "../../../../ingress/http/main/features/transport" }
+swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  path = "../../../../ingress/grpc/main/features/transport" }
+swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   path = "../../../../egress/grpc/main/features/transport" }
+swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   path = "../../../../egress/http/main/features/transport" }
 swe-edge-ingress-verifier        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 swe-edge-ingress-grpc-reflection = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 edge-domain                      = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
@@ -60,9 +61,10 @@ tempfile     = "3"
 swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
 reqwest      = { version = "0.12", features = ["json"], default-features = false }
 edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-ingress     = { package = "swe-edge-ingress-gateway",        git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
-swe-edge-egress-http = { package = "swe-edge-egress-http-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+swe-edge-ingress-http = { package = "swe-edge-ingress-http-transport", path = "../../../../ingress/http/main/features/transport" }
+swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", path = "../../../../ingress/grpc/main/features/transport" }
+swe-edge-egress-grpc  = { package = "swe-edge-egress-grpc-transport",  path = "../../../../egress/grpc/main/features/transport" }
+swe-edge-egress-http  = { package = "swe-edge-egress-http-transport",  path = "../../../../egress/http/main/features/transport" }
 
 [[test]]
 name = "runtime_int_test"

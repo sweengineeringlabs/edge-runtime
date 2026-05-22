@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
-use swe_edge_ingress::{
-    HttpHealthCheck, HttpInbound, HttpInboundError, HttpInboundResult, HttpMethod, HttpRequest,
+use swe_edge_ingress_http::{
+    HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest,
     HttpResponse,
 };
 use swe_observ_metrics::{MetricType, MetricsProvider};
@@ -36,17 +36,17 @@ impl MetricsHandler {
 
 impl crate::api::metrics_handler::MetricsHandler for MetricsHandler {}
 
-impl HttpInbound for MetricsHandler {
+impl HttpIngress for MetricsHandler {
     fn handle(
         &self,
         request: HttpRequest,
         _ctx: RequestContext,
-    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         let provider = Arc::clone(&self.counters.provider);
         let path = self.path.clone();
         Box::pin(async move {
             if request.method != HttpMethod::Get {
-                return Err(HttpInboundError::InvalidInput(
+                return Err(HttpIngressError::InvalidInput(
                     "metrics endpoint only accepts GET".into(),
                 ));
             }
@@ -58,7 +58,7 @@ impl HttpInbound for MetricsHandler {
                 .trim_end_matches('/');
             let cfg_path = path.trim_end_matches('/');
             if req_path != cfg_path {
-                return Err(HttpInboundError::NotFound(format!(
+                return Err(HttpIngressError::NotFound(format!(
                     "not found: {}",
                     request.url
                 )));
@@ -73,7 +73,7 @@ impl HttpInbound for MetricsHandler {
         })
     }
 
-    fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
         Box::pin(async { Ok(HttpHealthCheck::healthy()) })
     }
 }
@@ -155,7 +155,7 @@ mod tests {
             )
             .await
             .unwrap_err();
-        assert!(matches!(err, HttpInboundError::NotFound(_)));
+        assert!(matches!(err, HttpIngressError::NotFound(_)));
     }
 
     #[tokio::test]
@@ -181,7 +181,7 @@ mod tests {
             )
             .await
             .unwrap_err();
-        assert!(matches!(err, HttpInboundError::InvalidInput(_)));
+        assert!(matches!(err, HttpIngressError::InvalidInput(_)));
     }
 
     #[test]

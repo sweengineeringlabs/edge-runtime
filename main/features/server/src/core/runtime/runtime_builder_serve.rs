@@ -8,9 +8,10 @@ use std::time::Duration;
 
 use edge_proxy::new_null_lifecycle_monitor;
 use swe_edge_egress_grpc::create_transport_from_config;
-use swe_edge_egress_http::{default_http_outbound, default_http_outbound_with_config};
-use swe_edge_ingress::{AxumHttpServer, TonicGrpcServer};
+use swe_edge_egress_http::{default_http_egress, default_http_egress_with_config};
+use swe_edge_ingress_grpc::TonicGrpcServer;
 use swe_edge_ingress_grpc_reflection::ReflectionService;
+use swe_edge_ingress_http::AxumHttpServer;
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
@@ -105,20 +106,20 @@ impl RuntimeBuilder {
         }
 
         // ── Egress: builder explicit > TOML config > default ─────────────────
-        let egress_http: Arc<dyn swe_edge_egress_http::HttpOutbound> = if let Some(h) =
+        let egress_http: Arc<dyn swe_edge_egress_http::HttpEgress> = if let Some(h) =
             self.egress_http
         {
             h
         } else if let Some(http_cfg) = config.egress_http.clone() {
             Arc::new(
-                default_http_outbound_with_config(http_cfg)
+                default_http_egress_with_config(http_cfg)
                     .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
             )
         } else {
-            Arc::new(default_http_outbound().map_err(|e| RuntimeError::StartFailed(e.to_string()))?)
+            Arc::new(default_http_egress().map_err(|e| RuntimeError::StartFailed(e.to_string()))?)
         };
 
-        let egress_grpc: Option<Arc<dyn swe_edge_egress_grpc::GrpcOutbound>> =
+        let egress_grpc: Option<Arc<dyn swe_edge_egress_grpc::GrpcEgress>> =
             if let Some(g) = self.egress_grpc {
                 Some(g)
             } else if let Some(ref grpc_cfg) = config.egress_grpc {
@@ -163,7 +164,8 @@ impl RuntimeBuilder {
         let (http_tx, http_rx) = oneshot::channel::<()>();
         let http_task = input.http().map(|handler| {
             // Wrap with load monitor if metrics are enabled.
-            let handler: Arc<dyn swe_edge_ingress::HttpInbound> = if let Some(ref c) = counters {
+            let handler: Arc<dyn swe_edge_ingress_http::HttpIngress> = if let Some(ref c) = counters
+            {
                 Arc::new(HttpLoadMonitor::new(handler, Arc::clone(c)))
             } else {
                 handler
@@ -188,15 +190,16 @@ impl RuntimeBuilder {
         let (grpc_tx, grpc_rx) = oneshot::channel::<()>();
         let grpc_task = input.grpc().map(|handler| {
             // Wrap with load monitor if metrics are enabled.
-            let handler: Arc<dyn swe_edge_ingress::GrpcInbound> = if let Some(ref c) = counters {
+            let handler: Arc<dyn swe_edge_ingress_grpc::GrpcIngress> = if let Some(ref c) = counters
+            {
                 Arc::new(GrpcLoadMonitor::new(handler, Arc::clone(c)))
             } else {
                 handler
             };
             // Wrap with reflection if enabled and a dispatcher registry was captured.
-            let handler: Arc<dyn swe_edge_ingress::GrpcInbound> =
+            let handler: Arc<dyn swe_edge_ingress_grpc::GrpcIngress> =
                 if let Some(registry) = reflection_registry {
-                    Arc::new(crate::core::composite::CompositeGrpcInbound::new(
+                    Arc::new(crate::core::composite::CompositeGrpcIngress::new(
                         handler,
                         Arc::new(ReflectionService::new(registry)),
                     ))

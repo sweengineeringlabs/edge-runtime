@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;
-use swe_edge_ingress::IngressTlsConfig;
+use swe_edge_ingress_http::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 
 pub use crate::api::config::ObservabilityConfig;

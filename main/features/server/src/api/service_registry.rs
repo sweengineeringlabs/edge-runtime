@@ -2,8 +2,8 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_grpc::GrpcOutbound;
-use swe_edge_egress_http::HttpOutbound;
+use swe_edge_egress_grpc::GrpcEgress;
+use swe_edge_egress_http::HttpEgress;
 
 /// Holds egress clients that handlers may use to make outbound calls.
 ///
@@ -11,23 +11,23 @@ use swe_edge_egress_http::HttpOutbound;
 /// handler constructors at startup — not per-request.  Share it via
 /// `Arc<ServiceRegistry>`.
 pub struct ServiceRegistry {
-    http: Arc<dyn HttpOutbound>,
-    grpc: Option<Arc<dyn GrpcOutbound>>,
+    http: Arc<dyn HttpEgress>,
+    grpc: Option<Arc<dyn GrpcEgress>>,
 }
 
 impl ServiceRegistry {
     /// Construct a registry from an HTTP egress client and an optional gRPC client.
-    pub fn new(http: Arc<dyn HttpOutbound>, grpc: Option<Arc<dyn GrpcOutbound>>) -> Self {
+    pub fn new(http: Arc<dyn HttpEgress>, grpc: Option<Arc<dyn GrpcEgress>>) -> Self {
         Self { http, grpc }
     }
 
     /// Return the HTTP egress client.
-    pub fn http(&self) -> &Arc<dyn HttpOutbound> {
+    pub fn http(&self) -> &Arc<dyn HttpEgress> {
         &self.http
     }
 
     /// Return the gRPC egress client, if one was registered.
-    pub fn grpc(&self) -> Option<&Arc<dyn GrpcOutbound>> {
+    pub fn grpc(&self) -> Option<&Arc<dyn GrpcEgress>> {
         self.grpc.as_ref()
     }
 }
@@ -36,17 +36,17 @@ impl ServiceRegistry {
 mod tests {
     use super::*;
     use futures::future::BoxFuture;
-    use swe_edge_egress_http::{HttpOutboundResult, HttpRequest, HttpResponse, HttpStreamResponse};
+    use swe_edge_egress_http::{HttpEgressResult, HttpRequest, HttpResponse, HttpStreamResponse};
 
     struct StubHttp;
-    impl HttpOutbound for StubHttp {
-        fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
+    impl HttpEgress for StubHttp {
+        fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
         fn send_stream(
             &self,
             _: HttpRequest,
-        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+        ) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
             Box::pin(async {
                 Ok(HttpStreamResponse {
                     status: 200,
@@ -55,7 +55,7 @@ mod tests {
                 })
             })
         }
-        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+        fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
             Box::pin(async { Ok(()) })
         }
     }

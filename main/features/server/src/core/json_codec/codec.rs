@@ -8,7 +8,8 @@ pub(crate) struct Codec;
 
 impl crate::api::json_codec::Codec for Codec {}
 
-use swe_edge_ingress::{GrpcInboundError, HttpBody, HttpInboundError, HttpRequest, HttpResponse};
+use swe_edge_ingress_grpc::GrpcIngressError;
+use swe_edge_ingress_http::{HttpBody, HttpIngressError, HttpRequest, HttpResponse};
 
 /// Default HTTP decode: JSON body → `Req`.
 ///
@@ -17,16 +18,16 @@ use swe_edge_ingress::{GrpcInboundError, HttpBody, HttpInboundError, HttpRequest
 /// type or a deserialization failure.
 pub(crate) fn json_decode<Req: serde::de::DeserializeOwned>(
     req: &HttpRequest,
-) -> Result<Req, HttpInboundError> {
+) -> Result<Req, HttpIngressError> {
     match &req.body {
         Some(HttpBody::Json(v)) => serde_json::from_value(v.clone())
-            .map_err(|e| HttpInboundError::InvalidInput(e.to_string())),
+            .map_err(|e| HttpIngressError::InvalidInput(e.to_string())),
         Some(HttpBody::Raw(b)) => {
-            serde_json::from_slice(b).map_err(|e| HttpInboundError::InvalidInput(e.to_string()))
+            serde_json::from_slice(b).map_err(|e| HttpIngressError::InvalidInput(e.to_string()))
         }
         None => serde_json::from_slice(b"null")
-            .map_err(|e| HttpInboundError::InvalidInput(e.to_string())),
-        Some(_) => Err(HttpInboundError::InvalidInput(
+            .map_err(|e| HttpIngressError::InvalidInput(e.to_string())),
+        Some(_) => Err(HttpIngressError::InvalidInput(
             "expected JSON body (application/json or raw bytes)".into(),
         )),
     }
@@ -48,8 +49,8 @@ pub(crate) fn json_encode<Resp: serde::Serialize>(resp: Resp) -> HttpResponse {
 /// Default gRPC decode: raw bytes → `Req` via JSON.
 pub(crate) fn grpc_json_decode<Req: serde::de::DeserializeOwned>(
     bytes: &[u8],
-) -> Result<Req, GrpcInboundError> {
-    serde_json::from_slice(bytes).map_err(|e| GrpcInboundError::InvalidArgument(e.to_string()))
+) -> Result<Req, GrpcIngressError> {
+    serde_json::from_slice(bytes).map_err(|e| GrpcIngressError::InvalidArgument(e.to_string()))
 }
 
 /// Default gRPC encode: `Resp` → raw bytes via JSON.
@@ -61,7 +62,7 @@ pub(crate) fn grpc_json_encode<Resp: serde::Serialize>(resp: &Resp) -> Vec<u8> {
 mod tests {
     use super::*;
     use serde::{Deserialize, Serialize};
-    use swe_edge_ingress::{HttpBody, HttpMethod, HttpRequest};
+    use swe_edge_ingress_http::{HttpBody, HttpMethod, HttpRequest};
 
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
     struct CodecPayload {
@@ -139,7 +140,7 @@ mod tests {
             ..post_with_no_body()
         };
         let result = json_decode::<CodecPayload>(&req);
-        assert!(matches!(result, Err(HttpInboundError::InvalidInput(_))));
+        assert!(matches!(result, Err(HttpIngressError::InvalidInput(_))));
     }
 
     #[test]
@@ -166,7 +167,7 @@ mod tests {
     #[test]
     fn test_grpc_json_decode_invalid_bytes_returns_invalid_argument() {
         let result = grpc_json_decode::<CodecPayload>(b"not json");
-        assert!(matches!(result, Err(GrpcInboundError::InvalidArgument(_))));
+        assert!(matches!(result, Err(GrpcIngressError::InvalidArgument(_))));
     }
 
     #[test]

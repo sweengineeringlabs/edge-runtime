@@ -2,16 +2,16 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_grpc::GrpcOutbound;
-use swe_edge_egress_http::HttpOutbound;
+use swe_edge_egress_grpc::GrpcEgress;
+use swe_edge_egress_http::HttpEgress;
 
 use crate::api::egress::{DefaultEgress, Egress};
 
 impl Egress for DefaultEgress {
-    fn http(&self) -> Arc<dyn HttpOutbound> {
+    fn http(&self) -> Arc<dyn HttpEgress> {
         self.http.clone()
     }
-    fn grpc(&self) -> Option<Arc<dyn GrpcOutbound>> {
+    fn grpc(&self) -> Option<Arc<dyn GrpcEgress>> {
         self.grpc.clone()
     }
 }
@@ -22,32 +22,30 @@ mod tests {
     use crate::api::egress::DefaultEgress;
     use futures::future::BoxFuture;
     use std::sync::Arc;
-    use swe_edge_egress_http::{
-        HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamResponse,
-    };
+    use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, HttpStreamResponse};
 
     struct DefaultEgressStub;
-    impl HttpOutbound for DefaultEgressStub {
+    impl HttpEgress for DefaultEgressStub {
         fn send(
             &self,
             _: swe_edge_egress_http::HttpRequest,
-        ) -> BoxFuture<'_, HttpOutboundResult<swe_edge_egress_http::HttpResponse>> {
-            Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) })
+        ) -> BoxFuture<'_, HttpEgressResult<swe_edge_egress_http::HttpResponse>> {
+            Box::pin(async { Err(HttpEgressError::Internal("stub".into())) })
         }
         fn send_stream(
             &self,
             _: swe_edge_egress_http::HttpRequest,
-        ) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
-            Box::pin(async { Err(HttpOutboundError::Internal("stub".into())) })
+        ) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
+            Box::pin(async { Err(HttpEgressError::Internal("stub".into())) })
         }
-        fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+        fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
             Box::pin(async { Ok(()) })
         }
     }
 
     #[test]
     fn test_egress_http_returns_configured_client() {
-        let client: Arc<dyn HttpOutbound> = Arc::new(DefaultEgressStub);
+        let client: Arc<dyn HttpEgress> = Arc::new(DefaultEgressStub);
         let egress = DefaultEgress::new_http(Arc::clone(&client));
         let _ = egress.http();
     }

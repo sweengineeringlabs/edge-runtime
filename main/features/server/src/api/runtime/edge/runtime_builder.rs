@@ -4,12 +4,12 @@ use std::sync::Arc;
 
 use edge_domain::{Handler, HandlerRegistry};
 use edge_proxy::LifecycleMonitor;
-use swe_edge_egress_grpc::GrpcOutbound;
-use swe_edge_egress_http::HttpOutbound;
-use swe_edge_ingress::{
-    GrpcDecodeFn, GrpcEncodeFn, GrpcHandlerAdapter, GrpcHandlerRegistryDispatcher, GrpcInbound,
-    GrpcInboundInterceptor, GrpcInboundInterceptorChain, HttpDecodeFn, HttpEncodeFn,
-    HttpHandlerAdapter, HttpHandlerRegistryDispatcher, HttpInbound, IngressTlsConfig,
+use swe_edge_egress_grpc::GrpcEgress;
+use swe_edge_egress_http::HttpEgress;
+use swe_edge_ingress_http::{
+    GrpcDecodeFn, GrpcEncodeFn, GrpcHandlerAdapter, GrpcHandlerRegistryDispatcher, GrpcIngress,
+    GrpcIngressInterceptor, GrpcIngressInterceptorChain, HttpDecodeFn, HttpEncodeFn,
+    HttpHandlerAdapter, HttpHandlerRegistryDispatcher, HttpIngress, IngressTlsConfig,
 };
 use swe_edge_ingress_verifier::TokenVerifier;
 
@@ -20,17 +20,17 @@ use crate::api::types::RuntimeConfig;
 pub struct RuntimeBuilder {
     pub(crate) config: Option<RuntimeConfig>,
     pub(crate) app_name: Option<String>,
-    pub(crate) http_handler: Option<Arc<dyn HttpInbound>>,
-    pub(crate) grpc_handler: Option<Arc<dyn GrpcInbound>>,
+    pub(crate) http_handler: Option<Arc<dyn HttpIngress>>,
+    pub(crate) grpc_handler: Option<Arc<dyn GrpcIngress>>,
     pub(crate) http_dispatcher: Option<HttpHandlerRegistryDispatcher>,
     pub(crate) grpc_dispatcher: Option<GrpcHandlerRegistryDispatcher>,
     pub(crate) http_tls: Option<IngressTlsConfig>,
     pub(crate) grpc_tls: Option<IngressTlsConfig>,
     pub(crate) http_bearer_verifier: Option<Arc<dyn TokenVerifier>>,
-    pub(crate) grpc_interceptors: GrpcInboundInterceptorChain,
+    pub(crate) grpc_interceptors: GrpcIngressInterceptorChain,
     pub(crate) grpc_allow_unauthenticated: bool,
-    pub(crate) egress_http: Option<Arc<dyn HttpOutbound>>,
-    pub(crate) egress_grpc: Option<Arc<dyn GrpcOutbound>>,
+    pub(crate) egress_http: Option<Arc<dyn HttpEgress>>,
+    pub(crate) egress_grpc: Option<Arc<dyn GrpcEgress>>,
     pub(crate) lifecycle: Option<Arc<dyn LifecycleMonitor>>,
     pub(crate) tracing_config: Option<crate::api::config::TracingConfig>,
     #[cfg(feature = "message-broker")]
@@ -138,7 +138,7 @@ impl RuntimeBuilder {
         self
     }
     /// Append a gRPC inbound interceptor (e.g. auth, authz).
-    pub fn grpc_auth(mut self, interceptor: Arc<dyn GrpcInboundInterceptor>) -> Self {
+    pub fn grpc_auth(mut self, interceptor: Arc<dyn GrpcIngressInterceptor>) -> Self {
         self.grpc_interceptors = self.grpc_interceptors.push(interceptor);
         self
     }
@@ -148,12 +148,12 @@ impl RuntimeBuilder {
         self
     }
     /// Override the default egress HTTP client.
-    pub fn egress_http(mut self, client: Arc<dyn HttpOutbound>) -> Self {
+    pub fn egress_http(mut self, client: Arc<dyn HttpEgress>) -> Self {
         self.egress_http = Some(client);
         self
     }
     /// Attach an egress gRPC client.
-    pub fn egress_grpc(mut self, client: Arc<dyn GrpcOutbound>) -> Self {
+    pub fn egress_grpc(mut self, client: Arc<dyn GrpcEgress>) -> Self {
         self.egress_grpc = Some(client);
         self
     }
@@ -163,12 +163,12 @@ impl RuntimeBuilder {
         self
     }
     /// Supply a pre-built HTTP inbound handler instead of using registered routes.
-    pub fn http_handler(mut self, handler: Arc<dyn HttpInbound>) -> Self {
+    pub fn http_handler(mut self, handler: Arc<dyn HttpIngress>) -> Self {
         self.http_handler = Some(handler);
         self
     }
     /// Supply a pre-built gRPC inbound handler instead of using registered routes.
-    pub fn grpc_handler(mut self, handler: Arc<dyn GrpcInbound>) -> Self {
+    pub fn grpc_handler(mut self, handler: Arc<dyn GrpcIngress>) -> Self {
         self.grpc_handler = Some(handler);
         self
     }
@@ -236,7 +236,7 @@ mod tests {
     /// @covers: egress_http
     #[test]
     fn test_egress_http_sets_field() {
-        let client = Arc::new(swe_edge_egress_http::default_http_outbound().unwrap());
+        let client = Arc::new(swe_edge_egress_http::default_http_egress().unwrap());
         assert!(Runtime::builder().egress_http(client).egress_http.is_some());
     }
 
@@ -266,17 +266,19 @@ mod tests {
     fn test_http_handler_sets_field() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress::{HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse};
+        use swe_edge_ingress_http::{
+            HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse,
+        };
         struct Stub;
-        impl HttpInbound for Stub {
+        impl HttpIngress for Stub {
             fn handle(
                 &self,
                 _: HttpRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
-            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
@@ -291,18 +293,18 @@ mod tests {
     fn test_grpc_handler_sets_field() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress::{
-            GrpcHealthCheck, GrpcInboundError, GrpcInboundResult, GrpcMessageStream, GrpcMetadata,
+        use swe_edge_ingress_http::{
+            GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
             GrpcRequest, GrpcResponse,
         };
         struct Stub;
-        impl GrpcInbound for Stub {
+        impl GrpcIngress for Stub {
             fn handle_unary(
                 &self,
                 _: GrpcRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
             fn handle_stream(
                 &self,
@@ -310,10 +312,10 @@ mod tests {
                 _: GrpcMetadata,
                 _: GrpcMessageStream,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
-            fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
                 Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
             }
         }
@@ -328,23 +330,20 @@ mod tests {
     fn test_egress_grpc_sets_field() {
         use futures::future::BoxFuture;
         use swe_edge_egress_grpc::{
-            GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, GrpcRequest, GrpcResponse,
+            GrpcEgress, GrpcEgressError, GrpcEgressResult, GrpcRequest, GrpcResponse,
             GrpcStatusCode,
         };
         struct Stub;
-        impl GrpcOutbound for Stub {
-            fn call_unary(
-                &self,
-                _: GrpcRequest,
-            ) -> BoxFuture<'_, GrpcOutboundResult<GrpcResponse>> {
+        impl GrpcEgress for Stub {
+            fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcEgressResult<GrpcResponse>> {
                 Box::pin(async {
-                    Err(GrpcOutboundError::Status(
+                    Err(GrpcEgressError::Status(
                         GrpcStatusCode::Unavailable,
                         "stub".into(),
                     ))
                 })
             }
-            fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
+            fn health_check(&self) -> BoxFuture<'_, GrpcEgressResult<()>> {
                 Box::pin(async { Ok(()) })
             }
         }
@@ -424,7 +423,7 @@ mod tests {
     #[test]
     fn test_http_route_with_builds_dispatcher() {
         use edge_domain::{Handler, HandlerError};
-        use swe_edge_ingress::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
+        use swe_edge_ingress_http::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
         struct Echo;
         #[async_trait::async_trait]
         impl Handler<String, String> for Echo {
@@ -448,7 +447,7 @@ mod tests {
     #[test]
     fn test_grpc_route_with_builds_dispatcher() {
         use edge_domain::{Handler, HandlerError};
-        use swe_edge_ingress::{GrpcDecodeFn, GrpcEncodeFn};
+        use swe_edge_ingress_grpc::{GrpcDecodeFn, GrpcEncodeFn};
         struct Echo;
         #[async_trait::async_trait]
         impl Handler<Vec<u8>, Vec<u8>> for Echo {
@@ -472,7 +471,7 @@ mod tests {
     #[tokio::test]
     async fn test_grpc_route_with_registers_handler() {
         use edge_domain::{Handler, HandlerError};
-        use swe_edge_ingress::{GrpcDecodeFn, GrpcEncodeFn};
+        use swe_edge_ingress_grpc::{GrpcDecodeFn, GrpcEncodeFn};
         struct Echo;
         #[async_trait::async_trait]
         impl Handler<Vec<u8>, Vec<u8>> for Echo {
@@ -496,7 +495,7 @@ mod tests {
     #[tokio::test]
     async fn test_http_route_with_registers_handler() {
         use edge_domain::{Handler, HandlerError};
-        use swe_edge_ingress::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
+        use swe_edge_ingress_http::{HttpDecodeFn, HttpEncodeFn, HttpRequest, HttpResponse};
         struct Echo;
         #[async_trait::async_trait]
         impl Handler<String, String> for Echo {

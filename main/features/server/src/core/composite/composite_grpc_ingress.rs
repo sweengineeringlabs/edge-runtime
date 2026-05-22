@@ -1,27 +1,27 @@
-//! `CompositeGrpcInbound` — implementation.
+//! `CompositeGrpcIngress` — implementation.
 
 use std::sync::Arc;
 
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
-use swe_edge_ingress::{
-    GrpcHealthCheck, GrpcInbound, GrpcInboundResult, GrpcMessageStream, GrpcMetadata, GrpcRequest,
+use swe_edge_ingress_http::{
+    GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMessageStream, GrpcMetadata, GrpcRequest,
     GrpcResponse,
 };
 
-pub(crate) use crate::api::composite::composite_grpc_inbound::CompositeGrpcInbound;
+pub(crate) use crate::api::composite::composite_grpc_ingress::CompositeGrpcIngress;
 
 const REFLECTION_PREFIX: &str = "/grpc.reflection.";
 
-impl CompositeGrpcInbound {
-    pub(crate) fn new(primary: Arc<dyn GrpcInbound>, reflection: Arc<dyn GrpcInbound>) -> Self {
+impl CompositeGrpcIngress {
+    pub(crate) fn new(primary: Arc<dyn GrpcIngress>, reflection: Arc<dyn GrpcIngress>) -> Self {
         Self {
             primary,
             reflection,
         }
     }
 
-    fn route(&self, method: &str) -> Arc<dyn GrpcInbound> {
+    fn route(&self, method: &str) -> Arc<dyn GrpcIngress> {
         if method.starts_with(REFLECTION_PREFIX) {
             Arc::clone(&self.reflection)
         } else {
@@ -30,12 +30,12 @@ impl CompositeGrpcInbound {
     }
 }
 
-impl GrpcInbound for CompositeGrpcInbound {
+impl GrpcIngress for CompositeGrpcIngress {
     fn handle_unary(
         &self,
         request: GrpcRequest,
         ctx: RequestContext,
-    ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+    ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
         let handler = self.route(&request.method);
         Box::pin(async move { handler.handle_unary(request, ctx).await })
     }
@@ -46,12 +46,12 @@ impl GrpcInbound for CompositeGrpcInbound {
         metadata: GrpcMetadata,
         messages: GrpcMessageStream,
         ctx: RequestContext,
-    ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
+    ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
         let handler = self.route(&method);
         Box::pin(async move { handler.handle_stream(method, metadata, messages, ctx).await })
     }
 
-    fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
         self.primary.health_check()
     }
 }
@@ -62,27 +62,27 @@ mod tests {
     use futures::future::BoxFuture;
     use parking_lot::Mutex;
     use std::sync::Arc;
-    use swe_edge_ingress::{GrpcInboundError, GrpcMetadata, GrpcRequest};
+    use swe_edge_ingress_grpc::{GrpcIngressError, GrpcMetadata, GrpcRequest};
 
     #[derive(Default)]
-    struct CompositeGrpcInboundTracker {
+    struct CompositeGrpcIngressTracker {
         called: Mutex<bool>,
     }
 
-    impl CompositeGrpcInboundTracker {
+    impl CompositeGrpcIngressTracker {
         fn was_called(&self) -> bool {
             *self.called.lock()
         }
     }
 
-    impl GrpcInbound for CompositeGrpcInboundTracker {
+    impl GrpcIngress for CompositeGrpcIngressTracker {
         fn handle_unary(
             &self,
             _req: GrpcRequest,
             _ctx: RequestContext,
-        ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+        ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
             *self.called.lock() = true;
-            Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
         }
         fn handle_stream(
             &self,
@@ -90,11 +90,11 @@ mod tests {
             _md: GrpcMetadata,
             _ms: GrpcMessageStream,
             _ctx: RequestContext,
-        ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
+        ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
             *self.called.lock() = true;
-            Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
         }
-        fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+        fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
             Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
         }
     }
@@ -105,11 +105,11 @@ mod tests {
 
     #[test]
     fn test_new_creates_composite_with_both_handlers() {
-        let primary = Arc::new(CompositeGrpcInboundTracker::default());
-        let reflection = Arc::new(CompositeGrpcInboundTracker::default());
-        let _composite = CompositeGrpcInbound::new(
-            Arc::clone(&primary) as Arc<dyn GrpcInbound>,
-            Arc::clone(&reflection) as Arc<dyn GrpcInbound>,
+        let primary = Arc::new(CompositeGrpcIngressTracker::default());
+        let reflection = Arc::new(CompositeGrpcIngressTracker::default());
+        let _composite = CompositeGrpcIngress::new(
+            Arc::clone(&primary) as Arc<dyn GrpcIngress>,
+            Arc::clone(&reflection) as Arc<dyn GrpcIngress>,
         );
         assert!(!primary.was_called());
         assert!(!reflection.was_called());
@@ -117,11 +117,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_handle_unary_routes_reflection_path_to_reflection_handler() {
-        let primary = Arc::new(CompositeGrpcInboundTracker::default());
-        let reflection = Arc::new(CompositeGrpcInboundTracker::default());
-        let composite = CompositeGrpcInbound::new(
-            Arc::clone(&primary) as Arc<dyn GrpcInbound>,
-            Arc::clone(&reflection) as Arc<dyn GrpcInbound>,
+        let primary = Arc::new(CompositeGrpcIngressTracker::default());
+        let reflection = Arc::new(CompositeGrpcIngressTracker::default());
+        let composite = CompositeGrpcIngress::new(
+            Arc::clone(&primary) as Arc<dyn GrpcIngress>,
+            Arc::clone(&reflection) as Arc<dyn GrpcIngress>,
         );
         let _ = composite
             .handle_unary(
@@ -141,11 +141,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_handle_unary_routes_non_reflection_path_to_primary_handler() {
-        let primary = Arc::new(CompositeGrpcInboundTracker::default());
-        let reflection = Arc::new(CompositeGrpcInboundTracker::default());
-        let composite = CompositeGrpcInbound::new(
-            Arc::clone(&primary) as Arc<dyn GrpcInbound>,
-            Arc::clone(&reflection) as Arc<dyn GrpcInbound>,
+        let primary = Arc::new(CompositeGrpcIngressTracker::default());
+        let reflection = Arc::new(CompositeGrpcIngressTracker::default());
+        let composite = CompositeGrpcIngress::new(
+            Arc::clone(&primary) as Arc<dyn GrpcIngress>,
+            Arc::clone(&reflection) as Arc<dyn GrpcIngress>,
         );
         let _ = composite
             .handle_unary(req("/my.Service/Method"), RequestContext::unauthenticated())

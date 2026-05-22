@@ -1,9 +1,9 @@
 //! `HttpLoadMonitor` — HTTP inbound load-monitoring wrapper interface.
 
-use swe_edge_ingress::HttpInbound;
+use swe_edge_ingress_http::HttpIngress;
 
 /// Marker supertrait for HTTP inbound handlers that record load metrics.
-pub trait HttpLoadMonitor: HttpInbound {}
+pub trait HttpLoadMonitor: HttpIngress {}
 
 #[cfg(test)]
 mod tests {

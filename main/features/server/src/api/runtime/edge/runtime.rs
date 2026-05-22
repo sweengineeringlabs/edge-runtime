@@ -1,7 +1,7 @@
 //! `Runtime` — zero-size entry-point; use `Runtime::builder()`.
 
 use super::runtime_builder::RuntimeBuilder;
-use swe_edge_ingress::GrpcInboundInterceptorChain;
+use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
 
 /// Entry-point for the edge runtime.
 pub struct Runtime;
@@ -19,7 +19,7 @@ impl Runtime {
             http_tls: None,
             grpc_tls: None,
             http_bearer_verifier: None,
-            grpc_interceptors: GrpcInboundInterceptorChain::new(),
+            grpc_interceptors: GrpcIngressInterceptorChain::new(),
             grpc_allow_unauthenticated: false,
             egress_http: None,
             egress_grpc: None,

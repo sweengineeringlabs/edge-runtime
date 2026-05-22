@@ -3,33 +3,33 @@ use std::time::Instant;
 
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
-use swe_edge_ingress::{
-    GrpcHealthCheck, GrpcInbound, GrpcInboundResult, GrpcMessageStream, GrpcMetadata, GrpcRequest,
+use swe_edge_ingress_http::{
+    GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMessageStream, GrpcMetadata, GrpcRequest,
     GrpcResponse,
 };
 
 use crate::api::monitor::SharedCounters;
 
-/// Wraps a `GrpcInbound` handler; records load metrics on every call.
+/// Wraps a `GrpcIngress` handler; records load metrics on every call.
 pub(crate) struct GrpcLoadMonitor {
-    inner: Arc<dyn GrpcInbound>,
+    inner: Arc<dyn GrpcIngress>,
     counters: SharedCounters,
 }
 
 impl GrpcLoadMonitor {
-    pub(crate) fn new(inner: Arc<dyn GrpcInbound>, counters: SharedCounters) -> Self {
+    pub(crate) fn new(inner: Arc<dyn GrpcIngress>, counters: SharedCounters) -> Self {
         Self { inner, counters }
     }
 }
 
 impl crate::api::monitor::GrpcLoadMonitor for GrpcLoadMonitor {}
 
-impl GrpcInbound for GrpcLoadMonitor {
+impl GrpcIngress for GrpcLoadMonitor {
     fn handle_unary(
         &self,
         request: GrpcRequest,
         ctx: RequestContext,
-    ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
+    ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
         self.counters.on_start();
         let counters = Arc::clone(&self.counters);
         let fut = self.inner.handle_unary(request, ctx);
@@ -47,7 +47,7 @@ impl GrpcInbound for GrpcLoadMonitor {
         metadata: GrpcMetadata,
         messages: GrpcMessageStream,
         ctx: RequestContext,
-    ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
+    ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
         self.counters.on_start();
         let counters = Arc::clone(&self.counters);
         let fut = self.inner.handle_stream(method, metadata, messages, ctx);
@@ -59,7 +59,7 @@ impl GrpcInbound for GrpcLoadMonitor {
         })
     }
 
-    fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
         self.inner.health_check()
     }
 }
@@ -69,7 +69,7 @@ mod tests {
     use super::*;
     use crate::api::monitor::TrafficCounters;
     use std::sync::Arc;
-    use swe_edge_ingress::GrpcInboundError;
+    use swe_edge_ingress_grpc::GrpcIngressError;
     use swe_observ_metrics::create_local_metrics_backend;
 
     fn counters() -> SharedCounters {
@@ -81,13 +81,13 @@ mod tests {
     #[test]
     fn test_grpc_load_monitor_new_does_not_panic() {
         struct GrpcLoadMonitorStub;
-        impl GrpcInbound for GrpcLoadMonitorStub {
+        impl GrpcIngress for GrpcLoadMonitorStub {
             fn handle_unary(
                 &self,
                 _: GrpcRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
             fn handle_stream(
                 &self,
@@ -95,10 +95,10 @@ mod tests {
                 _: GrpcMetadata,
                 _: GrpcMessageStream,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
-            fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
                 Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
             }
         }

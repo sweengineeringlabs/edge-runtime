@@ -59,21 +59,21 @@ fn test_ingress_verifier_wired_via_bearer_auth() {
 fn test_egress_grpc_wired_via_builder() {
     use futures::future::BoxFuture;
     use swe_edge_egress_grpc::{
-        GrpcOutboundError, GrpcOutboundResult, GrpcRequest, GrpcResponse, GrpcStatusCode,
+        GrpcEgressError, GrpcEgressResult, GrpcRequest, GrpcResponse, GrpcStatusCode,
     };
-    use swe_edge_runtime::GrpcOutbound;
+    use swe_edge_runtime::GrpcEgress;
 
     struct StubGrpc;
-    impl GrpcOutbound for StubGrpc {
-        fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcOutboundResult<GrpcResponse>> {
+    impl GrpcEgress for StubGrpc {
+        fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcEgressResult<GrpcResponse>> {
             Box::pin(async {
-                Err(GrpcOutboundError::Status(
+                Err(GrpcEgressError::Status(
                     GrpcStatusCode::Unavailable,
                     "stub".into(),
                 ))
             })
         }
-        fn health_check(&self) -> BoxFuture<'_, GrpcOutboundResult<()>> {
+        fn health_check(&self) -> BoxFuture<'_, GrpcEgressResult<()>> {
             Box::pin(async { Ok(()) })
         }
     }

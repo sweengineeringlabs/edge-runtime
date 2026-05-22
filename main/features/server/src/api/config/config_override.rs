@@ -6,7 +6,7 @@ use crate::api::types::RuntimeConfig;
 use serde::Deserialize;
 use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;
-use swe_edge_ingress::IngressTlsConfig;
+use swe_edge_ingress_http::IngressTlsConfig;
 use swe_edge_ingress_verifier::JwtConfig;
 use swe_edge_observ_config::ObservabilityConfig;
 

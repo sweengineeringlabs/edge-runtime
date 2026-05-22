@@ -19,29 +19,27 @@ pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
-pub use swe_edge_ingress::{
-    AuthorizationInterceptor, GrpcInboundInterceptor, GrpcInboundInterceptorChain,
+pub use swe_edge_ingress_grpc::{
+    AuthorizationInterceptor, GrpcIngressInterceptor, GrpcIngressInterceptorChain,
 };
 pub use swe_edge_ingress_verifier::{
     Claims, JwtConfig, JwtKey, JwtVerifier, TokenVerifier, VerifierError,
 };
 
 // ── Ingress surface (handlers + request/response types) ───────────────────────
-pub use swe_edge_ingress::{
-    GrpcDecodeFn, GrpcEncodeFn, GrpcHealthCheck, GrpcInboundError, GrpcInboundResult,
-    GrpcMessageStream, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode, Handler,
-    HandlerError, HttpAuth, HttpBody, HttpConfig, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck,
-    HttpInboundError, HttpInboundResult, HttpMethod, HttpRequest, HttpResponse, IngressTlsConfig,
-    RequestContext,
+pub use edge_domain::{Handler, HandlerError};
+pub use swe_edge_ingress_grpc::{
+    GrpcDecodeFn, GrpcEncodeFn, GrpcHealthCheck, GrpcIngressError, GrpcIngressResult,
+    GrpcMessageStream, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode,
+};
+pub use swe_edge_ingress_http::{
+    HttpAuth, HttpBody, HttpConfig, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngressError,
+    HttpIngressResult, HttpMethod, HttpRequest, HttpResponse, IngressTlsConfig, RequestContext,
 };
 
 // ── Egress surface (outbound clients) ─────────────────────────────────────────
-pub use swe_edge_egress_grpc::{
-    GrpcOutbound, GrpcOutboundError, GrpcOutboundResult, TonicGrpcClient,
-};
-pub use swe_edge_egress_http::{
-    HttpOutbound, HttpOutboundError, HttpOutboundResult, HttpStreamResponse,
-};
+pub use swe_edge_egress_grpc::{GrpcEgress, GrpcEgressError, GrpcEgressResult, TonicGrpcClient};
+pub use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, HttpStreamResponse};
 
 // ── Lifecycle / health ────────────────────────────────────────────────────────
 pub use edge_proxy::{new_null_lifecycle_monitor, HealthReport, LifecycleMonitor};

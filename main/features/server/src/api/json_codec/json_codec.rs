@@ -6,16 +6,17 @@
 /// Marker trait for types that can be used as JSON codecs.
 pub trait JsonCodec: Send + Sync {}
 
-use swe_edge_ingress::{GrpcInboundError, HttpInboundError, HttpRequest, HttpResponse};
+use swe_edge_ingress_grpc::GrpcIngressError;
+use swe_edge_ingress_http::{HttpIngressError, HttpRequest, HttpResponse};
 
 /// Default JSON decode: deserialises the HTTP request body into `Req`.
-pub(crate) type JsonHttpDecodeFn<Req> = fn(&HttpRequest) -> Result<Req, HttpInboundError>;
+pub(crate) type JsonHttpDecodeFn<Req> = fn(&HttpRequest) -> Result<Req, HttpIngressError>;
 
 /// Default JSON encode: serialises `Resp` into a `200 application/json` response.
 pub(crate) type JsonHttpEncodeFn<Resp> = fn(Resp) -> HttpResponse;
 
 /// Default gRPC JSON decode: deserialises raw bytes into `Req`.
-pub(crate) type JsonGrpcDecodeFn<Req> = fn(&[u8]) -> Result<Req, GrpcInboundError>;
+pub(crate) type JsonGrpcDecodeFn<Req> = fn(&[u8]) -> Result<Req, GrpcIngressError>;
 
 /// Default gRPC JSON encode: serialises `Resp` to raw bytes.
 pub(crate) type JsonGrpcEncodeFn<Resp> = fn(&Resp) -> Vec<u8>;
@@ -26,13 +27,13 @@ mod tests {
 
     #[test]
     fn test_json_http_decode_fn_type_alias_is_well_formed() {
-        use swe_edge_ingress::HttpRequest;
+        use swe_edge_ingress_http::HttpRequest;
         fn _accepts<Req>(_f: JsonHttpDecodeFn<Req>) {}
-        fn sample_decode(req: &HttpRequest) -> Result<String, HttpInboundError> {
+        fn sample_decode(req: &HttpRequest) -> Result<String, HttpIngressError> {
             req.body
                 .as_ref()
                 .map(|_| "ok".to_string())
-                .ok_or_else(|| HttpInboundError::InvalidInput("empty".into()))
+                .ok_or_else(|| HttpIngressError::InvalidInput("empty".into()))
         }
         _accepts(sample_decode);
     }
@@ -40,10 +41,10 @@ mod tests {
     #[test]
     fn test_json_grpc_decode_fn_type_alias_is_well_formed() {
         fn _accepts<Req>(_f: JsonGrpcDecodeFn<Req>) {}
-        fn sample_decode(b: &[u8]) -> Result<String, GrpcInboundError> {
+        fn sample_decode(b: &[u8]) -> Result<String, GrpcIngressError> {
             std::str::from_utf8(b)
                 .map(|s| s.to_string())
-                .map_err(|e| GrpcInboundError::InvalidArgument(e.to_string()))
+                .map_err(|e| GrpcIngressError::InvalidArgument(e.to_string()))
         }
         _accepts(sample_decode);
     }

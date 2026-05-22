@@ -3,32 +3,32 @@ use std::time::Instant;
 
 use edge_domain::RequestContext;
 use futures::future::BoxFuture;
-use swe_edge_ingress::{
-    HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse,
+use swe_edge_ingress_http::{
+    HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse,
 };
 
 use crate::api::monitor::SharedCounters;
 
-/// Wraps an `HttpInbound` handler; records load metrics on every request.
+/// Wraps an `HttpIngress` handler; records load metrics on every request.
 pub(crate) struct HttpLoadMonitor {
-    inner: Arc<dyn HttpInbound>,
+    inner: Arc<dyn HttpIngress>,
     counters: SharedCounters,
 }
 
 impl HttpLoadMonitor {
-    pub(crate) fn new(inner: Arc<dyn HttpInbound>, counters: SharedCounters) -> Self {
+    pub(crate) fn new(inner: Arc<dyn HttpIngress>, counters: SharedCounters) -> Self {
         Self { inner, counters }
     }
 }
 
 impl crate::api::monitor::HttpLoadMonitor for HttpLoadMonitor {}
 
-impl HttpInbound for HttpLoadMonitor {
+impl HttpIngress for HttpLoadMonitor {
     fn handle(
         &self,
         request: HttpRequest,
         ctx: RequestContext,
-    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         self.counters.on_start();
         let counters = Arc::clone(&self.counters);
         let fut = self.inner.handle(request, ctx);
@@ -40,7 +40,7 @@ impl HttpInbound for HttpLoadMonitor {
         })
     }
 
-    fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
         self.inner.health_check()
     }
 }
@@ -62,15 +62,15 @@ mod tests {
     #[test]
     fn test_http_load_monitor_new_does_not_panic() {
         struct HttpLoadMonitorStub;
-        impl HttpInbound for HttpLoadMonitorStub {
+        impl HttpIngress for HttpLoadMonitorStub {
             fn handle(
                 &self,
                 _: HttpRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
-            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
@@ -80,15 +80,15 @@ mod tests {
     #[tokio::test]
     async fn test_http_monitor_handle_records_request_via_provider() {
         struct HttpLoadMonitorOk;
-        impl HttpInbound for HttpLoadMonitorOk {
+        impl HttpIngress for HttpLoadMonitorOk {
             fn handle(
                 &self,
                 _: HttpRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
-            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }

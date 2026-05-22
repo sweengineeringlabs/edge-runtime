@@ -1,24 +1,25 @@
 //! `DefaultIngress` — holds ingress adapters by `Arc`.
 
 use std::sync::Arc;
-use swe_edge_ingress::{GrpcInbound, HttpInbound};
+use swe_edge_ingress_grpc::GrpcIngress;
+use swe_edge_ingress_http::HttpIngress;
 
 /// Default [`Ingress`] implementation — holds optional ingress adapters by `Arc`.
 pub struct DefaultIngress {
-    pub(crate) http: Option<Arc<dyn HttpInbound>>,
-    pub(crate) grpc: Option<Arc<dyn GrpcInbound>>,
+    pub(crate) http: Option<Arc<dyn HttpIngress>>,
+    pub(crate) grpc: Option<Arc<dyn GrpcIngress>>,
 }
 
 impl DefaultIngress {
     /// Start with HTTP as the sole transport.
-    pub fn new_http(http: Arc<dyn HttpInbound>) -> Self {
+    pub fn new_http(http: Arc<dyn HttpIngress>) -> Self {
         Self {
             http: Some(http),
             grpc: None,
         }
     }
     /// Start with gRPC as the sole transport.
-    pub fn new_grpc(grpc: Arc<dyn GrpcInbound>) -> Self {
+    pub fn new_grpc(grpc: Arc<dyn GrpcIngress>) -> Self {
         Self {
             http: None,
             grpc: Some(grpc),
@@ -32,22 +33,22 @@ impl DefaultIngress {
         }
     }
     /// Add (or replace) the HTTP transport.
-    pub fn with_http(mut self, http: Arc<dyn HttpInbound>) -> Self {
+    pub fn with_http(mut self, http: Arc<dyn HttpIngress>) -> Self {
         self.http = Some(http);
         self
     }
     /// Add (or replace) the gRPC transport.
-    pub fn with_grpc(mut self, grpc: Arc<dyn GrpcInbound>) -> Self {
+    pub fn with_grpc(mut self, grpc: Arc<dyn GrpcIngress>) -> Self {
         self.grpc = Some(grpc);
         self
     }
 }
 
 impl crate::api::ingress::Ingress for DefaultIngress {
-    fn http(&self) -> Option<Arc<dyn HttpInbound>> {
+    fn http(&self) -> Option<Arc<dyn HttpIngress>> {
         self.http.clone()
     }
-    fn grpc(&self) -> Option<Arc<dyn GrpcInbound>> {
+    fn grpc(&self) -> Option<Arc<dyn GrpcIngress>> {
         self.grpc.clone()
     }
 }
@@ -68,17 +69,19 @@ mod tests {
     fn test_new_http_sets_http_transport() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress::{HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse};
+        use swe_edge_ingress_http::{
+            HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse,
+        };
         struct Stub;
-        impl HttpInbound for Stub {
+        impl HttpIngress for Stub {
             fn handle(
                 &self,
                 _: HttpRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
-            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
@@ -91,17 +94,19 @@ mod tests {
     fn test_with_http_adds_transport() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress::{HttpHealthCheck, HttpInboundResult, HttpRequest, HttpResponse};
+        use swe_edge_ingress_http::{
+            HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse,
+        };
         struct Stub;
-        impl HttpInbound for Stub {
+        impl HttpIngress for Stub {
             fn handle(
                 &self,
                 _: HttpRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+            ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
                 Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
             }
-            fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
@@ -114,18 +119,18 @@ mod tests {
     fn test_new_grpc_sets_grpc_transport() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress::{
-            GrpcHealthCheck, GrpcInboundError, GrpcInboundResult, GrpcMessageStream, GrpcMetadata,
+        use swe_edge_ingress_http::{
+            GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
             GrpcRequest, GrpcResponse,
         };
         struct Stub;
-        impl GrpcInbound for Stub {
+        impl GrpcIngress for Stub {
             fn handle_unary(
                 &self,
                 _: GrpcRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
             fn handle_stream(
                 &self,
@@ -133,10 +138,10 @@ mod tests {
                 _: GrpcMetadata,
                 _: GrpcMessageStream,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
-            fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
                 Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
             }
         }
@@ -149,18 +154,18 @@ mod tests {
     fn test_with_grpc_adds_transport() {
         use edge_domain::RequestContext;
         use futures::future::BoxFuture;
-        use swe_edge_ingress::{
-            GrpcHealthCheck, GrpcInboundError, GrpcInboundResult, GrpcMessageStream, GrpcMetadata,
+        use swe_edge_ingress_http::{
+            GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
             GrpcRequest, GrpcResponse,
         };
         struct Stub;
-        impl GrpcInbound for Stub {
+        impl GrpcIngress for Stub {
             fn handle_unary(
                 &self,
                 _: GrpcRequest,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<GrpcResponse>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
             fn handle_stream(
                 &self,
@@ -168,10 +173,10 @@ mod tests {
                 _: GrpcMetadata,
                 _: GrpcMessageStream,
                 _: RequestContext,
-            ) -> BoxFuture<'_, GrpcInboundResult<(GrpcMessageStream, GrpcMetadata)>> {
-                Box::pin(async { Err(GrpcInboundError::Unimplemented("stub".into())) })
+            ) -> BoxFuture<'_, GrpcIngressResult<(GrpcMessageStream, GrpcMetadata)>> {
+                Box::pin(async { Err(GrpcIngressError::Unimplemented("stub".into())) })
             }
-            fn health_check(&self) -> BoxFuture<'_, GrpcInboundResult<GrpcHealthCheck>> {
+            fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
                 Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
             }
         }

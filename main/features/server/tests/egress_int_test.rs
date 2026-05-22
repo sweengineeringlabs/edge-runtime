@@ -4,16 +4,16 @@
 use futures::future::BoxFuture;
 use std::sync::Arc;
 use swe_edge_egress_http::{
-    HttpOutbound, HttpOutboundResult, HttpRequest, HttpResponse, HttpStreamResponse,
+    HttpEgress, HttpEgressResult, HttpRequest, HttpResponse, HttpStreamResponse,
 };
 use swe_edge_runtime::{DefaultEgress, Egress};
 
 struct StubHttp;
-impl HttpOutbound for StubHttp {
-    fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpResponse>> {
+impl HttpEgress for StubHttp {
+    fn send(&self, _: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpResponse>> {
         Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
     }
-    fn send_stream(&self, _: HttpRequest) -> BoxFuture<'_, HttpOutboundResult<HttpStreamResponse>> {
+    fn send_stream(&self, _: HttpRequest) -> BoxFuture<'_, HttpEgressResult<HttpStreamResponse>> {
         Box::pin(async {
             Ok(HttpStreamResponse {
                 status: 200,
@@ -22,7 +22,7 @@ impl HttpOutbound for StubHttp {
             })
         })
     }
-    fn health_check(&self) -> BoxFuture<'_, HttpOutboundResult<()>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpEgressResult<()>> {
         Box::pin(async { Ok(()) })
     }
 }

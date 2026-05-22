@@ -40,7 +40,8 @@ pub async fn run(
     egress: Arc<dyn Egress>,
     lifecycle: Arc<dyn LifecycleMonitor>,
 ) -> RuntimeResult<()> {
-    use swe_edge_ingress::{AxumHttpServer, TonicGrpcServer};
+    use swe_edge_ingress_grpc::TonicGrpcServer;
+    use swe_edge_ingress_http::AxumHttpServer;
     use tokio::sync::oneshot;
 
     let timeout_secs = config.shutdown_timeout_secs;
@@ -127,8 +128,8 @@ mod tests {
         use crate::api::ingress::DefaultIngress;
         use crate::api::types::RuntimeConfig;
         use edge_proxy::new_null_lifecycle_monitor;
-        use swe_edge_egress_http::default_http_outbound;
-        let http = Arc::new(default_http_outbound().expect("default http outbound"));
+        use swe_edge_egress_http::default_http_egress;
+        let http = Arc::new(default_http_egress().expect("default http outbound"));
         let input = Arc::new(DefaultIngress::empty());
         let output = Arc::new(DefaultEgress::new_http(http));
         let lc = new_null_lifecycle_monitor();
@@ -140,9 +141,9 @@ mod tests {
     async fn test_run_fails_when_no_ingress_configured() {
         use crate::api::{egress::DefaultEgress, error::RuntimeError, ingress::DefaultIngress};
         use edge_proxy::new_null_lifecycle_monitor;
-        use swe_edge_egress_http::default_http_outbound;
+        use swe_edge_egress_http::default_http_egress;
 
-        let http = Arc::new(default_http_outbound().expect("http outbound"));
+        let http = Arc::new(default_http_egress().expect("http outbound"));
         let input = Arc::new(DefaultIngress::empty());
         let output = Arc::new(DefaultEgress::new_http(http));
         let lc = new_null_lifecycle_monitor();

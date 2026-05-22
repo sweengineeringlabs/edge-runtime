@@ -3,20 +3,20 @@
 use futures::future::BoxFuture;
 use std::sync::Arc;
 use swe_edge_ingress::{
-    HttpHealthCheck, HttpInbound, HttpInboundResult, HttpRequest, HttpResponse, RequestContext,
+    HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
 };
 use swe_edge_runtime::{DefaultIngress, Ingress};
 
 struct Stub;
-impl HttpInbound for Stub {
+impl HttpIngress for Stub {
     fn handle(
         &self,
         _: HttpRequest,
         _ctx: RequestContext,
-    ) -> BoxFuture<'_, HttpInboundResult<HttpResponse>> {
+    ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
     }
-    fn health_check(&self) -> BoxFuture<'_, HttpInboundResult<HttpHealthCheck>> {
+    fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
         Box::pin(async { Ok(HttpHealthCheck::healthy()) })
     }
 }
