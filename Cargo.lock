@@ -688,10 +688,10 @@ dependencies = [
 [[package]]
 name = "edge-proxy"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?rev=7a64c48#7a64c48a5f4b5b098f60490f646df9cc466fd0b3"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
+ "async-trait",
  "edge-domain",
- "futures",
  "parking_lot",
  "serde",
  "thiserror 2.0.18",
