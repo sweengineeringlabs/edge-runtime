@@ -16,6 +16,7 @@ pub use crate::api::task_queue::TaskHandle;
 pub use crate::api::task_queue::TaskId;
 pub use crate::api::task_queue::TaskQueue;
 pub use crate::api::traits::Validator;
+pub use edge_message_broker_svc::broker_from_config;
 
 #[cfg(feature = "tokio-rt")]
 pub use edge_message_broker_svc::in_memory_broker;

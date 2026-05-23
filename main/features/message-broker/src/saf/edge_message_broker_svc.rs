@@ -1,13 +1,60 @@
 //! SAF — message broker public factory surface.
 
+use crate::api::broker::message_broker::MessageBroker;
+use serde::{Deserialize, Serialize};
 #[cfg(feature = "nats")]
 use crate::api::broker::broker_error::BrokerError;
-#[cfg(any(feature = "tokio-rt", feature = "nats"))]
-use crate::api::broker::message_broker::MessageBroker;
 #[cfg(feature = "tokio-rt")]
 use crate::spi::InMemoryMessageBroker;
 #[cfg(feature = "nats")]
 use crate::spi::NatsMessageBroker;
+
+/// Internal: configuration loaded from [message_broker] section of application.toml.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default)]
+struct BrokerConfig {
+    backend: String,
+    nats_url: String,
+    kafka_brokers: String,
+}
+
+impl Default for BrokerConfig {
+    fn default() -> Self {
+        Self {
+            backend: "inmemory".into(),
+            nats_url: "nats://localhost:4222".into(),
+            kafka_brokers: "localhost:9092".into(),
+        }
+    }
+}
+
+/// Instantiate a message broker from configuration loaded from application.toml.
+///
+/// Reads `[message_broker]` section and selects backend based on `backend` field.
+///
+/// # Errors
+///
+/// Returns error if the selected backend cannot be initialized (e.g., NATS connection fails).
+pub async fn broker_from_config() -> Result<Box<dyn MessageBroker>, Box<dyn std::error::Error>> {
+    let cfg: BrokerConfig = swe_edge_config::load_section("message_broker")?;
+    match cfg.backend.as_str() {
+        #[cfg(feature = "tokio-rt")]
+        "inmemory" => Ok(Box::new(InMemoryMessageBroker::new())),
+        #[cfg(not(feature = "tokio-rt"))]
+        "inmemory" => Err("in-memory broker requires tokio-rt feature".into()),
+
+        #[cfg(feature = "nats")]
+        "nats" => {
+            let broker = NatsMessageBroker::connect(&cfg.nats_url).await?;
+            Ok(Box::new(broker))
+        }
+        #[cfg(not(feature = "nats"))]
+        "nats" => Err("NATS broker requires nats feature".into()),
+
+        "kafka" => Err("Kafka backend not yet implemented".into()),
+        other => Err(format!("Unknown broker backend: {}", other).into()),
+    }
+}
 
 /// Construct an in-memory broker backed by [`tokio::sync::broadcast`].
 ///
