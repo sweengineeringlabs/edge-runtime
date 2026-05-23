@@ -24,15 +24,15 @@ tokio-rt = ["dep:tokio", "dep:serde"]
 
 [dependencies]
 thiserror = "2"
-tracing.workspace = true
-tokio   = { workspace = true, features = ["rt-multi-thread", "signal", "sync", "time", "macros"], optional = true }
-serde   = { workspace = true, optional = true }
+tracing   = { version = "0.1", default-features = false }
+tokio     = { version = "1.0", features = ["rt-multi-thread", "signal", "sync", "time", "macros"], optional = true }
+serde     = { version = "1.0", features = ["derive"], optional = true }
 
 [dev-dependencies]
-async-trait.workspace = true
+async-trait = "0.1"
 edge-domain = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
 toml        = "0.8"
-futures.workspace = true
+futures     = "0.3"
 
 [[test]]
 name = "validator_int_test"
