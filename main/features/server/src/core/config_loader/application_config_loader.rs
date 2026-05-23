@@ -1,4 +1,4 @@
-//! DefaultConfigLoader — loads RuntimeConfig from the layered chain.
+//! ApplicationConfigLoader — loads RuntimeConfig from the layered chain.
 
 use std::env;
 use std::path::{Path, PathBuf};
@@ -6,9 +6,6 @@ use std::path::{Path, PathBuf};
 use crate::api::config::{ConfigError, ConfigOverride};
 use crate::api::config_loader::ConfigLoader;
 use crate::api::types::RuntimeConfig;
-
-/// Shipped defaults embedded at compile time.
-const DEFAULT_TOML: &str = include_str!("../../../../../config/default.toml");
 
 /// Refuse to read a config file larger than this — prevents accidental or
 /// deliberate memory exhaustion via an oversized TOML blob.
@@ -20,14 +17,14 @@ const MAX_CONFIG_FILE_BYTES: u64 = 1_048_576; // 1 MiB
 /// lowest to highest priority — each directory's `application.toml`
 /// (and `tenants/<id>.toml`) overlays the previous result.
 ///
-/// Construct via [`DefaultConfigLoader::new`] (env/cwd default),
-/// [`DefaultConfigLoader::with_dir`] (single explicit path), or
-/// [`DefaultConfigLoader::xdg`] (full XDG Base Directory chain).
-pub(crate) struct DefaultConfigLoader {
+/// Construct via [`ApplicationConfigLoader::new`] (env/cwd default),
+/// [`ApplicationConfigLoader::with_dir`] (single explicit path), or
+/// [`ApplicationConfigLoader::xdg`] (full XDG Base Directory chain).
+pub(crate) struct ApplicationConfigLoader {
     config_dirs: Vec<PathBuf>,
 }
 
-impl DefaultConfigLoader {
+impl ApplicationConfigLoader {
     /// Resolve config directory from `SWE_EDGE_CONFIG_DIR` env var,
     /// falling back to `config/` relative to the working directory.
     pub(crate) fn new() -> Self {
@@ -82,7 +79,7 @@ impl DefaultConfigLoader {
     }
 
     fn base(&self) -> Result<RuntimeConfig, ConfigError> {
-        let mut cfg = ConfigOverride::from_str(DEFAULT_TOML)?.apply_to(RuntimeConfig::default());
+        let mut cfg = RuntimeConfig::default();
         for dir in &self.config_dirs {
             cfg = self.apply_file_if_exists(cfg, &dir.join("application.toml"))?;
         }
@@ -154,7 +151,7 @@ fn merge_toml(base: toml::Value, overlay: toml::Value) -> toml::Value {
     }
 }
 
-impl DefaultConfigLoader {
+impl ApplicationConfigLoader {
     /// Load an arbitrary TOML section from the layered config chain.
     ///
     /// `key` is a dotted path into the config tree, e.g.
@@ -175,12 +172,8 @@ impl DefaultConfigLoader {
     {
         let mut merged = toml::Value::Table(toml::map::Map::new());
 
-        // Shipped defaults.
-        let default_val: toml::Value =
-            toml::from_str(DEFAULT_TOML).map_err(|e| ConfigError::Parse(e.to_string()))?;
-        if let Some(section) = extract_dotted(&default_val, key) {
-            merged = merge_toml(merged, section);
-        }
+        // Shipped defaults loaded from config directory.
+        // (No embedded defaults; rely on config files in application.toml)
 
         // Each application.toml in priority order.
         for dir in &self.config_dirs {
@@ -248,9 +241,9 @@ fn validate_tenant_id(id: &str) -> Result<(), ConfigError> {
     Ok(())
 }
 
-impl crate::api::config_loader::DefaultConfigLoader for DefaultConfigLoader {}
+impl crate::api::config_loader::ApplicationConfigLoader for ApplicationConfigLoader {}
 
-impl ConfigLoader for DefaultConfigLoader {
+impl ConfigLoader for ApplicationConfigLoader {
     fn load(&self) -> Result<RuntimeConfig, ConfigError> {
         Self::apply_env(self.base()?)
     }
@@ -276,8 +269,8 @@ mod tests {
     use std::io::Write;
     use tempfile::TempDir;
 
-    fn loader_in(dir: &Path) -> DefaultConfigLoader {
-        DefaultConfigLoader::with_dir(dir)
+    fn loader_in(dir: &Path) -> ApplicationConfigLoader {
+        ApplicationConfigLoader::with_dir(dir)
     }
 
     fn write(dir: &Path, name: &str, content: &str) {
@@ -293,13 +286,13 @@ mod tests {
 
     #[test]
     fn test_new_uses_default_config_dir() {
-        let l = DefaultConfigLoader::new();
+        let l = ApplicationConfigLoader::new();
         assert_eq!(l.config_dirs, vec![PathBuf::from("config")]);
     }
 
     #[test]
     fn test_with_dir_uses_supplied_path() {
-        let l = DefaultConfigLoader::with_dir("/etc/myapp/edge");
+        let l = ApplicationConfigLoader::with_dir("/etc/myapp/edge");
         assert_eq!(l.config_dirs, vec![PathBuf::from("/etc/myapp/edge")]);
     }
 
@@ -387,7 +380,7 @@ mod tests {
             "application.toml",
             "service_name = \"user\"",
         );
-        let loader = DefaultConfigLoader {
+        let loader = ApplicationConfigLoader {
             config_dirs: vec![sys_dir.path().to_path_buf(), user_dir.path().to_path_buf()],
         };
         let cfg = loader.load().unwrap();
@@ -408,7 +401,7 @@ mod tests {
             "application.toml",
             "service_name = \"user\"",
         );
-        let loader = DefaultConfigLoader {
+        let loader = ApplicationConfigLoader {
             config_dirs: vec![sys_dir.path().to_path_buf(), user_dir.path().to_path_buf()],
         };
         let cfg = loader.load().unwrap();
@@ -426,7 +419,7 @@ mod tests {
             "tenants/corp.toml",
             "service_name = \"corp\"",
         );
-        let loader = DefaultConfigLoader {
+        let loader = ApplicationConfigLoader {
             config_dirs: vec![sys_dir.path().to_path_buf(), user_dir.path().to_path_buf()],
         };
         let cfg = loader.load_for_tenant("corp").unwrap();
@@ -516,7 +509,7 @@ mod tests {
 
     #[derive(Debug, Default, serde::Deserialize, PartialEq)]
     #[serde(default)]
-    struct DefaultConfigLoaderSection {
+    struct ApplicationConfigLoaderSection {
         value: String,
         count: u32,
     }
@@ -529,7 +522,7 @@ mod tests {
             "application.toml",
             "[my_section]\nvalue = \"hello\"\ncount = 7",
         );
-        let section: DefaultConfigLoaderSection =
+        let section: ApplicationConfigLoaderSection =
             loader_in(dir.path()).load_section("my_section").unwrap();
         assert_eq!(section.value, "hello");
         assert_eq!(section.count, 7);
@@ -538,10 +531,10 @@ mod tests {
     #[test]
     fn test_load_section_falls_back_to_default_when_key_absent() {
         let dir = TempDir::new().unwrap();
-        let section: DefaultConfigLoaderSection = loader_in(dir.path())
+        let section: ApplicationConfigLoaderSection = loader_in(dir.path())
             .load_section("nonexistent_section")
             .unwrap();
-        assert_eq!(section, DefaultConfigLoaderSection::default());
+        assert_eq!(section, ApplicationConfigLoaderSection::default());
     }
 
     #[test]
@@ -550,10 +543,10 @@ mod tests {
         let high = TempDir::new().unwrap();
         write(low.path(), "application.toml", "[s]\nvalue = \"low\"");
         write(high.path(), "application.toml", "[s]\nvalue = \"high\"");
-        let loader = DefaultConfigLoader {
+        let loader = ApplicationConfigLoader {
             config_dirs: vec![low.path().to_path_buf(), high.path().to_path_buf()],
         };
-        let section: DefaultConfigLoaderSection = loader.load_section("s").unwrap();
+        let section: ApplicationConfigLoaderSection = loader.load_section("s").unwrap();
         assert_eq!(section.value, "high");
     }
 
@@ -565,7 +558,7 @@ mod tests {
             "application.toml",
             "[outer.inner]\nvalue = \"deep\"\ncount = 3",
         );
-        let section: DefaultConfigLoaderSection =
+        let section: ApplicationConfigLoaderSection =
             loader_in(dir.path()).load_section("outer.inner").unwrap();
         assert_eq!(section.value, "deep");
         assert_eq!(section.count, 3);

@@ -21,7 +21,7 @@ use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::ingress::{DefaultIngress, Ingress};
 use crate::api::monitor::{SharedCounters, TrafficCounters};
 use crate::api::runtime::RuntimeBuilder;
-use crate::core::config_loader::DefaultConfigLoader;
+use crate::core::config_loader::ApplicationConfigLoader;
 use crate::core::metrics_handler::MetricsHandler;
 use crate::core::monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
 use crate::core::runner::run_until_signal;
@@ -39,7 +39,7 @@ impl RuntimeBuilder {
             Some(c) => c,
             None => {
                 let name = self.app_name.as_deref().unwrap_or(DEFAULT_APP_NAME);
-                DefaultConfigLoader::xdg(name)
+                ApplicationConfigLoader::xdg(name)
                     .load()
                     .map_err(|e| RuntimeError::StartFailed(e.to_string()))?
             }

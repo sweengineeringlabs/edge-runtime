@@ -10,5 +10,5 @@ mod runtime;
 mod runtime_manager;
 pub(crate) mod validator;
 
-pub(crate) use config_loader::DefaultConfigLoader;
+pub(crate) use config_loader::ApplicationConfigLoader;
 pub(crate) use runtime_manager::DefaultRuntimeManager;

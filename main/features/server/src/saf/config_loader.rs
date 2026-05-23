@@ -6,7 +6,7 @@ use crate::api::error::RuntimeError;
 use crate::api::traits::Validator;
 use crate::api::types::RuntimeConfig;
 use crate::core::validator::ConfigValidator;
-use crate::core::DefaultConfigLoader;
+use crate::core::ApplicationConfigLoader;
 
 /// Load config using the default layered chain
 /// (`default.toml` → `application.toml` → env vars).
@@ -16,7 +16,7 @@ use crate::core::DefaultConfigLoader;
 /// Consumer apps should prefer [`load_config_from`] to supply their
 /// own path explicitly.
 pub fn load_config() -> Result<RuntimeConfig, ConfigError> {
-    DefaultConfigLoader::new().load()
+    ApplicationConfigLoader::new().load()
 }
 
 /// Load config from an explicit directory.
@@ -24,7 +24,7 @@ pub fn load_config() -> Result<RuntimeConfig, ConfigError> {
 /// Identical layer chain to [`load_config`] but reads
 /// `<dir>/application.toml` instead of relying on env or cwd.
 pub fn load_config_from(dir: impl Into<std::path::PathBuf>) -> Result<RuntimeConfig, ConfigError> {
-    DefaultConfigLoader::with_dir(dir).load()
+    ApplicationConfigLoader::with_dir(dir).load()
 }
 
 /// Load config scoped to a tenant
@@ -32,7 +32,7 @@ pub fn load_config_from(dir: impl Into<std::path::PathBuf>) -> Result<RuntimeCon
 ///
 /// See [`load_tenant_config_from`] for the consumer-app variant.
 pub fn load_tenant_config(tenant_id: &str) -> Result<RuntimeConfig, ConfigError> {
-    DefaultConfigLoader::new().load_for_tenant(tenant_id)
+    ApplicationConfigLoader::new().load_for_tenant(tenant_id)
 }
 
 /// Load tenant config from an explicit directory.
@@ -43,7 +43,7 @@ pub fn load_tenant_config_from(
     tenant_id: &str,
     dir: impl Into<std::path::PathBuf>,
 ) -> Result<RuntimeConfig, ConfigError> {
-    DefaultConfigLoader::with_dir(dir).load_for_tenant(tenant_id)
+    ApplicationConfigLoader::with_dir(dir).load_for_tenant(tenant_id)
 }
 
 /// Load config following the XDG Base Directory specification.
@@ -54,7 +54,7 @@ pub fn load_tenant_config_from(
 /// - `$SWE_EDGE_CONFIG_DIR/application.toml` (explicit override, if set)
 /// - `SWE_EDGE_*` environment variables (always top priority)
 pub fn load_config_xdg(app_name: &str) -> Result<RuntimeConfig, ConfigError> {
-    DefaultConfigLoader::xdg(app_name).load()
+    ApplicationConfigLoader::xdg(app_name).load()
 }
 
 /// Load tenant config following the XDG Base Directory specification.
@@ -66,7 +66,7 @@ pub fn load_tenant_config_xdg(
     app_name: &str,
     tenant_id: &str,
 ) -> Result<RuntimeConfig, ConfigError> {
-    DefaultConfigLoader::xdg(app_name).load_for_tenant(tenant_id)
+    ApplicationConfigLoader::xdg(app_name).load_for_tenant(tenant_id)
 }
 
 /// Validate a [`RuntimeConfig`] using the built-in [`ConfigValidator`].

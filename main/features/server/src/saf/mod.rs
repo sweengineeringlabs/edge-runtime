@@ -5,10 +5,8 @@ pub mod daemon;
 /// SAF factory for wrapping a [`LifecycleMonitor`] with metrics observation.
 pub mod lifecycle_monitor;
 
-pub use crate::api::application_config_builder::ApplicationConfigBuilder;
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
-pub use crate::api::default_config_builder::DefaultConfigBuilder;
 pub use crate::api::egress::{DefaultEgress, Egress};
 pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::ingress::{DefaultIngress, Ingress};
@@ -17,6 +15,7 @@ pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;
 pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
+pub use swe_edge_config::ApplicationConfigBuilder;
 
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_grpc::{

@@ -1,5 +1,5 @@
-//! DefaultConfigLoader — layered TOML + env configuration.
+//! ApplicationConfigLoader — layered TOML + env configuration.
 
-mod default_config_loader;
+mod application_config_loader;
 
-pub(crate) use default_config_loader::DefaultConfigLoader;
+pub(crate) use application_config_loader::ApplicationConfigLoader;
