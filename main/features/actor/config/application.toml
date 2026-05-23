@@ -1,0 +1,12 @@
+# swe-edge runtime actor — application configuration.
+#
+# Actor is a low-level concurrency primitive providing encapsulated state machines
+# with tell/ask semantics. Most users should not configure this directly.
+#
+# Extends the shared template at C:\phd-systems\swelabs\edge\config\application.toml
+# with actor-specific defaults (currently none required).
+
+[observability.tracing]
+enabled = true
+format  = "pretty"   # pretty | json
+level   = "info"     # trace | debug | info | warn | error

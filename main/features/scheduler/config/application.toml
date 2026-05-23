@@ -1,0 +1,12 @@
+# swe-edge runtime scheduler — application configuration.
+#
+# Scheduler is a runtime-agnostic async task executor trait, with optional
+# tokio-backed implementation.
+#
+# Extends the shared template at C:\phd-systems\swelabs\edge\config\application.toml
+# with scheduler-specific defaults (currently none required).
+
+[observability.tracing]
+enabled = true
+format  = "pretty"   # pretty | json
+level   = "info"     # trace | debug | info | warn | error

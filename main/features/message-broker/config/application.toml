@@ -1,0 +1,24 @@
+# swe-edge runtime message broker — application configuration.
+#
+# MessageBroker provides pubsub and task queue semantics over pluggable backends
+# (in-memory, NATS, Kafka).
+#
+# Extends the shared template at C:\phd-systems\swelabs\edge\config\application.toml
+# with message-broker-specific defaults.
+
+# Broker backend selection and connection parameters belong in [message_broker] section.
+# Uncomment and customize for your deployment:
+#
+# [message_broker]
+# backend = "nats"  # in-memory | nats | kafka
+#
+# [message_broker.nats]
+# servers = "nats://localhost:4222"
+#
+# [message_broker.kafka]
+# brokers = "localhost:9092"
+
+[observability.tracing]
+enabled = true
+format  = "pretty"   # pretty | json
+level   = "info"     # trace | debug | info | warn | error
