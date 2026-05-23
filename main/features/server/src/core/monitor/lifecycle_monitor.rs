@@ -1,7 +1,8 @@
 use std::sync::Arc;
 
-use async_trait::async_trait;
 use edge_proxy::{HealthReport, HealthStatus, LifecycleError, LifecycleMonitor};
+use futures::future::BoxFuture;
+use futures::FutureExt;
 use swe_observ_metrics::MetricsProvider;
 
 /// Wraps any [`LifecycleMonitor`]; emits an `edge_component_health` gauge for
@@ -32,31 +33,33 @@ impl MetricsLifecycleMonitor {
     }
 }
 
-#[async_trait]
 impl LifecycleMonitor for MetricsLifecycleMonitor {
-    async fn health(&self) -> HealthReport {
-        let report = self.inner.health().await;
-        for component in &report.components {
+    fn health(&self) -> BoxFuture<'_, HealthReport> {
+        async move {
+            let report = self.inner.health().await;
+            for component in &report.components {
+                self.provider.record_gauge(
+                    "edge_component_health",
+                    Self::score(component.status),
+                    &[("component", component.id.as_str())],
+                );
+            }
             self.provider.record_gauge(
                 "edge_component_health",
-                Self::score(component.status),
-                &[("component", component.id.as_str())],
+                Self::score(report.overall),
+                &[("component", "overall")],
             );
+            report
         }
-        self.provider.record_gauge(
-            "edge_component_health",
-            Self::score(report.overall),
-            &[("component", "overall")],
-        );
-        report
+        .boxed()
     }
 
-    async fn start_background_tasks(&self) {
-        self.inner.start_background_tasks().await
+    fn start_background_tasks(&self) -> BoxFuture<'_, ()> {
+        async move { self.inner.start_background_tasks().await }.boxed()
     }
 
-    async fn shutdown(&self) -> Result<(), LifecycleError> {
-        self.inner.shutdown().await
+    fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>> {
+        async move { self.inner.shutdown().await }.boxed()
     }
 }
 

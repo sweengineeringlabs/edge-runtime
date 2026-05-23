@@ -267,6 +267,7 @@ mod tests {
     use crate::api::ingress::DefaultIngress;
     use edge_proxy::{HealthReport, LifecycleError};
     use futures::future::BoxFuture;
+    use futures::FutureExt;
     use std::collections::HashMap;
     use swe_edge_egress_grpc::{
         GrpcEgress, GrpcEgressError, GrpcEgressResult, GrpcMetadata as EgressGrpcMetadata,
@@ -284,14 +285,15 @@ mod tests {
 
     struct DefaultRuntimeManagerStubLifecycle;
 
-    #[async_trait::async_trait]
     impl LifecycleMonitor for DefaultRuntimeManagerStubLifecycle {
-        async fn health(&self) -> HealthReport {
-            HealthReport::from_components(vec![])
+        fn health(&self) -> BoxFuture<'_, HealthReport> {
+            async move { HealthReport::from_components(vec![]) }.boxed()
         }
-        async fn start_background_tasks(&self) {}
-        async fn shutdown(&self) -> Result<(), LifecycleError> {
-            Ok(())
+        fn start_background_tasks(&self) -> BoxFuture<'_, ()> {
+            async move {}.boxed()
+        }
+        fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>> {
+            async move { Ok(()) }.boxed()
         }
     }
 

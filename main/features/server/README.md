@@ -1,4 +1,4 @@
-# swe-edge-runtime
+# Edge Runtime
 
 Production daemon runner for the `swe-edge` stack.
 

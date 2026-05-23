@@ -43,7 +43,7 @@ swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-con
 swe-edge-runtime-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }
 swe-edge-runtime-scheduler      = { path = "../scheduler", optional = true }
 
-edge-proxy                       = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+edge-proxy                       = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
 swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
 swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
 swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
@@ -60,7 +60,7 @@ tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test
 tempfile     = "3"
 swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
 reqwest      = { version = "0.12", features = ["json"], default-features = false }
-edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.4" }
+edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
 swe-edge-ingress-http = { package = "swe-edge-ingress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
 swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }
 swe-edge-egress-grpc  = { package = "swe-edge-egress-grpc-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.3.8" }

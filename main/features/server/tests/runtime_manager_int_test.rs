@@ -7,6 +7,7 @@
 use std::sync::Arc;
 
 use futures::future::BoxFuture;
+use futures::FutureExt;
 use tokio::net::TcpListener;
 use tokio::sync::oneshot;
 
@@ -27,14 +28,15 @@ use swe_edge_runtime::{
 
 struct StubLifecycle;
 
-#[async_trait::async_trait]
 impl LifecycleMonitor for StubLifecycle {
-    async fn health(&self) -> HealthReport {
-        HealthReport::from_components(vec![])
+    fn health(&self) -> BoxFuture<'_, HealthReport> {
+        async move { HealthReport::from_components(vec![]) }.boxed()
     }
-    async fn start_background_tasks(&self) {}
-    async fn shutdown(&self) -> Result<(), LifecycleError> {
-        Ok(())
+    fn start_background_tasks(&self) -> BoxFuture<'_, ()> {
+        async move {}.boxed()
+    }
+    fn shutdown(&self) -> BoxFuture<'_, Result<(), LifecycleError>> {
+        async move { Ok(()) }.boxed()
     }
 }
 
