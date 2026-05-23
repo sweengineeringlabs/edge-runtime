@@ -37,7 +37,7 @@ toml        = "0.8"
 dirs        = "5"
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
 
-swe-edge-config        = { path = "../../../../config/swe-edge-config" }
+swe-edge-config        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "swe_edge_config_v0.1.0" }
 swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
 
 swe-edge-runtime-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }
