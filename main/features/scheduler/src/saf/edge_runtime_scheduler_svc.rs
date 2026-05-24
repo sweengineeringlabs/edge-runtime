@@ -1,5 +1,7 @@
 //! SAF — scheduler public factory surface.
 
+use swe_edge_configbuilder::ConfigBuilder as _;
+
 #[cfg(feature = "tokio-rt")]
 use crate::api::scheduler::tokio_scheduler_config::TokioSchedulerConfig;
 use crate::api::scheduler::Scheduler;
@@ -7,6 +9,13 @@ use crate::api::scheduler::Scheduler;
 use crate::api::traits::Validator;
 #[cfg(feature = "tokio-rt")]
 use crate::spi::TokioScheduler;
+
+/// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
+pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
+    swe_edge_configbuilder::create_config_builder()
+        .with_name(env!("CARGO_PKG_NAME"))
+        .with_version(env!("CARGO_PKG_VERSION"))
+}
 
 /// Validate a value that implements [`Validator`].
 #[cfg(feature = "tokio-rt")]

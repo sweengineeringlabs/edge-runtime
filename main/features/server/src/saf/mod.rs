@@ -15,8 +15,6 @@ pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;
 pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
-pub use swe_edge_config::ApplicationConfigBuilder;
-
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_grpc::{
     AuthorizationInterceptor, GrpcIngressInterceptor, GrpcIngressInterceptorChain,
@@ -50,9 +48,9 @@ pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 
 // ── Config loaders ────────────────────────────────────────────────────────────
 pub use config_loader::{
-    load_config, load_config_from, load_config_xdg, load_section, load_section_from,
-    load_section_xdg, load_tenant_config, load_tenant_config_from, load_tenant_config_xdg,
-    validate_config,
+    create_config_builder, load_config, load_config_from, load_config_xdg, load_section,
+    load_section_from, load_section_xdg, load_tenant_config, load_tenant_config_from,
+    load_tenant_config_xdg, validate_config,
 };
 
 // ── Observability ─────────────────────────────────────────────────────────────

@@ -1,5 +1,6 @@
 //! SAF — message broker public factory surface.
 
+use swe_edge_configbuilder::ConfigBuilder as _;
 use crate::api::broker::message_broker::MessageBroker;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "nats")]
@@ -26,6 +27,13 @@ impl Default for BrokerConfig {
             kafka_brokers: "localhost:9092".into(),
         }
     }
+}
+
+/// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
+pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
+    swe_edge_configbuilder::create_config_builder()
+        .with_name(env!("CARGO_PKG_NAME"))
+        .with_version(env!("CARGO_PKG_VERSION"))
 }
 
 /// Instantiate a message broker from configuration loaded from application.toml.
