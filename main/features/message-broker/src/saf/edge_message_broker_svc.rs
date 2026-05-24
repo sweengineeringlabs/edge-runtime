@@ -1,14 +1,14 @@
 //! SAF — message broker public factory surface.
 
-use swe_edge_configbuilder::ConfigBuilder as _;
-use crate::api::broker::message_broker::MessageBroker;
-use serde::{Deserialize, Serialize};
 #[cfg(feature = "nats")]
 use crate::api::broker::broker_error::BrokerError;
+use crate::api::broker::message_broker::MessageBroker;
 #[cfg(feature = "tokio-rt")]
 use crate::spi::InMemoryMessageBroker;
 #[cfg(feature = "nats")]
 use crate::spi::NatsMessageBroker;
+use serde::{Deserialize, Serialize};
+use swe_edge_configbuilder::ConfigBuilder as _;
 
 /// Internal: configuration loaded from [message_broker] section of application.toml.
 #[derive(Debug, Clone, Serialize, Deserialize)]

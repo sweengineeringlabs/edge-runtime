@@ -2512,6 +2512,18 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 [[package]]
 name = "swe-edge-config"
 version = "0.1.0"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=swe_edge_config_v0.1.0#91e37a1e4d68e3fee151b806811fd537f7cb0e00"
+dependencies = [
+ "dirs",
+ "serde",
+ "thiserror 2.0.18",
+ "toml",
+]
+
+[[package]]
+name = "swe-edge-configbuilder"
+version = "0.1.0"
+source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.4.2#e928583725cc091fd46d3be42d8b3365b38dc6ea"
 dependencies = [
  "dirs",
  "serde",
@@ -2823,6 +2835,9 @@ dependencies = [
  "async-nats",
  "bytes",
  "futures",
+ "serde",
+ "swe-edge-config",
+ "swe-edge-configbuilder",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
@@ -2837,6 +2852,7 @@ dependencies = [
  "edge-domain",
  "futures",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2857,6 +2873,7 @@ dependencies = [
  "serde",
  "serde_json",
  "swe-edge-config",
+ "swe-edge-configbuilder",
  "swe-edge-egress-grpc-transport",
  "swe-edge-egress-http-transport",
  "swe-edge-ingress-grpc-reflection",

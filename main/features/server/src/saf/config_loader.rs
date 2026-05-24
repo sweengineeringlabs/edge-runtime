@@ -1,6 +1,5 @@
 //! SAF — config-loading convenience functions.
 
-use swe_edge_configbuilder::ConfigBuilder as _;
 use crate::api::config::ConfigError;
 use crate::api::config_loader::ConfigLoader;
 use crate::api::error::RuntimeError;
@@ -8,6 +7,7 @@ use crate::api::traits::Validator;
 use crate::api::types::RuntimeConfig;
 use crate::core::validator::ConfigValidator;
 use crate::core::ApplicationConfigLoader;
+use swe_edge_configbuilder::ConfigBuilder as _;
 
 /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
 pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {

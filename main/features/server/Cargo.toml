@@ -38,6 +38,7 @@ dirs        = "5"
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
 
 swe-edge-config        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "swe_edge_config_v0.1.0" }
+swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.2" }
 swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
 
 swe-edge-runtime-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }

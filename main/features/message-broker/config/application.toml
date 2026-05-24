@@ -6,17 +6,10 @@
 # Extends the shared template at C:\phd-systems\swelabs\edge\config\application.toml
 # with message-broker-specific defaults.
 
-# Broker backend selection and connection parameters belong in [message_broker] section.
-# Uncomment and customize for your deployment:
-#
-# [message_broker]
-# backend = "nats"  # in-memory | nats | kafka
-#
-# [message_broker.nats]
-# servers = "nats://localhost:4222"
-#
-# [message_broker.kafka]
-# brokers = "localhost:9092"
+[message_broker]
+backend       = "inmemory"  # inmemory | nats | kafka
+nats_url      = "nats://localhost:4222"
+kafka_brokers = "localhost:9092"
 
 [observability.tracing]
 enabled = true
