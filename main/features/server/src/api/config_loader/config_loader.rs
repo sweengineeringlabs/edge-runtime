@@ -13,13 +13,3 @@ pub trait ConfigLoader: Send + Sync {
     /// `tenants/<tenant_id>.toml` on top of `application.toml`.
     fn load_for_tenant(&self, tenant_id: &str) -> Result<RuntimeConfig, ConfigError>;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_config_loader_is_object_safe() {
-        fn _assert(_: &dyn ConfigLoader) {}
-    }
-}

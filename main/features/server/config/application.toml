@@ -3,7 +3,7 @@
 # RuntimeServer wires ingress + proxy + domain + egress, lifecycle management,
 # and systemd notify into a single daemon entry point.
 #
-# Extends the shared template at C:\phd-systems\swelabs\edge\config\application.toml
+# Extends the shared template at config/application.toml
 # with server-specific defaults.
 
 [runtime]

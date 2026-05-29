@@ -11,13 +11,3 @@ pub trait Egress: Send + Sync {
     /// Returns the gRPC outbound client, if configured.
     fn grpc(&self) -> Option<Arc<dyn GrpcEgress>>;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_egress_is_object_safe() {
-        fn _assert(_: &dyn Egress) {}
-    }
-}

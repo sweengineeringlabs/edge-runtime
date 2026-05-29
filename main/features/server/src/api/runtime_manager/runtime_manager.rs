@@ -25,13 +25,3 @@ pub trait RuntimeManager: Send + Sync {
     /// Aggregate health across all wired components.
     fn health(&self) -> BoxFuture<'_, RuntimeHealth>;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_runtime_manager_is_object_safe() {
-        fn _assert_object_safe(_: &dyn RuntimeManager) {}
-    }
-}

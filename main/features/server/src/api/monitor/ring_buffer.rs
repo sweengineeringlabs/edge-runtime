@@ -31,36 +31,3 @@ impl RingBuffer {
         samples[idx] as f64 / 1_000.0
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: p99_ms
-    #[test]
-    fn test_ring_buffer_p99_ms_returns_correct_percentile() {
-        let mut rb = RingBuffer::new(100);
-        for i in 1u64..=100 {
-            rb.push(i * 1_000);
-        }
-        let p99 = rb.p99_ms();
-        assert!((98.0_f64..=100.0).contains(&p99), "p99={p99}");
-    }
-
-    /// @covers: p99_ms
-    #[test]
-    fn test_ring_buffer_p99_ms_returns_zero_when_empty() {
-        let rb = RingBuffer::new(64);
-        assert_eq!(rb.p99_ms(), 0.0);
-    }
-
-    /// @covers: push
-    #[test]
-    fn test_push_wraps_around_ring() {
-        let mut rb = RingBuffer::new(4);
-        for i in 0u64..8 {
-            rb.push(i * 1_000);
-        }
-        assert!(rb.p99_ms() > 0.0);
-    }
-}

@@ -38,34 +38,35 @@ dirs        = "5"
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
 
 swe-edge-config        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "swe_edge_config_v0.1.0" }
-swe-edge-configbuilder  = { path = "../../../../configbuilder/main/features/configbuilder" }
-swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
+swe-edge-configbuilder          = { path = "../../../../configbuilder/main/features/configbuilder" }
+swe-edge-observ-config          = { workspace = true }
 
-swe-edge-runtime-message-broker = { path = "../message-broker", optional = true, features = ["tokio-rt"] }
-swe-edge-runtime-scheduler      = { path = "../scheduler", optional = true }
+swe-edge-runtime-message-broker = { workspace = true, optional = true }
+swe-edge-runtime-scheduler      = { workspace = true, optional = true }
 
-edge-proxy = { path = "../../../../proxy" }
-swe-edge-ingress-http = { package = "swe-edge-ingress-http-transport", path = "../../../../ingress/http/main/features/transport" }
-swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", path = "../../../../ingress/grpc/main/features/transport" }
-swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", path = "../../../../egress/grpc/main/features/transport" }
-swe-edge-egress-http = { package = "swe-edge-egress-http-transport", path = "../../../../egress/http/main/features/transport" }
-swe-edge-ingress-verifier = { path = "../../../../ingress/verifier" }
-swe-edge-ingress-grpc-reflection = { path = "../../../../ingress/grpc/main/features/reflection" }
-edge-domain = { path = "../../../../domain" }
+edge-proxy                       = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-ingress-verifier        = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-ingress-grpc-reflection = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+edge-domain                      = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
 swe-observ-metrics               = { package = "swe_justobserv_metrics", git = "ssh://git@github.com/sweengineeringlabs/justobserv.git", tag = "v0.2.1" }
 
 [dev-dependencies]
-swe-edge-runtime-message-broker = { path = "../message-broker", features = ["tokio-rt"] }
+swe-edge-runtime-message-broker = { workspace = true }
+swe-edge-runtime-scheduler      = { workspace = true }
 async-trait  = "0.1"
 tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
 tempfile     = "3"
-swe-edge-observ-config = { path = "../../../../observ-config/swe-edge-observ-config" }
+swe-edge-observ-config          = { workspace = true }
 reqwest      = { version = "0.12", features = ["json"], default-features = false }
-edge-proxy = { path = "../../../../proxy" }
-swe-edge-ingress-http = { package = "swe-edge-ingress-http-transport", path = "../../../../ingress/http/main/features/transport" }
-swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", path = "../../../../ingress/grpc/main/features/transport" }
-swe-edge-egress-grpc = { package = "swe-edge-egress-grpc-transport", path = "../../../../egress/grpc/main/features/transport" }
-swe-edge-egress-http = { package = "swe-edge-egress-http-transport", path = "../../../../egress/http/main/features/transport" }
+edge-proxy   = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-ingress-http = { package = "swe-edge-ingress-http-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-egress-grpc  = { package = "swe-edge-egress-grpc-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-egress-http  = { package = "swe-edge-egress-http-transport",  git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
 
 [[test]]
 name = "runtime_int_test"
@@ -143,5 +144,134 @@ path = "tests/shared_counters_int_test.rs"
 name = "message_broker_runtime_int_test"
 path = "tests/message_broker_runtime_int_test.rs"
 
-[lints]
-workspace = true
+[[test]]
+name = "composite_grpc_ingress_int_test"
+path = "tests/composite_grpc_ingress_int_test.rs"
+
+[[test]]
+name = "composite_ingress_int_test"
+path = "tests/composite_ingress_int_test.rs"
+
+[[test]]
+name = "config_error_int_test"
+path = "tests/config_error_int_test.rs"
+
+[[test]]
+name = "config_override_int_test"
+path = "tests/config_override_int_test.rs"
+
+[[test]]
+name = "application_config_loader_int_test"
+path = "tests/application_config_loader_int_test.rs"
+
+[[test]]
+name = "default_egress_int_test"
+path = "tests/default_egress_int_test.rs"
+
+[[test]]
+name = "runtime_error_int_test"
+path = "tests/runtime_error_int_test.rs"
+
+[[test]]
+name = "default_ingress_int_test"
+path = "tests/default_ingress_int_test.rs"
+
+[[test]]
+name = "metrics_exporter_int_test"
+path = "tests/metrics_exporter_int_test.rs"
+
+[[test]]
+name = "autoscale_policy_int_test"
+path = "tests/autoscale_policy_int_test.rs"
+
+[[test]]
+name = "grpc_load_monitor_int_test"
+path = "tests/grpc_load_monitor_int_test.rs"
+
+[[test]]
+name = "http_load_monitor_int_test"
+path = "tests/http_load_monitor_int_test.rs"
+
+[[test]]
+name = "lifecycle_observer_int_test"
+path = "tests/lifecycle_observer_int_test.rs"
+
+[[test]]
+name = "metrics_config_int_test"
+path = "tests/metrics_config_int_test.rs"
+
+[[test]]
+name = "ring_buffer_int_test"
+path = "tests/ring_buffer_int_test.rs"
+
+[[test]]
+name = "sampler_int_test"
+path = "tests/sampler_int_test.rs"
+
+[[test]]
+name = "traffic_counters_int_test"
+path = "tests/traffic_counters_int_test.rs"
+
+[[test]]
+name = "runtime_builder_serve_int_test"
+path = "tests/runtime_builder_serve_int_test.rs"
+
+[[test]]
+name = "default_runtime_manager_int_test"
+path = "tests/default_runtime_manager_int_test.rs"
+
+[[test]]
+name = "service_registry_int_test"
+path = "tests/service_registry_int_test.rs"
+
+[[test]]
+name = "traits_int_test"
+path = "tests/traits_int_test.rs"
+
+[[test]]
+name = "runtime_config_int_test"
+path = "tests/runtime_config_int_test.rs"
+
+[[test]]
+name = "runtime_status_int_test"
+path = "tests/runtime_status_int_test.rs"
+
+[[test]]
+name = "component_health_int_test"
+path = "tests/component_health_int_test.rs"
+
+[[test]]
+name = "runtime_health_int_test"
+path = "tests/runtime_health_int_test.rs"
+
+[[test]]
+name = "config_validator_int_test"
+path = "tests/config_validator_int_test.rs"
+
+[[test]]
+name = "scheduler_int_test"
+path = "tests/scheduler_int_test.rs"
+
+[[test]]
+name = "server_config_loader_int_test"
+path = "tests/server_config_loader_int_test.rs"
+
+[[test]]
+name = "server_monitor_int_test"
+path = "tests/server_monitor_int_test.rs"
+
+[[test]]
+name = "server_svc_int_test"
+path = "tests/server_svc_int_test.rs"
+
+[[test]]
+name = "runtime_extension_int_test"
+path = "tests/runtime_extension_int_test.rs"
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

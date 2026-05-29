@@ -1,9 +1,6 @@
 //! SAF layer — daemon public facade.
 
-pub mod config_loader;
-pub mod daemon;
-/// SAF factory for wrapping a [`LifecycleMonitor`] with metrics observation.
-pub mod lifecycle_monitor;
+mod server_svc;
 
 pub use crate::api::config::ConfigError;
 pub use crate::api::config_loader::ConfigLoader;
@@ -15,6 +12,8 @@ pub use crate::api::runtime_manager::RuntimeManager;
 pub use crate::api::service_registry::ServiceRegistry;
 pub use crate::api::types::runtime_health::ComponentHealth;
 pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
+pub use crate::api::types::{ServerConfigLoader, ServerMonitor};
+
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_grpc::{
     AuthorizationInterceptor, GrpcIngressInterceptor, GrpcIngressInterceptorChain,
@@ -41,14 +40,14 @@ pub use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, Ht
 
 // ── Lifecycle / health ────────────────────────────────────────────────────────
 pub use edge_proxy::{new_null_lifecycle_monitor, HealthReport, LifecycleMonitor};
-pub use lifecycle_monitor::observe_lifecycle_monitor;
+pub use server_svc::observe_lifecycle_monitor;
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
 pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig, SharedCounters, TrafficCounters};
 pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 
 // ── Config loaders ────────────────────────────────────────────────────────────
-pub use config_loader::{
+pub use server_svc::{
     create_config_builder, load_config, load_config_from, load_config_xdg, load_section,
     load_section_from, load_section_xdg, load_tenant_config, load_tenant_config_from,
     load_tenant_config_xdg, validate_config,
@@ -72,4 +71,4 @@ pub use swe_edge_runtime_message_broker::in_memory_broker;
 pub use swe_edge_runtime_message_broker::{Message, MessageBroker, MessageStream};
 
 // ── Daemon runner ─────────────────────────────────────────────────────────────
-pub use daemon::{run, runtime_manager};
+pub use server_svc::{run, runtime_manager};

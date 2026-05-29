@@ -1,6 +1,7 @@
 //! Tests for RuntimeBuilder with message broker.
 
 #[cfg(feature = "message-broker")]
+/// @covers: with_message_broker
 #[test]
 fn test_with_message_broker_sets_field() {
     use futures;

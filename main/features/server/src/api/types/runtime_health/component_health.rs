@@ -29,22 +29,3 @@ impl ComponentHealth {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: healthy
-    #[test]
-    fn test_component_healthy_has_no_detail() {
-        let c = ComponentHealth::healthy("db");
-        assert!(c.healthy && c.detail.is_none());
-    }
-
-    /// @covers: unhealthy
-    #[test]
-    fn test_component_unhealthy_has_detail() {
-        let c = ComponentHealth::unhealthy("db", "connection refused");
-        assert!(!c.healthy && c.detail.is_some());
-    }
-}

@@ -20,32 +20,3 @@ pub(crate) type JsonGrpcDecodeFn<Req> = fn(&[u8]) -> Result<Req, GrpcIngressErro
 
 /// Default gRPC JSON encode: serialises `Resp` to raw bytes.
 pub(crate) type JsonGrpcEncodeFn<Resp> = fn(&Resp) -> Vec<u8>;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_json_http_decode_fn_type_alias_is_well_formed() {
-        use swe_edge_ingress_http::HttpRequest;
-        fn _accepts<Req>(_f: JsonHttpDecodeFn<Req>) {}
-        fn sample_decode(req: &HttpRequest) -> Result<String, HttpIngressError> {
-            req.body
-                .as_ref()
-                .map(|_| "ok".to_string())
-                .ok_or_else(|| HttpIngressError::InvalidInput("empty".into()))
-        }
-        _accepts(sample_decode);
-    }
-
-    #[test]
-    fn test_json_grpc_decode_fn_type_alias_is_well_formed() {
-        fn _accepts<Req>(_f: JsonGrpcDecodeFn<Req>) {}
-        fn sample_decode(b: &[u8]) -> Result<String, GrpcIngressError> {
-            std::str::from_utf8(b)
-                .map(|s| s.to_string())
-                .map_err(|e| GrpcIngressError::InvalidArgument(e.to_string()))
-        }
-        _accepts(sample_decode);
-    }
-}

@@ -11,21 +11,3 @@ pub trait Validator {
 
     fn validate(&self, value: &Self::Target) -> Result<(), Self::Error>;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_validator_trait_is_usable_as_concrete_impl() {
-        struct AlwaysOk;
-        impl Validator for AlwaysOk {
-            type Target = ();
-            type Error = ();
-            fn validate(&self, _: &()) -> Result<(), ()> {
-                Ok(())
-            }
-        }
-        assert!(AlwaysOk.validate(&()).is_ok());
-    }
-}

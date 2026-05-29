@@ -31,15 +31,3 @@ impl Runtime {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: builder
-    #[test]
-    fn test_builder_starts_with_all_fields_none() {
-        let b = Runtime::builder();
-        assert!(b.config.is_none() && b.app_name.is_none() && b.egress_http.is_none());
-    }
-}

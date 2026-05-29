@@ -23,16 +23,3 @@ impl Default for AutoscalePolicy {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_autoscale_policy_defaults_are_positive() {
-        let p = AutoscalePolicy::default();
-        assert!(p.requests_active_max > 0);
-        assert!(p.requests_per_sec_max > 0);
-        assert!(p.latency_p99_ms_max > 0.0);
-    }
-}

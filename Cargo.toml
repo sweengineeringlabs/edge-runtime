@@ -11,7 +11,7 @@ authors      = ["SWE Engineering Labs"]
 repository   = "https://github.com/sweengineeringlabs/edge"
 
 [workspace.dependencies]
-swe-edge-observ-config          = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-observ-config          = { path = "../observ-config/swe-edge-observ-config" }
 swe-edge-runtime-message-broker = { path = "main/features/message-broker", features = ["tokio-rt"] }
 swe-edge-runtime-scheduler      = { path = "main/features/scheduler" }
 
@@ -19,10 +19,6 @@ swe-edge-runtime-scheduler      = { path = "main/features/scheduler" }
 unsafe_code  = "deny"
 missing_docs = "warn"
 
-[patch."ssh://git@github.com/sweengineeringlabs/edge.git"]
-swe-edge-configbuilder          = { path = "../configbuilder/main/features/configbuilder" }
-swe-edge-observ-config          = { path = "../observ-config/swe-edge-observ-config" }
-edge-domain                     = { path = "../domain" }
-edge-proxy                      = { path = "../proxy" }
-swe-edge-ingress-http-transport = { path = "../ingress/http/main/features/transport" }
-swe-edge-ingress-verifier       = { path = "../ingress/verifier" }
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

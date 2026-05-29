@@ -122,3 +122,45 @@ fn test_jwt_verifier_rejects_invalid_token_directly() {
     let result = verifier.verify("not.a.jwt");
     assert!(result.is_err(), "invalid token must be rejected");
 }
+
+// ── swe-edge-ingress-grpc ─────────────────────────────────────────────────────
+
+/// Exercises swe-edge-ingress-grpc through the RuntimeBuilder gRPC route path.
+#[test]
+fn test_ingress_grpc_handler_registered_via_builder() {
+    use edge_domain::{Handler, HandlerError};
+    use swe_edge_runtime::Runtime;
+
+    struct EchoHandler;
+
+    #[async_trait::async_trait]
+    impl Handler<Vec<u8>, Vec<u8>> for EchoHandler {
+        fn id(&self) -> &str {
+            "echo"
+        }
+        fn pattern(&self) -> &str {
+            "/echo"
+        }
+        async fn execute(&self, req: Vec<u8>) -> Result<Vec<u8>, HandlerError> {
+            Ok(req)
+        }
+    }
+
+    use swe_edge_runtime::{GrpcDecodeFn, GrpcEncodeFn};
+    let decode: GrpcDecodeFn<Vec<u8>> = |b| Ok(b.to_vec());
+    let encode: GrpcEncodeFn<Vec<u8>> = |v: &Vec<u8>| v.clone();
+    // grpc_route_with wires up the gRPC dispatcher — success without panic confirms the dep is used
+    let _b = Runtime::builder().grpc_route_with(Arc::new(EchoHandler), decode, encode);
+}
+
+// ── swe-edge-runtime-scheduler ───────────────────────────────────────────────
+
+/// Exercises swe-edge-runtime-scheduler via the public feature-gated re-export.
+/// The scheduler feature is off by default — compile-checks the dependency is declared.
+#[cfg(feature = "scheduler")]
+#[test]
+fn test_scheduler_tokio_scheduler_factory_compiles() {
+    use swe_edge_runtime::{tokio_scheduler, TokioSchedulerConfig};
+    let cfg = TokioSchedulerConfig::default();
+    let _sched = tokio_scheduler(cfg);
+}

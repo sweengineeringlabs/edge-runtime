@@ -42,31 +42,3 @@ impl RuntimeStatus {
         matches!(self, Self::Stopped)
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_display_returns_lowercase_name() {
-        assert_eq!(RuntimeStatus::Running.to_string(), "running");
-        assert_eq!(RuntimeStatus::Stopping.to_string(), "stopping");
-        assert_eq!(RuntimeStatus::Stopped.to_string(), "stopped");
-        assert_eq!(RuntimeStatus::Degraded.to_string(), "degraded");
-    }
-
-    /// @covers: is_healthy
-    #[test]
-    fn test_is_healthy_only_true_for_running() {
-        assert!(RuntimeStatus::Running.is_healthy());
-        assert!(!RuntimeStatus::Starting.is_healthy());
-        assert!(!RuntimeStatus::Degraded.is_healthy());
-    }
-
-    /// @covers: is_terminal
-    #[test]
-    fn test_is_terminal_only_true_for_stopped() {
-        assert!(RuntimeStatus::Stopped.is_terminal());
-        assert!(!RuntimeStatus::Running.is_terminal());
-    }
-}

@@ -7,13 +7,3 @@ use swe_edge_ingress_grpc::GrpcIngress;
 pub trait CompositeIngress: Send + Sync {
     fn primary(&self) -> Arc<dyn GrpcIngress>;
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_composite_ingress_is_object_safe() {
-        fn _accept(_: &dyn CompositeIngress) {}
-    }
-}

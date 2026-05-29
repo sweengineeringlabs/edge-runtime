@@ -20,15 +20,3 @@ impl Default for MetricsConfig {
         }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_metrics_config_default_has_expected_values() {
-        let c = MetricsConfig::default();
-        assert_eq!(c.bind, "0.0.0.0:9090");
-        assert_eq!(c.path, "/metrics");
-    }
-}

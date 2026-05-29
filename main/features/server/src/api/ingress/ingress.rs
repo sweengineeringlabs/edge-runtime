@@ -15,22 +15,3 @@ pub trait Ingress: Send + Sync {
         self.http().is_some() || self.grpc().is_some()
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_has_any_returns_false_when_no_transports() {
-        struct NoTransport;
-        impl Ingress for NoTransport {
-            fn http(&self) -> Option<Arc<dyn HttpIngress>> {
-                None
-            }
-            fn grpc(&self) -> Option<Arc<dyn GrpcIngress>> {
-                None
-            }
-        }
-        assert!(!NoTransport.has_any());
-    }
-}

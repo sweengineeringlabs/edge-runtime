@@ -1,8 +1,8 @@
 //! Public-API integration tests for saf config-loading functions.
 
 use swe_edge_runtime::{
-    load_config, load_config_from, load_config_xdg, load_tenant_config, load_tenant_config_from,
-    load_tenant_config_xdg, validate_config,
+    create_config_builder, load_config, load_config_from, load_config_xdg, load_tenant_config,
+    load_tenant_config_from, load_tenant_config_xdg, validate_config,
 };
 
 /// @covers: load_config
@@ -54,4 +54,17 @@ fn test_load_tenant_config_xdg_missing_returns_error() {
 fn test_validate_config_accepts_valid_default_config() {
     let cfg = load_config().unwrap();
     assert!(validate_config(&cfg).is_ok());
+}
+
+/// @covers: create_config_builder
+#[test]
+fn test_create_config_builder_returns_configured_builder() {
+    use swe_edge_configbuilder::ConfigBuilder as _;
+    let builder = create_config_builder();
+    // The builder is pre-seeded with this crate's package name and version.
+    assert!(!builder.name().is_empty(), "builder name must not be empty");
+    assert!(
+        !builder.version().is_empty(),
+        "builder version must not be empty"
+    );
 }
