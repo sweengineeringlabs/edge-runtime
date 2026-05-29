@@ -32,6 +32,7 @@ swe-edge-configbuilder  = { git = "ssh://git@github.com/sweengineeringlabs/edge.
 swe-edge-egress-process = { path = "../../../../egress/process/main/features/process" }
 
 [target.'cfg(target_os = "linux")'.dependencies]
+libc        = "0.2"
 seccompiler = { version = "0.4", optional = true }
 
 [dev-dependencies]
