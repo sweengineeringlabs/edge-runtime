@@ -2,8 +2,7 @@
 
 use std::sync::Arc;
 
-use futures::future::BoxFuture;
-use swe_edge_egress_process::{ProcessArgs, ProcessResult, ProcessRunner};
+use swe_edge_egress_process::{BoxFuture, ProcessArgs, ProcessResult, ProcessRunner};
 
 use crate::api::policy::ResourcePolicy;
 

@@ -2869,10 +2869,8 @@ dependencies = [
  "serde",
  "swe-edge-configbuilder",
  "swe-edge-egress-process",
- "thiserror 2.0.18",
  "tokio",
  "toml",
- "tracing",
 ]
 
 [[package]]
@@ -2895,14 +2893,12 @@ dependencies = [
 name = "swe-edge-runtime-resource-policy"
 version = "0.1.0"
 dependencies = [
- "futures",
  "serde",
  "swe-edge-configbuilder",
  "swe-edge-egress-process",
  "thiserror 2.0.18",
  "tokio",
  "toml",
- "tracing",
 ]
 
 [[package]]

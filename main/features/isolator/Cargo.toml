@@ -25,11 +25,8 @@ default = []
 seccomp = ["dep:seccompiler"]
 
 [dependencies]
-serde     = { version = "1.0", features = ["derive"] }
-thiserror = "2"
-tokio     = { version = "1.0", features = ["process"] }
-toml      = "0.8"
-tracing   = { version = "0.1", default-features = false, features = ["std"] }
+serde   = { version = "1.0", features = ["derive"] }
+tokio   = { version = "1.0", features = ["process"] }
 
 swe-edge-configbuilder  = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.2" }
 swe-edge-egress-process = { path = "../../../../egress/process/main/features/process" }
@@ -38,4 +35,5 @@ swe-edge-egress-process = { path = "../../../../egress/process/main/features/pro
 seccompiler = { version = "0.4", optional = true }
 
 [dev-dependencies]
+toml  = "0.8"
 tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
