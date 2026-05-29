@@ -1,6 +1,24 @@
-# Default subprocess isolation policy.
-# The "noop" profile applies no OS-level restrictions — safe for dev and CI.
-# Override in application.toml or subprocess_policy.toml for production.
+# Subprocess isolation policy — loaded as the [subprocess_policy] section.
+# Operators add named profiles here; the "default" profile is the baseline.
+# The "noop" profile is always registered by the registry regardless of config.
 
 [subprocess_policy.profiles.default]
+# kind selects the implementation: "noop", "seccomp", or "job_object".
 kind = "noop"
+
+# kill_on_job_close: terminate all processes in the Job Object when the
+# runner drops. Safety-relevant — must be explicit so operators see this.
+# Only meaningful for kind = "job_object"; ignored by other kinds.
+kill_on_job_close = true
+
+# Example: restricted seccomp profile for Linux CI runners.
+# Uncomment and adjust the syscall list for your workload.
+#
+# [subprocess_policy.profiles.restricted]
+# kind = "seccomp"
+# allowed_syscalls = [
+#     "read", "write", "close", "fstat", "lseek",
+#     "mmap", "mprotect", "munmap", "brk",
+#     "execve", "exit", "exit_group",
+#     "wait4", "waitid", "openat", "getdents64", "getcwd",
+# ]
