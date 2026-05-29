@@ -26,12 +26,13 @@ pub use swe_edge_ingress_verifier::{
 // ── Ingress surface (handlers + request/response types) ───────────────────────
 pub use edge_domain::{Handler, HandlerError};
 pub use swe_edge_ingress_grpc::{
-    GrpcDecodeFn, GrpcEncodeFn, GrpcHealthCheck, GrpcIngressError, GrpcIngressResult,
+    GrpcDecodeFn, GrpcEncodeFn, GrpcHealthCheck, GrpcIngress, GrpcIngressError, GrpcIngressResult,
     GrpcMessageStream, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode,
 };
 pub use swe_edge_ingress_http::{
-    HttpAuth, HttpBody, HttpConfig, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngressError,
-    HttpIngressResult, HttpMethod, HttpRequest, HttpResponse, IngressTlsConfig, RequestContext,
+    HttpAuth, HttpBody, HttpConfig, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngress,
+    HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest, HttpResponse, HttpStream,
+    IngressTlsConfig, RequestContext,
 };
 
 // ── Egress surface (outbound clients) ─────────────────────────────────────────

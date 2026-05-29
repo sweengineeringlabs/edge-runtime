@@ -3,7 +3,7 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use swe_edge_egress_process::{IsolationError, IsolationProfile};
+use swe_edge_egress_subprocess::{IsolationError, IsolationProfile};
 
 use crate::api::isolator_config::IsolatorConfig;
 use crate::core::{noop::NoopIsolator, resolve_profile};
@@ -15,7 +15,7 @@ use crate::core::{noop::NoopIsolator, resolve_profile};
 ///
 /// The `"noop"` profile is always registered regardless of config.
 ///
-/// [`ProcessArgs`]: swe_edge_egress_process::ProcessArgs
+/// [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
 pub struct IsolationProfileRegistry {
     profiles: HashMap<String, Arc<dyn IsolationProfile>>,
 }

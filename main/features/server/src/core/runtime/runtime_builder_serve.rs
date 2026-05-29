@@ -154,6 +154,7 @@ impl RuntimeBuilder {
         let timeout_secs = config.shutdown_timeout_secs;
         let http_bind = config.http_bind.clone();
         let grpc_bind = config.grpc_bind.clone();
+        let stream_handler = self.stream_handler;
         let metrics_bind = config.metrics.as_ref().map(|m| m.bind.clone());
         let metrics_path = config
             .metrics
@@ -176,6 +177,9 @@ impl RuntimeBuilder {
             }
             if let Some(verifier) = http_bearer_verifier {
                 server = server.with_bearer_auth(verifier);
+            }
+            if let Some(sh) = stream_handler {
+                server = server.with_stream_handler(sh);
             }
             tokio::spawn(async move {
                 let signal = async move {

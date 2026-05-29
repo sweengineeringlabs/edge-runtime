@@ -1,7 +1,7 @@
 //! SAF layer — public factory surface for isolation profiles.
 
 use swe_edge_configbuilder::ConfigSection as _;
-use swe_edge_egress_process::IsolationProfile;
+use swe_edge_egress_subprocess::IsolationProfile;
 
 pub use crate::api::{IsolationProfileRegistry, IsolatorConfig, ProfileSpec};
 use crate::core::noop::NoopIsolator;
@@ -23,15 +23,15 @@ pub fn create_noop_isolator() -> impl IsolationProfile {
 /// Returns [`IsolationError`] if the config cannot be loaded or any
 /// profile spec is invalid.
 ///
-/// [`IsolationError`]: swe_edge_egress_process::IsolationError
+/// [`IsolationError`]: swe_edge_egress_subprocess::IsolationError
 pub fn create_profile_registry<L>(
     loader: &L,
-) -> Result<IsolationProfileRegistry, swe_edge_egress_process::IsolationError>
+) -> Result<IsolationProfileRegistry, swe_edge_egress_subprocess::IsolationError>
 where
     L: swe_edge_configbuilder::Loader,
 {
     let config = IsolatorConfig::load(loader).map_err(|e| {
-        swe_edge_egress_process::IsolationError::UnknownProfile {
+        swe_edge_egress_subprocess::IsolationError::UnknownProfile {
             profile: format!("config load failed: {e}"),
         }
     })?;

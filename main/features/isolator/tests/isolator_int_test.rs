@@ -2,7 +2,9 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_process::{IsolationError, IsolationProfile, ProcessArgs, ProcessResult};
+use swe_edge_egress_subprocess::{
+    IsolationError, IsolationProfile, ProcessArgs, ProcessResult, ProcessRunner, ProcessSvc,
+};
 use swe_edge_runtime_isolator::{create_noop_isolator, IsolationProfileRegistry, IsolatorConfig};
 
 // ── NoopIsolator ──────────────────────────────────────────────────────────────
@@ -59,8 +61,7 @@ fn test_registry_get_unknown_returns_unknown_profile_error() {
 /// @covers: ProcessRunner — NoopIsolator does not affect a successful run.
 #[tokio::test]
 async fn test_process_runner_with_noop_isolator_completes() {
-    use swe_edge_egress_process::process_runner;
-    use swe_edge_egress_process::ProcessRunner as _;
+    use swe_edge_egress_subprocess::ProcessRunner as _;
 
     let profile: Arc<dyn IsolationProfile> = Arc::new(create_noop_isolator());
 
@@ -82,7 +83,7 @@ async fn test_process_runner_with_noop_isolator_completes() {
         .isolation_profile(profile)
         .build();
 
-    let result = process_runner().run(args).await;
+    let result = ProcessSvc::runner().run(args).await;
     assert!(
         matches!(result, ProcessResult::Completed { exit_code: 0, .. }),
         "expected Completed(0); got {result:?}",
@@ -92,8 +93,7 @@ async fn test_process_runner_with_noop_isolator_completes() {
 /// @covers: ProcessRunner — failing apply hook returns IsolationFailed.
 #[tokio::test]
 async fn test_process_runner_isolation_failed_when_apply_errors() {
-    use swe_edge_egress_process::process_runner;
-    use swe_edge_egress_process::ProcessRunner as _;
+    use swe_edge_egress_subprocess::ProcessRunner as _;
 
     #[derive(Debug)]
     struct FailingIsolator;
@@ -128,7 +128,7 @@ async fn test_process_runner_isolation_failed_when_apply_errors() {
         .isolation_profile(profile)
         .build();
 
-    let result = process_runner().run(args).await;
+    let result = ProcessSvc::runner().run(args).await;
     assert!(
         matches!(result, ProcessResult::IsolationFailed { .. }),
         "expected IsolationFailed; got {result:?}",

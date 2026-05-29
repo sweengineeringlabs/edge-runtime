@@ -7,7 +7,7 @@ pub(crate) mod seccomp;
 
 use std::sync::Arc;
 
-use swe_edge_egress_process::{IsolationError, IsolationProfile};
+use swe_edge_egress_subprocess::{IsolationError, IsolationProfile};
 
 use crate::api::profile_spec::ProfileSpec;
 

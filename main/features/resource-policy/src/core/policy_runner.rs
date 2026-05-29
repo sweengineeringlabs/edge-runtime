@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_process::{BoxFuture, ProcessArgs, ProcessResult, ProcessRunner};
+use swe_edge_egress_subprocess::{BoxFuture, ProcessArgs, ProcessResult, ProcessRunner};
 
 use crate::api::policy::ResourcePolicy;
 
@@ -38,7 +38,7 @@ impl<R: ProcessRunner> ProcessRunner for ResourcePolicyRunner<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use swe_edge_egress_process::process_runner;
+    use swe_edge_egress_subprocess::ProcessSvc;
 
     fn stub_policy(timeout_ms: u64) -> ResourcePolicy {
         ResourcePolicy {
@@ -52,7 +52,7 @@ mod tests {
 
     #[test]
     fn test_policy_runner_policy_accessor_returns_policy() {
-        let runner = ResourcePolicyRunner::new(Arc::new(process_runner()), stub_policy(5_000));
+        let runner = ResourcePolicyRunner::new(Arc::new(ProcessSvc::runner()), stub_policy(5_000));
         assert_eq!(runner.policy().timeout_ms, 5_000);
     }
 
@@ -60,7 +60,7 @@ mod tests {
     async fn test_policy_runner_injects_timeout_into_args() {
         // When args has no timeout, the policy supplies one.
         // Verified by running a command that would hang without a deadline.
-        let runner = ResourcePolicyRunner::new(Arc::new(process_runner()), stub_policy(5_000));
+        let runner = ResourcePolicyRunner::new(Arc::new(ProcessSvc::runner()), stub_policy(5_000));
         let args = ProcessArgs::builder()
             .argv(vec!["__nonexistent__".into()])
             .allow_commands(vec!["__nonexistent__".into()])
@@ -72,7 +72,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_policy_runner_does_not_overwrite_caller_timeout() {
-        let runner = ResourcePolicyRunner::new(Arc::new(process_runner()), stub_policy(99_999));
+        let runner = ResourcePolicyRunner::new(Arc::new(ProcessSvc::runner()), stub_policy(99_999));
         let args = ProcessArgs::builder()
             .argv(vec!["__nonexistent__".into()])
             .allow_commands(vec!["__nonexistent__".into()])

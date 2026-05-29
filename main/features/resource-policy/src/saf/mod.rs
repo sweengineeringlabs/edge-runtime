@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use swe_edge_configbuilder::ConfigSection as _;
-use swe_edge_egress_process::ProcessRunner;
+use swe_edge_egress_subprocess::ProcessRunner;
 
 pub use crate::api::{ResourceLimits, ResourcePolicy, ResourcePolicyConfig, ResourcePolicyError};
 pub use crate::core::policy_runner::ResourcePolicyRunner;
@@ -14,7 +14,7 @@ pub use crate::core::resolver::ResourceLimitsResolver;
 /// The runner injects policy limits into every [`ProcessArgs`] before
 /// delegating to the inner runner.
 ///
-/// [`ProcessArgs`]: swe_edge_egress_process::ProcessArgs
+/// [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
 pub fn create_resource_policy_runner<R: ProcessRunner>(
     inner: Arc<R>,
     policy: ResourcePolicy,

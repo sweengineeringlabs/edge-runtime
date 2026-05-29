@@ -1,6 +1,6 @@
 //! `NoopIsolator` — no-op isolation profile; safe default for dev and CI.
 
-use swe_edge_egress_process::{IsolationError, IsolationProfile};
+use swe_edge_egress_subprocess::{IsolationError, IsolationProfile};
 
 /// Applies no OS-level restrictions to the subprocess.
 ///

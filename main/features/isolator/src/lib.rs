@@ -19,9 +19,9 @@
 //! # }
 //! ```
 //!
-//! [`IsolationProfile`]: swe_edge_egress_process::IsolationProfile
-//! [`ProcessArgs`]: swe_edge_egress_process::ProcessArgs
-//! [`ProcessRunner`]: swe_edge_egress_process::ProcessRunner
+//! [`IsolationProfile`]: swe_edge_egress_subprocess::IsolationProfile
+//! [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
+//! [`ProcessRunner`]: swe_edge_egress_subprocess::ProcessRunner
 
 #![warn(missing_docs)]
 #![deny(unsafe_code)]

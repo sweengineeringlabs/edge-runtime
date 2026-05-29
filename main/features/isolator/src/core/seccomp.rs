@@ -11,7 +11,7 @@ use std::io;
 use std::sync::Arc;
 
 use seccompiler::{BpfProgram, SeccompAction, SeccompFilter, TargetArch};
-use swe_edge_egress_process::{IsolationError, IsolationProfile};
+use swe_edge_egress_subprocess::{IsolationError, IsolationProfile};
 
 /// Syscall filter applied via `seccomp-bpf` after `fork()`, before `exec()`.
 ///

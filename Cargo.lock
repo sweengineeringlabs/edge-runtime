@@ -2690,19 +2690,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "swe-edge-egress-process"
-version = "0.1.0"
-dependencies = [
- "futures",
- "nix",
- "serde",
- "swe-edge-configbuilder",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "swe-edge-egress-rate"
 version = "0.1.0"
 source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
@@ -2731,6 +2718,19 @@ dependencies = [
  "thiserror 2.0.18",
  "tokio",
  "toml",
+]
+
+[[package]]
+name = "swe-edge-egress-subprocess"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "nix",
+ "serde",
+ "swe-edge-configbuilder",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -2869,7 +2869,7 @@ dependencies = [
  "seccompiler",
  "serde",
  "swe-edge-configbuilder",
- "swe-edge-egress-process",
+ "swe-edge-egress-subprocess",
  "tokio",
  "toml",
 ]
@@ -2896,7 +2896,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "swe-edge-configbuilder",
- "swe-edge-egress-process",
+ "swe-edge-egress-subprocess",
  "thiserror 2.0.18",
  "tokio",
  "toml",

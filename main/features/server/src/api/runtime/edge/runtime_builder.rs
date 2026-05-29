@@ -12,7 +12,7 @@ use swe_edge_ingress_grpc::{
 };
 use swe_edge_ingress_http::{
     HttpDecodeFn, HttpEncodeFn, HttpHandlerAdapter, HttpHandlerRegistryDispatcher, HttpIngress,
-    IngressTlsConfig,
+    HttpStream, IngressTlsConfig,
 };
 use swe_edge_ingress_verifier::TokenVerifier;
 
@@ -36,6 +36,7 @@ pub struct RuntimeBuilder {
     pub(crate) egress_grpc: Option<Arc<dyn GrpcEgress>>,
     pub(crate) lifecycle: Option<Arc<dyn LifecycleMonitor>>,
     pub(crate) tracing_config: Option<crate::api::config::TracingConfig>,
+    pub(crate) stream_handler: Option<Arc<dyn HttpStream>>,
     #[cfg(feature = "message-broker")]
     pub(crate) message_broker: Option<Arc<dyn swe_edge_runtime_message_broker::MessageBroker>>,
 }
@@ -173,6 +174,16 @@ impl RuntimeBuilder {
     /// Supply a pre-built gRPC inbound handler instead of using registered routes.
     pub fn grpc_handler(mut self, handler: Arc<dyn GrpcIngress>) -> Self {
         self.grpc_handler = Some(handler);
+        self
+    }
+    /// Attach a streaming handler for SSE and WebSocket requests.
+    ///
+    /// When set, `Accept: text/event-stream` requests are routed to
+    /// [`HttpStream::handle_sse`] and `Upgrade: websocket` requests to
+    /// [`HttpStream::handle_websocket`] instead of falling through to
+    /// [`HttpIngress::handle`].
+    pub fn stream_handler(mut self, handler: Arc<dyn HttpStream>) -> Self {
+        self.stream_handler = Some(handler);
         self
     }
 
@@ -353,6 +364,38 @@ mod tests {
         assert!(Runtime::builder()
             .egress_grpc(Arc::new(Stub))
             .egress_grpc
+            .is_some());
+    }
+
+    /// @covers: stream_handler
+    #[test]
+    fn test_stream_handler_sets_field() {
+        use edge_domain::RequestContext;
+        use futures::future::BoxFuture;
+        use swe_edge_ingress_http::{
+            HttpIngressResult, HttpRequest, HttpStream, SseStream, WsChannel,
+        };
+        struct Stub;
+        impl HttpStream for Stub {
+            fn handle_sse(
+                &self,
+                _: HttpRequest,
+                _: RequestContext,
+            ) -> BoxFuture<'_, HttpIngressResult<SseStream>> {
+                Box::pin(async { unimplemented!() })
+            }
+            fn handle_websocket(
+                &self,
+                _: HttpRequest,
+                _: RequestContext,
+                _: WsChannel,
+            ) -> BoxFuture<'_, HttpIngressResult<()>> {
+                Box::pin(async { unimplemented!() })
+            }
+        }
+        assert!(Runtime::builder()
+            .stream_handler(Arc::new(Stub))
+            .stream_handler
             .is_some());
     }
 

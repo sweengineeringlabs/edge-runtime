@@ -34,9 +34,9 @@ impl ResourcePolicy {
     ///
     /// This is the injection step used by [`ResourcePolicyRunner`].
     ///
-    /// [`ProcessArgs`]: swe_edge_egress_process::ProcessArgs
+    /// [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
     /// [`ResourcePolicyRunner`]: crate::ResourcePolicyRunner
-    pub fn inject_into(&self, args: &mut swe_edge_egress_process::ProcessArgs) {
+    pub fn inject_into(&self, args: &mut swe_edge_egress_subprocess::ProcessArgs) {
         args.timeout_ms.get_or_insert(self.timeout_ms);
         args.output_bytes_cap.get_or_insert(self.output_bytes_cap);
         args.cpu_time_ms.get_or_insert(self.cpu_time_ms);
@@ -47,7 +47,7 @@ impl ResourcePolicy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use swe_edge_egress_process::ProcessArgs;
+    use swe_edge_egress_subprocess::ProcessArgs;
 
     fn stub_policy() -> ResourcePolicy {
         ResourcePolicy {

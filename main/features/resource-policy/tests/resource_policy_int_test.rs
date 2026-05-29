@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_process::{process_runner, ProcessArgs, ProcessResult, ProcessRunner as _};
+use swe_edge_egress_subprocess::{ProcessArgs, ProcessResult, ProcessRunner as _, ProcessSvc};
 use swe_edge_runtime_resource_policy::{
     create_resource_policy_runner, ResourceLimits, ResourceLimitsResolver, ResourcePolicy,
     ResourcePolicyConfig, ResourcePolicyError,
@@ -82,7 +82,7 @@ async fn test_resource_policy_runner_completes_with_injected_limits() {
         cpu_time_ms: 0,
         memory_bytes: 0,
     };
-    let runner = create_resource_policy_runner(Arc::new(process_runner()), policy);
+    let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
 
     #[cfg(unix)]
     let (argv, allow) = (vec!["echo".into(), "ok".into()], vec!["echo".into()]);
@@ -113,7 +113,7 @@ async fn test_resource_policy_runner_preserves_caller_timeout() {
         cpu_time_ms: 0,
         memory_bytes: 0,
     };
-    let runner = create_resource_policy_runner(Arc::new(process_runner()), policy);
+    let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
 
     // A nonexistent binary denied before spawning — just confirms no panic
     // injecting policy when caller's timeout_ms is already set.
@@ -136,7 +136,7 @@ async fn test_resource_policy_runner_deny_not_bypassed_by_policy() {
         cpu_time_ms: 0,
         memory_bytes: 0,
     };
-    let runner = create_resource_policy_runner(Arc::new(process_runner()), policy);
+    let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
     let args = ProcessArgs::builder().argv(vec!["echo".into()]).build(); // no allow_commands → Denied
     let result = runner.run(args).await;
     assert!(

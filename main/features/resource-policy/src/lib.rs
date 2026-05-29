@@ -9,7 +9,7 @@
 //! ```rust,no_run
 //! use std::sync::Arc;
 //! use swe_edge_configbuilder::{ConfigSection as _, create_loader};
-//! use swe_edge_egress_process::{process_runner, ProcessRunner as _};
+//! use swe_edge_egress_subprocess::{ProcessSvc, ProcessRunner as _};
 //! use swe_edge_runtime_resource_policy::{
 //!     ResourcePolicyConfig, ResourcePolicyRunner, create_resource_policy_runner,
 //! };
@@ -18,13 +18,13 @@
 //! let loader = create_loader();
 //! let config = ResourcePolicyConfig::load(&loader)?;
 //! let policy = config.get("default")?;
-//! let runner = create_resource_policy_runner(Arc::new(process_runner()), policy);
+//! let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
 //! # Ok(())
 //! # }
 //! ```
 //!
-//! [`ProcessRunner`]: swe_edge_egress_process::ProcessRunner
-//! [`ProcessArgs`]: swe_edge_egress_process::ProcessArgs
+//! [`ProcessRunner`]: swe_edge_egress_subprocess::ProcessRunner
+//! [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
 
 #![warn(missing_docs)]
 #![deny(unsafe_code)]

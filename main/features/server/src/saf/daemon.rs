@@ -4,13 +4,14 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use crate::api::egress::Egress;
-use crate::api::error::RuntimeResult;
+use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::ingress::Ingress;
 use crate::api::runtime_manager::RuntimeManager;
 use crate::api::types::RuntimeConfig;
 use crate::core::runner::run_until_signal;
 use crate::core::DefaultRuntimeManager;
 use edge_proxy::LifecycleMonitor;
+use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 
 /// Assemble a [`RuntimeManager`] from the supplied config, ingress, egress,
 /// and lifecycle monitor.
@@ -47,10 +48,29 @@ pub async fn run(
     let timeout_secs = config.shutdown_timeout_secs;
     let http_bind = config.http_bind.clone();
     let grpc_bind = config.grpc_bind.clone();
+    let http_tls = config.http_tls.clone();
+    let grpc_tls = config.grpc_tls.clone();
+    let grpc_allow_unauthenticated = config.grpc_allow_unauthenticated;
+
+    let http_bearer_verifier: Option<Arc<dyn TokenVerifier>> =
+        if let Some(ref auth_cfg) = config.http_auth {
+            Some(Arc::new(
+                JwtVerifier::from_config(auth_cfg)
+                    .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+            ))
+        } else {
+            None
+        };
 
     let (http_shutdown_tx, http_shutdown_rx) = oneshot::channel::<()>();
     let http_task = ingress.http().map(|handler| {
-        let server = AxumHttpServer::new(http_bind, handler);
+        let mut server = AxumHttpServer::new(http_bind, handler);
+        if let Some(tls) = http_tls {
+            server = server.with_tls(tls);
+        }
+        if let Some(verifier) = http_bearer_verifier {
+            server = server.with_bearer_auth(verifier);
+        }
         tokio::spawn(async move {
             let signal = async move {
                 let _ = http_shutdown_rx.await;
@@ -63,7 +83,13 @@ pub async fn run(
 
     let (grpc_shutdown_tx, grpc_shutdown_rx) = oneshot::channel::<()>();
     let grpc_task = ingress.grpc().map(|handler| {
-        let server = TonicGrpcServer::new(grpc_bind, handler);
+        let mut server = TonicGrpcServer::new(grpc_bind, handler);
+        if let Some(tls) = grpc_tls {
+            server = server.with_tls(tls);
+        }
+        if grpc_allow_unauthenticated {
+            server = server.allow_unauthenticated(true);
+        }
         tokio::spawn(async move {
             let signal = async move {
                 let _ = grpc_shutdown_rx.await;
