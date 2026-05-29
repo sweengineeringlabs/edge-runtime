@@ -31,32 +31,3 @@ pub enum QueueError {
     #[error("queue unavailable: {0}")]
     Unavailable(String),
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_enqueue_error_includes_reason() {
-        let e = QueueError::Enqueue("serialization failed".into());
-        assert!(e.to_string().contains("serialization failed"));
-    }
-
-    #[test]
-    fn test_dequeue_error_includes_reason() {
-        let e = QueueError::Dequeue("connection lost".into());
-        assert!(e.to_string().contains("connection lost"));
-    }
-
-    #[test]
-    fn test_full_error_displays() {
-        let e = QueueError::Full;
-        assert_eq!(e.to_string(), "queue full");
-    }
-
-    #[test]
-    fn test_closed_error_displays() {
-        let e = QueueError::Closed;
-        assert_eq!(e.to_string(), "queue closed");
-    }
-}

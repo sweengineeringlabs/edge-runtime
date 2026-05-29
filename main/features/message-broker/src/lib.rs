@@ -4,11 +4,12 @@
 //! publish/subscribe messaging.  Use [`in_memory_broker`] for testing and
 //! local services, [`nats_broker`] for NATS-backed production deployments.
 //!
-//! Single entry point: [`crate::saf`] (edge_message_broker_svc, edge_task_queue_svc).
+//! Single entry point: [`crate::gateway`] (message_broker_svc).
 
 mod api;
 mod core;
+mod gateway;
 mod saf;
 mod spi;
 
-pub use crate::saf::*;
+pub use crate::gateway::*;

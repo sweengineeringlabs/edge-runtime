@@ -1,9 +1,8 @@
 //! SAF layer — message broker and task queue public facade.
 //!
-//! Single entry point: edge_message_broker_svc and edge_task_queue_svc.
+//! Single entry point: broker_svc.
 
-mod edge_message_broker_svc;
-mod edge_task_queue_svc;
+mod broker_svc;
 
 pub use crate::api::broker::BrokerError;
 pub use crate::api::broker::Message;
@@ -14,16 +13,5 @@ pub use crate::api::task_queue::Task;
 pub use crate::api::task_queue::TaskHandle;
 pub use crate::api::task_queue::TaskId;
 pub use crate::api::task_queue::TaskQueue;
-pub use crate::api::traits::Validator;
-pub use edge_message_broker_svc::broker_from_config;
-pub use edge_message_broker_svc::create_config_builder;
-
-#[cfg(feature = "tokio-rt")]
-pub use edge_message_broker_svc::in_memory_broker;
-#[cfg(feature = "nats")]
-pub use edge_message_broker_svc::nats_broker;
-
-#[cfg(feature = "tokio-rt")]
-pub use edge_task_queue_svc::in_memory_task_queue;
-#[cfg(feature = "nats")]
-pub use edge_task_queue_svc::nats_task_queue;
+pub use crate::api::types::MessageBrokerFactory;
+pub use crate::api::types::TaskQueueFactory;

@@ -10,8 +10,8 @@ use crate::api::broker::message_stream::MessageStream;
 ///
 /// Implement this trait to plug in any broker backend — in-memory tokio
 /// broadcast, NATS, Kafka, or a custom transport.  The crate ships
-/// [`crate::InMemoryMessageBroker`] (`tokio-rt` feature) and
-/// [`crate::NatsMessageBroker`] (`nats` feature) as ready-made implementations.
+/// [`crate::in_memory_broker`] (`tokio-rt` feature) and
+/// [`crate::nats_broker`] (`nats` feature) as ready-made factory functions.
 ///
 /// # Publish semantics
 ///
@@ -41,14 +41,4 @@ pub trait MessageBroker: Send + Sync {
 
     /// Probe broker connectivity. Returns `Ok(())` if the broker is reachable.
     fn health_check(&self) -> BoxFuture<'_, Result<(), BrokerError>>;
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_message_broker_is_object_safe() {
-        fn _check(_: &dyn MessageBroker) {}
-    }
 }

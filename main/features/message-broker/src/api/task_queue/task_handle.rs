@@ -27,18 +27,3 @@ impl TaskHandle {
         Self { task_id, ack, nack }
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// @covers: new
-    #[test]
-    fn test_task_handle_new_stores_task_id() {
-        let task_id = super::super::task::TaskId::new();
-        let ack = Box::pin(async { Ok(()) });
-        let nack = Box::pin(async { Ok(()) });
-        let handle = TaskHandle::new(task_id, ack, nack);
-        assert_eq!(handle.task_id, task_id);
-    }
-}

@@ -1,5 +1,7 @@
 //! API layer — public trait contracts and value types.
 
 pub(crate) mod broker;
+pub(crate) mod error;
 pub(crate) mod task_queue;
 pub(crate) mod traits;
+pub(crate) mod types;

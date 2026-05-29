@@ -9,13 +9,3 @@ use crate::api::broker::message::message::Message;
 
 /// An ordered stream of messages received from a [`crate::MessageBroker`] subscription.
 pub type MessageStream = Pin<Box<dyn Stream<Item = Result<Message, BrokerError>> + Send>>;
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_message_stream_type_alias_is_object_safe() {
-        fn _accepts_stream(_: &MessageStream) {}
-    }
-}

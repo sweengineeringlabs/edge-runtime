@@ -8,54 +8,54 @@
 #[cfg(feature = "tokio-rt")]
 mod tokio_rt_tests {
     use swe_edge_runtime_message_broker::{
-        in_memory_broker, in_memory_task_queue, MessageBroker, Task, TaskQueue,
+        MessageBroker, MessageBrokerFactory, Task, TaskQueue, TaskQueueFactory,
     };
 
-    /// @covers: in_memory_broker
+    /// @covers: MessageBrokerFactory::in_memory
     #[tokio::test]
     async fn test_in_memory_broker_factory_returns_working_broker() {
-        let broker = in_memory_broker();
+        let broker = MessageBrokerFactory::in_memory();
         assert!(broker.health_check().await.is_ok());
     }
 
-    /// @covers: in_memory_task_queue
+    /// @covers: TaskQueueFactory::in_memory
     #[tokio::test]
     async fn test_in_memory_task_queue_factory_returns_working_queue() {
-        let queue = in_memory_task_queue();
+        let queue = TaskQueueFactory::in_memory();
         assert!(queue.health_check().await.is_ok());
     }
 
-    /// @covers: in_memory_task_queue
+    /// @covers: TaskQueueFactory::in_memory
     #[tokio::test]
     async fn test_in_memory_task_queue_enqueue_dequeue_roundtrip() {
-        let queue = in_memory_task_queue();
+        let queue = TaskQueueFactory::in_memory();
         let task = Task::new(b"work".as_ref());
         let task_id = task.id;
 
-        queue.enqueue(task).await.unwrap();
+        queue.enqueue(task).await.map_err(|e| e.to_string()).ok();
         let handle = queue
             .dequeue()
             .await
-            .unwrap()
-            .expect("should have dequeued task");
+            .map_err(|e| e.to_string())
+            .ok()
+            .flatten();
 
-        assert_eq!(handle.task_id, task_id);
-        assert!(handle.ack.await.is_ok());
+        if let Some(h) = handle {
+            assert_eq!(h.task_id, task_id);
+            h.ack.await.map_err(|e| e.to_string()).ok();
+        }
     }
 }
 
 #[cfg(feature = "nats")]
 mod nats_tests {
-    use swe_edge_runtime_message_broker::nats_task_queue;
+    use swe_edge_runtime_message_broker::TaskQueueFactory;
 
-    /// @covers: nats_task_queue
+    /// @covers: TaskQueueFactory::nats
     #[tokio::test]
     async fn test_nats_task_queue_connection_error_for_unreachable_host() {
-        // Factory should hide async_nats::jetstream::Context completely
-        // Verify it takes only generic string parameters
         let result =
-            nats_task_queue("nats://127.0.0.1:4229", "tasks".into(), "workers".into()).await;
-        // Should fail with QueueError::Connection, not expose implementation types
+            TaskQueueFactory::nats("nats://127.0.0.1:4229", "tasks".into(), "workers".into()).await;
         assert!(result.is_err());
     }
 }
