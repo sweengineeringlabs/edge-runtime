@@ -3,7 +3,8 @@
 use std::sync::Arc;
 
 use swe_edge_egress_subprocess::{
-    IsolationError, IsolationProfile, ProcessArgs, ProcessResult, ProcessRunner, ProcessSvc,
+    IsolationError, IsolationProfile, SubprocessArgs, SubprocessResult, SubprocessRunner,
+    SubprocessSvc,
 };
 use swe_edge_runtime_isolator::{create_noop_isolator, IsolationProfileRegistry, IsolatorConfig};
 
@@ -56,12 +57,12 @@ fn test_registry_get_unknown_returns_unknown_profile_error() {
     );
 }
 
-// ── ProcessRunner integration ─────────────────────────────────────────────────
+// ── SubprocessRunner integration ─────────────────────────────────────────────
 
-/// @covers: ProcessRunner — NoopIsolator does not affect a successful run.
+/// @covers: SubprocessRunner — NoopIsolator does not affect a successful run.
 #[tokio::test]
-async fn test_process_runner_with_noop_isolator_completes() {
-    use swe_edge_egress_subprocess::ProcessRunner as _;
+async fn test_subprocess_runner_with_noop_isolator_completes() {
+    use swe_edge_egress_subprocess::SubprocessRunner as _;
 
     let profile: Arc<dyn IsolationProfile> = Arc::new(create_noop_isolator());
 
@@ -76,24 +77,24 @@ async fn test_process_runner_with_noop_isolator_completes() {
         vec!["cmd".to_owned()],
     );
 
-    let args = ProcessArgs::builder()
+    let args = SubprocessArgs::builder()
         .argv(argv)
         .allow_commands(allow)
         .timeout_ms(5_000)
         .isolation_profile(profile)
         .build();
 
-    let result = ProcessSvc::runner().run(args).await;
+    let result = SubprocessSvc::runner().run(args).await;
     assert!(
-        matches!(result, ProcessResult::Completed { exit_code: 0, .. }),
+        matches!(result, SubprocessResult::Completed { exit_code: 0, .. }),
         "expected Completed(0); got {result:?}",
     );
 }
 
-/// @covers: ProcessRunner — failing apply hook returns IsolationFailed.
+/// @covers: SubprocessRunner — failing apply hook returns IsolationFailed.
 #[tokio::test]
-async fn test_process_runner_isolation_failed_when_apply_errors() {
-    use swe_edge_egress_subprocess::ProcessRunner as _;
+async fn test_subprocess_runner_isolation_failed_when_apply_errors() {
+    use swe_edge_egress_subprocess::SubprocessRunner as _;
 
     #[derive(Debug)]
     struct FailingIsolator;
@@ -121,16 +122,16 @@ async fn test_process_runner_isolation_failed_when_apply_errors() {
         vec!["cmd".to_owned()],
     );
 
-    let args = ProcessArgs::builder()
+    let args = SubprocessArgs::builder()
         .argv(argv)
         .allow_commands(allow)
         .timeout_ms(5_000)
         .isolation_profile(profile)
         .build();
 
-    let result = ProcessSvc::runner().run(args).await;
+    let result = SubprocessSvc::runner().run(args).await;
     assert!(
-        matches!(result, ProcessResult::IsolationFailed { .. }),
+        matches!(result, SubprocessResult::IsolationFailed { .. }),
         "expected IsolationFailed; got {result:?}",
     );
 }

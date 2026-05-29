@@ -2,7 +2,9 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_subprocess::{ProcessArgs, ProcessResult, ProcessRunner as _, ProcessSvc};
+use swe_edge_egress_subprocess::{
+    SubprocessArgs, SubprocessResult, SubprocessRunner as _, SubprocessSvc,
+};
 use swe_edge_runtime_resource_policy::{
     create_resource_policy_runner, ResourceLimits, ResourceLimitsResolver, ResourcePolicy,
     ResourcePolicyConfig, ResourcePolicyError,
@@ -82,7 +84,7 @@ async fn test_resource_policy_runner_completes_with_injected_limits() {
         cpu_time_ms: 0,
         memory_bytes: 0,
     };
-    let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
+    let runner = create_resource_policy_runner(Arc::new(SubprocessSvc::runner()), policy);
 
     #[cfg(unix)]
     let (argv, allow) = (vec!["echo".into(), "ok".into()], vec!["echo".into()]);
@@ -92,13 +94,13 @@ async fn test_resource_policy_runner_completes_with_injected_limits() {
         vec!["cmd".into()],
     );
 
-    let args = ProcessArgs::builder()
+    let args = SubprocessArgs::builder()
         .argv(argv)
         .allow_commands(allow)
         .build();
     let result = runner.run(args).await;
     assert!(
-        matches!(result, ProcessResult::Completed { exit_code: 0, .. }),
+        matches!(result, SubprocessResult::Completed { exit_code: 0, .. }),
         "expected Completed(0); got {result:?}",
     );
 }
@@ -113,17 +115,17 @@ async fn test_resource_policy_runner_preserves_caller_timeout() {
         cpu_time_ms: 0,
         memory_bytes: 0,
     };
-    let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
+    let runner = create_resource_policy_runner(Arc::new(SubprocessSvc::runner()), policy);
 
     // A nonexistent binary denied before spawning — just confirms no panic
     // injecting policy when caller's timeout_ms is already set.
-    let args = ProcessArgs::builder()
+    let args = SubprocessArgs::builder()
         .argv(vec!["__nonexistent__".into()])
         .allow_commands(vec!["__nonexistent__".into()])
         .timeout_ms(1_000)
         .build();
     let result = runner.run(args).await;
-    assert!(matches!(result, ProcessResult::SpawnFailed { .. }));
+    assert!(matches!(result, SubprocessResult::SpawnFailed { .. }));
 }
 
 /// @covers: ResourcePolicyRunner — denied when allow_list empty (policy doesn't bypass it).
@@ -136,11 +138,11 @@ async fn test_resource_policy_runner_deny_not_bypassed_by_policy() {
         cpu_time_ms: 0,
         memory_bytes: 0,
     };
-    let runner = create_resource_policy_runner(Arc::new(ProcessSvc::runner()), policy);
-    let args = ProcessArgs::builder().argv(vec!["echo".into()]).build(); // no allow_commands → Denied
+    let runner = create_resource_policy_runner(Arc::new(SubprocessSvc::runner()), policy);
+    let args = SubprocessArgs::builder().argv(vec!["echo".into()]).build(); // no allow_commands → Denied
     let result = runner.run(args).await;
     assert!(
-        matches!(result, ProcessResult::Denied { .. }),
+        matches!(result, SubprocessResult::Denied { .. }),
         "expected Denied; got {result:?}",
     );
 }

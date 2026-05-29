@@ -15,7 +15,7 @@ use crate::core::{noop::NoopIsolator, resolve_profile};
 ///
 /// The `"noop"` profile is always registered regardless of config.
 ///
-/// [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
+/// [`SubprocessArgs`]: swe_edge_egress_subprocess::SubprocessArgs
 pub struct IsolationProfileRegistry {
     profiles: HashMap<String, Arc<dyn IsolationProfile>>,
 }

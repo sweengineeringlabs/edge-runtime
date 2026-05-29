@@ -33,7 +33,7 @@ seccomp = ["dep:seccompiler"]
 serde   = { version = "1.0", features = ["derive"] }
 tokio   = { version = "1.0", features = ["process"] }
 
-swe-edge-configbuilder  = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+swe-edge-configbuilder  = { path = "../../../../configbuilder/main/features/configbuilder" }
 swe-edge-egress-subprocess = { path = "../../../../egress/subprocess/main/features/subprocess" }
 
 [target.'cfg(target_os = "linux")'.dependencies]

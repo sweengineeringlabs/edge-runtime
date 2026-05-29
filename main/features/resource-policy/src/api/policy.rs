@@ -29,14 +29,14 @@ pub struct ResourcePolicy {
 }
 
 impl ResourcePolicy {
-    /// Apply this policy's limits to a [`ProcessArgs`] builder,
+    /// Apply this policy's limits to a [`SubprocessArgs`] builder,
     /// filling only fields that the caller left as `None`.
     ///
     /// This is the injection step used by [`ResourcePolicyRunner`].
     ///
-    /// [`ProcessArgs`]: swe_edge_egress_subprocess::ProcessArgs
+    /// [`SubprocessArgs`]: swe_edge_egress_subprocess::SubprocessArgs
     /// [`ResourcePolicyRunner`]: crate::ResourcePolicyRunner
-    pub fn inject_into(&self, args: &mut swe_edge_egress_subprocess::ProcessArgs) {
+    pub fn inject_into(&self, args: &mut swe_edge_egress_subprocess::SubprocessArgs) {
         args.timeout_ms.get_or_insert(self.timeout_ms);
         args.output_bytes_cap.get_or_insert(self.output_bytes_cap);
         args.cpu_time_ms.get_or_insert(self.cpu_time_ms);
@@ -47,7 +47,7 @@ impl ResourcePolicy {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use swe_edge_egress_subprocess::ProcessArgs;
+    use swe_edge_egress_subprocess::SubprocessArgs;
 
     fn stub_policy() -> ResourcePolicy {
         ResourcePolicy {
@@ -63,7 +63,7 @@ mod tests {
     #[test]
     fn test_inject_into_fills_none_fields() {
         let policy = stub_policy();
-        let mut args = ProcessArgs::builder().argv(vec!["echo".into()]).build();
+        let mut args = SubprocessArgs::builder().argv(vec!["echo".into()]).build();
         policy.inject_into(&mut args);
         assert_eq!(args.timeout_ms, Some(5_000));
         assert_eq!(args.output_bytes_cap, Some(512));
@@ -75,7 +75,7 @@ mod tests {
     #[test]
     fn test_inject_into_does_not_overwrite_existing_values() {
         let policy = stub_policy();
-        let mut args = ProcessArgs::builder()
+        let mut args = SubprocessArgs::builder()
             .argv(vec!["echo".into()])
             .timeout_ms(99_999)
             .build();

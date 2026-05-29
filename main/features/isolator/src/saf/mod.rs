@@ -24,12 +24,9 @@ pub fn create_noop_isolator() -> impl IsolationProfile {
 /// profile spec is invalid.
 ///
 /// [`IsolationError`]: swe_edge_egress_subprocess::IsolationError
-pub fn create_profile_registry<L>(
-    loader: &L,
-) -> Result<IsolationProfileRegistry, swe_edge_egress_subprocess::IsolationError>
-where
-    L: swe_edge_configbuilder::Loader,
-{
+pub fn create_profile_registry(
+    loader: &swe_edge_configbuilder::SectionLoaderImpl,
+) -> Result<IsolationProfileRegistry, swe_edge_egress_subprocess::IsolationError> {
     let config = IsolatorConfig::load(loader).map_err(|e| {
         swe_edge_egress_subprocess::IsolationError::UnknownProfile {
             profile: format!("config load failed: {e}"),

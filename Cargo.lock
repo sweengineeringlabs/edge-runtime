@@ -678,22 +678,22 @@ dependencies = [
 [[package]]
 name = "edge-domain"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.4#9e66e8f26816b476bdf4692dd4602a840664529b"
 dependencies = [
- "async-trait",
+ "futures",
  "parking_lot",
  "thiserror 2.0.18",
+ "tokio",
 ]
 
 [[package]]
 name = "edge-proxy"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "edge-domain",
  "futures",
  "parking_lot",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
 ]
 
@@ -2543,9 +2543,9 @@ dependencies = [
 [[package]]
 name = "swe-edge-configbuilder"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.4.2#e928583725cc091fd46d3be42d8b3365b38dc6ea"
 dependencies = [
  "dirs",
+ "regex",
  "serde",
  "thiserror 2.0.18",
  "toml",
@@ -2554,7 +2554,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-auth"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "async-trait",
  "base64",
@@ -2569,6 +2568,7 @@ dependencies = [
  "secrecy",
  "serde",
  "sha2",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "time",
  "toml",
@@ -2577,7 +2577,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-breaker"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2586,6 +2585,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2594,7 +2594,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-cache"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2603,6 +2602,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2611,7 +2611,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-cassette"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2624,6 +2623,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "sha2",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2632,7 +2632,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-grpc-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "bytes",
  "futures",
@@ -2641,6 +2640,7 @@ dependencies = [
  "hyper-rustls",
  "hyper-util",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "tokio-util",
@@ -2651,7 +2651,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-http-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "bytes",
  "futures",
@@ -2660,6 +2659,7 @@ dependencies = [
  "reqwest-middleware",
  "serde",
  "serde_json",
+ "swe-edge-configbuilder",
  "swe-edge-egress-auth",
  "swe-edge-egress-breaker",
  "swe-edge-egress-cache",
@@ -2676,7 +2676,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-oauth"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2684,15 +2683,17 @@ dependencies = [
  "http",
  "reqwest",
  "reqwest-middleware",
+ "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
+ "toml",
  "tracing",
 ]
 
 [[package]]
 name = "swe-edge-egress-rate"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "async-trait",
  "http",
@@ -2700,6 +2701,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2708,13 +2710,13 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-retry"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "async-trait",
  "http",
  "reqwest",
  "reqwest-middleware",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2736,12 +2738,12 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-tls"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "http",
  "reqwest",
  "secrecy",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "toml",
 ]
@@ -2749,12 +2751,12 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-reflection"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "edge-domain",
  "futures",
  "parking_lot",
  "serde",
+ "swe-edge-configbuilder",
  "swe-edge-ingress-grpc-transport",
  "thiserror 2.0.18",
  "tokio",
@@ -2764,7 +2766,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "async-trait",
  "bytes",
@@ -2778,6 +2779,7 @@ dependencies = [
  "parking_lot",
  "serde",
  "sha2",
+ "swe-edge-configbuilder",
  "swe-edge-ingress-tls",
  "swe_justobserv_context",
  "swe_justobserv_metrics",
@@ -2791,7 +2793,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-http-transport"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "async-trait",
  "axum 0.8.9",
@@ -2805,6 +2806,7 @@ dependencies = [
  "parking_lot",
  "serde",
  "serde_json",
+ "swe-edge-configbuilder",
  "swe-edge-ingress-tls",
  "swe-edge-ingress-verifier",
  "swe_justobserv_context",
@@ -2817,11 +2819,11 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-tls"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "rustls",
  "rustls-pemfile",
  "serde",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tokio-rustls",
 ]
@@ -2829,13 +2831,13 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-verifier"
 version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.3.8#e945800e14b3185812d39903f021d2b510c4939b"
 dependencies = [
  "edge-domain",
  "jsonwebtoken",
  "serde",
  "serde_json",
  "subtle",
+ "swe-edge-configbuilder",
  "thiserror 2.0.18",
  "tracing",
 ]
