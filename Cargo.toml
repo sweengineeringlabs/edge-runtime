@@ -1,6 +1,12 @@
 [workspace]
 resolver = "2"
-members  = ["main/features/*"]
+members  = [
+  "main/features/isolator",
+  "main/features/resource-policy",
+  "main/features/message-broker",
+  "main/features/actor",
+  "main/features/scheduler",
+]
 
 [workspace.package]
 version      = "0.1.0"

@@ -1,7 +1,7 @@
 //! Default SweEdgeRuntimeIsolator implementation.
 
 use crate::api::error::Error;
-use crate::api::swe_edge_runtime_isolator::SweEdgeRuntimeIsolator;
+use crate::api::traits::SweEdgeRuntimeIsolator;
 use crate::api::traits::Validator;
 
 /// Default implementation of the SweEdgeRuntimeIsolator trait.

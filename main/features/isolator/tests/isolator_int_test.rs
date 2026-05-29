@@ -6,27 +6,27 @@ use swe_edge_egress_subprocess::{
     IsolationError, IsolationProfile, SubprocessArgs, SubprocessResult, SubprocessRunner,
     SubprocessSvc,
 };
-use swe_edge_runtime_isolator::{create_noop_isolator, IsolationProfileRegistry, IsolatorConfig};
+use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};
 
 // ── NoopIsolator ──────────────────────────────────────────────────────────────
 
-/// @covers: create_noop_isolator — name is "noop".
+/// @covers: IsolatorSvc::create_noop_isolator — name is "noop".
 #[test]
 fn test_create_noop_isolator_name_is_noop() {
-    assert_eq!(create_noop_isolator().name(), "noop");
+    assert_eq!(IsolatorSvc::create_noop_isolator().name(), "noop");
 }
 
-/// @covers: create_noop_isolator — can be stored as Arc<dyn IsolationProfile>.
+/// @covers: IsolatorSvc::create_noop_isolator — can be stored as Arc<dyn IsolationProfile>.
 #[test]
 fn test_create_noop_isolator_storable_as_arc_dyn() {
-    let _: Arc<dyn IsolationProfile> = Arc::new(create_noop_isolator());
+    let _: Arc<dyn IsolationProfile> = Arc::new(IsolatorSvc::create_noop_isolator());
 }
 
-/// @covers: NoopIsolator — configure returns Ok.
+/// @covers: IsolatorSvc::create_noop_isolator — configure returns Ok.
 #[test]
 fn test_noop_isolator_configure_returns_ok() {
     let mut cmd = tokio::process::Command::new("echo");
-    assert!(create_noop_isolator().configure(&mut cmd).is_ok());
+    assert!(IsolatorSvc::create_noop_isolator().configure(&mut cmd).is_ok());
 }
 
 // ── IsolationProfileRegistry ─────────────────────────────────────────────────
@@ -34,14 +34,14 @@ fn test_noop_isolator_configure_returns_ok() {
 /// @covers: IsolationProfileRegistry — "noop" built-in always present.
 #[test]
 fn test_registry_noop_profile_always_present() {
-    let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
+    let registry = IsolatorSvc::build_registry(IsolatorConfig::default()).expect("registry build");
     assert!(registry.get("noop").is_ok());
 }
 
 /// @covers: IsolationProfileRegistry — "default" maps to noop.
 #[test]
 fn test_registry_default_profile_resolves_to_noop() {
-    let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
+    let registry = IsolatorSvc::build_registry(IsolatorConfig::default()).expect("registry build");
     let profile = registry.get("default").unwrap();
     assert_eq!(profile.name(), "noop");
 }
@@ -49,7 +49,7 @@ fn test_registry_default_profile_resolves_to_noop() {
 /// @covers: IsolationProfileRegistry::get — unknown name returns UnknownProfile.
 #[test]
 fn test_registry_get_unknown_returns_unknown_profile_error() {
-    let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
+    let registry = IsolatorSvc::build_registry(IsolatorConfig::default()).expect("registry build");
     let err = registry.get("nonexistent").unwrap_err();
     assert!(
         matches!(err, IsolationError::UnknownProfile { .. }),
@@ -64,7 +64,7 @@ fn test_registry_get_unknown_returns_unknown_profile_error() {
 async fn test_subprocess_runner_with_noop_isolator_completes() {
     use swe_edge_egress_subprocess::SubprocessRunner as _;
 
-    let profile: Arc<dyn IsolationProfile> = Arc::new(create_noop_isolator());
+    let profile: Arc<dyn IsolationProfile> = Arc::new(IsolatorSvc::create_noop_isolator());
 
     #[cfg(unix)]
     let (argv, allow) = (

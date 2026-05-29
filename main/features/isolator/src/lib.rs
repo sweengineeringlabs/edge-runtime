@@ -7,13 +7,12 @@
 //! # Quick start
 //!
 //! ```rust,no_run
-//! use swe_edge_configbuilder::{ConfigSection as _, ConfigLoaderFactory};
-//! use swe_edge_runtime_isolator::{IsolatorConfig, IsolationProfileRegistry};
+//! use swe_edge_configbuilder::ConfigLoaderFactory;
+//! use swe_edge_runtime_isolator::IsolatorSvc;
 //!
 //! # fn main() -> Result<(), Box<dyn std::error::Error>> {
 //! let loader   = ConfigLoaderFactory::create_loader()?;
-//! let config   = IsolatorConfig::load(&loader)?;
-//! let registry = IsolationProfileRegistry::from_config(config)?;
+//! let registry = IsolatorSvc::create_profile_registry(&loader)?;
 //! let profile  = registry.get("default")?;
 //! # Ok(())
 //! # }
@@ -28,6 +27,7 @@
 
 mod api;
 mod core;
+mod gateway;
 mod saf;
 
-pub use saf::*;
+pub use gateway::egress::*;

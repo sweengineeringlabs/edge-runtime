@@ -31,7 +31,7 @@ swe-edge-configbuilder = { path = "../../../../configbuilder/main/features/confi
 
 [dev-dependencies]
 async-trait = "0.1"
-edge-domain = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.5" }
+edge-domain = { path = "C:/Users/elvis/.cargo/git/checkouts/edge-80f8cf49485d7bd8/fd013cb/domain" }
 toml        = "0.8"
 futures     = "0.3"
 

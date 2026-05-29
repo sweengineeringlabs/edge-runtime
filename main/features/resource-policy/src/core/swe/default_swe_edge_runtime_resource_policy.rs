@@ -1,7 +1,7 @@
 //! Default SweEdgeRuntimeResourcePolicy implementation.
 
 use crate::api::error::Error;
-use crate::api::swe_edge_runtime_resource_policy::SweEdgeRuntimeResourcePolicy;
+use crate::api::traits::SweEdgeRuntimeResourcePolicy;
 use crate::api::traits::Validator;
 
 /// Default implementation of the SweEdgeRuntimeResourcePolicy trait.
