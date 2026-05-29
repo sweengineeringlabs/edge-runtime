@@ -9,7 +9,7 @@
 //! - Graceful shutdown via StopHandle
 
 use futures::future::BoxFuture;
-use swe_edge_runtime_actor::{spawn_actor_with_stop, Actor, ActorContext, ActorHandle, StopHandle};
+use swe_edge_runtime_actor::{Actor, ActorContext, ActorHandle, ActorRuntime, StopHandle};
 
 #[derive(Clone)]
 struct Counter {
@@ -56,13 +56,22 @@ impl Actor for Counter {
 #[tokio::main]
 async fn main() {
     let counter = Counter { count: 0 };
-    let (handle, stop) = spawn_actor_with_stop(counter);
+    let (handle, stop) = ActorRuntime::spawn_with_stop(counter);
 
     // Fire-and-forget: tell()
     println!("Sending increment messages...");
-    handle.tell(CounterMessage::Increment).await.unwrap();
-    handle.tell(CounterMessage::Increment).await.unwrap();
-    handle.tell(CounterMessage::Increment).await.unwrap();
+    handle
+        .tell(CounterMessage::Increment)
+        .await
+        .unwrap_or_else(|_| panic!("tell failed"));
+    handle
+        .tell(CounterMessage::Increment)
+        .await
+        .unwrap_or_else(|_| panic!("tell failed"));
+    handle
+        .tell(CounterMessage::Increment)
+        .await
+        .unwrap_or_else(|_| panic!("tell failed"));
 
     // Give messages time to process
     tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
@@ -70,8 +79,11 @@ async fn main() {
     // Request-reply: send a message with a reply channel
     println!("\nRequesting count...");
     let (tx, rx) = tokio::sync::oneshot::channel();
-    handle.tell(CounterMessage::GetCount(tx)).await.unwrap();
-    let count = rx.await.unwrap();
+    handle
+        .tell(CounterMessage::GetCount(tx))
+        .await
+        .unwrap_or_else(|_| panic!("tell failed"));
+    let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));
     println!("Final count: {}", count);
 
     // Graceful shutdown

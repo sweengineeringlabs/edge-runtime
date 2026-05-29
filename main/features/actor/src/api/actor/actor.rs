@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use super::context::ActorContext;
+use crate::api::types::actor::actor_context::ActorContext;
 
 /// An actor is an encapsulated state machine that processes messages sequentially.
 ///

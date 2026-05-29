@@ -1,18 +1,12 @@
-//! Actor mailbox types and traits.
+//! Actor traits.
 
-/// Actor execution context.
-pub mod context;
-/// Mailbox error types.
-pub mod error;
+/// Actor trait — message-handling state machine.
+pub mod actor;
 /// Actor handle for communication.
-pub mod handle;
-/// Actor mailbox implementation.
-pub mod mailbox;
+pub mod actor_handle;
 /// Stop signal handle.
 pub mod stop_handle;
 
-pub use context::ActorContext;
-pub use error::MailboxError;
-pub use handle::ActorHandle;
-pub use mailbox::Actor;
+pub use actor::Actor;
+pub use actor_handle::ActorHandle;
 pub use stop_handle::StopHandle;

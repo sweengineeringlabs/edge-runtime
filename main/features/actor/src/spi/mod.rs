@@ -8,13 +8,8 @@
 //! that return `impl Trait`, hiding all implementation details.
 
 #[cfg(feature = "tokio-rt")]
-mod tokio;
+pub(crate) mod tokio;
 
 #[cfg(feature = "async-std-rt")]
-mod async_std;
-
-#[cfg(feature = "tokio-rt")]
-pub(crate) use tokio::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
-
-#[cfg(feature = "async-std-rt")]
-pub(crate) use async_std::{spawn_async_std_actor, spawn_async_std_actor_with_stop};
+#[path = "async/mod.rs"]
+pub(crate) mod r#async;

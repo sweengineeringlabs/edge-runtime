@@ -4,4 +4,4 @@ mod actor_handle;
 mod mailbox;
 mod stop_handle;
 
-pub(crate) use mailbox::{spawn_async_std_actor, spawn_async_std_actor_with_stop};
+pub(crate) use mailbox::AsyncStdMailbox;

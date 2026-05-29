@@ -2,7 +2,7 @@
 
 use futures::future::BoxFuture;
 
-use super::error::MailboxError;
+use crate::api::error::mailbox_error::MailboxError;
 
 /// A handle to send messages to an actor.
 ///

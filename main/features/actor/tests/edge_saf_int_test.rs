@@ -8,9 +8,7 @@
 #[cfg(feature = "tokio-rt")]
 mod tokio_rt_tests {
     use futures::future::BoxFuture;
-    use swe_edge_runtime_actor::{
-        spawn_actor, spawn_actor_with_stop, Actor, ActorContext, ActorHandle, StopHandle,
-    };
+    use swe_edge_runtime_actor::{Actor, ActorContext, ActorHandle, ActorRuntime, StopHandle};
 
     struct SimpleActor;
 
@@ -22,30 +20,30 @@ mod tokio_rt_tests {
         }
     }
 
-    /// @covers: spawn_actor
+    /// @covers: ActorRuntime::spawn
     #[tokio::test]
     async fn test_spawn_actor_factory_returns_working_actor() {
         let actor = SimpleActor;
-        let handle = spawn_actor(actor);
+        let handle = ActorRuntime::spawn(actor);
 
         assert!(handle.tell(()).await.is_ok());
     }
 
-    /// @covers: spawn_actor_with_stop
+    /// @covers: ActorRuntime::spawn_with_stop
     #[tokio::test]
     async fn test_spawn_actor_with_stop_factory_returns_both_handles() {
         let actor = SimpleActor;
-        let (handle, stop) = spawn_actor_with_stop(actor);
+        let (handle, stop) = ActorRuntime::spawn_with_stop(actor);
 
         assert!(handle.tell(()).await.is_ok());
         stop.stop().await;
     }
 
-    /// @covers: spawn_actor
+    /// @covers: ActorRuntime::spawn
     #[tokio::test]
     async fn test_spawn_actor_factory_hides_implementation_types() {
         let actor = SimpleActor;
-        let handle = spawn_actor(actor);
+        let handle = ActorRuntime::spawn(actor);
 
         // The handle is `impl ActorHandle`, not a concrete type.
         // This test documents that concrete types (TokioActorHandle) are never exposed.

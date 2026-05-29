@@ -1,56 +1,54 @@
-//! Tokio-backed actor mailbox — message loop and spawn.
-
-use tokio::sync::mpsc;
+//! async-std-backed actor mailbox — message loop and spawn.
 
 use crate::api::{Actor, ActorContext, Message};
 
-use super::actor_handle::TokioActorHandle;
-use super::stop_handle::TokioStopHandle;
+use super::actor_handle::AsyncStdActorHandle;
+use super::stop_handle::AsyncStdStopHandle;
 
 /// Bounded channel capacity for actor mailboxes.
 pub(crate) const MAILBOX_CAPACITY: usize = 1024;
 
-/// Tokio-backed actor mailbox — manages message channel and actor task lifecycle.
-pub(crate) struct TokioMailbox;
+/// async-std-backed actor mailbox — manages message channel and actor task lifecycle.
+pub(crate) struct AsyncStdMailbox;
 
-impl TokioMailbox {
-    /// Spawn a tokio actor and return a handle to send messages.
+impl AsyncStdMailbox {
+    /// Spawn an async-std actor and return a handle to send messages.
     ///
-    /// The actor runs in a spawned tokio task, processing messages sequentially.
-    /// Dropping the handle will stop accepting new messages, but the actor will
-    /// continue processing until the current message finishes.
-    pub(crate) fn spawn<A: Actor>(actor: A) -> TokioActorHandle<A> {
-        let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
+    /// The actor runs in a spawned async-std task, processing messages sequentially.
+    pub(crate) fn spawn<A: Actor>(actor: A) -> AsyncStdActorHandle<A> {
+        let (tx, rx) = async_std::channel::bounded(MAILBOX_CAPACITY);
         let tx = std::sync::Arc::new(tx);
 
-        tokio::spawn(Self::run_actor_loop(actor, rx));
+        async_std::task::spawn(Self::run_actor_loop(actor, rx));
 
-        TokioActorHandle { tx }
+        AsyncStdActorHandle { tx }
     }
 
-    /// Spawn a tokio actor with lifecycle management (stop handle).
-    ///
-    /// Returns both a message handle and a stop handle. Calling `stop()` on the
-    /// handle will signal the actor to shut down gracefully.
-    pub(crate) fn spawn_with_stop<A: Actor>(actor: A) -> (TokioActorHandle<A>, TokioStopHandle<A>) {
-        let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
+    /// Spawn an async-std actor with lifecycle management (stop handle).
+    pub(crate) fn spawn_with_stop<A: Actor>(
+        actor: A,
+    ) -> (AsyncStdActorHandle<A>, AsyncStdStopHandle<A>) {
+        let (tx, rx) = async_std::channel::bounded(MAILBOX_CAPACITY);
         let tx = std::sync::Arc::new(tx);
 
-        tokio::spawn(Self::run_actor_loop(actor, rx));
+        async_std::task::spawn(Self::run_actor_loop(actor, rx));
 
-        let handle = TokioActorHandle {
+        let handle = AsyncStdActorHandle {
             tx: std::sync::Arc::clone(&tx),
         };
-        let stop = TokioStopHandle { tx };
+        let stop = AsyncStdStopHandle { tx };
 
         (handle, stop)
     }
 
     /// The actor's main message processing loop.
-    pub(crate) async fn run_actor_loop<A: Actor>(mut actor: A, mut rx: mpsc::Receiver<Message<A>>) {
+    pub(crate) async fn run_actor_loop<A: Actor>(
+        mut actor: A,
+        rx: async_std::channel::Receiver<Message<A>>,
+    ) {
         let ctx = ActorContext::new();
 
-        while let Some(msg) = rx.recv().await {
+        while let Ok(msg) = rx.recv().await {
             match msg {
                 Message::Msg(m) => {
                     actor.handle(ctx.clone(), m).await;
@@ -80,7 +78,7 @@ mod tests {
 
     enum TestMessage {
         Inc,
-        GetCount(tokio::sync::oneshot::Sender<i32>),
+        GetCount(async_std::channel::Sender<i32>),
     }
 
     impl Actor for TestActor {
@@ -91,18 +89,18 @@ mod tests {
                 match msg {
                     TestMessage::Inc => self.count += 1,
                     TestMessage::GetCount(tx) => {
-                        let _ = tx.send(self.count);
+                        let _ = tx.send(self.count).await;
                     }
                 }
             })
         }
     }
 
-    /// @covers: TokioMailbox::spawn
-    #[tokio::test]
+    /// @covers: AsyncStdMailbox::spawn
+    #[async_std::test]
     async fn test_spawn_processes_messages() {
         let actor = TestActor { count: 0 };
-        let handle = TokioMailbox::spawn(actor);
+        let handle = AsyncStdMailbox::spawn(actor);
 
         handle
             .tell(TestMessage::Inc)
@@ -113,20 +111,20 @@ mod tests {
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
 
-        let (tx, rx) = tokio::sync::oneshot::channel();
+        let (tx, rx) = async_std::channel::bounded(1);
         handle
             .tell(TestMessage::GetCount(tx))
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
-        let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));
+        let count = rx.recv().await.unwrap_or_else(|_| panic!("recv failed"));
         assert_eq!(count, 2);
     }
 
-    /// @covers: TokioMailbox::spawn_with_stop
-    #[tokio::test]
+    /// @covers: AsyncStdMailbox::spawn_with_stop
+    #[async_std::test]
     async fn test_spawn_with_stop_graceful_shutdown() {
         let actor = TestActor { count: 0 };
-        let (handle, stop) = TokioMailbox::spawn_with_stop(actor);
+        let (handle, stop) = AsyncStdMailbox::spawn_with_stop(actor);
 
         handle
             .tell(TestMessage::Inc)
@@ -135,17 +133,17 @@ mod tests {
         stop.stop().await;
 
         // Give actor loop time to process Stop signal
-        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+        async_std::task::sleep(std::time::Duration::from_millis(10)).await;
 
         let result = handle.tell(TestMessage::Inc).await;
         assert!(result.is_err(), "should not accept messages after stop");
     }
 
-    /// @covers: TokioMailbox::run_actor_loop
-    #[tokio::test]
+    /// @covers: AsyncStdMailbox::run_actor_loop
+    #[async_std::test]
     async fn test_sequential_message_processing() {
         let actor = TestActor { count: 0 };
-        let handle = TokioMailbox::spawn(actor);
+        let handle = AsyncStdMailbox::spawn(actor);
 
         for _ in 0..100 {
             handle
@@ -154,14 +152,14 @@ mod tests {
                 .unwrap_or_else(|_| panic!("tell failed"));
         }
 
-        tokio::time::sleep(tokio::time::Duration::from_millis(50)).await;
+        async_std::task::sleep(std::time::Duration::from_millis(50)).await;
 
-        let (tx, rx) = tokio::sync::oneshot::channel();
+        let (tx, rx) = async_std::channel::bounded(1);
         handle
             .tell(TestMessage::GetCount(tx))
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
-        let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));
+        let count = rx.recv().await.unwrap_or_else(|_| panic!("recv failed"));
         assert_eq!(count, 100, "all messages should be processed sequentially");
     }
 }

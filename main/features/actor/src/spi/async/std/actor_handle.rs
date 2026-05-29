@@ -4,12 +4,11 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::{Actor, ActorHandle as ActorHandleTrait, MailboxError};
-use crate::core::Message;
+use crate::api::{Actor, ActorHandle as ActorHandleTrait, MailboxError, Message};
 
 /// async-std-backed actor handle implementation.
 pub(crate) struct AsyncStdActorHandle<A: Actor> {
-    pub(super) tx: Arc<async_std::channel::Sender<Message<A>>>,
+    pub(crate) tx: Arc<async_std::channel::Sender<Message<A>>>,
 }
 
 impl<A: Actor> Clone for AsyncStdActorHandle<A> {
@@ -38,7 +37,6 @@ impl<A: Actor> AsyncStdActorHandle<A> {
     /// - The mailbox is full
     /// - The actor stopped
     /// - The reply channel dropped unexpectedly
-    #[allow(dead_code)]
     pub async fn ask<R: Send + 'static>(
         &self,
         msg: impl FnOnce(async_std::channel::Sender<R>) -> A::Message,
@@ -88,8 +86,8 @@ mod tests {
 
     /// @covers: AsyncStdActorHandle::tell
     #[async_std::test]
-    async fn test_async_std_actor_handle_tell() {
-        let (tx, mut rx) = async_std::channel::bounded::<Message<TestActor>>(1);
+    async fn test_async_std_actor_handle_tell_enqueues_message() {
+        let (tx, rx) = async_std::channel::bounded::<Message<TestActor>>(1);
         let handle: AsyncStdActorHandle<TestActor> = AsyncStdActorHandle { tx: Arc::new(tx) };
 
         let result = handle.tell(TestMessage::Inc).await;
@@ -98,5 +96,55 @@ mod tests {
         // Verify message was sent
         let msg = rx.recv().await;
         assert!(matches!(msg, Ok(Message::Msg(TestMessage::Inc))));
+    }
+
+    /// @covers: ask
+    #[async_std::test]
+    async fn test_ask_returns_reply_from_actor() {
+        use crate::spi::r#async::std::mailbox::AsyncStdMailbox;
+
+        struct AskActor;
+
+        enum AskMsg {
+            Echo(async_std::channel::Sender<u32>),
+        }
+
+        impl Actor for AskActor {
+            type Message = AskMsg;
+
+            fn handle(
+                &mut self,
+                _ctx: crate::api::ActorContext<Self>,
+                msg: Self::Message,
+            ) -> BoxFuture<'_, ()> {
+                Box::pin(async move {
+                    match msg {
+                        AskMsg::Echo(tx) => {
+                            let _ = tx.send(99).await;
+                        }
+                    }
+                })
+            }
+        }
+
+        let handle = AsyncStdMailbox::spawn(AskActor);
+        let result = handle
+            .ask(|tx| AskMsg::Echo(tx))
+            .await
+            .unwrap_or_else(|_| panic!("ask failed"));
+        assert_eq!(result, 99);
+    }
+
+    /// @covers: ask — error returned when mailbox is closed
+    #[async_std::test]
+    async fn test_ask_returns_error_on_closed_mailbox() {
+        let (tx, rx) = async_std::channel::bounded::<Message<TestActor>>(1);
+        // Drop the receiver to close the channel
+        drop(rx);
+        let handle: AsyncStdActorHandle<TestActor> = AsyncStdActorHandle { tx: Arc::new(tx) };
+
+        // tell should fail with Closed when receiver is dropped
+        let result = handle.tell(TestMessage::Inc).await;
+        assert!(result.is_err(), "tell must fail when mailbox is closed");
     }
 }

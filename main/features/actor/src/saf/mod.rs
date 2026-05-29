@@ -1,12 +1,8 @@
 //! SAF — actor public factory surface.
 //!
-//! Single entry point: edge_runtime_actor_svc.rs concentrates all public factories.
-//! Re-exports traits from api/ and factories from svc only.
+//! Single entry point: actor_svc.rs concentrates all public factory methods on `ActorRuntime`.
+//! Re-exports traits from api/ and `ActorRuntime` from types/.
 
-mod edge_runtime_actor_svc;
+mod actor_svc;
 
-pub use crate::api::{Actor, ActorContext, ActorHandle, MailboxError, StopHandle};
-
-pub use edge_runtime_actor_svc::create_config_builder;
-#[cfg(feature = "tokio-rt")]
-pub use edge_runtime_actor_svc::{spawn_actor, spawn_actor_with_stop};
+pub use crate::api::{Actor, ActorContext, ActorHandle, ActorRuntime, MailboxError, StopHandle};

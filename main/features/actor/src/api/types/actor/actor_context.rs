@@ -2,7 +2,7 @@
 
 use std::marker::PhantomData;
 
-use super::mailbox::Actor;
+use crate::api::actor::actor::Actor;
 
 /// Execution context passed to an actor's `handle` method.
 ///

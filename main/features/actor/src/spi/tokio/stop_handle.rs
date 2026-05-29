@@ -5,12 +5,11 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use tokio::sync::mpsc;
 
-use crate::api::{Actor, StopHandle};
-use crate::core::Message;
+use crate::api::{Actor, Message, StopHandle};
 
 /// Tokio-backed stop handle implementation.
 pub(crate) struct TokioStopHandle<A: Actor> {
-    pub(super) tx: Arc<mpsc::Sender<Message<A>>>,
+    pub(crate) tx: Arc<mpsc::Sender<Message<A>>>,
 }
 
 impl<A: Actor> Clone for TokioStopHandle<A> {
@@ -50,7 +49,7 @@ mod tests {
 
     /// @covers: TokioStopHandle::stop
     #[tokio::test]
-    async fn test_tokio_stop_handle_stop() {
+    async fn test_tokio_stop_handle_stop_sends_stop_message() {
         let (tx, mut rx) = mpsc::channel::<Message<TestActor>>(1);
         let handle: TokioStopHandle<TestActor> = TokioStopHandle { tx: Arc::new(tx) };
 

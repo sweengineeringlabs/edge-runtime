@@ -32,7 +32,7 @@ async-std            = { version = "1.12", features = ["attributes"], optional =
 swe-edge-configbuilder = { path = "../../../../configbuilder/main/features/configbuilder" }
 
 [dev-dependencies]
-tokio     = { version = "1.0", features = ["rt-multi-thread", "macros"] }
+tokio     = { version = "1.0", features = ["rt-multi-thread", "macros", "time"] }
 async-std = { version = "1.12", features = ["attributes"] }
 futures   = "0.3"
 bytes     = "1"
@@ -49,9 +49,54 @@ path = "tests/edge_saf_int_test.rs"
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
 
+[[test]]
+name = "actor_svc_int_test"
+path = "tests/actor_svc_int_test.rs"
+
+[[test]]
+name = "async_std_actor_int_test"
+path = "tests/async_std_actor_int_test.rs"
+
+[[test]]
+name = "validator_int_test"
+path = "tests/validator_int_test.rs"
+
+[[test]]
+name = "actor_handle_int_test"
+path = "tests/actor_handle_int_test.rs"
+
+[[test]]
+name = "stop_handle_int_test"
+path = "tests/stop_handle_int_test.rs"
+
+[[test]]
+name = "mailbox_error_int_test"
+path = "tests/mailbox_error_int_test.rs"
+
+[[test]]
+name = "actor_context_int_test"
+path = "tests/actor_context_int_test.rs"
+
+[[test]]
+name = "actor_runtime_int_test"
+path = "tests/actor_runtime_int_test.rs"
+
+[[test]]
+name = "message_int_test"
+path = "tests/message_int_test.rs"
+
+[[test]]
+name = "spi_security_test"
+path = "tests/spi_security_test.rs"
+
 [[example]]
 name = "counter_actor"
 path = "examples/counter_actor.rs"
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

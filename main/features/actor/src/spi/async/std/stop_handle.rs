@@ -4,12 +4,11 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 
-use crate::api::{Actor, StopHandle};
-use crate::core::Message;
+use crate::api::{Actor, Message, StopHandle};
 
 /// async-std-backed stop handle implementation.
 pub(crate) struct AsyncStdStopHandle<A: Actor> {
-    pub(super) tx: Arc<async_std::channel::Sender<Message<A>>>,
+    pub(crate) tx: Arc<async_std::channel::Sender<Message<A>>>,
 }
 
 impl<A: Actor> Clone for AsyncStdStopHandle<A> {
@@ -49,8 +48,8 @@ mod tests {
 
     /// @covers: AsyncStdStopHandle::stop
     #[async_std::test]
-    async fn test_async_std_stop_handle_stop() {
-        let (tx, mut rx) = async_std::channel::bounded::<Message<TestActor>>(1);
+    async fn test_async_std_stop_handle_stop_sends_stop_message() {
+        let (tx, rx) = async_std::channel::bounded::<Message<TestActor>>(1);
         let handle: AsyncStdStopHandle<TestActor> = AsyncStdStopHandle { tx: Arc::new(tx) };
 
         handle.stop().await;
