@@ -1,6 +1,7 @@
 //! SAF — actor spawn factories.
 
 use crate::api::{Actor, ActorHandle, StopHandle};
+use swe_edge_configbuilder::ConfigBuilder as _;
 
 #[cfg(feature = "tokio-rt")]
 use crate::spi::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
@@ -20,6 +21,13 @@ use crate::spi::{spawn_tokio_actor, spawn_tokio_actor_with_stop};
 #[cfg(feature = "tokio-rt")]
 pub fn spawn_actor<A: Actor>(actor: A) -> impl ActorHandle<A::Message> {
     spawn_tokio_actor(actor)
+}
+
+/// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
+pub fn create_config_builder() -> impl swe_edge_configbuilder::ConfigBuilder {
+    swe_edge_configbuilder::create_config_builder()
+        .with_name(env!("CARGO_PKG_NAME"))
+        .with_version(env!("CARGO_PKG_VERSION"))
 }
 
 /// Spawn an actor with explicit lifecycle management.

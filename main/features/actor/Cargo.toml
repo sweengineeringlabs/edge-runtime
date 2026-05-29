@@ -24,11 +24,12 @@ tokio-rt  = ["dep:tokio"]
 async-std-rt = ["dep:async-std"]
 
 [dependencies]
-futures   = "0.3"
-thiserror = "1.0"
-tracing   = { version = "0.1", default-features = false }
-tokio     = { version = "1.0", features = ["sync", "rt"], optional = true }
-async-std = { version = "1.12", features = ["attributes"], optional = true }
+futures              = "0.3"
+thiserror            = "1.0"
+tracing              = { version = "0.1", default-features = false }
+tokio                = { version = "1.0", features = ["sync", "rt"], optional = true }
+async-std            = { version = "1.12", features = ["attributes"], optional = true }
+swe-edge-configbuilder = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.2" }
 
 [dev-dependencies]
 tokio     = { version = "1.0", features = ["rt-multi-thread", "macros"] }
@@ -43,6 +44,10 @@ path = "tests/actor_int_test.rs"
 [[test]]
 name = "edge_saf_int_test"
 path = "tests/edge_saf_int_test.rs"
+
+[[test]]
+name = "application_config_builder_int_test"
+path = "tests/application_config_builder_int_test.rs"
 
 [[example]]
 name = "counter_actor"

@@ -7,5 +7,6 @@ mod edge_runtime_actor_svc;
 
 pub use crate::api::{Actor, ActorContext, ActorHandle, MailboxError, StopHandle};
 
+pub use edge_runtime_actor_svc::create_config_builder;
 #[cfg(feature = "tokio-rt")]
 pub use edge_runtime_actor_svc::{spawn_actor, spawn_actor_with_stop};

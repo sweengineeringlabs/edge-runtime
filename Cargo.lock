@@ -2856,6 +2856,7 @@ dependencies = [
  "async-std",
  "bytes",
  "futures",
+ "swe-edge-configbuilder",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
