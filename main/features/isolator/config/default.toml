@@ -1,0 +1,6 @@
+# Default subprocess isolation policy.
+# The "noop" profile applies no OS-level restrictions — safe for dev and CI.
+# Override in application.toml or subprocess_policy.toml for production.
+
+[subprocess_policy.profiles.default]
+kind = "noop"

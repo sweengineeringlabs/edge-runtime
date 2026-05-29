@@ -1,0 +1,41 @@
+[package]
+name         = "swe-edge-runtime-isolator"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description  = "edge — runtime OS-level process isolation profiles (ADR-004)."
+keywords     = ["isolator", "seccomp", "sandbox", "runtime", "swe"]
+categories   = ["os"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "isolator"
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[features]
+default = []
+seccomp = ["dep:seccompiler"]
+
+[dependencies]
+serde     = { version = "1.0", features = ["derive"] }
+thiserror = "2"
+tokio     = { version = "1.0", features = ["process"] }
+toml      = "0.8"
+tracing   = { version = "0.1", default-features = false, features = ["std"] }
+
+swe-edge-configbuilder  = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.2" }
+swe-edge-egress-process = { path = "../../../../egress/process/main/features/process" }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+seccompiler = { version = "0.4", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }
