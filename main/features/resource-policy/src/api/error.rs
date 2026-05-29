@@ -35,6 +35,7 @@ pub enum ResourcePolicyError {
 mod tests {
     use super::*;
 
+    /// @covers: UnknownPolicy
     #[test]
     fn test_unknown_policy_message_contains_name() {
         let e = ResourcePolicyError::UnknownPolicy {
@@ -43,6 +44,7 @@ mod tests {
         assert!(e.to_string().contains("ghost"));
     }
 
+    /// @covers: InvalidValue
     #[test]
     fn test_invalid_value_message_contains_field_and_value() {
         let e = ResourcePolicyError::InvalidValue {

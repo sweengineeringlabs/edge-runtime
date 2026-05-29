@@ -68,12 +68,14 @@ impl IsolationProfileRegistry {
 mod tests {
     use super::*;
 
+    /// @covers: from_config
     #[test]
     fn test_registry_from_default_config_has_noop() {
         let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
         assert!(registry.get("noop").is_ok());
     }
 
+    /// @covers: from_config, get
     #[test]
     fn test_registry_default_profile_is_noop() {
         let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
@@ -81,6 +83,7 @@ mod tests {
         assert_eq!(profile.name(), "noop");
     }
 
+    /// @covers: get
     #[test]
     fn test_registry_get_unknown_profile_returns_error() {
         let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
@@ -88,9 +91,17 @@ mod tests {
         assert!(matches!(err, IsolationError::UnknownProfile { .. }));
     }
 
+    /// @covers: len
     #[test]
-    fn test_registry_always_has_at_least_noop_and_default() {
+    fn test_registry_len_includes_builtin_noop() {
         let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
-        assert!(registry.len() >= 2);
+        assert!(registry.len() >= 2); // "noop" + "default"
+    }
+
+    /// @covers: is_empty
+    #[test]
+    fn test_registry_is_not_empty_after_from_config() {
+        let registry = IsolationProfileRegistry::from_config(IsolatorConfig::default()).unwrap();
+        assert!(!registry.is_empty());
     }
 }

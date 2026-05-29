@@ -39,11 +39,13 @@ impl ResourceLimits {
 mod tests {
     use super::*;
 
+    /// @covers: is_empty
     #[test]
     fn test_resource_limits_default_is_empty() {
         assert!(ResourceLimits::default().is_empty());
     }
 
+    /// @covers: is_empty
     #[test]
     fn test_resource_limits_with_any_field_is_not_empty() {
         let l = ResourceLimits {
@@ -53,6 +55,7 @@ mod tests {
         assert!(!l.is_empty());
     }
 
+    /// @covers: is_empty
     #[test]
     fn test_resource_limits_zero_cpu_is_not_empty() {
         let l = ResourceLimits {

@@ -17,8 +17,13 @@ service_type     = "resource-policy"
 [lib]
 path = "src/lib.rs"
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
 
 [dependencies]
 serde     = { version = "1.0", features = ["derive"] }

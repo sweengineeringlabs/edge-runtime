@@ -17,8 +17,13 @@ service_type     = "isolator"
 [lib]
 path = "src/lib.rs"
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
 
 [features]
 default = []

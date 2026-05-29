@@ -3,9 +3,9 @@
 pub mod error;
 pub mod limits;
 pub mod policy;
-pub mod policy_config;
+pub mod resource_policy_config;
 
 pub use error::ResourcePolicyError;
 pub use limits::ResourceLimits;
 pub use policy::ResourcePolicy;
-pub use policy_config::ResourcePolicyConfig;
+pub use resource_policy_config::ResourcePolicyConfig;

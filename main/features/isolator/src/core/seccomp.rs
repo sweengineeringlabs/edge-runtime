@@ -77,8 +77,10 @@ impl IsolationProfile for SeccompIsolator {
         let program = Arc::clone(&self.compiled);
         let profile_name = self.name.clone();
 
-        // SAFETY: `apply_filter` calls `prctl(PR_SET_SECCOMP, ...)`, which is
-        // async-signal-safe and valid in the post-fork, pre-exec child context.
+        // SAFETY: seccompiler::apply_filter calls prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, ...)
+        // which is async-signal-safe and valid after fork, before exec. The BPF program
+        // is compiled-once and referenced via Arc — no aliasing. CommandExt::pre_exec
+        // guarantees single-threaded execution in the child at this point.
         unsafe {
             use std::os::unix::process::CommandExt as _;
             cmd.as_std_mut().pre_exec(move || {

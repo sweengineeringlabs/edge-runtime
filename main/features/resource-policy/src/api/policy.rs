@@ -59,6 +59,7 @@ mod tests {
         }
     }
 
+    /// @covers: inject_into
     #[test]
     fn test_inject_into_fills_none_fields() {
         let policy = stub_policy();
@@ -70,6 +71,7 @@ mod tests {
         assert_eq!(args.memory_bytes, Some(1_024));
     }
 
+    /// @covers: inject_into
     #[test]
     fn test_inject_into_does_not_overwrite_existing_values() {
         let policy = stub_policy();

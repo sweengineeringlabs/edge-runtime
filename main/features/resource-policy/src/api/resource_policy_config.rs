@@ -78,11 +78,13 @@ mod tests {
         ResourcePolicyConfig(toml::from_str(toml).unwrap())
     }
 
+    /// @covers: section_name
     #[test]
     fn test_policy_config_section_name_is_resource_policies() {
         assert_eq!(ResourcePolicyConfig::section_name(), "resource_policies");
     }
 
+    /// @covers: get
     #[test]
     fn test_policy_config_get_existing_returns_policy() {
         let cfg = config_with_default();
@@ -91,6 +93,7 @@ mod tests {
         assert_eq!(policy.output_bytes_cap, 1_048_576);
     }
 
+    /// @covers: get
     #[test]
     fn test_policy_config_get_unknown_returns_error() {
         let cfg = ResourcePolicyConfig::default();
@@ -98,8 +101,16 @@ mod tests {
         assert!(matches!(err, ResourcePolicyError::UnknownPolicy { .. }));
     }
 
+    /// @covers: is_empty
     #[test]
     fn test_policy_config_default_is_empty() {
         assert!(ResourcePolicyConfig::default().is_empty());
+    }
+
+    /// @covers: len
+    #[test]
+    fn test_policy_config_len_counts_loaded_policies() {
+        let cfg = config_with_default();
+        assert_eq!(cfg.len(), 1);
     }
 }
