@@ -1,0 +1,23 @@
+# Default resource policy — used when no caller override is present.
+# 0 means unlimited for cpu_time_ms and memory_bytes.
+
+[resource_policies.default]
+name             = "default"
+timeout_ms       = 30000
+output_bytes_cap = 1048576
+cpu_time_ms      = 0
+memory_bytes     = 0
+
+[resource_policies.batch]
+name             = "batch"
+timeout_ms       = 120000
+output_bytes_cap = 4194304
+cpu_time_ms      = 60000
+memory_bytes     = 1073741824
+
+[resource_policies.healthcheck]
+name             = "healthcheck"
+timeout_ms       = 5000
+output_bytes_cap = 65536
+cpu_time_ms      = 0
+memory_bytes     = 0

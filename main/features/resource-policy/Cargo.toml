@@ -1,0 +1,35 @@
+[package]
+name         = "swe-edge-runtime-resource-policy"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description  = "edge — config-driven resource limits for subprocess execution (ADR-005)."
+keywords     = ["resource", "policy", "subprocess", "runtime", "swe"]
+categories   = ["os"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "resource-policy"
+
+[lib]
+path = "src/lib.rs"
+
+[lints]
+workspace = true
+
+[dependencies]
+futures   = "0.3"
+serde     = { version = "1.0", features = ["derive"] }
+thiserror = "2"
+tokio     = { version = "1.0", features = ["process"] }
+toml      = "0.8"
+tracing   = { version = "0.1", default-features = false, features = ["std"] }
+
+swe-edge-configbuilder  = { git = "ssh://git@github.com/sweengineeringlabs/edge.git", tag = "v0.4.2" }
+swe-edge-egress-process = { path = "../../../../egress/process/main/features/process" }
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["macros", "rt-multi-thread"] }

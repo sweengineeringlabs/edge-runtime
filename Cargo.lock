@@ -1542,6 +1542,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "nix"
+version = "0.27.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2eb04e9c688eff1c89d72b407f168cf79bb9e867a9d3323ed6c01519eb9cc053"
+dependencies = [
+ "bitflags",
+ "cfg-if",
+ "libc",
+]
+
+[[package]]
 name = "nkeys"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2683,6 +2694,7 @@ name = "swe-edge-egress-process"
 version = "0.1.0"
 dependencies = [
  "futures",
+ "nix",
  "serde",
  "swe-edge-configbuilder",
  "thiserror 2.0.18",
@@ -2877,6 +2889,20 @@ dependencies = [
  "tokio",
  "tracing",
  "uuid",
+]
+
+[[package]]
+name = "swe-edge-runtime-resource-policy"
+version = "0.1.0"
+dependencies = [
+ "futures",
+ "serde",
+ "swe-edge-configbuilder",
+ "swe-edge-egress-process",
+ "thiserror 2.0.18",
+ "tokio",
+ "toml",
+ "tracing",
 ]
 
 [[package]]
