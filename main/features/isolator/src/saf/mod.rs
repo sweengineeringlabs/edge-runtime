@@ -3,6 +3,7 @@
 mod isolator_svc;
 
 pub use crate::api::{
-    Error, IsolationProfileRegistry, IsolatorConfig, IsolatorSvc, ProfileSpec,
-    SweEdgeRuntimeIsolator, SweEdgeRuntimeIsolatorFactory, Validator,
+    Error, IsolationProfileRegistry, IsolatorConfig, IsolatorSvc, NoopIsolationProfile,
+    NoopRuntimeIsolator, ProfileSpec, SweEdgeRuntimeIsolator, SweEdgeRuntimeIsolatorFactory,
+    Validator,
 };

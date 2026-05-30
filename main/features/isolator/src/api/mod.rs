@@ -14,5 +14,7 @@ pub use traits::Validator;
 pub use types::IsolationProfileRegistry;
 pub use types::IsolatorConfig;
 pub use types::IsolatorSvc;
+pub use types::NoopIsolationProfile;
+pub use types::NoopRuntimeIsolator;
 pub use types::ProfileSpec;
 pub use types::SweEdgeRuntimeIsolatorFactory;
