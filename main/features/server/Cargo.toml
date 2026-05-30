@@ -268,6 +268,10 @@ path = "tests/server_svc_int_test.rs"
 name = "runtime_extension_int_test"
 path = "tests/runtime_extension_int_test.rs"
 
+[[test]]
+name = "tracing_initializer_int_test"
+path = "tests/tracing_initializer_int_test.rs"
+
 [lints.rust]
 unsafe_code  = "deny"
 missing_docs = "warn"

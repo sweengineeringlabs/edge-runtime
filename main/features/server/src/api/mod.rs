@@ -12,7 +12,6 @@ pub(crate) mod monitor;
 pub(crate) mod runner;
 pub(crate) mod runtime;
 pub(crate) mod runtime_manager;
-#[path = "traits.rs"]
 pub(crate) mod traits;
 pub(crate) mod types;
 pub(crate) mod validator;
