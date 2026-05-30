@@ -1,1 +1,5 @@
-//! Ingress implementation — impl is in api/ingress/default_ingress.rs alongside the struct.
+//! DefaultIngress — ingress adapter holder and its Ingress impl.
+
+mod default_ingress;
+
+pub(crate) use default_ingress::DefaultIngress;

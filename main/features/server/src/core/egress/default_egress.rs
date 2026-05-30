@@ -1,11 +1,26 @@
-//! [`Egress`] trait impl for [`DefaultEgress`].
+//! `DefaultEgress` — egress adapter holder and its [`Egress`] impl.
 
 use std::sync::Arc;
 
 use swe_edge_egress_grpc::GrpcEgress;
 use swe_edge_egress_http::HttpEgress;
 
-use crate::api::egress::{DefaultEgress, Egress};
+use crate::api::egress::Egress;
+
+pub(crate) struct DefaultEgress {
+    http: Arc<dyn HttpEgress>,
+    grpc: Option<Arc<dyn GrpcEgress>>,
+}
+
+impl DefaultEgress {
+    pub(crate) fn new_http(http: Arc<dyn HttpEgress>) -> Self {
+        Self { http, grpc: None }
+    }
+    pub(crate) fn with_grpc(mut self, grpc: Arc<dyn GrpcEgress>) -> Self {
+        self.grpc = Some(grpc);
+        self
+    }
+}
 
 impl Egress for DefaultEgress {
     fn http(&self) -> Arc<dyn HttpEgress> {
@@ -19,13 +34,11 @@ impl Egress for DefaultEgress {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::egress::DefaultEgress;
     use futures::future::BoxFuture;
-    use std::sync::Arc;
-    use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, HttpStreamResponse};
+    use swe_edge_egress_http::{HttpEgressError, HttpEgressResult, HttpStreamResponse};
 
-    struct DefaultEgressStub;
-    impl HttpEgress for DefaultEgressStub {
+    struct DefaultEgressStubHttp;
+    impl HttpEgress for DefaultEgressStubHttp {
         fn send(
             &self,
             _: swe_edge_egress_http::HttpRequest,
@@ -44,15 +57,36 @@ mod tests {
     }
 
     #[test]
-    fn test_egress_http_returns_configured_client() {
-        let client: Arc<dyn HttpEgress> = Arc::new(DefaultEgressStub);
-        let egress = DefaultEgress::new_http(Arc::clone(&client));
-        let _ = egress.http();
+    fn test_new_http_egress_http_returns_configured_client() {
+        let e = DefaultEgress::new_http(Arc::new(DefaultEgressStubHttp));
+        let _ = e.http();
     }
 
     #[test]
-    fn test_egress_grpc_returns_none_when_not_configured() {
-        let egress = DefaultEgress::new_http(Arc::new(DefaultEgressStub));
-        assert!(egress.grpc().is_none());
+    fn test_new_http_egress_grpc_returns_none() {
+        let e = DefaultEgress::new_http(Arc::new(DefaultEgressStubHttp));
+        assert!(e.grpc().is_none());
+    }
+
+    #[test]
+    fn test_with_grpc_egress_grpc_returns_some() {
+        use swe_edge_egress_grpc::{GrpcEgressResult, GrpcMetadata, GrpcRequest, GrpcResponse};
+        struct DefaultEgressStubGrpc;
+        impl GrpcEgress for DefaultEgressStubGrpc {
+            fn call_unary(&self, _: GrpcRequest) -> BoxFuture<'_, GrpcEgressResult<GrpcResponse>> {
+                Box::pin(async {
+                    Ok(GrpcResponse {
+                        body: vec![],
+                        metadata: GrpcMetadata::default(),
+                    })
+                })
+            }
+            fn health_check(&self) -> BoxFuture<'_, GrpcEgressResult<()>> {
+                Box::pin(async { Ok(()) })
+            }
+        }
+        let e = DefaultEgress::new_http(Arc::new(DefaultEgressStubHttp))
+            .with_grpc(Arc::new(DefaultEgressStubGrpc));
+        assert!(e.grpc().is_some());
     }
 }

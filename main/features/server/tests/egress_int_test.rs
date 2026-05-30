@@ -1,4 +1,4 @@
-//! Coverage for api/egress — DefaultEgress trait impl.
+//! Coverage for Egress trait impl via Runtime::http_egress factory.
 // @allow: no_mocks_in_integration — stub impls required to exercise the public API surface
 
 use futures::future::BoxFuture;
@@ -6,7 +6,7 @@ use std::sync::Arc;
 use swe_edge_egress_http::{
     HttpEgress, HttpEgressResult, HttpRequest, HttpResponse, HttpStreamResponse,
 };
-use swe_edge_runtime::{DefaultEgress, Egress};
+use swe_edge_runtime::{Egress, Runtime};
 
 struct StubHttp;
 impl HttpEgress for StubHttp {
@@ -27,10 +27,10 @@ impl HttpEgress for StubHttp {
     }
 }
 
-/// @covers: DefaultEgress trait impl — http()
+/// @covers: Runtime::http_egress — http()
 #[test]
-fn test_default_egress_http_returns_configured_adapter() {
-    let egress = DefaultEgress::new_http(Arc::new(StubHttp));
+fn test_http_egress_http_returns_configured_adapter() {
+    let egress = Runtime::http_egress(Arc::new(StubHttp));
     let _ = egress.http();
     assert!(egress.grpc().is_none());
 }

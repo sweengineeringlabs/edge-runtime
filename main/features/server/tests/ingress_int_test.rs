@@ -1,11 +1,11 @@
-//! Coverage for api/ingress — DefaultIngress trait impl.
+//! Coverage for Ingress trait impl via Runtime ingress factory methods.
 
 use futures::future::BoxFuture;
 use std::sync::Arc;
 use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
 };
-use swe_edge_runtime::{DefaultIngress, Ingress};
+use swe_edge_runtime::{Ingress, Runtime};
 
 struct Stub;
 impl HttpIngress for Stub {
@@ -21,18 +21,18 @@ impl HttpIngress for Stub {
     }
 }
 
-/// @covers: DefaultIngress trait impl — http()
+/// @covers: Runtime::http_ingress — http()
 #[test]
-fn test_default_ingress_http_returns_configured_adapter() {
-    let ingress = DefaultIngress::new_http(Arc::new(Stub));
+fn test_http_ingress_returns_configured_adapter() {
+    let ingress = Runtime::http_ingress(Arc::new(Stub));
     assert!(ingress.http().is_some());
     assert!(ingress.grpc().is_none());
     assert!(ingress.has_any());
 }
 
-/// @covers: DefaultIngress trait impl — has_any with no transports
+/// @covers: Runtime::empty_ingress — has_any with no transports
 #[test]
-fn test_default_ingress_empty_has_any_is_false() {
-    let ingress = DefaultIngress::empty();
+fn test_empty_ingress_has_any_is_false() {
+    let ingress = Runtime::empty_ingress();
     assert!(!ingress.has_any());
 }

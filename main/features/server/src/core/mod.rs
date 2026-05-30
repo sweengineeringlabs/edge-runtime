@@ -1,14 +1,13 @@
 mod composite;
-mod config_loader;
+mod config;
 pub(crate) mod egress;
 pub(crate) mod ingress;
-pub(crate) mod json_codec;
-pub(crate) mod metrics_handler;
+pub(crate) mod json;
+pub(crate) mod metrics;
 pub(crate) mod monitor;
 pub(crate) mod runner;
 mod runtime;
-mod runtime_manager;
 pub(crate) mod validator;
 
-pub(crate) use config_loader::ApplicationConfigLoader;
-pub(crate) use runtime_manager::DefaultRuntimeManager;
+pub(crate) use config::loader::ApplicationConfigLoader;
+pub(crate) use runtime::manager::DefaultRuntimeManager;

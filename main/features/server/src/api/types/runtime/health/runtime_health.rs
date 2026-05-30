@@ -1,6 +1,6 @@
 //! `RuntimeHealth` — aggregate health of the running daemon.
 
-use crate::api::types::runtime_health::component_health::ComponentHealth;
+use crate::api::types::runtime::health::component_health::ComponentHealth;
 use crate::api::types::RuntimeStatus;
 
 /// Aggregate health report for the runtime.

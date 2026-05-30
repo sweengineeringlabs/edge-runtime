@@ -1,38 +1,38 @@
-//! Integration tests for DefaultIngress.
+//! Integration tests for Runtime ingress factory methods.
 
+use futures::future::BoxFuture;
 use std::sync::Arc;
-use swe_edge_runtime::{DefaultIngress, Ingress};
+use swe_edge_ingress_grpc::{
+    GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
+    GrpcRequest, GrpcResponse,
+};
+use swe_edge_runtime::{Ingress, Runtime};
 
-/// @covers: DefaultIngress
+/// @covers: Runtime::empty_ingress
 #[test]
-fn test_default_ingress_empty_has_no_transports() {
-    let i = DefaultIngress::empty();
+fn test_empty_ingress_has_no_transports() {
+    let i = Runtime::empty_ingress();
     assert!(!i.has_any());
 }
 
-/// @covers: DefaultIngress
+/// @covers: Runtime::empty_ingress
 #[test]
-fn test_default_ingress_empty_http_returns_none() {
-    let i = DefaultIngress::empty();
+fn test_empty_ingress_http_returns_none() {
+    let i = Runtime::empty_ingress();
     assert!(i.http().is_none());
 }
 
-/// @covers: DefaultIngress
+/// @covers: Runtime::empty_ingress
 #[test]
-fn test_default_ingress_empty_grpc_returns_none() {
-    let i = DefaultIngress::empty();
+fn test_empty_ingress_grpc_returns_none() {
+    let i = Runtime::empty_ingress();
     assert!(i.grpc().is_none());
 }
 
-/// @covers: DefaultIngress
+/// @covers: Runtime::grpc_ingress
 #[test]
-fn test_default_ingress_with_grpc_has_any_returns_true() {
+fn test_grpc_ingress_has_any_returns_true() {
     use edge_domain::RequestContext;
-    use futures::future::BoxFuture;
-    use swe_edge_ingress_grpc::{
-        GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMessageStream, GrpcMetadata,
-        GrpcRequest, GrpcResponse,
-    };
     struct Stub;
     impl swe_edge_runtime::GrpcIngress for Stub {
         fn handle_unary(
@@ -55,6 +55,6 @@ fn test_default_ingress_with_grpc_has_any_returns_true() {
             Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
         }
     }
-    let i = DefaultIngress::new_grpc(Arc::new(Stub));
+    let i = Runtime::grpc_ingress(Arc::new(Stub));
     assert!(i.has_any());
 }

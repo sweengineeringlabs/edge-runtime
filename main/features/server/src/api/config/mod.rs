@@ -3,6 +3,7 @@
 
 pub(crate) mod config_error;
 pub(crate) mod config_override;
+pub(crate) mod loader;
 
 pub use config_error::ConfigError;
 pub(crate) use config_override::ConfigOverride;

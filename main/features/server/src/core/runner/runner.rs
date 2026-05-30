@@ -3,7 +3,7 @@
 use std::time::Duration;
 
 use crate::api::error::{RuntimeError, RuntimeResult};
-use crate::api::runtime_manager::RuntimeManager;
+use crate::api::runtime::manager::RuntimeManager;
 
 /// Zero-size orchestrator for the start → await-signal → shutdown cycle.
 ///

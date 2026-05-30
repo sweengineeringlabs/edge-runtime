@@ -9,8 +9,8 @@ use edge_proxy::{HealthStatus, LifecycleMonitor};
 use crate::api::egress::Egress;
 use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::ingress::Ingress;
-use crate::api::runtime_manager::RuntimeManager;
-use crate::api::types::runtime_health::ComponentHealth;
+use crate::api::runtime::manager::RuntimeManager;
+use crate::api::types::runtime::health::ComponentHealth;
 use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 
 pub(crate) struct DefaultRuntimeManager {
@@ -53,8 +53,6 @@ impl DefaultRuntimeManager {
         self
     }
 }
-
-impl crate::api::runtime_manager::DefaultRuntimeManager for DefaultRuntimeManager {}
 
 /// Fluent builder for [`DefaultRuntimeManager`].
 struct DefaultRuntimeManagerBuilder {
@@ -263,8 +261,8 @@ impl RuntimeManager for DefaultRuntimeManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::egress::DefaultEgress;
-    use crate::api::ingress::DefaultIngress;
+    use crate::core::egress::DefaultEgress;
+    use crate::core::ingress::DefaultIngress;
     use edge_proxy::{HealthReport, LifecycleError};
     use futures::future::BoxFuture;
     use futures::FutureExt;

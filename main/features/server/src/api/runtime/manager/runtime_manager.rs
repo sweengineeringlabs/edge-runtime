@@ -3,7 +3,7 @@
 use futures::future::BoxFuture;
 
 use crate::api::error::RuntimeResult;
-use crate::api::types::runtime_health::RuntimeHealth;
+use crate::api::types::runtime::health::RuntimeHealth;
 
 /// Manages the full process lifecycle: start, shutdown, and health.
 ///

@@ -1,10 +1,9 @@
 //! `Runtime` — zero-size entry-point; use `Runtime::builder()`.
 
-use super::runtime_builder::RuntimeBuilder;
+use crate::api::types::runtime::runtime_builder::RuntimeBuilder;
 use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
 
-/// Entry-point for the edge runtime.
-pub struct Runtime;
+pub use crate::api::types::runtime::runtime::Runtime;
 
 impl Runtime {
     /// Create a new builder for assembling an edge runtime.

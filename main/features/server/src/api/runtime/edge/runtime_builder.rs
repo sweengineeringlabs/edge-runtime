@@ -19,27 +19,7 @@ use swe_edge_ingress_verifier::TokenVerifier;
 use crate::api::types::RuntimeConfig;
 use crate::api::types::ServiceRegistry;
 
-/// Builder for assembling and starting an edge runtime.
-pub struct RuntimeBuilder {
-    pub(crate) config: Option<RuntimeConfig>,
-    pub(crate) app_name: Option<String>,
-    pub(crate) http_handler: Option<Arc<dyn HttpIngress>>,
-    pub(crate) grpc_handler: Option<Arc<dyn GrpcIngress>>,
-    pub(crate) http_dispatcher: Option<HttpHandlerRegistryDispatcher>,
-    pub(crate) grpc_dispatcher: Option<GrpcHandlerRegistryDispatcher>,
-    pub(crate) http_tls: Option<IngressTlsConfig>,
-    pub(crate) grpc_tls: Option<IngressTlsConfig>,
-    pub(crate) http_bearer_verifier: Option<Arc<dyn TokenVerifier>>,
-    pub(crate) grpc_interceptors: GrpcIngressInterceptorChain,
-    pub(crate) grpc_allow_unauthenticated: bool,
-    pub(crate) egress_http: Option<Arc<dyn HttpEgress>>,
-    pub(crate) egress_grpc: Option<Arc<dyn GrpcEgress>>,
-    pub(crate) lifecycle: Option<Arc<dyn LifecycleMonitor>>,
-    pub(crate) tracing_config: Option<crate::api::config::TracingConfig>,
-    pub(crate) stream_handler: Option<Arc<dyn HttpStream>>,
-    #[cfg(feature = "message-broker")]
-    pub(crate) message_broker: Option<Arc<dyn swe_edge_runtime_message_broker::MessageBroker>>,
-}
+pub use crate::api::types::runtime::runtime_builder::RuntimeBuilder;
 
 impl RuntimeBuilder {
     /// Override the default TOML config with an explicit [`RuntimeConfig`].
@@ -61,8 +41,8 @@ impl RuntimeBuilder {
     {
         self.http_route_with(
             handler,
-            crate::core::json_codec::Codec::json_decode::<Req>,
-            crate::core::json_codec::Codec::json_encode::<Resp>,
+            crate::core::json::codec::Codec::json_decode::<Req>,
+            crate::core::json::codec::Codec::json_encode::<Resp>,
         )
     }
 
@@ -93,8 +73,8 @@ impl RuntimeBuilder {
     {
         self.grpc_route_with(
             handler,
-            crate::core::json_codec::Codec::grpc_json_decode::<Req>,
-            crate::core::json_codec::Codec::grpc_json_encode::<Resp>,
+            crate::core::json::codec::Codec::grpc_json_decode::<Req>,
+            crate::core::json::codec::Codec::grpc_json_encode::<Resp>,
         )
     }
 
