@@ -1,4 +1,4 @@
-//! Resource policy runner — core/ counterpart to api/policy_runner/.
+//! Resource policy runner — core/ counterpart to api/policy/runner/.
 //!
 //! The full `ResourcePolicyRunner` implementation lives in
 //! `api/types/policy/resource_policy_runner.rs`. This module satisfies

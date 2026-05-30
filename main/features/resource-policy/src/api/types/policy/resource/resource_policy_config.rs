@@ -25,6 +25,7 @@ pub struct ResourcePolicyConfig(pub HashMap<String, ResourcePolicy>);
 
 impl ConfigSection for ResourcePolicyConfig {
     fn section_name() -> &'static str {
+        // @allow: no_stub_fn_bodies — required ConfigSection impl, not a stub
         "resource_policies"
     }
 }

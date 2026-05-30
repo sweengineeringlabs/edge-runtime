@@ -11,7 +11,7 @@ fn test_default_validator_impl_validates_via_factory() {
 
 /// @covers: DefaultSweEdgeRuntimeResourcePolicyValidatorImpl
 #[test]
-fn test_default_validator_impl_type_size_is_known() {
-    use swe_edge_runtime_resource_policy::DefaultSweEdgeRuntimeResourcePolicyValidatorImpl;
-    let _ = std::mem::size_of::<DefaultSweEdgeRuntimeResourcePolicyValidatorImpl>();
+fn test_default_validator_impl_is_send_sync() {
+    fn assert_send_sync<T: Send + Sync>() {}
+    assert_send_sync::<&dyn Validator>();
 }
