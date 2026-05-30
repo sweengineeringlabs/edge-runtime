@@ -11,6 +11,7 @@ pub use error::Error;
 pub use error::ResourcePolicyError;
 pub use traits::SweEdgeRuntimeResourcePolicy;
 pub use traits::Validator;
+pub use types::NoopRuntimeResourcePolicy;
 pub use types::PolicySvc;
 pub use types::ResourceLimits;
 pub use types::ResourceLimitsBuilder;

@@ -6,4 +6,6 @@ pub use crate::api::types::policy::{
     ResourceLimits, ResourceLimitsBuilder, ResourceLimitsResolver, ResourcePolicy,
     ResourcePolicyBuilder, ResourcePolicyConfig, ResourcePolicyRunner,
 };
-pub use crate::api::types::swe::{PolicySvc, SweEdgeRuntimeResourcePolicyFactory};
+pub use crate::api::types::swe::{
+    NoopRuntimeResourcePolicy, PolicySvc, SweEdgeRuntimeResourcePolicyFactory,
+};

@@ -10,5 +10,6 @@ pub use policy::ResourcePolicy;
 pub use policy::ResourcePolicyBuilder;
 pub use policy::ResourcePolicyConfig;
 pub use policy::ResourcePolicyRunner;
+pub use swe::NoopRuntimeResourcePolicy;
 pub use swe::PolicySvc;
 pub use swe::SweEdgeRuntimeResourcePolicyFactory;

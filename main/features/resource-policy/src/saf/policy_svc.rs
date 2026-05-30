@@ -6,14 +6,12 @@ use swe_edge_configbuilder::ConfigSection as _;
 use swe_edge_egress_subprocess::SubprocessRunner;
 
 use crate::api::error::resource_policy_error::ResourcePolicyError;
-use crate::api::traits::SweEdgeRuntimeResourcePolicy;
-use crate::api::traits::Validator;
 use crate::api::types::policy::resource::resource_policy::ResourcePolicy;
 use crate::api::types::policy::resource::resource_policy_config::ResourcePolicyConfig;
 use crate::api::types::policy::resource::resource_policy_runner::ResourcePolicyRunner;
+use crate::api::types::swe::noop_runtime_resource_policy::NoopRuntimeResourcePolicy;
 use crate::api::types::swe::policy_svc::PolicySvc;
 use crate::api::types::swe::swe_edge_runtime_resource_policy_factory::SweEdgeRuntimeResourcePolicyFactory;
-use crate::core::DefaultSweEdgeRuntimeResourcePolicy;
 
 impl PolicySvc {
     /// Load the resource policy config from `loader` and return the named policy.
@@ -46,25 +44,25 @@ impl PolicySvc {
         ResourcePolicyRunner { inner, policy }
     }
 
-    /// Return a default [`SweEdgeRuntimeResourcePolicy`] implementation.
-    pub fn service() -> impl SweEdgeRuntimeResourcePolicy {
-        DefaultSweEdgeRuntimeResourcePolicy
+    /// Return a [`NoopRuntimeResourcePolicy`] implementing [`SweEdgeRuntimeResourcePolicy`].
+    pub fn service() -> NoopRuntimeResourcePolicy {
+        NoopRuntimeResourcePolicy
     }
 
-    /// Return a default [`Validator`] implementation.
-    pub fn validator() -> impl Validator {
-        DefaultSweEdgeRuntimeResourcePolicy
+    /// Return a [`NoopRuntimeResourcePolicy`] implementing [`Validator`].
+    pub fn validator() -> NoopRuntimeResourcePolicy {
+        NoopRuntimeResourcePolicy
     }
 }
 
 impl SweEdgeRuntimeResourcePolicyFactory {
-    /// Create a default [`SweEdgeRuntimeResourcePolicy`] implementation.
-    pub fn create_swe_edge_runtime_resource_policy() -> impl SweEdgeRuntimeResourcePolicy {
-        DefaultSweEdgeRuntimeResourcePolicy
+    /// Create a [`NoopRuntimeResourcePolicy`] implementing [`SweEdgeRuntimeResourcePolicy`].
+    pub fn create_swe_edge_runtime_resource_policy() -> NoopRuntimeResourcePolicy {
+        NoopRuntimeResourcePolicy
     }
 
-    /// Create a default [`Validator`] implementation.
-    pub fn create_validator() -> impl Validator {
-        DefaultSweEdgeRuntimeResourcePolicy
+    /// Create a [`NoopRuntimeResourcePolicy`] implementing [`Validator`].
+    pub fn create_validator() -> NoopRuntimeResourcePolicy {
+        NoopRuntimeResourcePolicy
     }
 }

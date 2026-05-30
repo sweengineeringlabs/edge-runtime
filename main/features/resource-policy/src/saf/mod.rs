@@ -3,8 +3,8 @@
 mod policy_svc;
 
 pub use crate::api::{
-    Error, PolicySvc, ResourceLimits, ResourceLimitsBuilder, ResourceLimitsResolver,
-    ResourcePolicy, ResourcePolicyBuilder, ResourcePolicyConfig, ResourcePolicyError,
-    ResourcePolicyRunner, SweEdgeRuntimeResourcePolicy, SweEdgeRuntimeResourcePolicyFactory,
-    Validator,
+    Error, NoopRuntimeResourcePolicy, PolicySvc, ResourceLimits, ResourceLimitsBuilder,
+    ResourceLimitsResolver, ResourcePolicy, ResourcePolicyBuilder, ResourcePolicyConfig,
+    ResourcePolicyError, ResourcePolicyRunner, SweEdgeRuntimeResourcePolicy,
+    SweEdgeRuntimeResourcePolicyFactory, Validator,
 };
