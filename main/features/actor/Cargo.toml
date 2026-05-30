@@ -89,6 +89,10 @@ path = "tests/message_int_test.rs"
 name = "spi_security_test"
 path = "tests/spi_security_test.rs"
 
+[[test]]
+name = "actor_spawn_handle_int_test"
+path = "tests/actor_spawn_handle_int_test.rs"
+
 [[example]]
 name = "counter_actor"
 path = "examples/counter_actor.rs"

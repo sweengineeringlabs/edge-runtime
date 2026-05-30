@@ -12,6 +12,9 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 
 #[cfg(feature = "tokio-rt")]
+use crate::api::types::actor::ActorSpawnHandle;
+
+#[cfg(feature = "tokio-rt")]
 use crate::spi::tokio::{TokioActorHandle, TokioStopHandle};
 
 /// Bounded channel capacity for actor mailboxes.
@@ -26,11 +29,11 @@ impl ActorRuntime {
     ///
     /// Requires the `tokio-rt` feature.
     #[cfg(feature = "tokio-rt")]
-    pub fn spawn<A: Actor>(actor: A) -> impl ActorHandle<A::Message> {
+    pub fn spawn<A: Actor>(actor: A) -> ActorSpawnHandle<A> {
         let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
         let tx = Arc::new(tx);
         tokio::spawn(Self::run_actor_loop(actor, rx));
-        TokioActorHandle { tx }
+        ActorSpawnHandle { tx }
     }
 
     /// Spawn an actor with explicit lifecycle management.
