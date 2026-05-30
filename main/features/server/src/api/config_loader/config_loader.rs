@@ -12,4 +12,13 @@ pub trait ConfigLoader: Send + Sync {
     /// Load config scoped to a specific tenant, layering
     /// `tenants/<tenant_id>.toml` on top of `application.toml`.
     fn load_for_tenant(&self, tenant_id: &str) -> Result<RuntimeConfig, ConfigError>;
+
+    /// Load an arbitrary TOML section from the layered config chain.
+    ///
+    /// `key` is a dotted path into the config tree, e.g.
+    /// `"observability.tracing"` or `"application.completion"`.
+    /// Returns `Ok(T::default())` if the key is absent from all sources.
+    fn load_section<T>(&self, key: &str) -> Result<T, ConfigError>
+    where
+        T: serde::de::DeserializeOwned + Default;
 }

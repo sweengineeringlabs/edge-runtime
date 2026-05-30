@@ -6,13 +6,13 @@ use swe_edge_configbuilder::ConfigSection as _;
 use swe_edge_egress_subprocess::SubprocessRunner;
 
 use crate::api::error::resource_policy_error::ResourcePolicyError;
-use crate::api::types::policy::resource_policy::ResourcePolicy;
-use crate::api::types::policy::resource_policy_config::ResourcePolicyConfig;
 use crate::api::traits::SweEdgeRuntimeResourcePolicy;
 use crate::api::traits::Validator;
+use crate::api::types::policy::resource_policy::ResourcePolicy;
+use crate::api::types::policy::resource_policy_config::ResourcePolicyConfig;
+use crate::api::types::policy::resource_policy_runner::ResourcePolicyRunner;
 use crate::api::types::swe::policy_svc::PolicySvc;
 use crate::api::types::swe::swe_edge_runtime_resource_policy_factory::SweEdgeRuntimeResourcePolicyFactory;
-use crate::api::types::policy::resource_policy_runner::ResourcePolicyRunner;
 use crate::core::DefaultSweEdgeRuntimeResourcePolicy;
 
 impl PolicySvc {

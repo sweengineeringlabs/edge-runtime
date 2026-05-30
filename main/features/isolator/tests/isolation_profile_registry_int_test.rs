@@ -1,7 +1,7 @@
 //! Integration tests for IsolationProfileRegistry.
 
-use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};
 use swe_edge_egress_subprocess::IsolationError;
+use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};
 
 /// @covers: IsolationProfileRegistry::get
 #[test]

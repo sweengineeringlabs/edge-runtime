@@ -1,7 +1,7 @@
 //! Integration tests for the profile resolver.
 
-use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};
 use swe_edge_egress_subprocess::IsolationError;
+use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};
 
 /// @covers: ProfileResolver::resolve — noop resolves successfully.
 #[test]

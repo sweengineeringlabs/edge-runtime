@@ -1,26 +1,45 @@
-//! Integration tests for `init_tracing` and `TracingFormat`.
+//! Integration tests for `TracingInitializer` and `TracingFormat`.
 
 #[cfg(feature = "observability")]
-use swe_edge_runtime::{init_tracing, TracingFormat};
+use swe_edge_runtime::{TracingConfig, TracingInitializer};
 
-/// @covers: init_tracing — Json format installs without panic
+/// @covers: TracingInitializer::init — Json format installs without panic
 #[cfg(feature = "observability")]
 #[test]
 fn test_observability_struct_init_tracing_json_installs_without_panic() {
-    init_tracing(TracingFormat::Json);
+    use swe_edge_observ_config::TracingFormat;
+    let cfg = TracingConfig {
+        format: TracingFormat::Json,
+        ..TracingConfig::default()
+    };
+    TracingInitializer::init(&cfg);
 }
 
-/// @covers: init_tracing — Pretty format installs without panic
+/// @covers: TracingInitializer::init — Pretty format installs without panic
 #[cfg(feature = "observability")]
 #[test]
 fn test_observability_struct_init_tracing_pretty_installs_without_panic() {
-    init_tracing(TracingFormat::Pretty);
+    use swe_edge_observ_config::TracingFormat;
+    let cfg = TracingConfig {
+        format: TracingFormat::Pretty,
+        ..TracingConfig::default()
+    };
+    TracingInitializer::init(&cfg);
 }
 
-/// @covers: init_tracing — idempotent across multiple calls
+/// @covers: TracingInitializer::init — idempotent across multiple calls
 #[cfg(feature = "observability")]
 #[test]
 fn test_observability_struct_init_tracing_called_twice_is_idempotent() {
-    init_tracing(TracingFormat::Json);
-    init_tracing(TracingFormat::Pretty);
+    use swe_edge_observ_config::TracingFormat;
+    let json = TracingConfig {
+        format: TracingFormat::Json,
+        ..TracingConfig::default()
+    };
+    let pretty = TracingConfig {
+        format: TracingFormat::Pretty,
+        ..TracingConfig::default()
+    };
+    TracingInitializer::init(&json);
+    TracingInitializer::init(&pretty);
 }

@@ -22,7 +22,10 @@ fn test_resolver_no_layers_returns_defaults() {
 /// @covers: ResourceLimitsResolver::layer, ResourceLimitsResolver::resolve_with_defaults
 #[test]
 fn test_resolver_layer_overrides_floor() {
-    let layer = ResourceLimits { timeout_ms: Some(5_000), ..Default::default() };
+    let layer = ResourceLimits {
+        timeout_ms: Some(5_000),
+        ..Default::default()
+    };
     let resolved = ResourceLimitsResolver::new()
         .layer(layer)
         .resolve_with_defaults(&floor());
@@ -32,8 +35,14 @@ fn test_resolver_layer_overrides_floor() {
 /// @covers: ResourceLimitsResolver::resolve_with_defaults
 #[test]
 fn test_resolver_earlier_layer_has_higher_priority() {
-    let high = ResourceLimits { timeout_ms: Some(1_000), ..Default::default() };
-    let low = ResourceLimits { timeout_ms: Some(9_000), ..Default::default() };
+    let high = ResourceLimits {
+        timeout_ms: Some(1_000),
+        ..Default::default()
+    };
+    let low = ResourceLimits {
+        timeout_ms: Some(9_000),
+        ..Default::default()
+    };
     let resolved = ResourceLimitsResolver::new()
         .layer(high)
         .layer(low)

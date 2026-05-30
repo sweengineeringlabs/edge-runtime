@@ -26,7 +26,9 @@ fn test_create_noop_isolator_storable_as_arc_dyn() {
 #[test]
 fn test_noop_isolator_configure_returns_ok() {
     let mut cmd = tokio::process::Command::new("echo");
-    assert!(IsolatorSvc::create_noop_isolator().configure(&mut cmd).is_ok());
+    assert!(IsolatorSvc::create_noop_isolator()
+        .configure(&mut cmd)
+        .is_ok());
 }
 
 // ── IsolationProfileRegistry ─────────────────────────────────────────────────

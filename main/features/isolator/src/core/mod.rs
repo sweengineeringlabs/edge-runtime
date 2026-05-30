@@ -8,4 +8,3 @@ pub(crate) mod seccomp;
 
 pub(crate) mod swe;
 pub(crate) use swe::DefaultSweEdgeRuntimeIsolator;
-

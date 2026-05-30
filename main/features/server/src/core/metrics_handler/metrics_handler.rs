@@ -32,6 +32,31 @@ impl MetricsHandler {
             path: path.into(),
         }
     }
+
+    /// Format `MetricSnapshot` values as Prometheus text exposition.
+    fn render_prometheus(provider: &dyn MetricsProvider) -> String {
+        let mut out = String::new();
+        for snap in provider.export() {
+            let type_str = match snap.metric_type {
+                MetricType::Counter => "counter",
+                MetricType::Gauge => "gauge",
+                MetricType::Histogram => "gauge", // exported as gauge via export()
+            };
+            out.push_str(&format!("# TYPE {} {}\n", snap.name, type_str));
+            let labels = if snap.labels.is_empty() {
+                String::new()
+            } else {
+                let parts: Vec<String> = snap
+                    .labels
+                    .iter()
+                    .map(|(k, v)| format!("{k}=\"{v}\""))
+                    .collect();
+                format!("{{{}}}", parts.join(","))
+            };
+            out.push_str(&format!("{}{} {}\n", snap.name, labels, snap.value));
+        }
+        out
+    }
 }
 
 impl crate::api::metrics_handler::MetricsHandler for MetricsHandler {}
@@ -63,7 +88,7 @@ impl HttpIngress for MetricsHandler {
                     request.url
                 )));
             }
-            let body = render_prometheus(&*provider);
+            let body = MetricsHandler::render_prometheus(&*provider);
             let mut resp = HttpResponse::new(200, body.into_bytes());
             resp.headers.insert(
                 "content-type".into(),
@@ -76,31 +101,6 @@ impl HttpIngress for MetricsHandler {
     fn health_check(&self) -> BoxFuture<'_, HttpIngressResult<HttpHealthCheck>> {
         Box::pin(async { Ok(HttpHealthCheck::healthy()) })
     }
-}
-
-/// Format `MetricSnapshot` values as Prometheus text exposition.
-fn render_prometheus(provider: &dyn MetricsProvider) -> String {
-    let mut out = String::new();
-    for snap in provider.export() {
-        let type_str = match snap.metric_type {
-            MetricType::Counter => "counter",
-            MetricType::Gauge => "gauge",
-            MetricType::Histogram => "gauge", // exported as gauge via export()
-        };
-        out.push_str(&format!("# TYPE {} {}\n", snap.name, type_str));
-        let labels = if snap.labels.is_empty() {
-            String::new()
-        } else {
-            let parts: Vec<String> = snap
-                .labels
-                .iter()
-                .map(|(k, v)| format!("{k}=\"{v}\""))
-                .collect();
-            format!("{{{}}}", parts.join(","))
-        };
-        out.push_str(&format!("{}{} {}\n", snap.name, labels, snap.value));
-    }
-    out
 }
 
 #[cfg(test)]
@@ -188,7 +188,7 @@ mod tests {
     fn test_render_prometheus_formats_type_line_and_value() {
         let provider = create_local_metrics_backend();
         provider.record_counter("my_counter", 5.0, &[]);
-        let out = render_prometheus(&provider);
+        let out = MetricsHandler::render_prometheus(&provider);
         assert!(out.contains("# TYPE my_counter counter"));
         assert!(out.contains("my_counter 5"));
     }

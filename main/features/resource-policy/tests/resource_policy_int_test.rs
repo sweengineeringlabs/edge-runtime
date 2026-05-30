@@ -6,8 +6,8 @@ use swe_edge_egress_subprocess::{
     SubprocessArgs, SubprocessResult, SubprocessRunner as _, SubprocessSvc,
 };
 use swe_edge_runtime_resource_policy::{
-    PolicySvc, ResourceLimits, ResourceLimitsResolver, ResourcePolicy,
-    ResourcePolicyConfig, ResourcePolicyError,
+    PolicySvc, ResourceLimits, ResourceLimitsResolver, ResourcePolicy, ResourcePolicyConfig,
+    ResourcePolicyError,
 };
 
 // ── ResourcePolicyConfig ─────────────────────────────────────────────────────

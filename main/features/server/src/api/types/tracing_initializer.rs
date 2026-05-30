@@ -1,19 +1,19 @@
-//! `Observability` — observability configuration and subscriber initialisation.
+//! `TracingInitializer` — factory for installing the tracing subscriber.
 
-/// Factory for observability operations including tracing subscriber installation.
+/// Factory for initialising the tracing subscriber.
 ///
-/// Use [`Observability::init_tracing`] to install the subscriber driven by
+/// Use [`TracingInitializer::init`] to install the subscriber driven by
 /// `[observability.tracing]` config. Satisfies SEA Rule 191 (no free-standing fns in api/).
-pub struct Observability;
+pub struct TracingInitializer;
 
 #[cfg(feature = "observability")]
-impl Observability {
+impl TracingInitializer {
     /// Install a `tracing-subscriber` driven by `config`.
     ///
     /// Requires the `observability` feature. Idempotent — safe to call multiple
     /// times. Does nothing when `config.enabled` is `false`. `RUST_LOG` overrides
     /// `config.level` and `config.filter`.
-    pub fn init_tracing(config: &swe_edge_observ_config::TracingConfig) {
+    pub fn init(config: &swe_edge_observ_config::TracingConfig) {
         swe_edge_observ_config::init_tracing(config);
     }
 }

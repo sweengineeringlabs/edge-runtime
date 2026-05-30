@@ -1,6 +1,8 @@
 //! Integration tests for swe-edge-runtime-resource-policy SAF facade.
 
-use swe_edge_runtime_resource_policy::{SweEdgeRuntimeResourcePolicyFactory, SweEdgeRuntimeResourcePolicy, Validator};
+use swe_edge_runtime_resource_policy::{
+    SweEdgeRuntimeResourcePolicy, SweEdgeRuntimeResourcePolicyFactory, Validator,
+};
 
 /// @covers: SweEdgeRuntimeResourcePolicyFactory::create_swe_edge_runtime_resource_policy
 #[test]

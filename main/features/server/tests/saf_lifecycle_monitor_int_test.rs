@@ -1,16 +1,16 @@
-//! Public-API integration tests for saf lifecycle_monitor functions.
+//! Public-API integration tests for saf lifecycle_monitor methods on ServerMonitor.
 
 use edge_proxy::new_null_lifecycle_monitor;
 use std::sync::Arc;
-use swe_edge_runtime::{observe_lifecycle_monitor, MetricsProvider};
+use swe_edge_runtime::{MetricsProvider, ServerMonitor};
 use swe_observ_metrics::create_local_metrics_backend;
 
-/// @covers: observe_lifecycle_monitor
+/// @covers: observe
 #[tokio::test]
 async fn test_observe_lifecycle_monitor() {
     let provider: Arc<dyn MetricsProvider> = Arc::new(create_local_metrics_backend());
     let inner = new_null_lifecycle_monitor();
-    let observed = observe_lifecycle_monitor(inner, Arc::clone(&provider));
+    let observed = ServerMonitor::observe(inner, Arc::clone(&provider));
     observed.health().await;
     let snaps = provider.export();
     assert!(

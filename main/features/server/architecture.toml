@@ -1,6 +1,0 @@
-[project]
-name = "swe-edge-runtime"
-layout = "single"
-
-[whitelist]
-allow = ["Cargo.toml", "Cargo.lock", "CHANGELOG.md", "architecture.toml", "config", "scripts", "main", "src", "tests", "examples", "target", "bootstrap.sh", "bootstrap.ps1"]

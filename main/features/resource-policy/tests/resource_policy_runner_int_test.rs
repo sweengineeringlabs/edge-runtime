@@ -2,7 +2,9 @@
 
 use std::sync::Arc;
 
-use swe_edge_egress_subprocess::{SubprocessArgs, SubprocessResult, SubprocessRunner as _, SubprocessSvc};
+use swe_edge_egress_subprocess::{
+    SubprocessArgs, SubprocessResult, SubprocessRunner as _, SubprocessSvc,
+};
 use swe_edge_runtime_resource_policy::{PolicySvc, ResourcePolicy};
 
 fn test_policy() -> ResourcePolicy {

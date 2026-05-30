@@ -1,6 +1,6 @@
 //! Integration tests for swe-edge-runtime-isolator SAF facade.
 
-use swe_edge_runtime_isolator::{SweEdgeRuntimeIsolatorFactory, SweEdgeRuntimeIsolator, Validator};
+use swe_edge_runtime_isolator::{SweEdgeRuntimeIsolator, SweEdgeRuntimeIsolatorFactory, Validator};
 
 /// @covers: SweEdgeRuntimeIsolatorFactory::create_swe_edge_runtime_isolator
 #[test]

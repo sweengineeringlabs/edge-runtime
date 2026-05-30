@@ -12,6 +12,8 @@ fn test_error_display_io() {
 /// @covers: Error::Operation
 #[test]
 fn test_error_display_operation() {
-    let err = Error::Operation { message: "bad value".to_string() };
+    let err = Error::Operation {
+        message: "bad value".to_string(),
+    };
     assert!(err.to_string().contains("bad value"));
 }

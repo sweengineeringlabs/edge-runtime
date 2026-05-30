@@ -1,6 +1,6 @@
 //! DefaultSweEdgeRuntimeIsolator integration tests for swe-edge-runtime-isolator.
 
-use swe_edge_runtime_isolator::{SweEdgeRuntimeIsolatorFactory, SweEdgeRuntimeIsolator};
+use swe_edge_runtime_isolator::{SweEdgeRuntimeIsolator, SweEdgeRuntimeIsolatorFactory};
 
 /// @covers: SweEdgeRuntimeIsolatorFactory::create_swe_edge_runtime_isolator
 #[test]

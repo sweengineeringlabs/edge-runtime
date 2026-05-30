@@ -119,7 +119,7 @@ impl ApplicationConfigLoader {
             cfg.grpc_bind = v;
         }
         if let Ok(v) = env::var("SWE_EDGE_SHUTDOWN_TIMEOUT") {
-            cfg.shutdown_timeout_secs = parse_shutdown_timeout(&v)?;
+            cfg.shutdown_timeout_secs = Self::parse_shutdown_timeout(&v)?;
         }
         if let Ok(v) = env::var("SWE_EDGE_SYSTEMD_NOTIFY") {
             cfg.systemd_notify = matches!(v.to_lowercase().as_str(), "1" | "true" | "yes");
@@ -136,46 +136,93 @@ impl ApplicationConfigLoader {
             p.exists().then_some(p)
         })
     }
-}
 
-/// Merge two `toml::Value`s — for tables, overlay keys win; for scalars, overlay wins.
-fn merge_toml(base: toml::Value, overlay: toml::Value) -> toml::Value {
-    match (base, overlay) {
-        (toml::Value::Table(mut b), toml::Value::Table(o)) => {
-            for (k, v) in o {
-                b.insert(k, v);
+    /// Merge two `toml::Value`s — for tables, overlay keys win; for scalars, overlay wins.
+    fn merge_values(base: toml::Value, overlay: toml::Value) -> toml::Value {
+        match (base, overlay) {
+            (toml::Value::Table(mut b), toml::Value::Table(o)) => {
+                for (k, v) in o {
+                    b.insert(k, v);
+                }
+                toml::Value::Table(b)
             }
-            toml::Value::Table(b)
+            (_, o) => o,
         }
-        (_, o) => o,
+    }
+
+    /// Walk a dotted key path (e.g. `"observability.tracing"`) into a `toml::Value`.
+    fn extract_dotted_value(val: &toml::Value, key: &str) -> Option<toml::Value> {
+        let mut current = val;
+        for part in key.split('.') {
+            current = current.get(part)?;
+        }
+        Some(current.clone())
+    }
+
+    /// Parse a shutdown timeout string as a non-negative integer.
+    fn parse_shutdown_timeout(v: &str) -> Result<u64, ConfigError> {
+        v.parse::<u64>().map_err(|_| {
+            ConfigError::BadEnvVar(format!(
+                "SWE_EDGE_SHUTDOWN_TIMEOUT={v:?}: expected a non-negative integer"
+            ))
+        })
+    }
+
+    /// Reject any tenant ID that could escape the `tenants/` directory.
+    ///
+    /// Only `[a-zA-Z0-9_-]` are allowed — every other character (`.`, `/`, `\`,
+    /// NUL, whitespace) can be abused in path construction.
+    fn validate_tenant_id(id: &str) -> Result<(), ConfigError> {
+        if id.is_empty()
+            || !id
+                .chars()
+                .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
+        {
+            return Err(ConfigError::InvalidTenantId(id.to_owned()));
+        }
+        Ok(())
     }
 }
 
-impl ApplicationConfigLoader {
+impl crate::api::config_loader::ApplicationConfigLoader for ApplicationConfigLoader {}
+
+impl ConfigLoader for ApplicationConfigLoader {
+    fn load(&self) -> Result<RuntimeConfig, ConfigError> {
+        Self::apply_env(self.base()?)
+    }
+
+    fn load_for_tenant(&self, tenant_id: &str) -> Result<RuntimeConfig, ConfigError> {
+        Self::validate_tenant_id(tenant_id)?;
+        let cfg = self.base()?;
+        let tenant_path = self
+            .tenant_path(tenant_id)
+            .ok_or_else(|| ConfigError::UnknownTenant(tenant_id.to_owned()))?;
+        let cfg = self.apply_file_if_exists(cfg, &tenant_path)?;
+        let mut cfg = Self::apply_env(cfg)?;
+        if cfg.tenant_id.is_none() {
+            cfg.tenant_id = Some(tenant_id.to_owned());
+        }
+        Ok(cfg)
+    }
+
     /// Load an arbitrary TOML section from the layered config chain.
     ///
     /// `key` is a dotted path into the config tree, e.g.
     /// `"observability.tracing"` or `"application.completion"`.
     ///
     /// Layer order (later wins):
-    /// 1. Shipped `default.toml` (embedded at compile time)
-    /// 2. Each config directory's `application.toml`
+    /// 1. Each config directory's `application.toml`
     ///
     /// The resulting table is deserialized into `T`.  Missing keys use
     /// `T`'s `#[serde(default)]` values.  Returns `ConfigError::Parse`
     /// if the section is present but cannot be deserialized.  Returns
-    /// `Ok(T::default())` if the key is absent from all sources (requires
-    /// `T: Default`).
-    pub(crate) fn load_section<T>(&self, key: &str) -> Result<T, ConfigError>
+    /// `Ok(T::default())` if the key is absent from all sources.
+    fn load_section<T>(&self, key: &str) -> Result<T, ConfigError>
     where
         T: serde::de::DeserializeOwned + Default,
     {
         let mut merged = toml::Value::Table(toml::map::Map::new());
 
-        // Shipped defaults loaded from config directory.
-        // (No embedded defaults; rely on config files in application.toml)
-
-        // Each application.toml in priority order.
         for dir in &self.config_dirs {
             let path = dir.join("application.toml");
             if !path.exists() {
@@ -194,8 +241,8 @@ impl ApplicationConfigLoader {
                 .map_err(|e| ConfigError::Io(format!("{}: {e}", path.display())))?;
             let val: toml::Value =
                 toml::from_str(&text).map_err(|e| ConfigError::Parse(e.to_string()))?;
-            if let Some(section) = extract_dotted(&val, key) {
-                merged = merge_toml(merged, section);
+            if let Some(section) = Self::extract_dotted_value(&val, key) {
+                merged = Self::merge_values(merged, section);
             }
         }
 
@@ -206,60 +253,6 @@ impl ApplicationConfigLoader {
         merged
             .try_into()
             .map_err(|e: toml::de::Error| ConfigError::Parse(e.to_string()))
-    }
-}
-
-/// Walk a dotted key path (e.g. `"observability.tracing"`) into a `toml::Value`.
-fn extract_dotted(val: &toml::Value, key: &str) -> Option<toml::Value> {
-    let mut current = val;
-    for part in key.split('.') {
-        current = current.get(part)?;
-    }
-    Some(current.clone())
-}
-
-fn parse_shutdown_timeout(v: &str) -> Result<u64, ConfigError> {
-    v.parse::<u64>().map_err(|_| {
-        ConfigError::BadEnvVar(format!(
-            "SWE_EDGE_SHUTDOWN_TIMEOUT={v:?}: expected a non-negative integer"
-        ))
-    })
-}
-
-/// Reject any tenant ID that could escape the `tenants/` directory.
-///
-/// Only `[a-zA-Z0-9_-]` are allowed — every other character (`.`, `/`, `\`,
-/// NUL, whitespace) can be abused in path construction.
-fn validate_tenant_id(id: &str) -> Result<(), ConfigError> {
-    if id.is_empty()
-        || !id
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-')
-    {
-        return Err(ConfigError::InvalidTenantId(id.to_owned()));
-    }
-    Ok(())
-}
-
-impl crate::api::config_loader::ApplicationConfigLoader for ApplicationConfigLoader {}
-
-impl ConfigLoader for ApplicationConfigLoader {
-    fn load(&self) -> Result<RuntimeConfig, ConfigError> {
-        Self::apply_env(self.base()?)
-    }
-
-    fn load_for_tenant(&self, tenant_id: &str) -> Result<RuntimeConfig, ConfigError> {
-        validate_tenant_id(tenant_id)?;
-        let cfg = self.base()?;
-        let tenant_path = self
-            .tenant_path(tenant_id)
-            .ok_or_else(|| ConfigError::UnknownTenant(tenant_id.to_owned()))?;
-        let cfg = self.apply_file_if_exists(cfg, &tenant_path)?;
-        let mut cfg = Self::apply_env(cfg)?;
-        if cfg.tenant_id.is_none() {
-            cfg.tenant_id = Some(tenant_id.to_owned());
-        }
-        Ok(cfg)
     }
 }
 
@@ -487,7 +480,7 @@ mod tests {
 
     #[test]
     fn test_parse_shutdown_timeout_rejects_non_numeric_value() {
-        let err = parse_shutdown_timeout("not-a-number").unwrap_err();
+        let err = ApplicationConfigLoader::parse_shutdown_timeout("not-a-number").unwrap_err();
         assert!(matches!(err, ConfigError::BadEnvVar(_)));
         assert!(err.to_string().contains("SWE_EDGE_SHUTDOWN_TIMEOUT"));
         assert!(err.to_string().contains("not-a-number"));
@@ -495,14 +488,20 @@ mod tests {
 
     #[test]
     fn test_parse_shutdown_timeout_rejects_negative_representation() {
-        let err = parse_shutdown_timeout("-1").unwrap_err();
+        let err = ApplicationConfigLoader::parse_shutdown_timeout("-1").unwrap_err();
         assert!(matches!(err, ConfigError::BadEnvVar(_)));
     }
 
     #[test]
     fn test_parse_shutdown_timeout_accepts_valid_integer() {
-        assert_eq!(parse_shutdown_timeout("120").unwrap(), 120);
-        assert_eq!(parse_shutdown_timeout("0").unwrap(), 0);
+        assert_eq!(
+            ApplicationConfigLoader::parse_shutdown_timeout("120").unwrap(),
+            120
+        );
+        assert_eq!(
+            ApplicationConfigLoader::parse_shutdown_timeout("0").unwrap(),
+            0
+        );
     }
 
     // ── load_section ────────────────────────────────────────────────────────

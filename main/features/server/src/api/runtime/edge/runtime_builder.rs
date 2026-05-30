@@ -16,8 +16,8 @@ use swe_edge_ingress_http::{
 };
 use swe_edge_ingress_verifier::TokenVerifier;
 
-use crate::api::service_registry::ServiceRegistry;
 use crate::api::types::RuntimeConfig;
+use crate::api::types::ServiceRegistry;
 
 /// Builder for assembling and starting an edge runtime.
 pub struct RuntimeBuilder {
@@ -61,8 +61,8 @@ impl RuntimeBuilder {
     {
         self.http_route_with(
             handler,
-            crate::core::json_codec::json_decode::<Req>,
-            crate::core::json_codec::json_encode::<Resp>,
+            crate::core::json_codec::Codec::json_decode::<Req>,
+            crate::core::json_codec::Codec::json_encode::<Resp>,
         )
     }
 
@@ -93,8 +93,8 @@ impl RuntimeBuilder {
     {
         self.grpc_route_with(
             handler,
-            crate::core::json_codec::grpc_json_decode::<Req>,
-            crate::core::json_codec::grpc_json_encode::<Resp>,
+            crate::core::json_codec::Codec::grpc_json_decode::<Req>,
+            crate::core::json_codec::Codec::grpc_json_encode::<Resp>,
         )
     }
 

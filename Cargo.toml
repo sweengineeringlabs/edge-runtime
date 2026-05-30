@@ -6,6 +6,7 @@ members  = [
   "main/features/message-broker",
   "main/features/actor",
   "main/features/scheduler",
+  "main/features/server",
 ]
 
 [workspace.package]

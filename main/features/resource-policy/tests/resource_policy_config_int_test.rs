@@ -1,7 +1,7 @@
 //! Integration tests for ResourcePolicyConfig.
 
-use swe_edge_runtime_resource_policy::{ResourcePolicyConfig, ResourcePolicyError};
 use swe_edge_configbuilder::ConfigSection as _;
+use swe_edge_runtime_resource_policy::{ResourcePolicyConfig, ResourcePolicyError};
 
 /// @covers: ResourcePolicyConfig::section_name
 #[test]

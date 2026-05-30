@@ -1,11 +1,11 @@
 //! SweEdgeRuntimeResourcePolicy factory and implementation types.
 
-pub mod swe_edge_runtime_resource_policy_factory;
 pub mod default_swe_edge_runtime_resource_policy_impl;
-pub mod policy_svc;
 pub mod default_swe_edge_runtime_resource_policy_validator_impl;
+pub mod policy_svc;
+pub mod swe_edge_runtime_resource_policy_factory;
 
-pub use swe_edge_runtime_resource_policy_factory::SweEdgeRuntimeResourcePolicyFactory;
 pub use default_swe_edge_runtime_resource_policy_impl::DefaultSweEdgeRuntimeResourcePolicyImpl;
-pub use policy_svc::PolicySvc;
 pub use default_swe_edge_runtime_resource_policy_validator_impl::DefaultSweEdgeRuntimeResourcePolicyValidatorImpl;
+pub use policy_svc::PolicySvc;
+pub use swe_edge_runtime_resource_policy_factory::SweEdgeRuntimeResourcePolicyFactory;

@@ -3,12 +3,12 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::api::traits::Validator;
 use crate::api::traits::SweEdgeRuntimeIsolator;
-use crate::api::types::profile::isolator_config::IsolatorConfig;
+use crate::api::traits::Validator;
 use crate::api::types::profile::isolation_profile_registry::IsolationProfileRegistry;
-use crate::api::types::swe::swe_edge_runtime_isolator_factory::SweEdgeRuntimeIsolatorFactory;
+use crate::api::types::profile::isolator_config::IsolatorConfig;
 use crate::api::types::swe::isolator_svc::IsolatorSvc;
+use crate::api::types::swe::swe_edge_runtime_isolator_factory::SweEdgeRuntimeIsolatorFactory;
 use crate::core::noop::NoopIsolator;
 use crate::core::profile_resolver::ProfileResolver;
 use crate::core::DefaultSweEdgeRuntimeIsolator;
@@ -36,10 +36,8 @@ impl IsolatorSvc {
     pub fn create_profile_registry(
         loader: &swe_edge_configbuilder::SectionLoaderImpl,
     ) -> Result<IsolationProfileRegistry, IsolationError> {
-        let config = IsolatorConfig::load(loader).map_err(|e| {
-            IsolationError::UnknownProfile {
-                profile: format!("config load failed: {e}"),
-            }
+        let config = IsolatorConfig::load(loader).map_err(|e| IsolationError::UnknownProfile {
+            profile: format!("config load failed: {e}"),
         })?;
         Self::build_registry(config)
     }

@@ -3,4 +3,4 @@
 #[allow(clippy::module_inception)]
 mod runner;
 
-pub(crate) use runner::run_until_signal;
+pub(crate) use runner::DaemonRunner;

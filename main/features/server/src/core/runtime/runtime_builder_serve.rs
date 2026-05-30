@@ -24,7 +24,7 @@ use crate::api::runtime::RuntimeBuilder;
 use crate::core::config_loader::ApplicationConfigLoader;
 use crate::core::metrics_handler::MetricsHandler;
 use crate::core::monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
-use crate::core::runner::run_until_signal;
+use crate::core::runner::DaemonRunner;
 use crate::core::runtime_manager::DefaultRuntimeManager;
 use swe_observ_metrics::create_local_metrics_backend;
 
@@ -53,7 +53,7 @@ impl RuntimeBuilder {
                 .as_ref()
                 .or_else(|| config.observability.as_ref().map(|o| &o.tracing));
             if let Some(cfg) = tracing_cfg {
-                crate::api::observability::init_tracing(cfg);
+                crate::api::types::TracingInitializer::init(cfg);
             }
         }
 
@@ -262,7 +262,12 @@ impl RuntimeBuilder {
             }
             m
         };
-        let result = run_until_signal(mgr, timeout_secs, wait_for_signal()).await;
+        let result = DaemonRunner::run_until_signal(
+            mgr,
+            timeout_secs,
+            RuntimeBuilderServe::wait_for_signal(),
+        )
+        .await;
 
         let _ = http_tx.send(());
         let _ = grpc_tx.send(());
@@ -283,26 +288,29 @@ impl RuntimeBuilder {
     }
 }
 
-async fn wait_for_signal() {
-    #[cfg(unix)]
-    {
-        use tokio::signal::unix::{signal, SignalKind};
-        let mut sigterm = match signal(SignalKind::terminate()) {
-            Ok(s) => s,
-            Err(e) => {
-                tracing::warn!("could not register SIGTERM handler: {e}");
-                let _ = tokio::signal::ctrl_c().await;
-                return;
+impl RuntimeBuilderServe {
+    /// Wait for SIGTERM or SIGINT, whichever arrives first.
+    async fn wait_for_signal() {
+        #[cfg(unix)]
+        {
+            use tokio::signal::unix::{signal, SignalKind};
+            let mut sigterm = match signal(SignalKind::terminate()) {
+                Ok(s) => s,
+                Err(e) => {
+                    tracing::warn!("could not register SIGTERM handler: {e}");
+                    let _ = tokio::signal::ctrl_c().await;
+                    return;
+                }
+            };
+            tokio::select! {
+                _ = sigterm.recv()           => {}
+                _ = tokio::signal::ctrl_c() => {}
             }
-        };
-        tokio::select! {
-            _ = sigterm.recv()           => {}
-            _ = tokio::signal::ctrl_c() => {}
         }
-    }
-    #[cfg(not(unix))]
-    {
-        let _ = tokio::signal::ctrl_c().await;
+        #[cfg(not(unix))]
+        {
+            let _ = tokio::signal::ctrl_c().await;
+        }
     }
 }
 

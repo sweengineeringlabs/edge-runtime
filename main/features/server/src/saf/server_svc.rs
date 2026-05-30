@@ -16,7 +16,7 @@ use crate::api::traits::Validator;
 use crate::api::types::RuntimeConfig;
 use crate::api::types::ServerConfigLoader;
 use crate::api::types::ServerMonitor;
-use crate::core::runner::run_until_signal;
+use crate::core::runner::DaemonRunner;
 use crate::core::validator::ConfigValidator;
 use crate::core::ApplicationConfigLoader;
 use edge_proxy::LifecycleMonitor;
@@ -227,7 +227,8 @@ impl Runtime {
         });
 
         let mgr = Runtime::runtime_manager(config, ingress, egress, lifecycle);
-        let result = run_until_signal(mgr, timeout_secs, Runtime::wait_for_signal()).await;
+        let result =
+            DaemonRunner::run_until_signal(mgr, timeout_secs, Runtime::wait_for_signal()).await;
 
         let _ = http_shutdown_tx.send(());
         let _ = grpc_shutdown_tx.send(());
@@ -267,103 +268,4 @@ impl Runtime {
             tracing::info!("SIGINT received");
         }
     }
-}
-
-/// Return a [`ConfigBuilderImpl`] pre-seeded with this crate's package name and version.
-pub fn create_config_builder() -> ConfigBuilderImpl {
-    ServerConfigLoader::create_config_builder()
-}
-
-/// Load config using the default layered chain.
-pub fn load_config() -> Result<RuntimeConfig, ConfigError> {
-    ServerConfigLoader::load_config()
-}
-
-/// Load config from an explicit directory.
-pub fn load_config_from(dir: impl Into<std::path::PathBuf>) -> Result<RuntimeConfig, ConfigError> {
-    ServerConfigLoader::load_config_from(dir)
-}
-
-/// Load config scoped to a tenant.
-pub fn load_tenant_config(tenant_id: &str) -> Result<RuntimeConfig, ConfigError> {
-    ServerConfigLoader::load_tenant_config(tenant_id)
-}
-
-/// Load tenant config from an explicit directory.
-pub fn load_tenant_config_from(
-    tenant_id: &str,
-    dir: impl Into<std::path::PathBuf>,
-) -> Result<RuntimeConfig, ConfigError> {
-    ServerConfigLoader::load_tenant_config_from(tenant_id, dir)
-}
-
-/// Load config following the XDG Base Directory specification.
-pub fn load_config_xdg(app_name: &str) -> Result<RuntimeConfig, ConfigError> {
-    ServerConfigLoader::load_config_xdg(app_name)
-}
-
-/// Load tenant config following the XDG Base Directory specification.
-pub fn load_tenant_config_xdg(
-    app_name: &str,
-    tenant_id: &str,
-) -> Result<RuntimeConfig, ConfigError> {
-    ServerConfigLoader::load_tenant_config_xdg(app_name, tenant_id)
-}
-
-/// Validate a [`RuntimeConfig`] using the built-in [`ConfigValidator`].
-pub fn validate_config(config: &RuntimeConfig) -> Result<(), RuntimeError> {
-    ServerConfigLoader::validate_config(config)
-}
-
-/// Load an arbitrary TOML section from the default config chain.
-pub fn load_section<T>(key: &str) -> Result<T, ConfigError>
-where
-    T: serde::de::DeserializeOwned + Default,
-{
-    ServerConfigLoader::load_section(key)
-}
-
-/// Load an arbitrary TOML section from an explicit config directory.
-pub fn load_section_from<T>(key: &str, dir: impl Into<std::path::PathBuf>) -> Result<T, ConfigError>
-where
-    T: serde::de::DeserializeOwned + Default,
-{
-    ServerConfigLoader::load_section_from(key, dir)
-}
-
-/// Load an arbitrary TOML section following the XDG Base Directory chain.
-pub fn load_section_xdg<T>(app_name: &str, key: &str) -> Result<T, ConfigError>
-where
-    T: serde::de::DeserializeOwned + Default,
-{
-    ServerConfigLoader::load_section_xdg(app_name, key)
-}
-
-/// Wrap any [`LifecycleMonitor`] with health-state gauge recording.
-pub fn observe_lifecycle_monitor(
-    inner: Arc<dyn LifecycleMonitor>,
-    provider: Arc<dyn MetricsProvider>,
-) -> Arc<dyn LifecycleMonitor> {
-    ServerMonitor::observe(inner, provider)
-}
-
-/// Assemble a runtime manager from the supplied config, ingress, egress,
-/// and lifecycle monitor.
-pub fn runtime_manager(
-    config: RuntimeConfig,
-    ingress: Arc<dyn Ingress>,
-    egress: Arc<dyn Egress>,
-    lifecycle: Arc<dyn LifecycleMonitor>,
-) -> impl crate::api::runtime_manager::RuntimeManager {
-    Runtime::runtime_manager(config, ingress, egress, lifecycle)
-}
-
-/// Start the daemon and block until a shutdown signal is received.
-pub async fn run(
-    config: RuntimeConfig,
-    ingress: Arc<dyn Ingress>,
-    egress: Arc<dyn Egress>,
-    lifecycle: Arc<dyn LifecycleMonitor>,
-) -> RuntimeResult<()> {
-    Runtime::run(config, ingress, egress, lifecycle).await
 }

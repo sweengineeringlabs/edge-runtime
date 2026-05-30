@@ -1,6 +1,8 @@
 //! Integration tests for DefaultSweEdgeRuntimeResourcePolicyImpl.
 
-use swe_edge_runtime_resource_policy::{SweEdgeRuntimeResourcePolicyFactory, SweEdgeRuntimeResourcePolicy};
+use swe_edge_runtime_resource_policy::{
+    SweEdgeRuntimeResourcePolicy, SweEdgeRuntimeResourcePolicyFactory,
+};
 
 /// @covers: DefaultSweEdgeRuntimeResourcePolicyImpl
 #[test]
