@@ -8,13 +8,13 @@
 //! that return `impl Trait`, hiding all implementation details.
 
 #[cfg(feature = "tokio-rt")]
-mod in_memory;
+mod memory;
 
 #[cfg(feature = "nats")]
 mod nats;
 
 #[cfg(feature = "tokio-rt")]
-pub(crate) use in_memory::{InMemoryMessageBroker, InMemoryTaskQueue};
+pub(crate) use memory::{InMemoryMessageBroker, InMemoryTaskQueue};
 
 #[cfg(feature = "nats")]
 pub(crate) use nats::{NatsMessageBroker, NatsTaskQueue};

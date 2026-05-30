@@ -3,8 +3,8 @@
 use futures::future::BoxFuture;
 
 use crate::api::broker::broker_error::BrokerError;
-use crate::api::broker::message::message::Message;
-use crate::api::broker::message_stream::MessageStream;
+use crate::api::broker::message::stream::message_stream::MessageStream;
+use crate::api::broker::types::message::Message;
 
 /// Cross-process publish/subscribe broker contract.
 ///

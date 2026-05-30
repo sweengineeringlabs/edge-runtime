@@ -2,6 +2,6 @@
 
 pub(crate) mod broker;
 pub(crate) mod error;
-pub(crate) mod task_queue;
+pub(crate) mod task;
 pub(crate) mod traits;
 pub(crate) mod types;

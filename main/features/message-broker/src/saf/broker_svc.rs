@@ -8,9 +8,9 @@
 use crate::api::broker::broker_error::BrokerError;
 use crate::api::broker::message_broker::MessageBroker;
 #[cfg(feature = "nats")]
-use crate::api::task_queue::queue_error::QueueError;
+use crate::api::task::queue::queue_error::QueueError;
 #[cfg(any(feature = "tokio-rt", feature = "nats"))]
-use crate::api::task_queue::TaskQueue;
+use crate::api::task::queue::TaskQueue;
 use crate::api::types::message_broker_factory::MessageBrokerFactory;
 use crate::api::types::task_queue_factory::TaskQueueFactory;
 #[cfg(feature = "tokio-rt")]

@@ -1,7 +1,7 @@
 //! NATS message broker and task queue implementations.
 
-mod nats_message_broker;
-mod nats_task_queue;
+mod message;
+mod task;
 
-pub(crate) use nats_message_broker::NatsMessageBroker;
-pub(crate) use nats_task_queue::NatsTaskQueue;
+pub(crate) use message::broker::NatsMessageBroker;
+pub(crate) use task::queue::NatsTaskQueue;

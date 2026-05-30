@@ -1,4 +1,5 @@
-//! Message value types.
+//! Message value types and stream type.
 
-#[allow(clippy::module_inception)]
-pub(crate) mod message;
+pub(crate) mod stream;
+
+pub use stream::MessageStream;
