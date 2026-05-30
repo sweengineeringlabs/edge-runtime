@@ -59,14 +59,14 @@ mod tests {
         }
     }
 
-    /// @covers: ProfileResolver::resolve
+    /// @covers: resolve
     #[test]
     fn test_profile_resolver_resolve_noop_returns_ok() {
         let result = ProfileResolver::resolve("noop", &noop_spec());
         assert!(result.is_ok());
     }
 
-    /// @covers: ProfileResolver::resolve
+    /// @covers: resolve
     #[test]
     fn test_profile_resolver_resolve_unknown_returns_error() {
         let spec = ProfileSpec {
@@ -77,7 +77,7 @@ mod tests {
         assert!(matches!(err, IsolationError::UnknownProfile { .. }));
     }
 
-    /// @covers: ProfileResolver::resolve
+    /// @covers: resolve
     #[test]
     fn test_profile_resolver_resolve_job_object_returns_unsupported() {
         let spec = ProfileSpec {

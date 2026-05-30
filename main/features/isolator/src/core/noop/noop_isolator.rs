@@ -2,6 +2,9 @@
 
 use swe_edge_egress_subprocess::{IsolationError, IsolationProfile};
 
+/// Profile name constant, used in logs and registry lookup.
+pub(crate) const PROFILE_NAME: &str = "noop";
+
 /// Applies no OS-level restrictions to the subprocess.
 ///
 /// Always succeeds. Never use in production for untrusted or arbitrary code.
@@ -10,7 +13,7 @@ pub(crate) struct NoopIsolator;
 
 impl IsolationProfile for NoopIsolator {
     fn name(&self) -> &str {
-        "noop"
+        PROFILE_NAME
     }
 
     fn configure(&self, _cmd: &mut tokio::process::Command) -> Result<(), IsolationError> {
@@ -28,7 +31,7 @@ mod tests {
 
     #[test]
     fn test_noop_isolator_name_is_noop() {
-        assert_eq!(NoopIsolator.name(), "noop");
+        assert_eq!(NoopIsolator.name(), PROFILE_NAME);
     }
 
     #[tokio::test]

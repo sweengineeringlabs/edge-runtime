@@ -1,3 +1,7 @@
-//! `SeccompIsolator` api interface marker.
+//! `SeccompIsolator` api interface contract.
 
-pub use crate::api::traits::seccomp_isolation_profile::SeccompIsolationProfile;
+/// Marker trait representing the seccomp-bpf isolator contract.
+///
+/// Implemented by `core::seccomp::SeccompIsolator` on Linux when the
+/// `seccomp` feature is enabled.
+pub trait SeccompIsolator {}

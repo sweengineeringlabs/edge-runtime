@@ -44,8 +44,11 @@ impl Default for IsolatorConfig {
     }
 }
 
+/// TOML section key for the subprocess isolation policy.
+pub const SECTION_NAME: &str = "subprocess_policy";
+
 impl ConfigSection for IsolatorConfig {
     fn section_name() -> &'static str {
-        "subprocess_policy"
+        SECTION_NAME
     }
 }

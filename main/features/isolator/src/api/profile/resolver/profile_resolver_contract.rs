@@ -2,5 +2,5 @@
 
 /// Trait defining the profile resolution contract.
 ///
-/// Implemented by `core::profile_resolver::ProfileResolver`.
+/// Implemented by `core::profile::resolver::ProfileResolver`.
 pub trait ProfileResolverContract {}

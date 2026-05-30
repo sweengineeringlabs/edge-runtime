@@ -10,7 +10,7 @@ use crate::api::types::profile::isolator_config::IsolatorConfig;
 use crate::api::types::swe::isolator_svc::IsolatorSvc;
 use crate::api::types::swe::swe_edge_runtime_isolator_factory::SweEdgeRuntimeIsolatorFactory;
 use crate::core::noop::NoopIsolator;
-use crate::core::profile_resolver::ProfileResolver;
+use crate::core::profile::ProfileResolver;
 use crate::core::DefaultSweEdgeRuntimeIsolator;
 
 use swe_edge_configbuilder::ConfigSection as _;

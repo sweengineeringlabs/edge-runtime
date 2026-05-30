@@ -1,11 +1,7 @@
 //! SweEdgeRuntimeIsolator factory and implementation types.
 
-pub mod default_swe_edge_runtime_isolator_impl;
-pub mod default_swe_edge_runtime_isolator_validator_impl;
 pub mod isolator_svc;
 pub mod swe_edge_runtime_isolator_factory;
 
-pub use default_swe_edge_runtime_isolator_impl::DefaultSweEdgeRuntimeIsolatorImpl;
-pub use default_swe_edge_runtime_isolator_validator_impl::DefaultSweEdgeRuntimeIsolatorValidatorImpl;
 pub use isolator_svc::IsolatorSvc;
 pub use swe_edge_runtime_isolator_factory::SweEdgeRuntimeIsolatorFactory;

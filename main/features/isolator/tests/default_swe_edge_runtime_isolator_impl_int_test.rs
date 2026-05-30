@@ -1,18 +1,22 @@
-//! Integration tests for DefaultSweEdgeRuntimeIsolatorImpl.
+//! Integration tests for the default SweEdgeRuntimeIsolator implementation.
 
 use swe_edge_runtime_isolator::{SweEdgeRuntimeIsolator, SweEdgeRuntimeIsolatorFactory};
 
-/// @covers: DefaultSweEdgeRuntimeIsolatorImpl
+/// @covers: SweEdgeRuntimeIsolatorFactory::create_swe_edge_runtime_isolator
 #[test]
 fn test_default_isolator_impl_is_accessible_via_factory() {
-    // Verifies the type exists and factory creates a usable instance.
+    // Verifies the factory produces a usable SweEdgeRuntimeIsolator implementation.
     let svc = SweEdgeRuntimeIsolatorFactory::create_swe_edge_runtime_isolator();
     assert!(svc.execute().is_ok());
 }
 
-/// @covers: DefaultSweEdgeRuntimeIsolatorImpl
+/// @covers: SweEdgeRuntimeIsolatorFactory::create_swe_edge_runtime_isolator
 #[test]
-fn test_default_isolator_impl_type_size_is_known() {
-    use swe_edge_runtime_isolator::DefaultSweEdgeRuntimeIsolatorImpl;
-    let _ = std::mem::size_of::<DefaultSweEdgeRuntimeIsolatorImpl>();
+fn test_default_isolator_impl_execute_is_idempotent() {
+    let svc = SweEdgeRuntimeIsolatorFactory::create_swe_edge_runtime_isolator();
+    assert!(svc.execute().is_ok(), "first execute must succeed");
+    assert!(
+        svc.execute().is_ok(),
+        "second execute must succeed (idempotent)"
+    );
 }

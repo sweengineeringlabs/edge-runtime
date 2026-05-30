@@ -82,10 +82,10 @@ impl IsolationProfile for SeccompIsolator {
         let program = Arc::clone(&self.compiled);
         let profile_name = self.name.clone();
 
-        // SAFETY: seccompiler::apply_filter calls prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, ...)
-        // which is async-signal-safe and valid after fork, before exec. The BPF program
-        // is compiled-once and referenced via Arc — no aliasing. CommandExt::pre_exec
-        // guarantees single-threaded execution in the child at this point.
+        // SAFETY: `pre_exec` closure runs in the child after `fork()`, before `exec()`.
+        // CommandExt guarantees single-threaded child context. `apply_filter` calls
+        // `prctl(PR_SET_SECCOMP, SECCOMP_MODE_FILTER, ...)` — async-signal-safe.
+        // SAFETY: BpfProgram is compiled-once and Arc-shared — no aliasing or data races.
         unsafe {
             use std::os::unix::process::CommandExt as _;
             cmd.as_std_mut().pre_exec(move || {
@@ -98,5 +98,24 @@ impl IsolationProfile for SeccompIsolator {
             });
         }
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// @covers: new
+    #[test]
+    fn test_seccomp_isolator_new_with_empty_syscalls_succeeds() {
+        let result = SeccompIsolator::new("test-profile", &[]);
+        assert!(result.is_ok(), "new() with empty syscall list must succeed");
+    }
+
+    /// @covers: new
+    #[test]
+    fn test_seccomp_isolator_new_sets_name() {
+        let isolator = SeccompIsolator::new("my-profile", &[]).expect("should succeed");
+        assert_eq!(isolator.name(), "my-profile");
     }
 }

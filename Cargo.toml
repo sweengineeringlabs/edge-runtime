@@ -19,6 +19,7 @@ repository   = "https://github.com/sweengineeringlabs/edge"
 
 [workspace.dependencies]
 swe-edge-configbuilder          = { path = "../configbuilder/main/features/configbuilder" }
+swe-edge-egress-subprocess      = { path = "../egress/subprocess/main/features/subprocess" }
 swe-edge-observ-config          = { path = "../observ-config/swe-edge-observ-config" }
 swe-edge-runtime-message-broker = { path = "main/features/message-broker", features = ["tokio-rt"] }
 swe-edge-runtime-scheduler      = { path = "main/features/scheduler" }
