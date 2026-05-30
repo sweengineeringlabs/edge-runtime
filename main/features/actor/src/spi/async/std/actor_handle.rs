@@ -56,17 +56,17 @@ impl<A: Actor> AsyncStdActorHandle<A> {
 mod tests {
     use super::*;
 
-    struct TestActor {
+    struct AsyncStdActorHandleTestActor {
         count: i32,
     }
 
-    enum TestMessage {
+    enum AsyncStdActorHandleTestMessage {
         Inc,
         GetCount(async_std::channel::Sender<i32>),
     }
 
-    impl Actor for TestActor {
-        type Message = TestMessage;
+    impl Actor for AsyncStdActorHandleTestActor {
+        type Message = AsyncStdActorHandleTestMessage;
 
         fn handle(
             &mut self,
@@ -75,8 +75,8 @@ mod tests {
         ) -> BoxFuture<'_, ()> {
             Box::pin(async move {
                 match msg {
-                    TestMessage::Inc => self.count += 1,
-                    TestMessage::GetCount(tx) => {
+                    AsyncStdActorHandleTestMessage::Inc => self.count += 1,
+                    AsyncStdActorHandleTestMessage::GetCount(tx) => {
                         let _ = tx.send(self.count).await;
                     }
                 }
@@ -84,33 +84,37 @@ mod tests {
         }
     }
 
-    /// @covers: AsyncStdActorHandle::tell
+    /// @covers: tell
     #[async_std::test]
     async fn test_async_std_actor_handle_tell_enqueues_message() {
-        let (tx, rx) = async_std::channel::bounded::<Message<TestActor>>(1);
-        let handle: AsyncStdActorHandle<TestActor> = AsyncStdActorHandle { tx: Arc::new(tx) };
+        let (tx, rx) = async_std::channel::bounded::<Message<AsyncStdActorHandleTestActor>>(1);
+        let handle: AsyncStdActorHandle<AsyncStdActorHandleTestActor> =
+            AsyncStdActorHandle { tx: Arc::new(tx) };
 
-        let result = handle.tell(TestMessage::Inc).await;
+        let result = handle.tell(AsyncStdActorHandleTestMessage::Inc).await;
         assert!(result.is_ok());
 
         // Verify message was sent
         let msg = rx.recv().await;
-        assert!(matches!(msg, Ok(Message::Msg(TestMessage::Inc))));
+        assert!(matches!(
+            msg,
+            Ok(Message::Msg(AsyncStdActorHandleTestMessage::Inc))
+        ));
     }
 
     /// @covers: ask
-    #[async_std::test]
-    async fn test_ask_returns_reply_from_actor() {
+    #[test]
+    fn test_ask_returns_reply_from_actor() {
         use crate::spi::r#async::std::mailbox::AsyncStdMailbox;
 
-        struct AskActor;
+        struct AsyncStdActorHandleAskActor;
 
-        enum AskMsg {
+        enum AsyncStdActorHandleAskMsg {
             Echo(async_std::channel::Sender<u32>),
         }
 
-        impl Actor for AskActor {
-            type Message = AskMsg;
+        impl Actor for AsyncStdActorHandleAskActor {
+            type Message = AsyncStdActorHandleAskMsg;
 
             fn handle(
                 &mut self,
@@ -119,7 +123,7 @@ mod tests {
             ) -> BoxFuture<'_, ()> {
                 Box::pin(async move {
                     match msg {
-                        AskMsg::Echo(tx) => {
+                        AsyncStdActorHandleAskMsg::Echo(tx) => {
                             let _ = tx.send(99).await;
                         }
                     }
@@ -127,24 +131,27 @@ mod tests {
             }
         }
 
-        let handle = AsyncStdMailbox::spawn(AskActor);
-        let result = handle
-            .ask(|tx| AskMsg::Echo(tx))
-            .await
-            .unwrap_or_else(|_| panic!("ask failed"));
-        assert_eq!(result, 99);
+        async_std::task::block_on(async {
+            let handle = AsyncStdMailbox::spawn(AsyncStdActorHandleAskActor);
+            let result = handle
+                .ask(|tx| AsyncStdActorHandleAskMsg::Echo(tx))
+                .await
+                .unwrap_or_else(|_| panic!("ask failed"));
+            assert_eq!(result, 99);
+        });
     }
 
-    /// @covers: ask — error returned when mailbox is closed
+    /// @covers: ask
     #[async_std::test]
     async fn test_ask_returns_error_on_closed_mailbox() {
-        let (tx, rx) = async_std::channel::bounded::<Message<TestActor>>(1);
+        let (tx, rx) = async_std::channel::bounded::<Message<AsyncStdActorHandleTestActor>>(1);
         // Drop the receiver to close the channel
         drop(rx);
-        let handle: AsyncStdActorHandle<TestActor> = AsyncStdActorHandle { tx: Arc::new(tx) };
+        let handle: AsyncStdActorHandle<AsyncStdActorHandleTestActor> =
+            AsyncStdActorHandle { tx: Arc::new(tx) };
 
         // tell should fail with Closed when receiver is dropped
-        let result = handle.tell(TestMessage::Inc).await;
+        let result = handle.tell(AsyncStdActorHandleTestMessage::Inc).await;
         assert!(result.is_err(), "tell must fail when mailbox is closed");
     }
 }

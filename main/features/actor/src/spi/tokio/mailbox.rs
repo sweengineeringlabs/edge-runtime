@@ -74,23 +74,23 @@ mod tests {
 
     use crate::api::{ActorHandle, StopHandle};
 
-    struct TestActor {
+    struct TokioMailboxTestActor {
         count: i32,
     }
 
-    enum TestMessage {
+    enum TokioMailboxTestMessage {
         Inc,
         GetCount(tokio::sync::oneshot::Sender<i32>),
     }
 
-    impl Actor for TestActor {
-        type Message = TestMessage;
+    impl Actor for TokioMailboxTestActor {
+        type Message = TokioMailboxTestMessage;
 
         fn handle(&mut self, _ctx: ActorContext<Self>, msg: Self::Message) -> BoxFuture<'_, ()> {
             Box::pin(async move {
                 match msg {
-                    TestMessage::Inc => self.count += 1,
-                    TestMessage::GetCount(tx) => {
+                    TokioMailboxTestMessage::Inc => self.count += 1,
+                    TokioMailboxTestMessage::GetCount(tx) => {
                         let _ = tx.send(self.count);
                     }
                 }
@@ -98,38 +98,105 @@ mod tests {
         }
     }
 
-    /// @covers: TokioMailbox::spawn
+    /// @covers: spawn
+    #[test]
+    fn test_spawn_returns_handle_that_delivers_messages() {
+        let rt =
+            tokio::runtime::Runtime::new().unwrap_or_else(|e| panic!("runtime init failed: {e}"));
+        rt.block_on(async {
+            let actor = TokioMailboxTestActor { count: 0 };
+            let handle = TokioMailbox::spawn(actor);
+
+            handle
+                .tell(TokioMailboxTestMessage::Inc)
+                .await
+                .unwrap_or_else(|_| panic!("tell failed"));
+
+            let (tx, rx) = tokio::sync::oneshot::channel();
+            handle
+                .tell(TokioMailboxTestMessage::GetCount(tx))
+                .await
+                .unwrap_or_else(|_| panic!("tell failed"));
+            let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));
+            assert_eq!(count, 1);
+        });
+    }
+
+    /// @covers: spawn_with_stop
+    #[test]
+    fn test_spawn_with_stop_stop_handle_closes_mailbox() {
+        let rt =
+            tokio::runtime::Runtime::new().unwrap_or_else(|e| panic!("runtime init failed: {e}"));
+        rt.block_on(async {
+            let actor = TokioMailboxTestActor { count: 0 };
+            let (handle, stop) = TokioMailbox::spawn_with_stop(actor);
+
+            stop.stop().await;
+            tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+
+            let result = handle.tell(TokioMailboxTestMessage::Inc).await;
+            assert!(result.is_err(), "mailbox must be closed after stop");
+        });
+    }
+
+    /// @covers: run_actor_loop
+    #[test]
+    fn test_run_actor_loop_processes_messages_sequentially() {
+        let rt =
+            tokio::runtime::Runtime::new().unwrap_or_else(|e| panic!("runtime init failed: {e}"));
+        rt.block_on(async {
+            let actor = TokioMailboxTestActor { count: 0 };
+            let handle = TokioMailbox::spawn(actor);
+
+            for _ in 0..5 {
+                handle
+                    .tell(TokioMailboxTestMessage::Inc)
+                    .await
+                    .unwrap_or_else(|_| panic!("tell failed"));
+            }
+
+            let (tx, rx) = tokio::sync::oneshot::channel();
+            handle
+                .tell(TokioMailboxTestMessage::GetCount(tx))
+                .await
+                .unwrap_or_else(|_| panic!("tell failed"));
+            let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));
+            assert_eq!(count, 5, "all five increments must be processed in order");
+        });
+    }
+
+    /// @covers: spawn
     #[tokio::test]
     async fn test_spawn_processes_messages() {
-        let actor = TestActor { count: 0 };
+        let actor = TokioMailboxTestActor { count: 0 };
         let handle = TokioMailbox::spawn(actor);
 
         handle
-            .tell(TestMessage::Inc)
+            .tell(TokioMailboxTestMessage::Inc)
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         handle
-            .tell(TestMessage::Inc)
+            .tell(TokioMailboxTestMessage::Inc)
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
 
         let (tx, rx) = tokio::sync::oneshot::channel();
         handle
-            .tell(TestMessage::GetCount(tx))
+            .tell(TokioMailboxTestMessage::GetCount(tx))
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));
         assert_eq!(count, 2);
     }
 
-    /// @covers: TokioMailbox::spawn_with_stop
+    /// @covers: spawn_with_stop
     #[tokio::test]
     async fn test_spawn_with_stop_graceful_shutdown() {
-        let actor = TestActor { count: 0 };
+        let actor = TokioMailboxTestActor { count: 0 };
         let (handle, stop) = TokioMailbox::spawn_with_stop(actor);
 
         handle
-            .tell(TestMessage::Inc)
+            .tell(TokioMailboxTestMessage::Inc)
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         stop.stop().await;
@@ -137,19 +204,19 @@ mod tests {
         // Give actor loop time to process Stop signal
         tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
 
-        let result = handle.tell(TestMessage::Inc).await;
+        let result = handle.tell(TokioMailboxTestMessage::Inc).await;
         assert!(result.is_err(), "should not accept messages after stop");
     }
 
-    /// @covers: TokioMailbox::run_actor_loop
+    /// @covers: run_actor_loop
     #[tokio::test]
     async fn test_sequential_message_processing() {
-        let actor = TestActor { count: 0 };
+        let actor = TokioMailboxTestActor { count: 0 };
         let handle = TokioMailbox::spawn(actor);
 
         for _ in 0..100 {
             handle
-                .tell(TestMessage::Inc)
+                .tell(TokioMailboxTestMessage::Inc)
                 .await
                 .unwrap_or_else(|_| panic!("tell failed"));
         }
@@ -158,7 +225,7 @@ mod tests {
 
         let (tx, rx) = tokio::sync::oneshot::channel();
         handle
-            .tell(TestMessage::GetCount(tx))
+            .tell(TokioMailboxTestMessage::GetCount(tx))
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         let count = rx.await.unwrap_or_else(|_| panic!("recv failed"));

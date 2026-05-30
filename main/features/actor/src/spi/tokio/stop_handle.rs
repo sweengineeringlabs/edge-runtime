@@ -33,9 +33,9 @@ impl<A: Actor> StopHandle for TokioStopHandle<A> {
 mod tests {
     use super::*;
 
-    struct TestActor;
+    struct TokioStopHandleTestActor;
 
-    impl Actor for TestActor {
+    impl Actor for TokioStopHandleTestActor {
         type Message = ();
 
         fn handle(
@@ -47,11 +47,12 @@ mod tests {
         }
     }
 
-    /// @covers: TokioStopHandle::stop
+    /// @covers: stop
     #[tokio::test]
     async fn test_tokio_stop_handle_stop_sends_stop_message() {
-        let (tx, mut rx) = mpsc::channel::<Message<TestActor>>(1);
-        let handle: TokioStopHandle<TestActor> = TokioStopHandle { tx: Arc::new(tx) };
+        let (tx, mut rx) = mpsc::channel::<Message<TokioStopHandleTestActor>>(1);
+        let handle: TokioStopHandle<TokioStopHandleTestActor> =
+            TokioStopHandle { tx: Arc::new(tx) };
 
         handle.stop().await;
 

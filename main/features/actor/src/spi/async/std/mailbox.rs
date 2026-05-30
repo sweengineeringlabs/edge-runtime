@@ -72,23 +72,23 @@ mod tests {
 
     use crate::api::{ActorHandle, StopHandle};
 
-    struct TestActor {
+    struct AsyncStdMailboxTestActor {
         count: i32,
     }
 
-    enum TestMessage {
+    enum AsyncStdMailboxTestMessage {
         Inc,
         GetCount(async_std::channel::Sender<i32>),
     }
 
-    impl Actor for TestActor {
-        type Message = TestMessage;
+    impl Actor for AsyncStdMailboxTestActor {
+        type Message = AsyncStdMailboxTestMessage;
 
         fn handle(&mut self, _ctx: ActorContext<Self>, msg: Self::Message) -> BoxFuture<'_, ()> {
             Box::pin(async move {
                 match msg {
-                    TestMessage::Inc => self.count += 1,
-                    TestMessage::GetCount(tx) => {
+                    AsyncStdMailboxTestMessage::Inc => self.count += 1,
+                    AsyncStdMailboxTestMessage::GetCount(tx) => {
                         let _ = tx.send(self.count).await;
                     }
                 }
@@ -96,38 +96,99 @@ mod tests {
         }
     }
 
-    /// @covers: AsyncStdMailbox::spawn
+    /// @covers: spawn
+    #[test]
+    fn test_spawn_returns_handle_that_delivers_messages() {
+        async_std::task::block_on(async {
+            let actor = AsyncStdMailboxTestActor { count: 0 };
+            let handle = AsyncStdMailbox::spawn(actor);
+
+            handle
+                .tell(AsyncStdMailboxTestMessage::Inc)
+                .await
+                .unwrap_or_else(|_| panic!("tell failed"));
+
+            let (tx, rx) = async_std::channel::bounded(1);
+            handle
+                .tell(AsyncStdMailboxTestMessage::GetCount(tx))
+                .await
+                .unwrap_or_else(|_| panic!("tell failed"));
+            let count = rx.recv().await.unwrap_or_else(|_| panic!("recv failed"));
+            assert_eq!(count, 1);
+        });
+    }
+
+    /// @covers: spawn_with_stop
+    #[test]
+    fn test_spawn_with_stop_stop_handle_closes_mailbox() {
+        async_std::task::block_on(async {
+            let actor = AsyncStdMailboxTestActor { count: 0 };
+            let (handle, stop) = AsyncStdMailbox::spawn_with_stop(actor);
+
+            stop.stop().await;
+            async_std::task::sleep(std::time::Duration::from_millis(10)).await;
+
+            let result = handle.tell(AsyncStdMailboxTestMessage::Inc).await;
+            assert!(result.is_err(), "mailbox must be closed after stop");
+        });
+    }
+
+    /// @covers: run_actor_loop
+    #[test]
+    fn test_run_actor_loop_processes_messages_sequentially() {
+        async_std::task::block_on(async {
+            let actor = AsyncStdMailboxTestActor { count: 0 };
+            let handle = AsyncStdMailbox::spawn(actor);
+
+            for _ in 0..5 {
+                handle
+                    .tell(AsyncStdMailboxTestMessage::Inc)
+                    .await
+                    .unwrap_or_else(|_| panic!("tell failed"));
+            }
+
+            let (tx, rx) = async_std::channel::bounded(1);
+            handle
+                .tell(AsyncStdMailboxTestMessage::GetCount(tx))
+                .await
+                .unwrap_or_else(|_| panic!("tell failed"));
+            let count = rx.recv().await.unwrap_or_else(|_| panic!("recv failed"));
+            assert_eq!(count, 5, "all five increments must be processed in order");
+        });
+    }
+
+    /// @covers: spawn
     #[async_std::test]
     async fn test_spawn_processes_messages() {
-        let actor = TestActor { count: 0 };
+        let actor = AsyncStdMailboxTestActor { count: 0 };
         let handle = AsyncStdMailbox::spawn(actor);
 
         handle
-            .tell(TestMessage::Inc)
+            .tell(AsyncStdMailboxTestMessage::Inc)
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         handle
-            .tell(TestMessage::Inc)
+            .tell(AsyncStdMailboxTestMessage::Inc)
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
 
         let (tx, rx) = async_std::channel::bounded(1);
         handle
-            .tell(TestMessage::GetCount(tx))
+            .tell(AsyncStdMailboxTestMessage::GetCount(tx))
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         let count = rx.recv().await.unwrap_or_else(|_| panic!("recv failed"));
         assert_eq!(count, 2);
     }
 
-    /// @covers: AsyncStdMailbox::spawn_with_stop
+    /// @covers: spawn_with_stop
     #[async_std::test]
     async fn test_spawn_with_stop_graceful_shutdown() {
-        let actor = TestActor { count: 0 };
+        let actor = AsyncStdMailboxTestActor { count: 0 };
         let (handle, stop) = AsyncStdMailbox::spawn_with_stop(actor);
 
         handle
-            .tell(TestMessage::Inc)
+            .tell(AsyncStdMailboxTestMessage::Inc)
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         stop.stop().await;
@@ -135,19 +196,19 @@ mod tests {
         // Give actor loop time to process Stop signal
         async_std::task::sleep(std::time::Duration::from_millis(10)).await;
 
-        let result = handle.tell(TestMessage::Inc).await;
+        let result = handle.tell(AsyncStdMailboxTestMessage::Inc).await;
         assert!(result.is_err(), "should not accept messages after stop");
     }
 
-    /// @covers: AsyncStdMailbox::run_actor_loop
+    /// @covers: run_actor_loop
     #[async_std::test]
     async fn test_sequential_message_processing() {
-        let actor = TestActor { count: 0 };
+        let actor = AsyncStdMailboxTestActor { count: 0 };
         let handle = AsyncStdMailbox::spawn(actor);
 
         for _ in 0..100 {
             handle
-                .tell(TestMessage::Inc)
+                .tell(AsyncStdMailboxTestMessage::Inc)
                 .await
                 .unwrap_or_else(|_| panic!("tell failed"));
         }
@@ -156,7 +217,7 @@ mod tests {
 
         let (tx, rx) = async_std::channel::bounded(1);
         handle
-            .tell(TestMessage::GetCount(tx))
+            .tell(AsyncStdMailboxTestMessage::GetCount(tx))
             .await
             .unwrap_or_else(|_| panic!("tell failed"));
         let count = rx.recv().await.unwrap_or_else(|_| panic!("recv failed"));

@@ -98,4 +98,78 @@ mod tests {
             "should reject messages after stop"
         );
     }
+
+    /// @covers: ask — request-reply pattern: tell with oneshot returns actor's response
+    ///
+    /// The ask pattern is the combination of `tell` with a reply channel.
+    /// This test verifies the full round-trip: send a message containing a
+    /// oneshot sender, receive the reply on the oneshot receiver.
+    #[tokio::test]
+    async fn test_ask_request_reply_returns_actor_response() {
+        struct Echo;
+
+        enum EchoMsg {
+            Ping(tokio::sync::oneshot::Sender<u32>),
+        }
+
+        impl Actor for Echo {
+            type Message = EchoMsg;
+
+            fn handle(
+                &mut self,
+                _ctx: ActorContext<Self>,
+                msg: Self::Message,
+            ) -> BoxFuture<'_, ()> {
+                Box::pin(async move {
+                    match msg {
+                        EchoMsg::Ping(tx) => {
+                            let _ = tx.send(7);
+                        }
+                    }
+                })
+            }
+        }
+
+        let handle = ActorRuntime::spawn(Echo);
+        let (reply_tx, reply_rx) = tokio::sync::oneshot::channel();
+        handle
+            .tell(EchoMsg::Ping(reply_tx))
+            .await
+            .unwrap_or_else(|_| panic!("tell failed"));
+        let result = reply_rx.await.unwrap_or_else(|_| panic!("reply dropped"));
+        assert_eq!(result, 7, "ask pattern must return the actor's reply");
+    }
+
+    /// @covers: ask — reply channel dropped when actor does not respond
+    #[tokio::test]
+    async fn test_ask_reply_dropped_when_actor_ignores_reply_channel() {
+        struct Noop;
+
+        impl Actor for Noop {
+            type Message = tokio::sync::oneshot::Sender<u32>;
+
+            fn handle(
+                &mut self,
+                _ctx: ActorContext<Self>,
+                _msg: Self::Message,
+            ) -> BoxFuture<'_, ()> {
+                // Actor intentionally drops the sender without responding
+                Box::pin(async move {})
+            }
+        }
+
+        let handle = ActorRuntime::spawn(Noop);
+        let (reply_tx, reply_rx) = tokio::sync::oneshot::channel::<u32>();
+        handle
+            .tell(reply_tx)
+            .await
+            .unwrap_or_else(|_| panic!("tell failed"));
+
+        tokio::time::sleep(tokio::time::Duration::from_millis(10)).await;
+        let result = reply_rx.await;
+        assert!(
+            result.is_err(),
+            "ask reply channel must be closed when actor drops it"
+        );
+    }
 }

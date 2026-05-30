@@ -32,9 +32,9 @@ impl<A: Actor> StopHandle for AsyncStdStopHandle<A> {
 mod tests {
     use super::*;
 
-    struct TestActor;
+    struct AsyncStdStopHandleTestActor;
 
-    impl Actor for TestActor {
+    impl Actor for AsyncStdStopHandleTestActor {
         type Message = ();
 
         fn handle(
@@ -46,11 +46,12 @@ mod tests {
         }
     }
 
-    /// @covers: AsyncStdStopHandle::stop
+    /// @covers: stop
     #[async_std::test]
     async fn test_async_std_stop_handle_stop_sends_stop_message() {
-        let (tx, rx) = async_std::channel::bounded::<Message<TestActor>>(1);
-        let handle: AsyncStdStopHandle<TestActor> = AsyncStdStopHandle { tx: Arc::new(tx) };
+        let (tx, rx) = async_std::channel::bounded::<Message<AsyncStdStopHandleTestActor>>(1);
+        let handle: AsyncStdStopHandle<AsyncStdStopHandleTestActor> =
+            AsyncStdStopHandle { tx: Arc::new(tx) };
 
         handle.stop().await;
 
