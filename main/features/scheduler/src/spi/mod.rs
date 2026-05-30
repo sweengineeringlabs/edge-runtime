@@ -9,6 +9,3 @@
 
 #[cfg(feature = "tokio-rt")]
 mod tokio;
-
-#[cfg(feature = "tokio-rt")]
-pub(crate) use tokio::TokioScheduler;
