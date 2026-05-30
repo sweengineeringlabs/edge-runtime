@@ -27,7 +27,7 @@ thiserror            = "2"
 tracing              = { version = "0.1", default-features = false }
 tokio                = { version = "1.0", features = ["rt-multi-thread", "signal", "sync", "time", "macros"], optional = true }
 serde                = { version = "1.0", features = ["derive"], optional = true }
-swe-edge-configbuilder = { path = "../../../../configbuilder/main/features/configbuilder" }
+swe-edge-configbuilder = { workspace = true }
 
 [dev-dependencies]
 async-trait = "0.1"
@@ -78,6 +78,10 @@ path = "tests/observability_config_e2e_test.rs"
 [[test]]
 name = "tracing_config_e2e_test"
 path = "tests/tracing_config_e2e_test.rs"
+
+[[test]]
+name = "tokio_scheduler_config_builder_int_test"
+path = "tests/tokio_scheduler_config_builder_int_test.rs"
 
 [[example]]
 name = "scheduler_usage"

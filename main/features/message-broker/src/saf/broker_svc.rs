@@ -12,9 +12,7 @@ use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
 #[cfg(feature = "nats")]
 use crate::api::task::queue::queue_error::QueueError;
 #[cfg(feature = "tokio-rt")]
-use crate::api::task::queue::types::in_memory_task_queue::{
-    InMemoryTaskQueue, InMemoryTaskQueueInner,
-};
+use crate::api::task::queue::types::in_memory_task_queue::InMemoryTaskQueue;
 #[cfg(feature = "nats")]
 use crate::api::task::queue::TaskQueue;
 use crate::api::types::message_broker_factory::MessageBrokerFactory;
@@ -125,7 +123,8 @@ impl TaskQueueFactory {
     pub fn in_memory() -> InMemoryTaskQueue {
         let (tx, rx) = tokio::sync::mpsc::channel(1024);
         InMemoryTaskQueue {
-            inner: Arc::new(tokio::sync::Mutex::new(InMemoryTaskQueueInner { tx, rx })),
+            tx: Arc::new(tx),
+            rx: Arc::new(tokio::sync::Mutex::new(rx)),
         }
     }
 

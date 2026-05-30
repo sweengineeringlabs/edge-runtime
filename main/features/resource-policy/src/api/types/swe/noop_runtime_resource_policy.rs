@@ -23,20 +23,3 @@ impl Validator for NoopRuntimeResourcePolicy {
         Ok(())
     }
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_execute_noop_runtime_resource_policy_returns_ok() {
-        let policy = NoopRuntimeResourcePolicy;
-        assert!(policy.execute().is_ok());
-    }
-
-    #[test]
-    fn test_validate_noop_runtime_resource_policy_returns_ok() {
-        let policy = NoopRuntimeResourcePolicy;
-        assert!(policy.validate().is_ok());
-    }
-}

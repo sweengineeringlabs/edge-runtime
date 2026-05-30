@@ -1,6 +1,3 @@
-//! In-memory task queue — [`InMemoryTaskQueue`] backed by tokio mpsc.
+//! In-memory task queue spi — re-exports from api layer.
 
-#[allow(clippy::module_inception)]
-mod in_memory_task_queue;
-
-pub(crate) use in_memory_task_queue::InMemoryTaskQueue;
+pub(crate) use crate::api::task::queue::types::in_memory_task_queue::InMemoryTaskQueue;

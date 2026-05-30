@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 ///
 /// All fields are optional; absent fields let tokio pick its own defaults.
 /// Deserializes from the `[scheduler]` section of your application's TOML config.
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Use [`TokioSchedulerConfigBuilder`] for programmatic construction.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TokioSchedulerConfig {
     /// Number of worker threads (default: logical CPU count).

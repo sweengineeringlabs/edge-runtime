@@ -1,4 +1,3 @@
-#[allow(clippy::module_inception)]
-pub(crate) mod in_memory_message_broker;
+//! In-memory message broker spi — re-exports from api layer.
 
-pub(crate) use in_memory_message_broker::InMemoryMessageBroker;
+pub(crate) use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
