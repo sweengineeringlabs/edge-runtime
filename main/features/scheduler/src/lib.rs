@@ -4,13 +4,14 @@
 //! call [`RuntimeBuilder::serve`] directly from their own async context.
 //!
 //! Consumers who need a standalone binary with no tokio boilerplate depend on
-//! this crate and call [`run`] or [`RuntimeBuilderExt::run`] instead.
+//! this crate and call [`SchedulerSvc::run`] or [`RuntimeBuilderExt::run`] instead.
 //!
-//! Single entry point: [`crate::saf`] (edge_runtime_scheduler_svc).
+//! Single entry point: [`crate::saf`] (scheduler_svc).
 
 mod api;
 mod core;
+mod gateway;
 mod saf;
 mod spi;
 
-pub use crate::saf::*;
+pub use gateway::*;

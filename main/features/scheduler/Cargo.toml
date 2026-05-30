@@ -43,5 +43,50 @@ path = "tests/validator_int_test.rs"
 name = "application_config_builder_int_test"
 path = "tests/application_config_builder_int_test.rs"
 
-[lints]
-workspace = true
+[[test]]
+name = "spi_security_e2e_test"
+path = "tests/spi_security_e2e_test.rs"
+
+[[test]]
+name = "scheduler_int_test"
+path = "tests/scheduler_int_test.rs"
+
+[[test]]
+name = "scheduler_result_e2e_test"
+path = "tests/scheduler_result_e2e_test.rs"
+
+[[test]]
+name = "tokio_scheduler_int_test"
+path = "tests/tokio_scheduler_int_test.rs"
+
+[[test]]
+name = "scheduler_error_e2e_test"
+path = "tests/scheduler_error_e2e_test.rs"
+
+[[test]]
+name = "scheduler_svc_e2e_test"
+path = "tests/scheduler_svc_e2e_test.rs"
+
+[[test]]
+name = "tokio_scheduler_config_e2e_test"
+path = "tests/tokio_scheduler_config_e2e_test.rs"
+
+[[test]]
+name = "observability_config_e2e_test"
+path = "tests/observability_config_e2e_test.rs"
+
+[[test]]
+name = "tracing_config_e2e_test"
+path = "tests/tracing_config_e2e_test.rs"
+
+[[example]]
+name = "scheduler_usage"
+path = "examples/scheduler_usage.rs"
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

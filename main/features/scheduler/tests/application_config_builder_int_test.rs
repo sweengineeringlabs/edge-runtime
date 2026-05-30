@@ -1,9 +1,9 @@
-//! Integration tests for [`create_config_builder`].
+//! Integration tests for [`SchedulerSvc::create_config_builder`].
 
-use swe_edge_runtime_scheduler::create_config_builder;
+use swe_edge_runtime_scheduler::SchedulerSvc;
 
-/// @covers: create_config_builder — returns a pre-seeded builder with this crate's package name
+/// @covers: SchedulerSvc::create_config_builder — returns a pre-seeded builder with this crate's package name
 #[test]
 fn test_create_config_builder_is_pre_seeded_with_package_name() {
-    let _loader = create_config_builder().build_loader();
+    let _loader = SchedulerSvc::create_config_builder().build_loader();
 }

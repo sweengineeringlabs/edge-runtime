@@ -3,15 +3,17 @@
 use std::future::Future;
 use std::sync::OnceLock;
 
-use crate::api::scheduler::scheduler_error::SchedulerError;
-use crate::api::scheduler::tokio_scheduler_config::TokioSchedulerConfig;
+use crate::api::error::SchedulerError;
 use crate::api::scheduler::Scheduler;
+use crate::api::types::TokioSchedulerConfig;
 
 /// Drives the process runtime using a tokio multi-thread scheduler.
 pub(crate) struct TokioScheduler {
     config: TokioSchedulerConfig,
     thread_name: String,
 }
+
+static PANIC_HOOK: OnceLock<()> = OnceLock::new();
 
 impl TokioScheduler {
     pub(crate) fn new(config: TokioSchedulerConfig, thread_name: impl Into<String>) -> Self {
@@ -24,18 +26,16 @@ impl TokioScheduler {
             thread_name,
         }
     }
-}
 
-static PANIC_HOOK: OnceLock<()> = OnceLock::new();
-
-fn install_panic_hook() {
-    PANIC_HOOK.get_or_init(|| {
-        let prev = std::panic::take_hook();
-        std::panic::set_hook(Box::new(move |info| {
-            tracing::error!(panic = %info, "worker thread panicked — process will abort");
-            prev(info);
-        }));
-    });
+    fn install_panic_hook(&self) {
+        PANIC_HOOK.get_or_init(|| {
+            let prev = std::panic::take_hook();
+            std::panic::set_hook(Box::new(move |info| {
+                tracing::error!(panic = %info, "worker thread panicked — process will abort");
+                prev(info);
+            }));
+        });
+    }
 }
 
 impl Scheduler for TokioScheduler {
@@ -43,7 +43,7 @@ impl Scheduler for TokioScheduler {
     where
         F: Future<Output = T> + Send + 'static,
     {
-        install_panic_hook();
+        self.install_panic_hook();
 
         let mut builder = tokio::runtime::Builder::new_multi_thread();
         builder.enable_all();

@@ -7,14 +7,3 @@ pub enum SchedulerError {
     #[error("scheduler failed to start runtime: {0}")]
     StartFailed(String),
 }
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_scheduler_error_display_includes_message() {
-        let e = SchedulerError::StartFailed("no threads".into());
-        assert!(e.to_string().contains("no threads"));
-    }
-}

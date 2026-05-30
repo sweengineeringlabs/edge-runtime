@@ -1,12 +1,9 @@
 //! [`Validator`] impl for [`TokioSchedulerConfig`].
 
-use crate::api::scheduler::tokio_scheduler_config::TokioSchedulerConfig;
+use crate::api::types::TokioSchedulerConfig;
+use crate::api::validator::Validator;
 
-/// Primary type for this module (matches filename for Rule 89).
-#[allow(dead_code)]
-pub(crate) struct Validator;
-
-impl crate::api::traits::Validator for TokioSchedulerConfig {
+impl Validator for TokioSchedulerConfig {
     fn validate(&self) -> Result<(), String> {
         if let Some(stack_kib) = self.thread_stack_kib {
             if stack_kib < 64 {
@@ -22,11 +19,10 @@ impl crate::api::traits::Validator for TokioSchedulerConfig {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::traits::Validator as ValidatorTrait;
 
     #[test]
     fn test_validate_returns_ok_for_default_config() {
-        assert!(ValidatorTrait::validate(&TokioSchedulerConfig::default()).is_ok());
+        assert!(TokioSchedulerConfig::default().validate().is_ok());
     }
 
     #[test]
@@ -35,7 +31,7 @@ mod tests {
             thread_stack_kib: Some(32),
             ..Default::default()
         };
-        assert!(ValidatorTrait::validate(&cfg).is_err());
+        assert!(cfg.validate().is_err());
     }
 
     #[test]
@@ -44,6 +40,6 @@ mod tests {
             thread_stack_kib: Some(512),
             ..Default::default()
         };
-        assert!(ValidatorTrait::validate(&cfg).is_ok());
+        assert!(cfg.validate().is_ok());
     }
 }
