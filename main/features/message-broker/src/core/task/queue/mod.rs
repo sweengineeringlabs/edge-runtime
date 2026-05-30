@@ -1,8 +1,5 @@
 //! Task queue core layer — shared constants for queue backends.
 
-/// Maximum queue name length in bytes.
-pub(crate) const MAX_QUEUE_NAME_BYTES: usize = 128;
-
 /// Number of messages to fetch per JetStream pull request.
 #[cfg(feature = "nats")]
 pub(crate) const DEFAULT_FETCH_BATCH_SIZE: usize = 1;

@@ -1,28 +1,36 @@
 //! SAF — message broker and task queue public factory surface.
 //!
 //! Factory methods are grouped on [`MessageBrokerFactory`] and [`TaskQueueFactory`].
-//! Implementation types are never exposed directly — consumers receive opaque
-//! `impl Trait` values from the factory methods below.
+//! Implementation types are returned directly — consumers receive concrete types
+//! from the factory methods below and may use them as `impl Trait` at call sites.
 
 #[cfg(feature = "nats")]
 use crate::api::broker::broker_error::BrokerError;
 use crate::api::broker::message_broker::MessageBroker;
+#[cfg(feature = "tokio-rt")]
+use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
 #[cfg(feature = "nats")]
 use crate::api::task::queue::queue_error::QueueError;
-#[cfg(any(feature = "tokio-rt", feature = "nats"))]
+#[cfg(feature = "tokio-rt")]
+use crate::api::task::queue::types::in_memory_task_queue::{
+    InMemoryTaskQueue, InMemoryTaskQueueInner,
+};
+#[cfg(feature = "nats")]
 use crate::api::task::queue::TaskQueue;
 use crate::api::types::message_broker_factory::MessageBrokerFactory;
 use crate::api::types::task_queue_factory::TaskQueueFactory;
-#[cfg(feature = "tokio-rt")]
-use crate::spi::InMemoryMessageBroker;
-#[cfg(feature = "tokio-rt")]
-use crate::spi::InMemoryTaskQueue;
 #[cfg(feature = "nats")]
 use crate::spi::NatsMessageBroker;
 #[cfg(feature = "nats")]
 use crate::spi::NatsTaskQueue;
 use serde::{Deserialize, Serialize};
+#[cfg(feature = "tokio-rt")]
+use std::collections::HashMap;
+#[cfg(feature = "tokio-rt")]
+use std::sync::Arc;
 use swe_edge_configbuilder::ConfigLoaderFactory;
+#[cfg(feature = "tokio-rt")]
+use tokio::sync::{broadcast, RwLock};
 
 /// Internal: configuration loaded from [message_broker] section of application.toml.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,7 +54,8 @@ impl Default for BrokerConfig {
 impl MessageBrokerFactory {
     /// Return a [`swe_edge_configbuilder::ConfigBuilderImpl`] pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        ConfigLoaderFactory::create_config_builder()
+        let builder = ConfigLoaderFactory::create_config_builder();
+        builder
             .with_name(env!("CARGO_PKG_NAME"))
             .with_version(env!("CARGO_PKG_VERSION"))
     }
@@ -63,7 +72,12 @@ impl MessageBrokerFactory {
         let cfg: BrokerConfig = swe_edge_config::load_section("message_broker")?;
         match cfg.backend.as_str() {
             #[cfg(feature = "tokio-rt")]
-            "inmemory" => Ok(Box::new(InMemoryMessageBroker::new())),
+            "inmemory" => {
+                let broker = InMemoryMessageBroker {
+                    channels: Arc::new(RwLock::new(HashMap::<String, broadcast::Sender<_>>::new())),
+                };
+                Ok(Box::new(broker))
+            }
             #[cfg(not(feature = "tokio-rt"))]
             "inmemory" => Err("in-memory broker requires tokio-rt feature".into()),
 
@@ -84,8 +98,10 @@ impl MessageBrokerFactory {
     ///
     /// Requires the `tokio-rt` feature.
     #[cfg(feature = "tokio-rt")]
-    pub fn in_memory() -> impl MessageBroker + Clone {
-        InMemoryMessageBroker::new()
+    pub fn in_memory() -> InMemoryMessageBroker {
+        InMemoryMessageBroker {
+            channels: Arc::new(RwLock::new(HashMap::new())),
+        }
     }
 
     /// Connect to a NATS server and return a broker handle.
@@ -106,8 +122,11 @@ impl TaskQueueFactory {
     ///
     /// Requires the `tokio-rt` feature.
     #[cfg(feature = "tokio-rt")]
-    pub fn in_memory() -> impl TaskQueue + Clone {
-        InMemoryTaskQueue::new()
+    pub fn in_memory() -> InMemoryTaskQueue {
+        let (tx, rx) = tokio::sync::mpsc::channel(1024);
+        InMemoryTaskQueue {
+            inner: Arc::new(tokio::sync::Mutex::new(InMemoryTaskQueueInner { tx, rx })),
+        }
     }
 
     /// Connect to a NATS server and return a task queue handle.
