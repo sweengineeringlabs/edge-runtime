@@ -22,16 +22,14 @@ use crate::core::runner::DaemonRunner;
 use crate::core::validator::ConfigValidator;
 use crate::core::ApplicationConfigLoader;
 use edge_proxy::LifecycleMonitor;
-use swe_edge_configbuilder::ConfigBuilder as _;
-use swe_edge_configbuilder::ConfigBuilderImpl;
 use swe_edge_configbuilder::ConfigLoaderFactory;
 use swe_observ_metrics::MetricsProvider;
 
 // ── ServerConfigLoader methods ─────────────────────────────────────────────────
 
 impl ServerConfigLoader {
-    /// Return a [`ConfigBuilderImpl`] pre-seeded with this crate's package name and version.
-    pub fn create_config_builder() -> ConfigBuilderImpl {
+    /// Return a config builder pre-seeded with this crate's package name and version.
+    pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
         let builder = ConfigLoaderFactory::create_config_builder();
         builder
             .with_name(env!("CARGO_PKG_NAME"))

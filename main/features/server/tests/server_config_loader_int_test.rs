@@ -5,7 +5,6 @@ use swe_edge_runtime::ServerConfigLoader;
 /// @covers: ServerConfigLoader
 #[test]
 fn test_server_config_loader_create_config_builder_returns_named_builder() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
     let builder = ServerConfigLoader::create_config_builder();
     assert!(!builder.name().is_empty(), "builder name must not be empty");
     assert!(

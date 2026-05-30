@@ -58,7 +58,6 @@ fn test_validate_config_accepts_valid_default_config() {
 /// @covers: create_config_builder
 #[test]
 fn test_create_config_builder_returns_configured_builder() {
-    use swe_edge_configbuilder::ConfigBuilder as _;
     let builder = ServerConfigLoader::create_config_builder();
     // The builder is pre-seeded with this crate's package name and version.
     assert!(!builder.name().is_empty(), "builder name must not be empty");

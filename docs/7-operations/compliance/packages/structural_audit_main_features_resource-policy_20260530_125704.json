@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-05-30T10:57:05.036069+00:00",
+  "results": [
+    {
+      "id": 211,
+      "category": "interface",
+      "description": "saf/ pub fn return types must be declared in api/types/ (when spi/ is absent)",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 16.826
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}
