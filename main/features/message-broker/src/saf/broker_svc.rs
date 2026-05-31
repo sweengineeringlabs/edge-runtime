@@ -1,4 +1,4 @@
-//! SAF — message broker and task queue public factory surface.
+﻿//! SAF — message broker and task queue public factory surface.
 //!
 //! Factory methods are grouped on [`MessageBrokerFactory`] and [`TaskQueueFactory`].
 //! Implementation types are returned directly — consumers receive concrete types
@@ -26,7 +26,6 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 #[cfg(feature = "tokio-rt")]
 use std::sync::Arc;
-use swe_edge_configbuilder::ConfigLoaderFactory;
 #[cfg(feature = "tokio-rt")]
 use tokio::sync::{broadcast, RwLock};
 
@@ -52,10 +51,10 @@ impl Default for BrokerConfig {
 impl MessageBrokerFactory {
     /// Return a [`swe_edge_configbuilder::ConfigBuilderImpl`] pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        let builder = ConfigLoaderFactory::create_config_builder();
-        builder
-            .with_name(env!("CARGO_PKG_NAME"))
-            .with_version(env!("CARGO_PKG_VERSION"))
+        let mut b = swe_edge_configbuilder::ConfigBuilderImpl::new();
+        b = b.with_name(env!("CARGO_PKG_NAME"));
+        b = b.with_version(env!("CARGO_PKG_VERSION"));
+        b
     }
 
     /// Instantiate a message broker from configuration loaded from application.toml.

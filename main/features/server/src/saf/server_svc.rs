@@ -1,4 +1,4 @@
-//! SAF — runtime server public factory surface.
+﻿//! SAF — runtime server public factory surface.
 //!
 //! All public functions are methods on factory types (`ServerConfigLoader`,
 //! `ServerMonitor`, `Runtime`) to satisfy SEA Rule 191 (no free-standing fns).
@@ -22,7 +22,6 @@ use crate::core::runner::DaemonRunner;
 use crate::core::validator::ConfigValidator;
 use crate::core::ApplicationConfigLoader;
 use edge_proxy::LifecycleMonitor;
-use swe_edge_configbuilder::ConfigLoaderFactory;
 use swe_observ_metrics::MetricsProvider;
 
 // ── ServerConfigLoader methods ─────────────────────────────────────────────────
@@ -30,10 +29,10 @@ use swe_observ_metrics::MetricsProvider;
 impl ServerConfigLoader {
     /// Return a config builder pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        let builder = ConfigLoaderFactory::create_config_builder();
-        builder
-            .with_name(env!("CARGO_PKG_NAME"))
-            .with_version(env!("CARGO_PKG_VERSION"))
+        let mut b = swe_edge_configbuilder::ConfigBuilderImpl::new();
+        b = b.with_name(env!("CARGO_PKG_NAME"));
+        b = b.with_version(env!("CARGO_PKG_VERSION"));
+        b
     }
 
     /// Load config using the default layered chain

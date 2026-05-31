@@ -84,10 +84,9 @@ impl ActorRuntime {
     /// The returned builder resolves XDG config directories and layers the
     /// application config file automatically.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        let pkg_name = env!("CARGO_PKG_NAME");
-        let pkg_version = env!("CARGO_PKG_VERSION");
-        swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
-            .with_name(pkg_name)
-            .with_version(pkg_version)
+        let mut b = swe_edge_configbuilder::ConfigBuilderImpl::new();
+        b = b.with_name(env!("CARGO_PKG_NAME"));
+        b = b.with_version(env!("CARGO_PKG_VERSION"));
+        b
     }
 }

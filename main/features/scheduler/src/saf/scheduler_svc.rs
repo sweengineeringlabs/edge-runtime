@@ -11,11 +11,10 @@ use crate::api::validator::Validator;
 impl SchedulerSvc {
     /// Return a [`ConfigBuilder`] pre-seeded with this crate's package name and version.
     pub fn create_config_builder() -> swe_edge_configbuilder::ConfigBuilderImpl {
-        let pkg_name = env!("CARGO_PKG_NAME");
-        let pkg_version = env!("CARGO_PKG_VERSION");
-        swe_edge_configbuilder::ConfigLoaderFactory::create_config_builder()
-            .with_name(pkg_name)
-            .with_version(pkg_version)
+        let mut b = swe_edge_configbuilder::ConfigBuilderImpl::new();
+        b = b.with_name(env!("CARGO_PKG_NAME"));
+        b = b.with_version(env!("CARGO_PKG_VERSION"));
+        b
     }
 
     /// Validate a value that implements [`Validator`].
