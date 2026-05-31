@@ -1,0 +1,111 @@
+{
+  "timestamp": "2026-05-30T14:26:42.026534200+00:00",
+  "results": [
+    {
+      "id": 195,
+      "category": "interface",
+      "description": "saf/ public function return types depend on crate extensibility: if spi/ exists, return `impl Trait` for downstream polymorphism; if spi/ does not exist, return concrete types only (no trait leaks)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 195,
+            "path": "src\\saf\\broker_svc.rs",
+            "message": "saf/ pub fn returns `-> impl MessageBroker` where `MessageBroker` is a local trait — not allowed",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Make trait pub(crate) and compose operations inside the facade instead",
+            "actual": "-> impl MessageBroker (local trait)",
+            "fix_hint": "Change `pub trait MessageBroker` to `pub(crate) trait MessageBroker` and remove this pub fn returning it",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          },
+          {
+            "check_id": 195,
+            "path": "src\\saf\\broker_svc.rs",
+            "message": "saf/ pub fn returns `-> impl TaskQueue` where `TaskQueue` is a local trait — not allowed",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Make trait pub(crate) and compose operations inside the facade instead",
+            "actual": "-> impl TaskQueue (local trait)",
+            "fix_hint": "Change `pub trait TaskQueue` to `pub(crate) trait TaskQueue` and remove this pub fn returning it",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 212,
+      "category": "interface",
+      "description": "saf/ methods must not be thin wrappers — a saf/ method whose entire body delegates to a free function or another method adds no value and signals incomplete consolidation",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 212,
+            "path": "src\\saf\\broker_svc.rs",
+            "message": "saf/ method `create_config_builder` is a thin wrapper around `ConfigLoaderFactory::create_config_builder` — inline the logic or delete the free function",
+            "severity": "warning",
+            "rule_type": "builtin:saf_no_wrapper_methods",
+            "expected": "Move the body of the delegated function directly into this method",
+            "actual": "fn create_config_builder(...) { ConfigLoaderFactory::create_config_builder(...) }",
+            "fix_hint": "Copy the body of `ConfigLoaderFactory::create_config_builder` into `create_config_builder`, then delete `ConfigLoaderFactory::create_config_builder`",
+            "remediation_strategy": "manual",
+            "principles": [
+              "single_responsibility",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 212,
+            "path": "src\\saf\\broker_svc.rs",
+            "message": "saf/ method `in_memory` is a thin wrapper around `InMemoryMessageBroker::new` — inline the logic or delete the free function",
+            "severity": "warning",
+            "rule_type": "builtin:saf_no_wrapper_methods",
+            "expected": "Move the body of the delegated function directly into this method",
+            "actual": "fn in_memory(...) { InMemoryMessageBroker::new(...) }",
+            "fix_hint": "Copy the body of `InMemoryMessageBroker::new` into `in_memory`, then delete `InMemoryMessageBroker::new`",
+            "remediation_strategy": "manual",
+            "principles": [
+              "single_responsibility",
+              "encapsulation"
+            ]
+          },
+          {
+            "check_id": 212,
+            "path": "src\\saf\\broker_svc.rs",
+            "message": "saf/ method `in_memory` is a thin wrapper around `InMemoryTaskQueue::new` — inline the logic or delete the free function",
+            "severity": "warning",
+            "rule_type": "builtin:saf_no_wrapper_methods",
+            "expected": "Move the body of the delegated function directly into this method",
+            "actual": "fn in_memory(...) { InMemoryTaskQueue::new(...) }",
+            "fix_hint": "Copy the body of `InMemoryTaskQueue::new` into `in_memory`, then delete `InMemoryTaskQueue::new`",
+            "remediation_strategy": "manual",
+            "principles": [
+              "single_responsibility",
+              "encapsulation"
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 0,
+    "failed": 2,
+    "skipped": 0,
+    "duration_ms": 18.5229
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}

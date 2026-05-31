@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-05-30T13:19:21.876057200+00:00",
+  "results": [
+    {
+      "id": 95,
+      "category": "test_org",
+      "description": "Dependencies used in src/ must have integration or e2e test coverage",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 95,
+            "path": null,
+            "message": "Dependency 'swe-edge-configbuilder' is used in src/ but has no integration/e2e test coverage",
+            "severity": "warning",
+            "rule_type": "builtin:deps_have_integration_tests",
+            "expected": "dependency referenced in *_int_test.rs or *_e2e_test.rs",
+            "actual": "'swe-edge-configbuilder' only found in src/",
+            "fix_hint": "Add integration tests (*_int_test.rs) or e2e tests (*_e2e_test.rs) that exercise the dependency",
+            "remediation_strategy": "manual"
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0,
+    "duration_ms": 22.2791
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}

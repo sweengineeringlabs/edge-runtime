@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-05-30T14:42:41.285796+00:00",
+  "results": [
+    {
+      "id": 195,
+      "category": "interface",
+      "description": "saf/ public function return types depend on crate extensibility: if spi/ exists, return `impl Trait` for downstream polymorphism; if spi/ does not exist, return concrete types only (no trait leaks)",
+      "result": {
+        "status": "pass"
+      }
+    },
+    {
+      "id": 212,
+      "category": "interface",
+      "description": "saf/ methods must not be thin wrappers — a saf/ method whose entire body delegates to a free function or another method adds no value and signals incomplete consolidation",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 12.0883
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}

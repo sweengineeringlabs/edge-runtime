@@ -1,0 +1,112 @@
+{
+  "timestamp": "2026-05-30T14:26:41.987520200+00:00",
+  "results": [
+    {
+      "id": 195,
+      "category": "interface",
+      "description": "saf/ public function return types depend on crate extensibility: if spi/ exists, return `impl Trait` for downstream polymorphism; if spi/ does not exist, return concrete types only (no trait leaks)",
+      "result": {
+        "status": "fail",
+        "violations": [
+          {
+            "check_id": 195,
+            "path": "src\\saf\\isolator_svc.rs",
+            "message": "saf/ pub fn returns `-> impl IsolationProfile` but crate has no spi/ directory — must return concrete type",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Without spi/, return the concrete impl type, not the trait",
+            "actual": "-> impl IsolationProfile (no spi/)",
+            "fix_hint": "Either: (1) Return concrete type instead of `impl IsolationProfile`, or (2) Create src/spi/ to signal polymorphism intent",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          },
+          {
+            "check_id": 195,
+            "path": "src\\saf\\isolator_svc.rs",
+            "message": "saf/ pub fn returns `-> impl SweEdgeRuntimeIsolator` where `SweEdgeRuntimeIsolator` is a local trait — not allowed",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Make trait pub(crate) and compose operations inside the facade instead",
+            "actual": "-> impl SweEdgeRuntimeIsolator (local trait)",
+            "fix_hint": "Change `pub trait SweEdgeRuntimeIsolator` to `pub(crate) trait SweEdgeRuntimeIsolator` and remove this pub fn returning it",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          },
+          {
+            "check_id": 195,
+            "path": "src\\saf\\isolator_svc.rs",
+            "message": "saf/ pub fn returns `-> impl Validator` where `Validator` is a local trait — not allowed",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Make trait pub(crate) and compose operations inside the facade instead",
+            "actual": "-> impl Validator (local trait)",
+            "fix_hint": "Change `pub trait Validator` to `pub(crate) trait Validator` and remove this pub fn returning it",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          },
+          {
+            "check_id": 195,
+            "path": "src\\saf\\isolator_svc.rs",
+            "message": "saf/ pub fn returns `-> impl SweEdgeRuntimeIsolator` where `SweEdgeRuntimeIsolator` is a local trait — not allowed",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Make trait pub(crate) and compose operations inside the facade instead",
+            "actual": "-> impl SweEdgeRuntimeIsolator (local trait)",
+            "fix_hint": "Change `pub trait SweEdgeRuntimeIsolator` to `pub(crate) trait SweEdgeRuntimeIsolator` and remove this pub fn returning it",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          },
+          {
+            "check_id": 195,
+            "path": "src\\saf\\isolator_svc.rs",
+            "message": "saf/ pub fn returns `-> impl Validator` where `Validator` is a local trait — not allowed",
+            "severity": "error",
+            "rule_type": "builtin:saf_svc_returns",
+            "expected": "Make trait pub(crate) and compose operations inside the facade instead",
+            "actual": "-> impl Validator (local trait)",
+            "fix_hint": "Change `pub trait Validator` to `pub(crate) trait Validator` and remove this pub fn returning it",
+            "remediation_strategy": "manual",
+            "principles": [
+              "encapsulation",
+              "programming_to_interface",
+              "extensibility"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": 212,
+      "category": "interface",
+      "description": "saf/ methods must not be thin wrappers — a saf/ method whose entire body delegates to a free function or another method adds no value and signals incomplete consolidation",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
+    "skipped": 0,
+    "duration_ms": 13.497
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}

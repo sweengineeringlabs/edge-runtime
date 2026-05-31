@@ -1,0 +1,22 @@
+{
+  "timestamp": "2026-05-30T13:19:21.733073700+00:00",
+  "results": [
+    {
+      "id": 95,
+      "category": "test_org",
+      "description": "Dependencies used in src/ must have integration or e2e test coverage",
+      "result": {
+        "status": "pass"
+      }
+    }
+  ],
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "duration_ms": 9.4001
+  },
+  "project_layout": "library",
+  "application_type": "lib"
+}
