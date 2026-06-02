@@ -5,4 +5,5 @@
 
 mod validator;
 
+#[expect(unused_imports, reason = "SEA core/ anchor — wired up when validator integrates into spawn")]
 pub(crate) use validator::DefaultActorValidator;

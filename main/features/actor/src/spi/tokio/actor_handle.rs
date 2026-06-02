@@ -43,6 +43,7 @@ impl<A: Actor> TokioActorHandle<A> {
     ///
     /// Note: This is a convenience method. Alternatively, include a reply channel
     /// in your message type and use `tell()` instead.
+    #[expect(dead_code, reason = "SEA spi/ anchor — exposed via TokioActorHandle for consumers")]
     pub async fn ask<R: Send + 'static>(
         &self,
         msg: impl FnOnce(tokio::sync::oneshot::Sender<R>) -> A::Message,

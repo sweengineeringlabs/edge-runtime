@@ -11,5 +11,4 @@ pub mod validator;
 
 pub use actor::{Actor, ActorHandle, StopHandle};
 pub use error::MailboxError;
-pub use traits::Validator;
-pub use types::{ActorContext, ActorRuntime, ApplicationConfigBuilder, Message};
+pub use types::{ActorContext, ActorRuntime, Message};

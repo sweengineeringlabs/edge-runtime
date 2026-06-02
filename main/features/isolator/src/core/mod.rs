@@ -7,4 +7,8 @@ pub(crate) mod profile;
 pub(crate) mod seccomp;
 
 pub(crate) mod swe;
+#[expect(
+    unused_imports,
+    reason = "SEA core/ anchor — used when SAF factory is integrated"
+)]
 pub(crate) use swe::DefaultSweEdgeRuntimeIsolator;

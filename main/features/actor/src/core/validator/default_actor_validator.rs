@@ -14,6 +14,7 @@ pub(crate) struct DefaultActorValidator {
 
 impl DefaultActorValidator {
     /// Create a validator for the given mailbox capacity.
+    #[expect(dead_code, reason = "SEA core/ anchor — wired up when validator integrates into spawn")]
     pub(crate) fn new(capacity: usize) -> Self {
         Self { capacity }
     }

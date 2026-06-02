@@ -8,5 +8,8 @@ pub enum Error {
     Io(#[from] std::io::Error),
     /// An operation failed.
     #[error("Operation failed: {message}")]
-    Operation { message: String },
+    Operation {
+        /// Human-readable description of the failure.
+        message: String,
+    },
 }

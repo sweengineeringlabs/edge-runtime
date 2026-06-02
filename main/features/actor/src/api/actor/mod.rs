@@ -1,6 +1,7 @@
 //! Actor traits.
 
 /// Actor trait — message-handling state machine.
+#[allow(clippy::module_inception)]
 pub mod actor;
 /// Actor handle for communication.
 pub mod actor_handle;
