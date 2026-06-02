@@ -14,6 +14,6 @@ impl TracingInitializer {
     /// times. Does nothing when `config.enabled` is `false`. `RUST_LOG` overrides
     /// `config.level` and `config.filter`.
     pub fn init(config: &swe_edge_observ_config::TracingConfig) {
-        swe_edge_observ_config::init_tracing(config);
+        swe_edge_observ_config::TracingSvc::init(config);
     }
 }

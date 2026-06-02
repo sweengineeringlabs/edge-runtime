@@ -11,6 +11,10 @@ pub(crate) struct DefaultConfigBuilder;
 
 impl DefaultConfigBuilder {
     /// Create a new instance.
+    #[expect(
+        dead_code,
+        reason = "SEA core/ anchor — wired up when factory integrates config builder"
+    )]
     pub(crate) fn new() -> Self {
         Self
     }

@@ -19,7 +19,10 @@ impl TokioMailbox {
     /// The actor runs in a spawned tokio task, processing messages sequentially.
     /// Dropping the handle will stop accepting new messages, but the actor will
     /// continue processing until the current message finishes.
-    #[expect(dead_code, reason = "SEA spi/ anchor — used when SAF spawn is wired in")]
+    #[expect(
+        dead_code,
+        reason = "SEA spi/ anchor — used when SAF spawn is wired in"
+    )]
     pub(crate) fn spawn<A: Actor>(actor: A) -> TokioActorHandle<A> {
         let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
         let tx = std::sync::Arc::new(tx);
@@ -33,7 +36,10 @@ impl TokioMailbox {
     ///
     /// Returns both a message handle and a stop handle. Calling `stop()` on the
     /// handle will signal the actor to shut down gracefully.
-    #[expect(dead_code, reason = "SEA spi/ anchor — used when SAF spawn is wired in")]
+    #[expect(
+        dead_code,
+        reason = "SEA spi/ anchor — used when SAF spawn is wired in"
+    )]
     pub(crate) fn spawn_with_stop<A: Actor>(actor: A) -> (TokioActorHandle<A>, TokioStopHandle<A>) {
         let (tx, rx) = mpsc::channel(MAILBOX_CAPACITY);
         let tx = std::sync::Arc::new(tx);

@@ -3,6 +3,10 @@
 pub(crate) struct ApplicationConfigBuilder;
 
 impl ApplicationConfigBuilder {
+    #[expect(
+        dead_code,
+        reason = "SEA core/ anchor — wired up when config integrates into factory"
+    )]
     pub(crate) fn new() -> Self {
         Self
     }

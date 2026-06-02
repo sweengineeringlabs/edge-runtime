@@ -9,7 +9,10 @@ use crate::api::types::profile::profile_spec::ProfileSpec;
 /// Contract for resolving a named [`ProfileSpec`] into a concrete [`IsolationProfile`].
 ///
 /// The default implementation is `core::profile::resolver::ProfileResolver`.
-#[expect(dead_code, reason = "SEA api/ anchor — exported for consumers, not used internally")]
+#[expect(
+    dead_code,
+    reason = "SEA api/ anchor — exported for consumers, not used internally"
+)]
 pub trait Resolver {
     /// Resolve a [`ProfileSpec`] into a concrete [`IsolationProfile`] implementation.
     ///

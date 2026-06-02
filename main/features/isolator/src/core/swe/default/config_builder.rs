@@ -15,6 +15,10 @@ pub(crate) struct DefaultConfigBuilder {
 
 impl DefaultConfigBuilder {
     /// Create a new builder pre-loaded with the built-in default configuration.
+    #[expect(
+        dead_code,
+        reason = "SEA core/ anchor — wired up when factory integrates config builder"
+    )]
     pub(crate) fn new() -> Self {
         Self {
             config: IsolatorConfig::default(),
@@ -22,6 +26,10 @@ impl DefaultConfigBuilder {
     }
 
     /// Consume the builder and return the [`IsolatorConfig`].
+    #[expect(
+        dead_code,
+        reason = "SEA core/ anchor — wired up when factory integrates config builder"
+    )]
     pub(crate) fn build(self) -> IsolatorConfig {
         self.config
     }

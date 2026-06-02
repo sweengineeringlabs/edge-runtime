@@ -6,4 +6,8 @@
 /// Re-export of the primary service trait for the default implementation.
 ///
 /// Implementors: [`crate::core::swe::default::swe_edge_runtime_resource_policy::DefaultSweEdgeRuntimeResourcePolicy`].
+#[expect(
+    unused_imports,
+    reason = "SEA api/ anchor — SweEdgeRuntimeResourcePolicy exported for consumers, not used internally"
+)]
 pub use crate::api::traits::swe_edge_runtime_resource_policy::SweEdgeRuntimeResourcePolicy;

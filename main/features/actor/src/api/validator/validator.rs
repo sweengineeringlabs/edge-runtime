@@ -1,5 +1,7 @@
 //! Interface contract for the default actor validator.
-//!
-//! The concrete implementation lives in `core/validator/default_actor_validator.rs`.
-//! This module re-exports the `Validator` trait so `core/` implementations
-//! can implement against the public interface without bypassing the api/ boundary.
+
+/// Validates that an actor configuration is in a legal state before use.
+pub trait Validator {
+    /// Return `Ok(())` when valid, or `Err` with a description of the failure.
+    fn validate(&self) -> Result<(), String>;
+}

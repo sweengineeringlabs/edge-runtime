@@ -17,7 +17,15 @@ pub(crate) const DEFAULT_CHANNEL_CAPACITY: usize = 1024;
 ///
 /// Attempting to subscribe beyond this limit returns a capacity error.
 /// Sized to accommodate typical microservice fan-out without unbounded growth.
+#[expect(
+    dead_code,
+    reason = "reserved for capacity enforcement — dead until subscriber limit is enforced"
+)]
 pub(crate) const MAX_SUBSCRIPTIONS_PER_TOPIC: usize = 64;
 
 /// Minimum non-empty topic name length in bytes.
+#[expect(
+    dead_code,
+    reason = "reserved for stricter topic validation — dead until validation is enforced"
+)]
 pub(crate) const MIN_TOPIC_BYTES: usize = 1;

@@ -4,7 +4,10 @@
 ///
 /// Implementations must validate actor configurations and state invariants
 /// before and after actor initialization.
-#[expect(dead_code, reason = "SEA api/ anchor — exported for consumers, not used internally")]
+#[expect(
+    dead_code,
+    reason = "SEA api/ anchor — exported for consumers, not used internally"
+)]
 pub trait Validator {
     /// Validate actor mailbox configuration or state.
     ///

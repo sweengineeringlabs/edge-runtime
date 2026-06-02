@@ -20,4 +20,8 @@ pub(crate) const DEFAULT_TASK_QUEUE_CAPACITY: usize = 1024;
 ///
 /// Payloads exceeding this limit are rejected at enqueue time to avoid
 /// unbounded memory consumption inside the channel buffer.
+#[expect(
+    dead_code,
+    reason = "used in tokio-rt feature — dead when tokio-rt is disabled"
+)]
 pub(crate) const MAX_TASK_PAYLOAD_BYTES: usize = 4 * 1024 * 1024;
