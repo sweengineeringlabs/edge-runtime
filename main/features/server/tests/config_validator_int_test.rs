@@ -1,4 +1,5 @@
 //! Integration tests for ConfigValidator.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime::ServerConfigLoader;
 

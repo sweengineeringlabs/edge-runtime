@@ -8,7 +8,7 @@ use swe_edge_egress_grpc::GrpcEgress;
 use swe_edge_egress_http::HttpEgress;
 use swe_edge_ingress_grpc::{
     GrpcDecodeFn, GrpcEncodeFn, GrpcHandlerAdapter, GrpcHandlerRegistryDispatcher, GrpcIngress,
-    GrpcIngressInterceptor, GrpcIngressInterceptorChain,
+    GrpcIngressInterceptor,
 };
 use swe_edge_ingress_http::{
     HttpDecodeFn, HttpEncodeFn, HttpHandlerAdapter, HttpHandlerRegistryDispatcher, HttpIngress,

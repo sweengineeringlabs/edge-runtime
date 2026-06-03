@@ -1,15 +1,15 @@
 //! Integration tests verifying swe-edge-observ-config is wired correctly through
 //! the runtime SAF (load_section, TracingConfig, ObservabilityConfig).
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime::{
-    load_section, load_section_from, ObservabilityConfig, TracingConfig, TracingFormat,
-    TracingLevel,
+    ObservabilityConfig, ServerConfigLoader, TracingConfig, TracingFormat, TracingLevel,
 };
 
 /// @covers: load_section
 #[test]
 fn test_observ_config_int_load_section_returns_tracing_defaults() {
-    let cfg: TracingConfig = load_section("observability.tracing").unwrap();
+    let cfg: TracingConfig = ServerConfigLoader::load_section("observability.tracing").unwrap();
     assert!(cfg.enabled);
     assert_eq!(cfg.level, TracingLevel::Info);
     assert_eq!(cfg.format, TracingFormat::Pretty);
@@ -19,7 +19,8 @@ fn test_observ_config_int_load_section_returns_tracing_defaults() {
 #[test]
 fn test_observ_config_int_load_section_from_temp_dir_returns_defaults() {
     let dir = tempfile::tempdir().unwrap();
-    let cfg: TracingConfig = load_section_from("observability.tracing", dir.path()).unwrap();
+    let cfg: TracingConfig =
+        ServerConfigLoader::load_section_from("observability.tracing", dir.path()).unwrap();
     assert!(cfg.enabled);
 }
 
@@ -32,7 +33,8 @@ fn test_observ_config_int_load_section_from_applies_application_toml_override() 
         "[observability.tracing]\nenabled = false\nlevel = \"warn\"",
     )
     .unwrap();
-    let cfg: TracingConfig = load_section_from("observability.tracing", dir.path()).unwrap();
+    let cfg: TracingConfig =
+        ServerConfigLoader::load_section_from("observability.tracing", dir.path()).unwrap();
     assert!(!cfg.enabled);
     assert_eq!(cfg.level, TracingLevel::Warn);
 }

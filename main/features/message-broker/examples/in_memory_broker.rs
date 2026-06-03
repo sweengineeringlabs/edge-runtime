@@ -2,6 +2,7 @@
 //!
 //! Demonstrates how to use [`swe_edge_runtime_message_broker`] with the `tokio-rt`
 //! feature to pub/sub messages in the same process.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 #[cfg(feature = "tokio-rt")]
 #[tokio::main]

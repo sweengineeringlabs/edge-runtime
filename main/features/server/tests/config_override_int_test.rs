@@ -1,4 +1,5 @@
 //! Integration tests for config override behavior via ServerConfigLoader::load_config_from.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::io::Write as _;
 use swe_edge_runtime::ServerConfigLoader;

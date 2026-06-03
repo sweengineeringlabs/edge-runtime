@@ -4,6 +4,7 @@
 //! `ConfigLoaderFactory::create_config_builder()` and `ConfigBuilderImpl`.
 //! These tests exercise those types directly so that Rule 95 (dependency must
 //! have integration/e2e test coverage) is satisfied.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_configbuilder::{ConfigBuilderImpl, ConfigLoaderFactory};
 

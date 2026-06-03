@@ -1,4 +1,5 @@
 //! Public-API integration tests for saf config-loading methods on ServerConfigLoader.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime::ServerConfigLoader;
 

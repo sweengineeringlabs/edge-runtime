@@ -1,13 +1,13 @@
 //! Integration tests for NATS-backed broker and task queue (async-nats).
 
-use async_nats;
+use async_nats::connect as nats_connect;
 
 /// @covers: async-nats
 /// Verify that async-nats returns an error when the NATS server is unreachable.
 /// This test exercises the async-nats dependency directly to satisfy rule-95 coverage.
 #[tokio::test]
 async fn test_async_nats_connect_fails_for_unreachable_host() {
-    let result = async_nats::connect("nats://127.0.0.1:4229").await;
+    let result = nats_connect("nats://127.0.0.1:4229").await;
     assert!(
         result.is_err(),
         "expected connection error for unreachable NATS server"

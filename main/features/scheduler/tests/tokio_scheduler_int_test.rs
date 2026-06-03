@@ -1,4 +1,5 @@
 //! Integration tests for [`SchedulerSvc::tokio_scheduler`].
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_scheduler::{Scheduler, SchedulerSvc, TokioSchedulerConfig};
 

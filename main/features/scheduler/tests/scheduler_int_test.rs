@@ -1,4 +1,5 @@
 //! Integration tests for the [`Scheduler`] trait contract.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_scheduler::{Scheduler, SchedulerError, SchedulerSvc, TokioSchedulerConfig};
 

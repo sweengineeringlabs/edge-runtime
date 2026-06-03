@@ -1,4 +1,5 @@
 //! Integration tests for the resource policy public API.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 

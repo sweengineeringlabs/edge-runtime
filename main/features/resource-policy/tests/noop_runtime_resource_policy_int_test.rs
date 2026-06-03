@@ -1,6 +1,8 @@
 //! Integration tests for [`NoopRuntimeResourcePolicy`].
 
-use swe_edge_runtime_resource_policy::NoopRuntimeResourcePolicy;
+use swe_edge_runtime_resource_policy::{
+    NoopRuntimeResourcePolicy, SweEdgeRuntimeResourcePolicy, Validator,
+};
 
 /// @covers: NoopRuntimeResourcePolicy::execute
 #[test]
@@ -19,5 +21,5 @@ fn test_validate_returns_ok() {
 /// @covers: NoopRuntimeResourcePolicy — default construction
 #[test]
 fn test_default_creates_noop_policy() {
-    let _policy = NoopRuntimeResourcePolicy::default();
+    let _policy = NoopRuntimeResourcePolicy;
 }

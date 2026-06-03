@@ -1,4 +1,5 @@
 //! Integration tests for Runtime egress factory methods.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_http::default_http_egress;
 use swe_edge_runtime::{Egress, Runtime};

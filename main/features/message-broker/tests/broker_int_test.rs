@@ -1,4 +1,5 @@
 //! Integration tests for [`swe_edge_runtime_message_broker`].
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 #[cfg(feature = "tokio-rt")]
 mod in_memory_tests {

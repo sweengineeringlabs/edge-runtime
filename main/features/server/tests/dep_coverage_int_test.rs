@@ -1,4 +1,5 @@
 //! Integration tests that exercise cross-crate dependencies (Rule 95).
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 // @allow: no_mocks_in_integration — stub impls required to exercise the public API surface
 
 use std::sync::Arc;

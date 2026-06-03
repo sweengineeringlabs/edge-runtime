@@ -1,4 +1,5 @@
 //! Integration tests for ResourcePolicyConfig.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_configbuilder::ConfigSection as _;
 use swe_edge_runtime_resource_policy::{ResourcePolicyConfig, ResourcePolicyError};

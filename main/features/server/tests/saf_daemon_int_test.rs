@@ -1,4 +1,5 @@
 //! Public-API integration tests for saf daemon methods on Runtime.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_proxy::new_null_lifecycle_monitor;
 use std::sync::Arc;

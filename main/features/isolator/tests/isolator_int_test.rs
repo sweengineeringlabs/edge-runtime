@@ -1,10 +1,10 @@
 //! Integration tests for the IsolationProfileRegistry public API.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 
 use swe_edge_egress_subprocess::{
-    IsolationError, IsolationProfile, SubprocessArgs, SubprocessResult, SubprocessRunner,
-    SubprocessSvc,
+    IsolationError, IsolationProfile, SubprocessArgs, SubprocessResult, SubprocessSvc,
 };
 use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};
 

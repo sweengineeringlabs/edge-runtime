@@ -43,9 +43,9 @@ impl<A: Actor> TokioActorHandle<A> {
     ///
     /// Note: This is a convenience method. Alternatively, include a reply channel
     /// in your message type and use `tell()` instead.
-    #[expect(
-        dead_code,
-        reason = "SEA spi/ anchor — exposed via TokioActorHandle for consumers"
+    #[cfg_attr(
+        not(test),
+        expect(dead_code, reason = "SEA spi/ anchor — used in tests and by consumers")
     )]
     pub async fn ask<R: Send + 'static>(
         &self,
@@ -140,7 +140,7 @@ mod tests {
         rt.block_on(async {
             let handle = TokioMailbox::spawn(TokioActorHandleAskActor);
             let result = handle
-                .ask(|tx| TokioActorHandleAskMessage::Echo(tx))
+                .ask(TokioActorHandleAskMessage::Echo)
                 .await
                 .unwrap_or_else(|_| panic!("ask failed"));
             assert_eq!(result, 42);

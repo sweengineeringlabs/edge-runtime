@@ -1,4 +1,5 @@
 //! Integration tests for the swe_edge_runtime SAF runtime_manager surface.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 // @allow: no_mocks_in_integration — stub impls required to exercise the full daemon stack
 
 use std::sync::Arc;
@@ -17,7 +18,7 @@ use swe_edge_ingress_http::{
     AxumHttpServer, HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest,
     HttpResponse, RequestContext,
 };
-use swe_edge_runtime::{runtime_manager, Runtime, RuntimeConfig, RuntimeManager, RuntimeStatus};
+use swe_edge_runtime::{Runtime, RuntimeConfig, RuntimeManager, RuntimeStatus};
 
 struct StubLifecycle;
 impl LifecycleMonitor for StubLifecycle {
@@ -93,7 +94,7 @@ async fn start_daemon_stack(
     let config = RuntimeConfig::default().with_systemd_notify(false);
     let ingress = Arc::new(Runtime::http_ingress(handler.clone()));
     let egress = Arc::new(Runtime::http_egress(Arc::new(StubHttpEgress)));
-    let mgr = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
+    let mgr = Runtime::runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
     mgr.start().await.expect("RuntimeManager::start failed");
     let (shutdown_tx, shutdown_rx) = oneshot::channel::<()>();
     let server = AxumHttpServer::new(addr.to_string(), handler);
@@ -113,7 +114,7 @@ async fn test_runtime_manager_start_and_shutdown_round_trip() {
     let config = RuntimeConfig::default().with_systemd_notify(false);
     let ingress = Arc::new(Runtime::http_ingress(handler));
     let egress = Arc::new(Runtime::http_egress(Arc::new(StubHttpEgress)));
-    let mgr = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
+    let mgr = Runtime::runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
     mgr.start().await.expect("start ok");
     assert_eq!(mgr.health().await.status, RuntimeStatus::Running);
     mgr.shutdown().await.expect("shutdown ok");
@@ -127,7 +128,7 @@ async fn test_runtime_manager_health_reports_ingress_and_egress() {
     let config = RuntimeConfig::default().with_systemd_notify(false);
     let ingress = Arc::new(Runtime::http_ingress(handler));
     let egress = Arc::new(Runtime::http_egress(Arc::new(StubHttpEgress)));
-    let mgr = runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
+    let mgr = Runtime::runtime_manager(config, ingress, egress, Arc::new(StubLifecycle));
     mgr.start().await.expect("start ok");
     let health = mgr.health().await;
     let names: Vec<&str> = health.components.iter().map(|c| c.name.as_str()).collect();

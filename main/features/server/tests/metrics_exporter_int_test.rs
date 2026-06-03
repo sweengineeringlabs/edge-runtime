@@ -1,8 +1,6 @@
 //! Integration tests for MetricsExporter trait coverage.
 
-use std::sync::Arc;
-use swe_edge_runtime::{AutoscalePolicy, MetricsConfig, SharedCounters, TrafficCounters};
-use swe_observ_metrics::create_local_metrics_backend;
+use swe_edge_runtime::MetricsConfig;
 
 /// @covers: MetricsExporter
 #[test]

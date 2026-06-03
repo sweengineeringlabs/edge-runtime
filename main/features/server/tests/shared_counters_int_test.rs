@@ -1,4 +1,5 @@
 //! Integration tests for SharedCounters type alias.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 use swe_edge_runtime::{SharedCounters, TrafficCounters};

@@ -1,4 +1,5 @@
 //! Public-API integration tests for the message broker SAF surface.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_message_broker::MessageBroker;
 

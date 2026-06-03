@@ -42,6 +42,7 @@ pub use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, Ht
 pub use edge_proxy::{new_null_lifecycle_monitor, HealthReport, LifecycleMonitor};
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
+pub use crate::api::monitor::ring_buffer::RingBuffer;
 pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig, SharedCounters, TrafficCounters};
 pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 

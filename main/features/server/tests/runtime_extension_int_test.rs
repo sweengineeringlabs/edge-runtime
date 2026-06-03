@@ -1,6 +1,6 @@
 //! Integration tests for the SPI RuntimeExtension marker.
 
-use swe_edge_runtime::{RuntimeConfig, ServerConfigLoader};
+use swe_edge_runtime::ServerConfigLoader;
 
 /// @covers: runtime_extension
 /// The RuntimeExtension SPI type is crate-internal. This test verifies that

@@ -10,9 +10,12 @@ pub(crate) struct DefaultSweEdgeRuntimeResourcePolicy;
 
 impl DefaultSweEdgeRuntimeResourcePolicy {
     /// Create a new default instance.
-    #[expect(
-        dead_code,
-        reason = "SEA core/ anchor — wired up when SAF factory is integrated"
+    #[cfg_attr(
+        not(test),
+        expect(
+            dead_code,
+            reason = "SEA core/ anchor — wired up when SAF factory is integrated"
+        )
     )]
     pub(crate) fn new() -> Self {
         Self

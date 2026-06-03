@@ -1,4 +1,5 @@
 //! Integration tests proving swe-edge-observ-config coverage through the runtime.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 

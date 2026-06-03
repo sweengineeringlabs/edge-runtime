@@ -2,12 +2,13 @@
 //!
 //! Verifies that the broker factory respects config defaults —
 //! the default backend is "inmemory" as documented in config/application.toml.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 /// @covers: MessageBrokerFactory::broker_from_config — default config uses inmemory backend
 #[tokio::test]
 #[cfg(feature = "tokio-rt")]
 async fn test_broker_from_config_default_backend_is_inmemory() {
-    use swe_edge_runtime_message_broker::{MessageBroker, MessageBrokerFactory};
+    use swe_edge_runtime_message_broker::MessageBrokerFactory;
     let broker = MessageBrokerFactory::broker_from_config()
         .await
         .map_err(|e| e.to_string())

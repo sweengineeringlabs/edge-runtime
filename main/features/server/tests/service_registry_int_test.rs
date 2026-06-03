@@ -1,4 +1,5 @@
 //! Integration tests for ServiceRegistry.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use std::sync::Arc;
 use swe_edge_egress_http::default_http_egress;

@@ -12,6 +12,8 @@ pub use crate::api::types::SchedulerSvc;
 pub use crate::api::types::TracingConfig;
 pub use crate::api::validator::Validator;
 
+#[cfg(feature = "tokio-rt")]
+pub use crate::api::types::tokio::TokioSchedulerConfigBuilder;
 pub use crate::api::types::SchedulerResult;
 #[cfg(feature = "tokio-rt")]
 pub use crate::api::types::TokioScheduler;

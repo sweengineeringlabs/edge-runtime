@@ -1,4 +1,5 @@
 //! Integration tests for [`ActorSpawnHandle`].
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 #[cfg(feature = "tokio-rt")]
 mod tokio_tests {

@@ -1,5 +1,6 @@
 #![warn(missing_docs)]
 #![deny(unsafe_code)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 
 //! Actor runtime — encapsulated state machine with tell/ask semantics.
 //!

@@ -1,4 +1,5 @@
 //! Integration tests for the profile resolver.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_egress_subprocess::IsolationError;
 use swe_edge_runtime_isolator::{IsolatorConfig, IsolatorSvc};

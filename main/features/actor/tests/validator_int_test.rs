@@ -1,4 +1,5 @@
 //! Integration tests for the Validator trait.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 // Validator is a public api/ trait — we verify implementations honour the contract.
 // The concrete DefaultActorValidator is pub(crate) in core/; these tests exercise

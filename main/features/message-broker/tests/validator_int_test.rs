@@ -1,4 +1,5 @@
 //! Tests for the [`Validator`] trait contract.
+#![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_message_broker::Validator;
 

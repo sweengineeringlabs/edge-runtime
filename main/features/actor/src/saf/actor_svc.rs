@@ -89,4 +89,10 @@ impl ActorRuntime {
         b = b.with_version(env!("CARGO_PKG_VERSION"));
         b
     }
+
+    /// Validate any value implementing the [`Validator`](crate::api::traits::validator::Validator)
+    /// contract.
+    pub fn validate<V: crate::api::traits::validator::Validator>(v: &V) -> Result<(), String> {
+        v.validate()
+    }
 }
