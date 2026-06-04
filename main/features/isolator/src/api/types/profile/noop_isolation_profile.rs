@@ -11,7 +11,18 @@ const PROFILE_NAME: &str = "noop";
 /// Returned by [`IsolatorSvc::create_noop_isolator`] for use in development,
 /// CI, or any environment where subprocess isolation is not required.
 ///
-/// Never use in production for untrusted or arbitrary code.
+/// **Never use in production for untrusted or arbitrary code.**
+/// Use a seccomp or Job Object profile for any code that originates from
+/// external input.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_runtime_isolator::NoopIsolationProfile;
+///
+/// let profile = NoopIsolationProfile::default();
+/// let _ = format!("{profile:?}"); // zero-size, always succeeds
+/// ```
 #[derive(Debug, Default)]
 pub struct NoopIsolationProfile;
 
