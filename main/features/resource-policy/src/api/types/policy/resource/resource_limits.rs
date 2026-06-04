@@ -8,6 +8,25 @@
 /// layers to [`ResourceLimitsResolver`].
 ///
 /// [`ResourceLimitsResolver`]: crate::ResourceLimitsResolver
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_runtime_resource_policy::ResourceLimits;
+///
+/// // A layer that only caps wall-clock time.
+/// let limits = ResourceLimits {
+///     timeout_ms: Some(5_000),
+///     ..Default::default()
+/// };
+/// assert!(!limits.is_empty());
+/// assert_eq!(limits.timeout_ms, Some(5_000));
+/// assert!(limits.output_bytes_cap.is_none());
+///
+/// // An empty layer contributes nothing to the resolver chain.
+/// let empty = ResourceLimits::default();
+/// assert!(empty.is_empty());
+/// ```
 #[derive(Debug, Clone, Default, serde::Deserialize, serde::Serialize)]
 pub struct ResourceLimits {
     /// Wall-clock timeout in milliseconds. `None` → defer to next layer.

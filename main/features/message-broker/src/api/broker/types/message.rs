@@ -9,6 +9,22 @@ use bytes::Bytes;
 /// `Message` is the currency passed between producers and consumers.  It
 /// carries raw bytes and an optional key-value header map for routing hints,
 /// content-type annotations, or correlation IDs.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_runtime_message_broker::Message;
+///
+/// let msg = Message::new(b"event.payload".as_ref());
+/// assert_eq!(msg.payload.as_ref(), b"event.payload");
+/// assert!(msg.headers.is_empty());
+///
+/// let msg = Message::with_headers(
+///     b"data".as_ref(),
+///     [("x-source".to_string(), "order-service".to_string())].into(),
+/// );
+/// assert_eq!(msg.headers.get("x-source").map(String::as_str), Some("order-service"));
+/// ```
 #[derive(Debug, Clone)]
 pub struct Message {
     /// Raw bytes payload.

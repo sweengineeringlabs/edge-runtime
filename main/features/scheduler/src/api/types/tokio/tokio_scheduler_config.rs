@@ -9,6 +9,25 @@ use serde::{Deserialize, Serialize};
 /// All fields are optional; absent fields let tokio pick its own defaults.
 /// Deserializes from the `[scheduler]` section of your application's TOML config.
 /// Use [`TokioSchedulerConfigBuilder`] for programmatic construction.
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_runtime_scheduler::TokioSchedulerConfig;
+/// use std::num::NonZeroUsize;
+///
+/// // All-default: tokio chooses worker count and pool sizes.
+/// let cfg = TokioSchedulerConfig::default();
+/// assert!(cfg.workers.is_none());
+///
+/// // Two workers, named threads.
+/// let cfg = TokioSchedulerConfig {
+///     workers: NonZeroUsize::new(2),
+///     thread_name: Some("rt-worker".to_string()),
+///     ..Default::default()
+/// };
+/// assert_eq!(cfg.workers.map(|n| n.get()), Some(2));
+/// ```
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct TokioSchedulerConfig {

@@ -10,6 +10,25 @@
 ///
 /// [`ResourceLimitsResolver::resolve_with_defaults`]: crate::ResourceLimitsResolver::resolve_with_defaults
 /// [`ResourcePolicyConfig::get`]: crate::ResourcePolicyConfig::get
+///
+/// # Examples
+///
+/// ```rust
+/// use swe_edge_runtime_resource_policy::ResourcePolicy;
+///
+/// // Construct a policy for testing (in production, load from config).
+/// let policy = ResourcePolicy {
+///     name: "default".to_string(),
+///     timeout_ms: 30_000,
+///     output_bytes_cap: 1_048_576,
+///     cpu_time_ms: 0,      // unlimited
+///     memory_bytes: 0,     // unlimited
+/// };
+///
+/// assert_eq!(policy.name, "default");
+/// assert_eq!(policy.timeout_ms, 30_000);
+/// assert_eq!(policy.cpu_time_ms, 0); // 0 = unlimited
+/// ```
 #[derive(Debug, Clone, serde::Deserialize, serde::Serialize)]
 pub struct ResourcePolicy {
     /// Stable identifier used in audit logs and error messages.

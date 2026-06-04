@@ -10,24 +10,30 @@ use crate::api::types::actor::actor_context::ActorContext;
 /// handling the next. Messages are processed via the `handle` method, which receives
 /// an `ActorContext` for tell (fire-and-forget) and ask (request-reply) operations.
 ///
-/// # Example
-/// ```ignore
-/// struct Counter {
-///     count: i32,
-/// }
+/// # Examples
+///
+/// ```rust,no_run
+/// use futures::future::BoxFuture;
+/// use swe_edge_runtime_actor::{Actor, ActorContext, ActorRuntime};
+///
+/// enum CounterMsg { Increment, GetCount(tokio::sync::oneshot::Sender<i32>) }
+///
+/// struct Counter { count: i32 }
 ///
 /// impl Actor for Counter {
-///     type Message = CounterMessage;
+///     type Message = CounterMsg;
 ///
-///     async fn handle(&mut self, ctx: ActorContext<Self>, msg: Self::Message) {
-///         match msg {
-///             CounterMessage::Increment => self.count += 1,
-///             CounterMessage::GetCount(reply) => {
-///                 let _ = reply.send(self.count);
+///     fn handle(&mut self, _ctx: ActorContext<Self>, msg: CounterMsg) -> BoxFuture<'_, ()> {
+///         Box::pin(async move {
+///             match msg {
+///                 CounterMsg::Increment => self.count += 1,
+///                 CounterMsg::GetCount(reply) => { let _ = reply.send(self.count); }
 ///             }
-///         }
+///         })
 ///     }
 /// }
+///
+/// // Spawn and use with ActorRuntime::spawn (feature = "tokio-rt").
 /// ```
 pub trait Actor: Send + 'static {
     /// The message type this actor processes.
