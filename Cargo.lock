@@ -2578,6 +2578,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "swe-edge-configbuilder"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev#ca37509d4f0b7f4494d5fce6c39b507146aaa402"
+dependencies = [
+ "dirs",
+ "regex",
+ "serde",
+ "thiserror 2.0.18",
+ "toml",
+]
+
+[[package]]
 name = "swe-edge-egress-auth"
 version = "0.1.0"
 source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.4.5#3a091b354dd548a1ddc8d23cc23bab8c4bb19e16"
@@ -2900,7 +2912,7 @@ dependencies = [
  "async-std",
  "bytes",
  "futures",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
@@ -2913,7 +2925,7 @@ dependencies = [
  "libc",
  "seccompiler",
  "serde",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "swe-edge-egress-subprocess",
  "thiserror 2.0.18",
  "tokio",
@@ -2930,7 +2942,7 @@ dependencies = [
  "futures",
  "serde",
  "swe-edge-config",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
@@ -2942,7 +2954,7 @@ name = "swe-edge-runtime-resource-policy"
 version = "0.1.0"
 dependencies = [
  "serde",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "swe-edge-egress-subprocess",
  "thiserror 2.0.18",
  "tokio",
@@ -2958,7 +2970,7 @@ dependencies = [
  "edge-domain",
  "futures",
  "serde",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2979,7 +2991,7 @@ dependencies = [
  "serde",
  "serde_json",
  "swe-edge-config",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "swe-edge-egress-grpc-transport",
  "swe-edge-egress-http-transport",
  "swe-edge-ingress-grpc-reflection",
