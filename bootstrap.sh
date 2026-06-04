@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
+# edge-runtime bootstrap — installs git hooks and fetches dependencies.
 set -euo pipefail
 
-# Bootstrap the swe-edge-runtime workspace.
-# Builds all three member crates and runs their test suites.
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-echo "==> Building runtime workspace (all features)..."
-cargo build --workspace
+echo "==> Installing git hooks"
+git -C "$REPO_ROOT" config core.hooksPath scripts/hooks
+echo "    core.hooksPath -> scripts/hooks (pre-commit, commit-msg)"
 
-echo "==> Testing runtime workspace..."
-cargo test --workspace
+echo "==> Fetching dependencies"
+(cd "$REPO_ROOT" && cargo fetch --locked)
 
-echo "==> Done."
+echo "Bootstrap complete."

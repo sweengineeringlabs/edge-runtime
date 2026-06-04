@@ -1,12 +1,17 @@
-# Bootstrap the swe-edge-runtime workspace.
-# Builds all three member crates and runs their test suites.
+#!/usr/bin/env pwsh
+# edge-runtime bootstrap — installs git hooks and fetches dependencies.
 Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = 'Stop'
 
-Write-Host "==> Building runtime workspace (all features)..."
-cargo build --workspace
+$RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-Write-Host "==> Testing runtime workspace..."
-cargo test --workspace
+Write-Host "==> Installing git hooks"
+git -C $RepoRoot config core.hooksPath scripts/hooks
+Write-Host "    core.hooksPath -> scripts/hooks (pre-commit, commit-msg)"
 
-Write-Host "==> Done."
+Write-Host "==> Fetching dependencies"
+Push-Location $RepoRoot
+cargo fetch --locked
+Pop-Location
+
+Write-Host "Bootstrap complete."
