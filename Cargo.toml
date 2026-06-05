@@ -25,6 +25,16 @@ swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs
 swe-edge-runtime-message-broker = { path = "main/message-broker", features = ["tokio-rt"] }
 swe-edge-runtime-scheduler      = { path = "main/scheduler" }
 
+edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",            branch = "dev" }
+edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",             branch = "dev" }
+swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", branch = "dev" }
+swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",      branch = "dev" }
+swe-edge-ingress-grpc-reflection = { git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",      branch = "dev" }
+swe-edge-ingress-verifier        = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git",  branch = "dev" }
+swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-grpc.git",       branch = "dev" }
+swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-http.git",       branch = "dev" }
+swe-observ-metrics               = { package = "swe_justobserv_metrics",           git = "ssh://git@github.com/sweengineeringlabs/justobserv.git",           tag  = "v0.2.1" }
+
 [workspace.lints.rust]
 unsafe_code  = "deny"
 missing_docs = "warn"

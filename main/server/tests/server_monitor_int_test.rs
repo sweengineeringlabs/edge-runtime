@@ -1,6 +1,6 @@
-//! Integration tests for ServerMonitor.
+﻿//! Integration tests for ServerMonitor.
 
-use edge_proxy::new_null_lifecycle_monitor;
+use edge_proxy::ProxySvc;
 use std::sync::Arc;
 use swe_edge_runtime::{MetricsProvider, ServerMonitor};
 use swe_observ_metrics::create_local_metrics_backend;
@@ -8,7 +8,7 @@ use swe_observ_metrics::create_local_metrics_backend;
 /// @covers: ServerMonitor
 #[test]
 fn test_server_monitor_observe_returns_arc_lifecycle_monitor() {
-    let inner = new_null_lifecycle_monitor();
+    let inner = ProxySvc::new_null_lifecycle_monitor();
     let provider: Arc<dyn MetricsProvider> = Arc::new(create_local_metrics_backend());
     let _observed = ServerMonitor::observe(inner, provider);
 }
@@ -16,7 +16,7 @@ fn test_server_monitor_observe_returns_arc_lifecycle_monitor() {
 /// @covers: ServerMonitor
 #[tokio::test]
 async fn test_server_monitor_observe_delegates_health_to_inner() {
-    let inner = new_null_lifecycle_monitor();
+    let inner = ProxySvc::new_null_lifecycle_monitor();
     let provider: Arc<dyn MetricsProvider> = Arc::new(create_local_metrics_backend());
     let observed = ServerMonitor::observe(inner, provider);
     let report = observed.health().await;

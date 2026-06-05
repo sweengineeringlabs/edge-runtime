@@ -1,4 +1,4 @@
-//! Runtime lifecycle — config loading, gateway assembly, start, health, shutdown.
+﻿//! Runtime lifecycle — config loading, gateway assembly, start, health, shutdown.
 //!
 //! Run:
 //!     cargo run -p swe-edge-runtime --example runtime_lifecycle
@@ -14,7 +14,7 @@
 
 use std::sync::Arc;
 
-use edge_proxy::new_null_lifecycle_monitor;
+use edge_proxy::ProxySvc;
 use futures::future::BoxFuture;
 use swe_edge_egress_http::{
     HttpEgress, HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
@@ -84,7 +84,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //    so the runtime never names or imports concrete adapter types.
     let ingress = Arc::new(Runtime::http_ingress(Arc::new(NoopIngress)));
     let egress = Arc::new(Runtime::http_egress(Arc::new(NoopEgress)));
-    let lifecycle = new_null_lifecycle_monitor();
+    let lifecycle = ProxySvc::new_null_lifecycle_monitor();
 
     // 3. Build the RuntimeManager via the SAF factory (returns `impl RuntimeManager`).
     let mgr = Runtime::runtime_manager(config, ingress, egress, lifecycle);

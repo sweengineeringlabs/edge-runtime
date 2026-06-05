@@ -1,0 +1,45 @@
+{
+  "members": [
+    {
+      "failed": 0,
+      "member": "main/actor",
+      "passed": 150,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "main/isolator",
+      "passed": 150,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "main/message-broker",
+      "passed": 150,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "main/resource-policy",
+      "passed": 150,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "main/scheduler",
+      "passed": 150,
+      "skipped": 0
+    },
+    {
+      "failed": 0,
+      "member": "main/server",
+      "passed": 150,
+      "skipped": 0
+    }
+  ],
+  "mode": "package",
+  "timestamp": "2026-06-04T22:37:01.809706900+02:00",
+  "total_failed": 0,
+  "total_members": 6,
+  "total_passed": 900
+}

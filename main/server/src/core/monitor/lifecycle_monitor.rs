@@ -66,7 +66,7 @@ impl LifecycleMonitor for MetricsLifecycleMonitor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use edge_proxy::{new_null_lifecycle_monitor, HealthStatus};
+    use edge_proxy::{HealthStatus, ProxySvc};
     use swe_observ_metrics::create_local_metrics_backend;
 
     fn provider() -> Arc<dyn MetricsProvider> {
@@ -75,13 +75,14 @@ mod tests {
 
     #[test]
     fn test_new_creates_monitor_without_panic() {
-        let _m = MetricsLifecycleMonitor::new(new_null_lifecycle_monitor(), provider());
+        let _m = MetricsLifecycleMonitor::new(ProxySvc::new_null_lifecycle_monitor(), provider());
     }
 
     #[tokio::test]
     async fn test_health_records_healthy_component_as_one() {
         let p = provider();
-        let m = MetricsLifecycleMonitor::new(new_null_lifecycle_monitor(), Arc::clone(&p));
+        let m =
+            MetricsLifecycleMonitor::new(ProxySvc::new_null_lifecycle_monitor(), Arc::clone(&p));
         m.health().await;
         let snaps = p.export();
         assert!(
@@ -94,7 +95,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_health_records_unhealthy_overall_after_shutdown() {
-        let inner = new_null_lifecycle_monitor();
+        let inner = ProxySvc::new_null_lifecycle_monitor();
         inner.shutdown().await.ok();
         let p = provider();
         let m = MetricsLifecycleMonitor::new(inner, Arc::clone(&p));
@@ -114,7 +115,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_shutdown_delegates_to_inner() {
-        let m = MetricsLifecycleMonitor::new(new_null_lifecycle_monitor(), provider());
+        let m = MetricsLifecycleMonitor::new(ProxySvc::new_null_lifecycle_monitor(), provider());
         assert!(m.shutdown().await.is_ok());
     }
 }

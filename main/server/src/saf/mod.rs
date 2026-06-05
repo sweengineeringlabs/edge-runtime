@@ -39,7 +39,7 @@ pub use swe_edge_egress_grpc::{GrpcEgress, GrpcEgressError, GrpcEgressResult, To
 pub use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, HttpStreamResponse};
 
 // ── Lifecycle / health ────────────────────────────────────────────────────────
-pub use edge_proxy::{new_null_lifecycle_monitor, HealthReport, LifecycleMonitor};
+pub use edge_proxy::{HealthReport, LifecycleMonitor, ProxySvc};
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
 pub use crate::api::monitor::ring_buffer::RingBuffer;

@@ -6,9 +6,9 @@ pub(crate) struct RuntimeBuilderServe;
 use std::sync::Arc;
 use std::time::Duration;
 
-use edge_proxy::new_null_lifecycle_monitor;
-use swe_edge_egress_grpc::create_transport_from_config;
-use swe_edge_egress_http::{default_http_egress, default_http_egress_with_config};
+use edge_proxy::ProxySvc;
+use swe_edge_egress_grpc::TransportSvc;
+use swe_edge_egress_http::HttpTransportSvc;
 use swe_edge_ingress_grpc::TonicGrpcServer;
 use swe_edge_ingress_grpc_reflection::ReflectionService;
 use swe_edge_ingress_http::AxumHttpServer;
@@ -107,25 +107,27 @@ impl RuntimeBuilder {
         }
 
         // ── Egress: builder explicit > TOML config > default ─────────────────
-        let egress_http: Arc<dyn swe_edge_egress_http::HttpEgress> = if let Some(h) =
-            self.egress_http
-        {
-            h
-        } else if let Some(http_cfg) = config.egress_http.clone() {
-            Arc::new(
-                default_http_egress_with_config(http_cfg)
-                    .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
-            )
-        } else {
-            Arc::new(default_http_egress().map_err(|e| RuntimeError::StartFailed(e.to_string()))?)
-        };
+        let egress_http: Arc<dyn swe_edge_egress_http::HttpEgress> =
+            if let Some(h) = self.egress_http {
+                h
+            } else if let Some(http_cfg) = config.egress_http.clone() {
+                Arc::from(
+                    HttpTransportSvc::default_http_egress_with_config(http_cfg)
+                        .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+                )
+            } else {
+                Arc::from(
+                    HttpTransportSvc::default_http_egress()
+                        .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
+                )
+            };
 
         let egress_grpc: Option<Arc<dyn swe_edge_egress_grpc::GrpcEgress>> =
             if let Some(g) = self.egress_grpc {
                 Some(g)
             } else if let Some(ref grpc_cfg) = config.egress_grpc {
                 Some(
-                    create_transport_from_config(grpc_cfg)
+                    TransportSvc::create_transport_from_config(grpc_cfg)
                         .map_err(|e| RuntimeError::StartFailed(e.to_string()))?,
                 )
             } else {
@@ -139,7 +141,7 @@ impl RuntimeBuilder {
 
         let lifecycle = self
             .lifecycle
-            .unwrap_or_else(|| new_null_lifecycle_monitor());
+            .unwrap_or_else(|| ProxySvc::new_null_lifecycle_monitor());
 
         // ── Load monitor — shared counters + background sampler ───────────────
         let counters: Option<SharedCounters> = config.metrics.as_ref().map(|_| {

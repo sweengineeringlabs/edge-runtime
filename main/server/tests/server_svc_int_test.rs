@@ -1,17 +1,17 @@
-//! Integration tests for the server_svc SAF layer — uses Runtime methods.
+﻿//! Integration tests for the server_svc SAF layer — uses Runtime methods.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_proxy::new_null_lifecycle_monitor;
+use edge_proxy::ProxySvc;
 use std::sync::Arc;
-use swe_edge_egress_http::default_http_egress;
+use swe_edge_egress_http::HttpTransportSvc;
 use swe_edge_runtime::{Runtime, RuntimeConfig};
 
 /// @covers: server_svc
 #[test]
 fn test_server_svc_runtime_manager_constructs_without_panic() {
-    let http = Arc::new(default_http_egress().expect("http outbound"));
+    let http = Arc::from(HttpTransportSvc::default_http_egress().expect("http outbound"));
     let ingress = Arc::new(Runtime::empty_ingress());
     let egress = Arc::new(Runtime::http_egress(http));
-    let lc = new_null_lifecycle_monitor();
+    let lc = ProxySvc::new_null_lifecycle_monitor();
     let _mgr = Runtime::runtime_manager(RuntimeConfig::default(), ingress, egress, lc);
 }
