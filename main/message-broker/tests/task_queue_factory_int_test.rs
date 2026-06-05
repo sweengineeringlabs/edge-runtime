@@ -1,5 +1,6 @@
 //! Integration tests for [`TaskQueueFactory`].
 
+#[cfg(feature = "tokio-rt")]
 use swe_edge_runtime_message_broker::TaskQueueFactory;
 
 /// @covers: TaskQueueFactory::in_memory

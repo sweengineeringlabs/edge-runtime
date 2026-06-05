@@ -21,7 +21,7 @@ path = "src/lib.rs"
 [features]
 default  = []
 tokio-rt = ["dep:tokio"]
-nats     = ["dep:async-nats"]
+nats     = ["dep:async-nats", "dep:tokio"]
 kafka    = []
 
 [dependencies]

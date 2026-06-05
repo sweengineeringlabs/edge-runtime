@@ -104,9 +104,11 @@ mod tests {
             .build()
             .unwrap();
         let result = rt.block_on(NatsMessageBroker::connect("nats://127.0.0.1:4229"));
+        // The Ok variant (NatsMessageBroker) is not Debug, so assert with a
+        // static message rather than formatting `result`.
         assert!(
             matches!(result, Err(BrokerError::Connection(_))),
-            "expected Connection error, got: {result:?}"
+            "expected a Connection error from an unreachable NATS host"
         );
     }
 }

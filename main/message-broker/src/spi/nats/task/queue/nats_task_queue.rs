@@ -63,17 +63,17 @@ impl NatsTaskQueue {
             durable_name: Some(self.consumer_name.clone()),
             // Explicit ack required — consumer must call ack() or nack()
             ack_policy: jetstream::consumer::AckPolicy::Explicit,
-            // Redeliver nacked/timed-out messages after visibility timeout
+            // Redeliver a delivered-but-unacked message after the visibility timeout.
+            ack_wait: VISIBILITY_TIMEOUT,
             max_ack_pending: crate::core::task::DEFAULT_MAX_ACK_PENDING,
-            idle_heartbeat: Some(std::time::Duration::from_secs(
-                crate::core::task::queue::DEFAULT_HEARTBEAT_SECS,
-            )),
             ..Default::default()
         };
 
+        // async-nats 0.48: consumers are created on a stream. `create_consumer_on_stream`
+        // uses a create-or-update action, so a durable consumer is reused if it exists.
         let consumer = self
             .jetstream_context
-            .get_or_create_consumer(&self.stream_name, consumer_config)
+            .create_consumer_on_stream(consumer_config, self.stream_name.clone())
             .await
             .map_err(|e| QueueError::Connection(e.to_string()))?;
 
@@ -90,8 +90,8 @@ impl TaskQueue for NatsTaskQueue {
 
         Box::pin(async move {
             // Publish task to JetStream stream with task_id in headers for tracing
-            let mut publish_ack = context
-                .publish_with_headers(&stream_name, Default::default(), task.payload)
+            let publish_ack = context
+                .publish_with_headers(stream_name, Default::default(), task.payload)
                 .await
                 .map_err(|e| QueueError::Enqueue(e.to_string()))?;
 
@@ -110,18 +110,20 @@ impl TaskQueue for NatsTaskQueue {
         Box::pin(async move {
             let consumer = consumer_fut.await?;
 
-            // Pull one message with timeout
+            // Pull at most one message with a bounded wait (async-nats 0.48 FetchBuilder).
             let mut messages = consumer
-                .fetch(jetstream::consumer::pull::batch::Config {
-                    batch: 1,
-                    idle_heartbeat: Some(std::time::Duration::from_secs(5)),
-                    expires: Some(std::time::Duration::from_secs(30)),
-                    max_bytes: 0,
-                })
-                .take(1);
+                .fetch()
+                .max_messages(1)
+                .heartbeat(std::time::Duration::from_secs(
+                    crate::core::task::queue::DEFAULT_HEARTBEAT_SECS,
+                ))
+                .expires(std::time::Duration::from_secs(30))
+                .messages()
+                .await
+                .map_err(|e| QueueError::Dequeue(e.to_string()))?;
 
-            // Try to get the next message
-            while let Some(msg_result) = futures::stream::StreamExt::next(&mut messages).await {
+            // At most one message is requested (`max_messages(1)`), so take the first.
+            if let Some(msg_result) = futures::stream::StreamExt::next(&mut messages).await {
                 let msg = msg_result.map_err(|e| QueueError::Dequeue(e.to_string()))?;
 
                 // Extract task_id from message sequence (or headers if available)
@@ -136,8 +138,10 @@ impl TaskQueue for NatsTaskQueue {
                 });
 
                 let nack = Box::pin(async move {
+                    // async-nats 0.48: negative ack is `ack_with(AckKind::Nak(..))`.
+                    // `Nak(None)` redelivers using the consumer's configured backoff.
                     msg_clone
-                        .nack()
+                        .ack_with(async_nats::jetstream::AckKind::Nak(None))
                         .await
                         .map_err(|e| QueueError::Dequeue(e.to_string()))
                 });
@@ -154,7 +158,7 @@ impl TaskQueue for NatsTaskQueue {
         let context = self.jetstream_context.clone();
         Box::pin(async move {
             context
-                .account_info()
+                .query_account()
                 .await
                 .map_err(|e| QueueError::Connection(e.to_string()))?;
             Ok(())

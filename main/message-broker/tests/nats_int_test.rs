@@ -22,9 +22,10 @@ mod nats_tests {
     #[tokio::test]
     async fn test_nats_broker_returns_connection_error_for_unreachable_host() {
         let result = MessageBrokerFactory::nats("nats://127.0.0.1:4229").await;
+        // The Ok variant is `impl MessageBroker` (not Debug), so use a static message.
         assert!(
             matches!(result, Err(BrokerError::Connection(_))),
-            "expected Connection error, got: {result:?}"
+            "expected a Connection error from an unreachable NATS host"
         );
     }
 

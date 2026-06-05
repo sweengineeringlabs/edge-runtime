@@ -1,6 +1,7 @@
 //! Public-API integration tests for the message broker SAF surface.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+#[cfg(feature = "tokio-rt")]
 use swe_edge_runtime_message_broker::MessageBroker;
 
 /// @covers: MessageBrokerFactory::in_memory
@@ -50,8 +51,9 @@ async fn test_in_memory_broker_pub_sub_roundtrip() {
 async fn test_nats_broker_returns_connection_error_for_unreachable_host() {
     use swe_edge_runtime_message_broker::{BrokerError, MessageBrokerFactory};
     let result = MessageBrokerFactory::nats("nats://127.0.0.1:4229").await;
+    // The Ok variant is `impl MessageBroker` (not Debug), so use a static message.
     assert!(
         matches!(result, Err(BrokerError::Connection(_))),
-        "expected Connection error, got: {result:?}"
+        "expected a Connection error from an unreachable NATS host"
     );
 }
