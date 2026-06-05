@@ -15,7 +15,7 @@ edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
 authors      = ["SWE Engineering Labs"]
-repository   = "https://github.com/sweengineeringlabs/edge"
+repository   = "https://github.com/sweengineeringlabs/edge-runtime"
 
 [workspace.dependencies]
 swe-edge-configbuilder          = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", branch = "dev" }
