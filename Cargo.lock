@@ -2533,17 +2533,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
-name = "swe-edge-config"
-version = "0.1.0"
-source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=swe_edge_config_v0.1.0#91e37a1e4d68e3fee151b806811fd537f7cb0e00"
-dependencies = [
- "dirs",
- "serde",
- "thiserror 2.0.18",
- "toml",
-]
-
-[[package]]
 name = "swe-edge-configbuilder"
 version = "0.1.0"
 source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.4.2#e928583725cc091fd46d3be42d8b3365b38dc6ea"
@@ -2994,7 +2983,6 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
- "swe-edge-config",
  "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "swe-edge-egress-grpc-transport",
  "swe-edge-egress-http-transport",
