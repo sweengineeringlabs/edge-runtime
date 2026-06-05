@@ -1,14 +1,17 @@
-﻿//! SAF — message broker and task queue public factory surface.
+//! SAF — message broker and task queue public factory surface.
 //!
 //! Factory methods are grouped on [`MessageBrokerFactory`] and [`TaskQueueFactory`].
 //! Implementation types are returned directly — consumers receive concrete types
 //! from the factory methods below and may use them as `impl Trait` at call sites.
+//!
+//! The `MessageBroker` contract (trait + value types + `MessageBrokerConfig`)
+//! lives in `swe-edge-message-broker`; this crate owns the concrete backends and
+//! the [`MessageBrokerFactory::from_config`] construction factory.
 
-#[cfg(feature = "nats")]
-use crate::api::broker::broker_error::BrokerError;
-use crate::api::broker::message_broker::MessageBroker;
 #[cfg(feature = "tokio-rt")]
 use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
+use crate::api::broker::BrokerError;
+use crate::api::broker::MessageBroker;
 #[cfg(feature = "nats")]
 use crate::api::task::queue::queue_error::QueueError;
 #[cfg(feature = "tokio-rt")]
@@ -21,32 +24,13 @@ use crate::api::types::task_queue_factory::TaskQueueFactory;
 use crate::spi::NatsMessageBroker;
 #[cfg(feature = "nats")]
 use crate::spi::NatsTaskQueue;
-use serde::{Deserialize, Serialize};
 #[cfg(feature = "tokio-rt")]
 use std::collections::HashMap;
 #[cfg(feature = "tokio-rt")]
 use std::sync::Arc;
+use swe_edge_message_broker::{BackendKind, MessageBrokerConfig};
 #[cfg(feature = "tokio-rt")]
-use tokio::sync::{broadcast, RwLock};
-
-/// Internal: configuration loaded from [message_broker] section of application.toml.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(default)]
-struct BrokerConfig {
-    backend: String,
-    nats_url: String,
-    kafka_brokers: String,
-}
-
-impl Default for BrokerConfig {
-    fn default() -> Self {
-        Self {
-            backend: "inmemory".into(),
-            nats_url: "nats://localhost:4222".into(),
-            kafka_brokers: "localhost:9092".into(),
-        }
-    }
-}
+use tokio::sync::RwLock;
 
 impl MessageBrokerFactory {
     /// Return a [`swe_edge_configbuilder::ConfigBuilderImpl`] pre-seeded with this crate's package name and version.
@@ -57,37 +41,59 @@ impl MessageBrokerFactory {
         b
     }
 
-    /// Instantiate a message broker from configuration loaded from application.toml.
+    /// Construct and wire a broker from a loaded [`MessageBrokerConfig`].
     ///
-    /// Reads `[message_broker]` section and selects backend based on `backend` field.
+    /// The configuration vocabulary ([`MessageBrokerConfig`], [`BackendKind`]) is
+    /// owned by the `swe-edge-message-broker` contract; this factory turns a
+    /// validated config into a concrete backend instance.
+    ///
+    /// The backend is selected by [`MessageBrokerConfig::backend`]:
+    /// - [`BackendKind::InMemory`] builds an in-process broadcast broker
+    ///   (requires the `tokio-rt` feature).
+    /// - [`BackendKind::Nats`] connects to the configured `url`
+    ///   (requires the `nats` feature).
     ///
     /// # Errors
     ///
-    /// Returns error if the selected backend cannot be initialized (e.g., NATS connection fails).
-    pub async fn broker_from_config() -> Result<Box<dyn MessageBroker>, Box<dyn std::error::Error>>
-    {
-        let cfg: BrokerConfig = swe_edge_config::load_section("message_broker")?;
-        match cfg.backend.as_str() {
-            #[cfg(feature = "tokio-rt")]
-            "inmemory" => {
-                let broker = InMemoryMessageBroker {
-                    channels: Arc::new(RwLock::new(HashMap::<String, broadcast::Sender<_>>::new())),
-                };
-                Ok(Box::new(broker))
+    /// - [`BrokerError::Unavailable`] if the requested backend's Cargo feature
+    ///   is not compiled in.
+    /// - [`BrokerError::Connection`] if a NATS connection cannot be established,
+    ///   or if `backend = "nats"` was loaded without a `url`.
+    pub async fn from_config(
+        config: &MessageBrokerConfig,
+    ) -> Result<Box<dyn MessageBroker>, BrokerError> {
+        match config.backend {
+            BackendKind::InMemory => {
+                #[cfg(feature = "tokio-rt")]
+                {
+                    Ok(Box::new(Self::in_memory()) as Box<dyn MessageBroker>)
+                }
+                #[cfg(not(feature = "tokio-rt"))]
+                {
+                    Err(BrokerError::Unavailable(
+                        "in_memory backend requires the `tokio-rt` feature".to_owned(),
+                    ))
+                }
             }
-            #[cfg(not(feature = "tokio-rt"))]
-            "inmemory" => Err("in-memory broker requires tokio-rt feature".into()),
-
-            #[cfg(feature = "nats")]
-            "nats" => {
-                let broker = NatsMessageBroker::connect(&cfg.nats_url).await?;
-                Ok(Box::new(broker))
+            BackendKind::Nats => {
+                #[cfg(feature = "nats")]
+                {
+                    let url = config.url.as_deref().ok_or_else(|| {
+                        BrokerError::Connection(
+                            "nats backend requires a `url` but none was configured".to_owned(),
+                        )
+                    })?;
+                    NatsMessageBroker::connect(url)
+                        .await
+                        .map(|b| Box::new(b) as Box<dyn MessageBroker>)
+                }
+                #[cfg(not(feature = "nats"))]
+                {
+                    Err(BrokerError::Unavailable(
+                        "nats backend requires the `nats` feature".to_owned(),
+                    ))
+                }
             }
-            #[cfg(not(feature = "nats"))]
-            "nats" => Err("NATS broker requires nats feature".into()),
-
-            "kafka" => Err("Kafka backend not yet implemented".into()),
-            other => Err(format!("Unknown broker backend: {other}").into()),
         }
     }
 

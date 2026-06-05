@@ -6,7 +6,7 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use tokio::sync::{broadcast, RwLock};
 
-use crate::api::broker::broker_error::BrokerError;
+use crate::api::broker::BrokerError;
 use crate::api::broker::Message;
 use crate::api::broker::MessageBroker;
 use crate::api::broker::MessageStream;

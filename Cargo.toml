@@ -19,6 +19,7 @@ repository   = "https://github.com/sweengineeringlabs/edge"
 
 [workspace.dependencies]
 swe-edge-configbuilder          = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", branch = "dev" }
+swe-edge-message-broker         = { git = "https://github.com/sweengineeringlabs/edge-message-broker.git", branch = "dev" }
 swe-edge-egress-subprocess      = { git = "https://github.com/sweengineeringlabs/edge-egress-subprocess.git", branch = "dev" }
 swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs/edge-observ-config.git", branch = "dev" }
 swe-edge-runtime-message-broker = { path = "main/message-broker", features = ["tokio-rt"] }

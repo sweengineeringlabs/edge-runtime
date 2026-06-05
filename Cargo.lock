@@ -2886,6 +2886,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "swe-edge-message-broker"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-message-broker.git?branch=dev#4454fa8743934fe50a95ad33e368891a08c4b669"
+dependencies = [
+ "bytes",
+ "futures",
+ "serde",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
+ "thiserror 1.0.69",
+ "tracing",
+]
+
+[[package]]
 name = "swe-edge-observ-config"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-observ-config.git?branch=dev#aae0d42fe03e54ffe984e0ed69d5a07283a4571a"
@@ -2932,8 +2945,8 @@ dependencies = [
  "bytes",
  "futures",
  "serde",
- "swe-edge-config",
  "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
+ "swe-edge-message-broker",
  "thiserror 1.0.69",
  "tokio",
  "tracing",
