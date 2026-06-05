@@ -2546,17 +2546,6 @@ dependencies = [
 [[package]]
 name = "swe-edge-configbuilder"
 version = "0.1.0"
-dependencies = [
- "dirs",
- "regex",
- "serde",
- "thiserror 2.0.18",
- "toml",
-]
-
-[[package]]
-name = "swe-edge-configbuilder"
-version = "0.1.0"
 source = "git+ssh://git@github.com/sweengineeringlabs/edge.git?tag=v0.4.2#e928583725cc091fd46d3be42d8b3365b38dc6ea"
 dependencies = [
  "dirs",
@@ -2772,11 +2761,12 @@ dependencies = [
 [[package]]
 name = "swe-edge-egress-subprocess"
 version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-subprocess.git?branch=dev#eea4259ae79046e3f073d3122cf166340b1e7874"
 dependencies = [
  "futures",
  "nix",
  "serde",
- "swe-edge-configbuilder 0.1.0",
+ "swe-edge-configbuilder 0.1.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?branch=dev)",
  "thiserror 2.0.18",
  "tokio",
  "tracing",
@@ -2898,6 +2888,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-observ-config"
 version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-observ-config.git?branch=dev#aae0d42fe03e54ffe984e0ed69d5a07283a4571a"
 dependencies = [
  "serde",
  "thiserror 2.0.18",
