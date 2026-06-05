@@ -1,11 +1,7 @@
 [workspace]
 resolver = "2"
 members  = [
-  "main/actor",
-  "main/isolator",
   "main/message-broker",
-  "main/resource-policy",
-  "main/scheduler",
   "main/server",
 ]
 
@@ -23,7 +19,6 @@ swe-edge-message-broker         = { git = "https://github.com/sweengineeringlabs
 swe-edge-egress-subprocess      = { git = "https://github.com/sweengineeringlabs/edge-egress-subprocess.git", branch = "dev" }
 swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs/edge-observ-config.git", branch = "dev" }
 swe-edge-runtime-message-broker = { path = "main/message-broker", features = ["tokio-rt"] }
-swe-edge-runtime-scheduler      = { path = "main/scheduler" }
 
 edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",            branch = "dev" }
 edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",             branch = "dev" }

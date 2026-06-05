@@ -22,7 +22,6 @@ path = "src/lib.rs"
 default = []
 observability  = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
 message-broker = ["dep:swe-edge-runtime-message-broker"]
-scheduler      = ["dep:swe-edge-runtime-scheduler"]
 
 [dependencies]
 serde        = { version = "1.0", features = ["derive"] }
@@ -41,7 +40,6 @@ swe-edge-configbuilder          = { workspace = true }
 swe-edge-observ-config          = { workspace = true }
 
 swe-edge-runtime-message-broker = { workspace = true, optional = true }
-swe-edge-runtime-scheduler      = { workspace = true, optional = true }
 
 edge-proxy                       = { workspace = true }
 swe-edge-ingress-http            = { workspace = true }
@@ -55,7 +53,6 @@ swe-observ-metrics               = { workspace = true }
 
 [dev-dependencies]
 swe-edge-runtime-message-broker = { workspace = true }
-swe-edge-runtime-scheduler      = { workspace = true }
 swe-edge-configbuilder          = { workspace = true }
 async-trait  = "0.1"
 tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
@@ -247,10 +244,6 @@ path = "tests/runtime_health_int_test.rs"
 [[test]]
 name = "config_validator_int_test"
 path = "tests/config_validator_int_test.rs"
-
-[[test]]
-name = "scheduler_int_test"
-path = "tests/scheduler_int_test.rs"
 
 [[test]]
 name = "server_config_loader_int_test"

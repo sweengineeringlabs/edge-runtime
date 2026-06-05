@@ -51,12 +51,6 @@ pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 pub use crate::api::types::TracingInitializer;
 pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 
-// ── Scheduler ─────────────────────────────────────────────────────────────────
-#[cfg(feature = "scheduler")]
-pub use swe_edge_runtime_scheduler::{
-    tokio_scheduler, Scheduler, SchedulerResult, TokioSchedulerConfig,
-};
-
 // ── Message broker ────────────────────────────────────────────────────────────
 #[cfg(feature = "message-broker")]
 pub use swe_edge_runtime_message_broker::in_memory_broker;

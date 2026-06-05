@@ -1,1 +1,0 @@
-# swe-edge-runtime-actor
