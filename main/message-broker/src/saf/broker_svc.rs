@@ -12,14 +12,18 @@
 use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
 use crate::api::broker::BrokerError;
 use crate::api::broker::MessageBroker;
-#[cfg(feature = "nats")]
+#[cfg(any(feature = "nats", feature = "kafka"))]
 use crate::api::task::queue::queue_error::QueueError;
 #[cfg(feature = "tokio-rt")]
 use crate::api::task::queue::types::in_memory_task_queue::InMemoryTaskQueue;
-#[cfg(feature = "nats")]
+#[cfg(any(feature = "nats", feature = "kafka"))]
 use crate::api::task::queue::TaskQueue;
 use crate::api::types::message_broker_factory::MessageBrokerFactory;
 use crate::api::types::task_queue_factory::TaskQueueFactory;
+#[cfg(feature = "kafka")]
+use crate::spi::KafkaMessageBroker;
+#[cfg(feature = "kafka")]
+use crate::spi::KafkaTaskQueue;
 #[cfg(feature = "nats")]
 use crate::spi::NatsMessageBroker;
 #[cfg(feature = "nats")]
@@ -52,6 +56,8 @@ impl MessageBrokerFactory {
     ///   (requires the `tokio-rt` feature).
     /// - [`BackendKind::Nats`] connects to the configured `url`
     ///   (requires the `nats` feature).
+    /// - [`BackendKind::Kafka`] initialises a Kafka client for the configured `url`
+    ///   (bootstrap brokers) and `group_id` (requires the `kafka` feature).
     ///
     /// # Errors
     ///
@@ -94,7 +100,52 @@ impl MessageBrokerFactory {
                     ))
                 }
             }
+            BackendKind::Kafka => {
+                #[cfg(feature = "kafka")]
+                {
+                    let url = config.url.as_deref().ok_or_else(|| {
+                        BrokerError::Connection(
+                            "kafka backend requires a `url` (bootstrap brokers) but none was configured"
+                                .to_owned(),
+                        )
+                    })?;
+                    let group_id = config.group_id.as_deref().ok_or_else(|| {
+                        BrokerError::Connection(
+                            "kafka backend requires a `group_id` but none was configured"
+                                .to_owned(),
+                        )
+                    })?;
+                    KafkaMessageBroker::new(url, group_id)
+                        .map(|b| Box::new(b) as Box<dyn MessageBroker>)
+                }
+                #[cfg(not(feature = "kafka"))]
+                {
+                    Err(BrokerError::Unavailable(
+                        "kafka backend requires the `kafka` feature".to_owned(),
+                    ))
+                }
+            }
         }
+    }
+
+    /// Connect to a Kafka cluster and return a broker handle.
+    ///
+    /// `brokers` is a comma-separated list of bootstrap brokers
+    /// (e.g. `"broker1:9092,broker2:9092"`). `group_id` identifies the consumer
+    /// group — all handles sharing the same group cooperate for load balancing.
+    ///
+    /// The client is configured on construction; the first actual network call
+    /// is deferred until the first publish or subscribe.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`BrokerError::Connection`] if the rdkafka client configuration is
+    /// rejected (e.g. invalid broker address format).
+    ///
+    /// Requires the `kafka` feature.
+    #[cfg(feature = "kafka")]
+    pub fn kafka(brokers: &str, group_id: &str) -> Result<impl MessageBroker, BrokerError> {
+        KafkaMessageBroker::new(brokers, group_id)
     }
 
     /// Construct an in-memory broker backed by [`tokio::sync::broadcast`].
@@ -153,5 +204,26 @@ impl TaskQueueFactory {
         let jetstream_context = async_nats::jetstream::new(connection);
 
         NatsTaskQueue::new(jetstream_context, stream_name, consumer_group).await
+    }
+
+    /// Create a Kafka-backed competing-consumer task queue.
+    ///
+    /// `brokers` is a comma-separated list of bootstrap brokers. `group_id`
+    /// identifies the consumer group. `topic` is the Kafka topic used as the
+    /// work queue — all enqueued tasks are published here; dequeue polls the
+    /// consumer group for the next available message.
+    ///
+    /// The client is configured on construction; the first actual network call
+    /// is deferred until the first enqueue or dequeue.
+    ///
+    /// # Errors
+    ///
+    /// Returns [`QueueError::Connection`] if the rdkafka client configuration is
+    /// rejected (e.g. invalid broker address format).
+    ///
+    /// Requires the `kafka` feature.
+    #[cfg(feature = "kafka")]
+    pub fn kafka(brokers: &str, group_id: &str, topic: &str) -> Result<impl TaskQueue, QueueError> {
+        KafkaTaskQueue::new(brokers, group_id, topic)
     }
 }

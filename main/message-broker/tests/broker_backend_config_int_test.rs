@@ -17,6 +17,7 @@ async fn test_from_config_in_memory_health_check_returns_ok() {
     let cfg = MessageBrokerConfig {
         backend: BackendKind::InMemory,
         url: None,
+        group_id: None,
     };
     let broker = MessageBrokerFactory::from_config(&cfg)
         .await
@@ -37,6 +38,7 @@ async fn test_from_config_nats_without_url_returns_connection_error() {
     let cfg = MessageBrokerConfig {
         backend: BackendKind::Nats,
         url: None,
+        group_id: None,
     };
     let result = MessageBrokerFactory::from_config(&cfg).await;
     assert!(

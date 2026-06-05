@@ -1,25 +1,24 @@
 # swe-edge-runtime
 
-Multi-feature runtime workspace. Three independent crates:
+Multi-feature runtime workspace. Two independent crates:
 
 | Feature | Package | Purpose |
 |---------|---------|---------|
 | `server` | `swe-edge-runtime-server` | Process-level runtime — wires ingress, proxy, domain, egress, lifecycle |
-| `scheduler` | `swe-edge-runtime-scheduler` | Async executor — `Scheduler` trait + `TokioScheduler` |
-| `message-broker` | `swe-edge-runtime-message-broker` | MessageBroker trait with in-memory and NATS backends |
+| `message-broker` | `swe-edge-runtime-message-broker` | MessageBroker trait with in-memory, NATS, and Kafka backends |
 
 ## Usage
 
 ```toml
 # server only
-swe-edge-runtime-server = { git = "...", branch = "dev" }
+swe-edge-runtime-server = { git = "https://github.com/sweengineeringlabs/edge-runtime.git", rev = "<sha>" }
 
-# server + scheduler run() convenience
-swe-edge-runtime-server = { git = "...", branch = "dev", features = ["scheduler"] }
+# message-broker: in-memory backend (no external deps)
+swe-edge-runtime-message-broker = { git = "https://github.com/sweengineeringlabs/edge-runtime.git", rev = "<sha>", features = ["tokio-rt"] }
 
-# scheduler standalone (no server dependency)
-swe-edge-runtime-scheduler = { git = "...", branch = "dev" }
+# message-broker: NATS backend
+swe-edge-runtime-message-broker = { git = "https://github.com/sweengineeringlabs/edge-runtime.git", rev = "<sha>", features = ["nats"] }
 
-# message-broker standalone
-swe-edge-runtime-message-broker = { git = "...", branch = "dev", features = ["tokio-rt"] }
+# message-broker: Kafka backend (requires cmake and a C compiler)
+swe-edge-runtime-message-broker = { git = "https://github.com/sweengineeringlabs/edge-runtime.git", rev = "<sha>", features = ["kafka"] }
 ```

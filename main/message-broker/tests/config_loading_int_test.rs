@@ -18,6 +18,7 @@ async fn test_from_config_in_memory_builds_usable_broker() {
     let cfg = MessageBrokerConfig {
         backend: BackendKind::InMemory,
         url: None,
+        group_id: None,
     };
     let broker = MessageBrokerFactory::from_config(&cfg)
         .await

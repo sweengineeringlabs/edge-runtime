@@ -1,5 +1,7 @@
 //! Task queue API — traits, value types, and error definitions.
 
+#[cfg(feature = "kafka")]
+pub mod kafka;
 pub mod memory;
 pub mod nats;
 pub mod queue_error;

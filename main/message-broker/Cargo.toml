@@ -22,15 +22,16 @@ path = "src/lib.rs"
 default  = []
 tokio-rt = ["dep:tokio"]
 nats     = ["dep:async-nats", "dep:tokio"]
-kafka    = []
+kafka    = ["dep:rdkafka", "dep:tokio"]
 
 [dependencies]
 bytes           = "1"
 futures         = "0.3"
 thiserror       = "1.0"
 tracing         = { version = "0.1", default-features = false }
-tokio           = { version = "1.0", features = ["sync", "rt"], optional = true }
+tokio           = { version = "1.0", features = ["sync", "rt", "time"], optional = true }
 async-nats      = { version = "0.48", optional = true }
+rdkafka         = { version = "0.36", features = ["tokio", "cmake-build"], optional = true }
 uuid            = { version = "1.0", features = ["v4"] }
 serde           = { version = "1.0", features = ["derive"] }
 swe-edge-message-broker.workspace = true
@@ -41,6 +42,9 @@ tokio      = { version = "1.0", features = ["rt-multi-thread", "macros"] }
 futures    = "0.3"
 bytes      = "1"
 async-nats = { version = "0.48" }
+# Unconditional dev dep so rdkafka_int_test.rs can import rdkafka directly
+# without requiring the kafka feature, satisfying arch rule 95 (dep test coverage).
+rdkafka    = { version = "0.36", features = ["tokio", "cmake-build"] }
 
 [[test]]
 name = "broker_int_test"
@@ -73,6 +77,18 @@ path = "tests/config_loading_int_test.rs"
 [[test]]
 name = "nats_int_test"
 path = "tests/nats_int_test.rs"
+
+[[test]]
+name = "rdkafka_int_test"
+path = "tests/rdkafka_int_test.rs"
+
+[[test]]
+name = "kafka_message_broker_int_test"
+path = "tests/kafka_message_broker_int_test.rs"
+
+[[test]]
+name = "kafka_task_queue_int_test"
+path = "tests/kafka_task_queue_int_test.rs"
 
 [[test]]
 name = "spi_security_test"

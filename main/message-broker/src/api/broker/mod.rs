@@ -5,6 +5,8 @@
 //! re-exported here for convenience. This crate supplies the concrete backends
 //! (in-memory tokio broadcast, NATS) plus the `from_config` construction factory.
 
+#[cfg(feature = "kafka")]
+pub(crate) mod kafka;
 #[cfg(feature = "tokio-rt")]
 pub(crate) mod memory;
 #[cfg(feature = "nats")]

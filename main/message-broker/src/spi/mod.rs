@@ -8,8 +8,12 @@
 //! NatsMessageBroker or any implementation types. SAF exposes only factories
 //! that return concrete types, hiding all implementation details.
 
+#[cfg(feature = "kafka")]
+mod kafka;
 #[cfg(feature = "nats")]
 mod nats;
 
+#[cfg(feature = "kafka")]
+pub(crate) use kafka::{KafkaMessageBroker, KafkaTaskQueue};
 #[cfg(feature = "nats")]
 pub(crate) use nats::{NatsMessageBroker, NatsTaskQueue};
