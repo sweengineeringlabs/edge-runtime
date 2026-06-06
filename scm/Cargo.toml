@@ -6,7 +6,7 @@ members  = [
 ]
 
 [workspace.package]
-version      = "0.1.0"
+version      = "0.3.0"
 edition      = "2021"
 license      = "MIT OR Apache-2.0"
 rust-version = "1.95"
@@ -14,22 +14,19 @@ authors      = ["SWE Engineering Labs"]
 repository   = "https://github.com/sweengineeringlabs/edge-runtime"
 
 [workspace.dependencies]
-# Reproducibility comes from Cargo.lock (committed), not rev= specifiers.
-# Using branch="dev" avoids ?rev= vs ?branch=dev source-spec conflicts that arise
-# when pinned crates internally dep on siblings from the same repo at branch=dev.
-swe-edge-configbuilder          = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git",  tag = "v0.2.0" }
-swe-edge-message-broker         = { git = "https://github.com/sweengineeringlabs/edge-message-broker.git", rev = "a73782ac658c36b2385d9d2731758dfd276c8762" }
-swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs/edge-observ-config.git", branch = "dev" }
+swe-edge-configbuilder          = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git",  tag = "v0.3.0" }
+swe-edge-message-broker         = { git = "https://github.com/sweengineeringlabs/edge-message-broker.git", tag = "v0.3.0" }
+swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs/edge-observ-config.git",  tag = "v0.2.0" }
 swe-edge-runtime-message-broker = { path = "message-broker", features = ["tokio-rt"] }
 
-edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",             tag = "v0.2.0" }
-edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",              branch = "dev" }
-swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.2.5" }
-swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",      tag = "v0.2.4" }
-swe-edge-ingress-grpc-reflection = { git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",                                                   tag = "v0.2.4" }
-swe-edge-ingress-verifier        = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git",                                               tag = "v0.2.5" }
-swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-grpc.git",       tag = "v0.2.0" }
-swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-http.git",       branch = "dev" }
+edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",             tag = "v0.3.0" }
+edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",              tag = "v0.2.0" }
+swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.3.0" }
+swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",      tag = "v0.3.0" }
+swe-edge-ingress-grpc-reflection = { git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",                                                   tag = "v0.3.0" }
+swe-edge-ingress-verifier        = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git",                                               tag = "v0.3.0" }
+swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-grpc.git",       tag = "v0.4.0" }
+swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-http.git",       tag = "v0.3.0" }
 swe-observ-metrics               = { package = "swe_justobserv_metrics",           git = "ssh://git@github.com/sweengineeringlabs/justobserv.git",           tag = "v0.2.1" }
 
 [workspace.lints.rust]
