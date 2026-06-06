@@ -15,11 +15,11 @@ use swe_edge_ingress_http::AxumHttpServer;
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
-use crate::api::config::loader::ConfigLoader;
-use crate::api::error::{RuntimeError, RuntimeResult};
+use crate::api::config::traits::loader::ConfigLoader;
 use crate::api::ingress::Ingress;
 use crate::api::monitor::{SharedCounters, TrafficCounters};
 use crate::api::runtime::RuntimeBuilder;
+use crate::api::runtime::{RuntimeError, RuntimeResult};
 use crate::core::config::loader::ApplicationConfigLoader;
 use crate::core::egress::DefaultEgress;
 use crate::core::ingress::DefaultIngress;
@@ -54,7 +54,7 @@ impl RuntimeBuilder {
                 .as_ref()
                 .or_else(|| config.observability.as_ref().map(|o| &o.tracing));
             if let Some(cfg) = tracing_cfg {
-                crate::api::types::TracingInitializer::init(cfg);
+                crate::api::runtime::TracingInitializer::init(cfg);
             }
         }
 
@@ -319,8 +319,8 @@ impl RuntimeBuilderServe {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::error::RuntimeError;
     use crate::api::runtime::Runtime;
+    use crate::api::runtime::RuntimeError;
 
     /// @covers: serve
     #[test]

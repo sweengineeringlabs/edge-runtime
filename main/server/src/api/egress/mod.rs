@@ -1,6 +1,5 @@
-//! Egress adapter contract.
+//! Egress theme — outbound adapter contract.
 
-#[allow(clippy::module_inception)]
-pub(crate) mod egress;
+pub(crate) mod traits;
 
-pub use egress::Egress;
+pub use traits::Egress;

@@ -1,8 +1,8 @@
 //! Config validation — ensures `RuntimeConfig` fields are in bounds before serve().
 
-use crate::api::error::RuntimeError;
-use crate::api::traits::Validator;
-use crate::api::types::RuntimeConfig;
+use crate::api::runtime::RuntimeConfig;
+use crate::api::runtime::RuntimeError;
+use crate::api::validator::Validator;
 
 /// Validates a [`RuntimeConfig`] before the runtime starts.
 ///

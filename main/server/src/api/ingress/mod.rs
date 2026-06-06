@@ -1,6 +1,5 @@
-//! Ingress adapter contract.
+//! Ingress theme — inbound adapter contract.
 
-#[allow(clippy::module_inception)]
-pub(crate) mod ingress;
+pub(crate) mod traits;
 
-pub use ingress::Ingress;
+pub use traits::Ingress;

@@ -2612,7 +2612,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-reflection"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.2.1#481cf18f8aae67e3083104ce482c1fbf508f54e0"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.2.2#cda819b558d34b819c722577e408d0e448b3f726"
 dependencies = [
  "edge-domain 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.1.0)",
  "futures",
@@ -2627,7 +2627,7 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-grpc-transport"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.2.1#481cf18f8aae67e3083104ce482c1fbf508f54e0"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.2.2#cda819b558d34b819c722577e408d0e448b3f726"
 dependencies = [
  "async-trait",
  "bytes",

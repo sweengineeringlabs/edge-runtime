@@ -1,4 +1,4 @@
-﻿//! SAF — runtime server public factory surface.
+//! SAF — runtime server public factory surface.
 //!
 //! All public functions are methods on factory types (`ServerConfigLoader`,
 //! `ServerMonitor`, `Runtime`) to satisfy SEA Rule 191 (no free-standing fns).
@@ -6,16 +6,16 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::api::config::loader::ConfigLoader;
+use crate::api::config::traits::loader::ConfigLoader;
 use crate::api::config::ConfigError;
 use crate::api::egress::Egress;
-use crate::api::error::{RuntimeError, RuntimeResult};
 use crate::api::ingress::Ingress;
 use crate::api::runtime::Runtime;
-use crate::api::traits::Validator;
-use crate::api::types::RuntimeConfig;
-use crate::api::types::ServerConfigLoader;
-use crate::api::types::ServerMonitor;
+use crate::api::runtime::RuntimeConfig;
+use crate::api::runtime::ServerConfigLoader;
+use crate::api::runtime::ServerMonitor;
+use crate::api::runtime::{RuntimeError, RuntimeResult};
+use crate::api::validator::Validator;
 use crate::core::egress::DefaultEgress;
 use crate::core::ingress::DefaultIngress;
 use crate::core::runner::DaemonRunner;
@@ -159,7 +159,7 @@ impl Runtime {
         ingress: Arc<dyn Ingress>,
         egress: Arc<dyn Egress>,
         lifecycle: Arc<dyn LifecycleMonitor>,
-    ) -> impl crate::api::runtime::manager::RuntimeManager {
+    ) -> impl crate::api::runtime::traits::runtime_manager::RuntimeManager {
         let mgr = crate::core::DefaultRuntimeManager::new(config, ingress, egress, lifecycle);
         mgr
     }

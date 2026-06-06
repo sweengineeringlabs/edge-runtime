@@ -1,2 +1,7 @@
-//! Composite inbound routing types.
-pub(crate) mod composite_grpc_ingress;
+//! Composite theme — composite inbound routing port and value types.
+
+pub(crate) mod traits;
+pub(crate) mod types;
+
+pub use traits::CompositeIngress;
+pub use types::CompositeGrpcIngress;

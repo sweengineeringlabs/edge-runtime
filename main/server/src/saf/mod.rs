@@ -2,17 +2,17 @@
 
 mod server_svc;
 
-pub use crate::api::config::loader::ConfigLoader;
+pub use crate::api::config::traits::loader::ConfigLoader;
 pub use crate::api::config::ConfigError;
 pub use crate::api::egress::Egress;
-pub use crate::api::error::{RuntimeError, RuntimeResult};
 pub use crate::api::ingress::Ingress;
-pub use crate::api::runtime::manager::RuntimeManager;
+pub use crate::api::runtime::traits::runtime_manager::RuntimeManager;
+pub use crate::api::runtime::types::health::ComponentHealth;
+pub use crate::api::runtime::ServiceRegistry;
 pub use crate::api::runtime::{Runtime, RuntimeBuilder};
-pub use crate::api::types::runtime::health::ComponentHealth;
-pub use crate::api::types::ServiceRegistry;
-pub use crate::api::types::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
-pub use crate::api::types::{ServerConfigLoader, ServerMonitor};
+pub use crate::api::runtime::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
+pub use crate::api::runtime::{RuntimeError, RuntimeResult};
+pub use crate::api::runtime::{ServerConfigLoader, ServerMonitor};
 
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_grpc::{
@@ -42,17 +42,17 @@ pub use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, Ht
 pub use edge_proxy::{HealthReport, LifecycleMonitor, ProxySvc};
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
-pub use crate::api::monitor::ring_buffer::RingBuffer;
+pub use crate::api::monitor::types::ring_buffer::RingBuffer;
 pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig, SharedCounters, TrafficCounters};
 pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 
 // ── Observability ─────────────────────────────────────────────────────────────
 #[cfg(feature = "observability")]
-pub use crate::api::types::TracingInitializer;
+pub use crate::api::runtime::TracingInitializer;
 pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 
 // ── Message broker ────────────────────────────────────────────────────────────
 #[cfg(feature = "message-broker")]
-pub use swe_edge_runtime_message_broker::in_memory_broker;
+pub use swe_edge_runtime_message_broker::MessageBrokerFactory;
 #[cfg(feature = "message-broker")]
 pub use swe_edge_runtime_message_broker::{Message, MessageBroker, MessageStream};

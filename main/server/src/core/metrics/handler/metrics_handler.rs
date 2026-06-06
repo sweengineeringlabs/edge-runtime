@@ -59,7 +59,7 @@ impl MetricsHandler {
     }
 }
 
-impl crate::api::metrics::handler::MetricsHandler for MetricsHandler {}
+impl crate::api::metrics::traits::metrics_handler::MetricsHandler for MetricsHandler {}
 
 impl HttpIngress for MetricsHandler {
     fn handle(

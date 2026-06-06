@@ -1,19 +1,22 @@
-//! SPI — Service Provider Interface for message broker and task queue implementations.
+//! SPI — external-library implementations of the broker and task contracts.
 //!
-//! Providers extend and override core/ logic for specific backends.
-//! Each backend (NATS, etc.) implements the provider interface here.
-//! In-memory implementations live in `api/` for direct naming by callers.
+//! Mirrors the `api/` theme structure as `spi/{theme}/{technology}/`. Each
+//! backend (Kafka, NATS) wraps an external client library behind the
+//! technology-neutral `api/` ports. In-house backends (`InMemory*`) live in
+//! `api/{theme}/types/`, not here.
 //!
-//! **Note**: All provider modules are private. Consumers never see
-//! NatsMessageBroker or any implementation types. SAF exposes only factories
-//! that return concrete types, hiding all implementation details.
+//! **Note**: all provider modules are private. Consumers never name
+//! `KafkaMessageBroker`, `NatsMessageBroker`, or any other implementation type;
+//! `saf/` exposes only factories returning `impl Trait` / `Box<dyn Trait>`.
+
+pub(crate) mod broker;
+pub(crate) mod task;
 
 #[cfg(feature = "kafka")]
-mod kafka;
+pub(crate) use broker::kafka::KafkaMessageBroker;
 #[cfg(feature = "nats")]
-mod nats;
-
+pub(crate) use broker::nats::NatsMessageBroker;
 #[cfg(feature = "kafka")]
-pub(crate) use kafka::{KafkaMessageBroker, KafkaTaskQueue};
+pub(crate) use task::kafka::KafkaTaskQueue;
 #[cfg(feature = "nats")]
-pub(crate) use nats::{NatsMessageBroker, NatsTaskQueue};
+pub(crate) use task::nats::NatsTaskQueue;

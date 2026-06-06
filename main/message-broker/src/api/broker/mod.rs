@@ -1,16 +1,15 @@
-//! Broker API — backend implementations over the `swe-edge-message-broker` contract.
+//! Broker theme — message broker port, value types, and errors.
 //!
 //! The [`MessageBroker`] trait and the [`Message`]/[`MessageStream`]/[`BrokerError`]
 //! value types are owned by the `swe-edge-message-broker` contract crate and are
-//! re-exported here for convenience. This crate supplies the concrete backends
-//! (in-memory tokio broadcast, NATS) plus the `from_config` construction factory.
+//! re-exported through this theme's `traits`/`error` dirs for a single import
+//! path. This crate supplies the concrete backends — the in-house in-memory
+//! broker (`types/`) plus the Kafka/NATS wrappers in `spi/broker/`.
 
-#[cfg(feature = "kafka")]
-pub(crate) mod kafka;
-#[cfg(feature = "tokio-rt")]
-pub(crate) mod memory;
-#[cfg(feature = "nats")]
-pub(crate) mod nats;
+pub(crate) mod error;
+pub(crate) mod traits;
 pub(crate) mod types;
 
-pub use swe_edge_message_broker::{BrokerError, Message, MessageBroker, MessageStream};
+pub use error::BrokerError;
+pub use traits::{Message, MessageBroker, MessageStream};
+pub use types::MessageBrokerFactory;

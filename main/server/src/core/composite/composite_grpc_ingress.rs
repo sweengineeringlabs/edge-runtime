@@ -9,7 +9,7 @@ use swe_edge_ingress_grpc::{
     GrpcResponse,
 };
 
-pub(crate) use crate::api::composite::composite_grpc_ingress::CompositeGrpcIngress;
+pub(crate) use crate::api::composite::types::composite_grpc_ingress::CompositeGrpcIngress;
 
 const REFLECTION_PREFIX: &str = "/grpc.reflection.";
 

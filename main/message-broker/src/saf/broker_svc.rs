@@ -12,14 +12,14 @@
 use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
 use crate::api::broker::BrokerError;
 use crate::api::broker::MessageBroker;
-#[cfg(any(feature = "nats", feature = "kafka"))]
-use crate::api::task::queue::queue_error::QueueError;
+use crate::api::broker::MessageBrokerFactory;
 #[cfg(feature = "tokio-rt")]
-use crate::api::task::queue::types::in_memory_task_queue::InMemoryTaskQueue;
+use crate::api::task::types::in_memory_task_queue::InMemoryTaskQueue;
 #[cfg(any(feature = "nats", feature = "kafka"))]
-use crate::api::task::queue::TaskQueue;
-use crate::api::types::message_broker_factory::MessageBrokerFactory;
-use crate::api::types::task_queue_factory::TaskQueueFactory;
+use crate::api::task::QueueError;
+#[cfg(any(feature = "nats", feature = "kafka"))]
+use crate::api::task::TaskQueue;
+use crate::api::task::TaskQueueFactory;
 #[cfg(feature = "kafka")]
 use crate::spi::KafkaMessageBroker;
 #[cfg(feature = "kafka")]

@@ -1,10 +1,11 @@
-//! Config error type and partial-override deserialization.
-//! Observability types are re-exported from swe-edge-observ-config.
+//! Config theme — layered config loading, override deserialization, and errors.
+//!
+//! Observability types are re-exported from `swe-edge-observ-config`.
 
-pub(crate) mod config_error;
-pub(crate) mod config_override;
-pub(crate) mod loader;
+pub(crate) mod error;
+pub(crate) mod traits;
+pub(crate) mod types;
 
-pub use config_error::ConfigError;
-pub(crate) use config_override::ConfigOverride;
+pub use error::ConfigError;
 pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig};
+pub(crate) use types::ConfigOverride;

@@ -3,7 +3,7 @@
 use swe_edge_runtime_message_broker::MessageBroker;
 
 #[cfg(feature = "message-broker")]
-use swe_edge_runtime::in_memory_broker;
+use swe_edge_runtime::MessageBrokerFactory;
 
 #[test]
 fn test_message_broker_trait_is_object_safe_in_runtime() {
@@ -13,13 +13,13 @@ fn test_message_broker_trait_is_object_safe_in_runtime() {
 #[cfg(feature = "message-broker")]
 #[test]
 fn test_in_memory_broker_saf_is_exported_from_runtime() {
-    let broker = in_memory_broker();
+    let broker = MessageBrokerFactory::in_memory();
     let _: &dyn MessageBroker = &broker;
 }
 
 #[cfg(feature = "message-broker")]
 #[tokio::test]
 async fn test_in_memory_broker_health_check_returns_ok() {
-    let broker = in_memory_broker();
+    let broker = MessageBrokerFactory::in_memory();
     assert!(broker.health_check().await.is_ok());
 }
