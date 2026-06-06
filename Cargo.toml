@@ -25,8 +25,8 @@ swe-edge-runtime-message-broker = { path = "main/message-broker", features = ["t
 edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",             tag = "v0.1.0" }
 edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",              branch = "dev" }
 swe-edge-ingress-http            = { package = "swe-edge-ingress-http-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.2.1" }
-swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",      tag = "v0.2.1" }
-swe-edge-ingress-grpc-reflection = { git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",                                                   tag = "v0.2.1" }
+swe-edge-ingress-grpc            = { package = "swe-edge-ingress-grpc-transport",  git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",      tag = "v0.2.2" }
+swe-edge-ingress-grpc-reflection = { git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git",                                                   tag = "v0.2.2" }
 swe-edge-ingress-verifier        = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git",                                               tag = "v0.2.1" }
 swe-edge-egress-grpc             = { package = "swe-edge-egress-grpc-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-grpc.git",       tag = "v0.1.1" }
 swe-edge-egress-http             = { package = "swe-edge-egress-http-transport",   git = "https://github.com/sweengineeringlabs/edge-egress-http.git",       branch = "dev" }
