@@ -16,7 +16,7 @@ service_type     = "message-broker"
 
 [lib]
 name = "swe_edge_runtime_message_broker"
-path = "src/lib.rs"
+path = "main/src/lib.rs"
 
 [features]
 default  = []

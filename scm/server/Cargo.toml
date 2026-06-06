@@ -16,7 +16,7 @@ service_type     = "runtime"
 
 [lib]
 name = "swe_edge_runtime"
-path = "src/lib.rs"
+path = "main/src/lib.rs"
 
 [features]
 default = []

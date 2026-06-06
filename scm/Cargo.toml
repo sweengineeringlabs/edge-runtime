@@ -1,8 +1,8 @@
 [workspace]
 resolver = "2"
 members  = [
-  "main/message-broker",
-  "main/server",
+  "message-broker",
+  "server",
 ]
 
 [workspace.package]
@@ -20,7 +20,7 @@ repository   = "https://github.com/sweengineeringlabs/edge-runtime"
 swe-edge-configbuilder          = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git",  tag = "v0.2.0" }
 swe-edge-message-broker         = { git = "https://github.com/sweengineeringlabs/edge-message-broker.git", rev = "a73782ac658c36b2385d9d2731758dfd276c8762" }
 swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs/edge-observ-config.git", branch = "dev" }
-swe-edge-runtime-message-broker = { path = "main/message-broker", features = ["tokio-rt"] }
+swe-edge-runtime-message-broker = { path = "message-broker", features = ["tokio-rt"] }
 
 edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",             tag = "v0.2.0" }
 edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",              branch = "dev" }
