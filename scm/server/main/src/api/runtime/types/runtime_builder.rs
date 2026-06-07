@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain::{Handler, HandlerRegistry};
+use edge_domain::{Domain, Handler};
 use edge_proxy::LifecycleMonitor;
 use swe_edge_egress_grpc::GrpcEgress;
 use swe_edge_egress_http::HttpEgress;
@@ -78,7 +78,7 @@ impl RuntimeBuilder {
         Resp: Send + 'static,
     {
         let d = self.http_dispatcher.get_or_insert_with(|| {
-            HttpHandlerRegistryDispatcher::new(Arc::new(HandlerRegistry::new()))
+            HttpHandlerRegistryDispatcher::new(Domain::new_handler_registry())
         });
         d.register(HttpHandlerAdapter::new(handler, decode, encode))
             .expect("duplicate HTTP route");
@@ -110,7 +110,7 @@ impl RuntimeBuilder {
         Resp: Send + 'static,
     {
         let d = self.grpc_dispatcher.get_or_insert_with(|| {
-            GrpcHandlerRegistryDispatcher::new(Arc::new(HandlerRegistry::new()))
+            GrpcHandlerRegistryDispatcher::new(Domain::new_handler_registry())
         });
         d.register(GrpcHandlerAdapter::new(handler, decode, encode));
         self

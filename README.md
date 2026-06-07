@@ -1,5 +1,7 @@
 # swe-edge-runtime
 
+> **TLDR:** Process-level runtime for swe-edge — `RuntimeBuilder` wires HTTP/gRPC ingress, TLS, bearer auth, egress, lifecycle, and Prometheus metrics into a deployable server in one `serve()` call. See [Overview](scm/docs/README.md) for details.
+
 Multi-feature runtime workspace. Two independent crates:
 
 | Feature | Package | Purpose |
