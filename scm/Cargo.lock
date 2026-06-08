@@ -2733,7 +2733,7 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-runtime-message-broker"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "async-nats",
  "bytes",
@@ -2750,7 +2750,7 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-runtime-server"
-version = "0.3.1"
+version = "0.3.2"
 dependencies = [
  "async-trait",
  "dirs",
