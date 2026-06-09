@@ -16,7 +16,7 @@ use swe_edge_ingress_http::{
 };
 use swe_edge_ingress_verifier::TokenVerifier;
 
-use crate::api::runtime::types::runtime_config::RuntimeConfig;
+use crate::api::runtime::types::runtime::runtime_config::RuntimeConfig;
 use crate::api::runtime::types::service_registry::ServiceRegistry;
 
 /// Builder for assembling and starting an edge runtime.

@@ -5,10 +5,10 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use tokio::sync::{mpsc, Mutex};
 
-use crate::api::task::error::queue_error::QueueError;
+use crate::api::task::errors::queue_error::QueueError;
 use crate::api::task::traits::task_queue::TaskQueue;
+use crate::api::task::types::task::task_handle::TaskHandle;
 use crate::api::task::types::task::Task;
-use crate::api::task::types::task_handle::TaskHandle;
 
 /// Maximum task payload size accepted (4 MiB).
 const MAX_TASK_PAYLOAD_BYTES: usize = 4 * 1024 * 1024;

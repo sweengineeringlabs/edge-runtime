@@ -1,4 +1,4 @@
-//! Runtime theme errors.
+//! Runtime error types.
 
 pub(crate) mod runtime_error;
 pub(crate) mod runtime_result;

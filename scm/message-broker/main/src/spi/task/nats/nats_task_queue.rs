@@ -6,7 +6,7 @@ use async_nats::jetstream;
 use futures::future::BoxFuture;
 use tokio::sync::Mutex;
 
-use crate::api::task::error::queue_error::QueueError;
+use crate::api::task::errors::queue_error::QueueError;
 use crate::api::task::traits::task_queue::TaskQueue;
 use crate::api::task::types::task::Task;
 use crate::api::task::types::task_handle::TaskHandle;

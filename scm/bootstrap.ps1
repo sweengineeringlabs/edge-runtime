@@ -1,17 +1,12 @@
-#!/usr/bin/env pwsh
-# edge-runtime bootstrap — installs git hooks and fetches dependencies.
-Set-StrictMode -Version Latest
+# Bootstrap
 $ErrorActionPreference = 'Stop'
-
-$RepoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-
+$scmRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
+$repoRoot = Split-Path -Parent $scmRoot
 Write-Host "==> Installing git hooks"
-git -C $RepoRoot config core.hooksPath scripts/hooks
-Write-Host "    core.hooksPath -> scripts/hooks (pre-commit, commit-msg)"
-
+git -C $repoRoot config core.hooksPath scm/scripts/hooks
+Write-Host "    core.hooksPath -> scm/scripts/hooks (pre-commit, commit-msg)"
 Write-Host "==> Fetching dependencies"
-Push-Location $RepoRoot
+Push-Location $scmRoot
 cargo fetch --locked
 Pop-Location
-
 Write-Host "Bootstrap complete."

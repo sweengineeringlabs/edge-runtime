@@ -4,7 +4,7 @@ use std::collections::HashMap;
 
 use bytes::Bytes;
 
-use crate::api::task::types::task_id::TaskId;
+use crate::api::task::types::task::task_id::TaskId;
 
 /// A task enqueued for exactly one competing consumer to process.
 ///

@@ -6,10 +6,10 @@
 //! path. This crate supplies the concrete backends — the in-house in-memory
 //! broker (`types/`) plus the Kafka/NATS wrappers in `spi/broker/`.
 
-pub(crate) mod error;
+pub(crate) mod errors;
 pub(crate) mod traits;
 pub(crate) mod types;
 
-pub use error::BrokerError;
+pub use errors::BrokerError;
 pub use traits::{Message, MessageBroker, MessageStream};
 pub use types::MessageBrokerFactory;

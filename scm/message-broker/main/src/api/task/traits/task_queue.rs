@@ -2,9 +2,9 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::task::error::queue_error::QueueError;
+use crate::api::task::errors::queue_error::QueueError;
+use crate::api::task::types::task::task_handle::TaskHandle;
 use crate::api::task::types::task::Task;
-use crate::api::task::types::task_handle::TaskHandle;
 
 /// Competing-consumer work queue contract.
 ///

@@ -1,7 +1,6 @@
 //! Metrics theme port contracts.
 
-pub mod metrics_exporter;
-pub mod metrics_handler;
+pub mod metrics;
 
-pub use metrics_exporter::MetricsExporter;
-pub use metrics_handler::MetricsHandler;
+pub use metrics::MetricsExporter;
+pub use metrics::MetricsHandler;

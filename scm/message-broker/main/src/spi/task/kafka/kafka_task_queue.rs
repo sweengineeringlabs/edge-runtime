@@ -10,7 +10,7 @@ use rdkafka::message::Message as RdkafkaMessage;
 use rdkafka::producer::{FutureProducer, FutureRecord, Producer as _};
 use rdkafka::topic_partition_list::Offset;
 
-use crate::api::task::error::queue_error::QueueError;
+use crate::api::task::errors::queue_error::QueueError;
 use crate::api::task::traits::task_queue::TaskQueue;
 use crate::api::task::types::task::Task;
 use crate::api::task::types::task_handle::TaskHandle;

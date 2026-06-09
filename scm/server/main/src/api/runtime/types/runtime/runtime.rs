@@ -2,7 +2,7 @@
 
 use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
 
-use crate::api::runtime::types::runtime_builder::RuntimeBuilder;
+use crate::api::runtime::types::runtime::runtime_builder::RuntimeBuilder;
 
 /// Entry-point for the edge runtime.
 pub struct Runtime;

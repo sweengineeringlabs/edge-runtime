@@ -2,8 +2,8 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::task::error::queue_error::QueueError;
-use crate::api::task::types::task_id::TaskId;
+use crate::api::task::errors::queue_error::QueueError;
+use crate::api::task::types::task::task_id::TaskId;
 
 /// Returned by [`crate::TaskQueue::dequeue`]. Consumer MUST call `ack` or `nack`.
 ///

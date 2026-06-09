@@ -10,7 +10,7 @@ use crate::api::broker::BrokerError;
 use crate::api::broker::Message;
 use crate::api::broker::MessageBroker;
 use crate::api::broker::MessageStream;
-use crate::api::traits::Validator;
+use crate::api::config::traits::validator::Validator;
 
 /// Capacity of each topic's broadcast channel.
 const CHANNEL_CAPACITY: usize = 1024;

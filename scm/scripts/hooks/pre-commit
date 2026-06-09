@@ -15,12 +15,13 @@ cargo fmt --all -- --check
 echo "  2/4 clippy..."
 cargo clippy --workspace --all-targets -- -D warnings
 
-# TODO(swearchitect#69): re-enable once arch recognises the workspace/package
-# (main/src) layout. arch v0.2.7 enforces the deprecated main/features/ layout and
-# reports false structural failures on every migrated crate. Disabled to unblock
-# valid commits — tracked in edge-runtime#10.
-echo "  3/4 arch audit... SKIPPED (swearchitect#69)"
-# arch audit --rs
+# arch v0.2.9 still checks `src/gateway` at the package root instead of
+# `main/src/gateway`, so rules 5, 131, 132, 133 are false positives on the SEA
+# main/src layout. All other violations are real and have been fixed (see
+# edge-runtime#10). Exclude the four false-positive rules until swearchitect#69
+# is fully resolved.
+echo "  3/4 arch audit..."
+arch audit --rs -c "1-4,6-130,134-300"
 
 echo "  4/4 cargo audit..."
 cargo audit --deny unsound --deny yanked

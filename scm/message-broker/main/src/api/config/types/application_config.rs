@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-use crate::api::types::broker_backend_config::BrokerBackendConfig;
+use crate::api::config::types::broker_backend_config::BrokerBackendConfig;
 
 /// Typed configuration for the `swe-edge-runtime-message-broker` application.
 ///
