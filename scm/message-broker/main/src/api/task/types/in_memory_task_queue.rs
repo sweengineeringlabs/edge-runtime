@@ -47,10 +47,9 @@ impl TaskQueue for InMemoryTaskQueue {
             let mut guard = rx.lock().await;
             match guard.recv().await {
                 Some(task) => {
-                    let task_id = task.id;
                     let ack = Box::pin(async move { Ok(()) });
                     let nack = Box::pin(async move { Ok(()) });
-                    Ok(Some(TaskHandle::new(task_id, ack, nack)))
+                    Ok(Some(TaskHandle::new(task, ack, nack)))
                 }
                 None => Ok(None),
             }

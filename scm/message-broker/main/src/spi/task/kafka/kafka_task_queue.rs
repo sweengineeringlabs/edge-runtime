@@ -5,15 +5,17 @@ use std::sync::Arc;
 use bytes::Bytes;
 use futures::future::BoxFuture;
 use rdkafka::config::ClientConfig;
-use rdkafka::consumer::{CommitMode, Consumer as _, StreamConsumer};
+use rdkafka::consumer::{CommitMode, Consumer as _};
 use rdkafka::message::Message as RdkafkaMessage;
 use rdkafka::producer::{FutureProducer, FutureRecord, Producer as _};
 use rdkafka::topic_partition_list::Offset;
 
+use crate::spi::task::kafka::logging_consumer_context::{LoggingConsumer, LoggingConsumerContext};
+
 use crate::api::task::errors::queue_error::QueueError;
 use crate::api::task::traits::task_queue::TaskQueue;
 use crate::api::task::types::task::Task;
-use crate::api::task::types::task_handle::TaskHandle;
+use crate::api::task::types::TaskHandle;
 
 /// Kafka-backed competing-consumer work queue.
 ///
@@ -28,10 +30,28 @@ use crate::api::task::types::task_handle::TaskHandle;
 /// If neither is called, the message is re-delivered after the consumer
 /// session restarts (no committed offset for that partition).
 ///
+/// # Rebalance contract
+///
+/// During a consumer-group rebalance (member join/leave/timeout), the broker
+/// may revoke partition assignments mid-flight. If a partition is revoked after
+/// `dequeue` returns a `TaskHandle` but before `ack`/`nack` is called:
+///
+/// - `ack` will attempt to commit an offset on a partition this consumer no
+///   longer owns — the commit is silently dropped by Kafka.
+/// - `nack` will attempt to seek on a revoked partition — rdkafka returns an
+///   error which is propagated as [`QueueError::Dequeue`].
+/// - The message will be redelivered to whichever consumer is assigned the
+///   partition after the rebalance completes.
+///
+/// **Callers must be idempotent.** At-least-once delivery is guaranteed; exactly-once
+/// requires external deduplication (e.g. an idempotency key in the task payload).
+///
+/// Rebalance events are logged at `INFO` level via [`LoggingConsumerContext`].
+///
 /// Requires the `kafka` Cargo feature.
 pub(crate) struct KafkaTaskQueue {
     producer: FutureProducer,
-    consumer: Arc<StreamConsumer>,
+    consumer: Arc<LoggingConsumer>,
     topic: String,
 }
 
@@ -54,7 +74,7 @@ impl KafkaTaskQueue {
             .create()
             .map_err(|e| QueueError::Connection(e.to_string()))?;
 
-        let consumer: StreamConsumer = ClientConfig::new()
+        let consumer: LoggingConsumer = ClientConfig::new()
             .set("bootstrap.servers", brokers)
             .set("group.id", group_id)
             // Manual commit — ack() and nack() control offset progression.
@@ -64,7 +84,7 @@ impl KafkaTaskQueue {
                 "session.timeout.ms",
                 crate::core::task::KAFKA_SESSION_TIMEOUT_MS,
             )
-            .create()
+            .create_with_context(LoggingConsumerContext)
             .map_err(|e| QueueError::Connection(e.to_string()))?;
 
         consumer
@@ -119,7 +139,6 @@ impl TaskQueue for KafkaTaskQueue {
             drop(borrowed);
 
             let task = Task::new(payload);
-            let task_id = task.id;
 
             let consumer_ack = Arc::clone(&consumer);
             let topic_ack = topic.clone();
@@ -153,7 +172,7 @@ impl TaskQueue for KafkaTaskQueue {
                     .map_err(|e| QueueError::Dequeue(e.to_string()))
             });
 
-            Ok(Some(TaskHandle::new(task_id, ack, nack)))
+            Ok(Some(TaskHandle::new(task, ack, nack)))
         })
     }
 

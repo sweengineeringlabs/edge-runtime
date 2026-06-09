@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use bytes::Bytes;
 use futures::channel::mpsc;
 use futures::future::BoxFuture;
+use futures::SinkExt as _;
 use rdkafka::config::ClientConfig;
 use rdkafka::consumer::{Consumer as _, StreamConsumer};
 use rdkafka::error::KafkaError;
@@ -115,10 +116,13 @@ impl MessageBroker for KafkaMessageBroker {
                     reason: e.to_string(),
                 })?;
 
-            // Channel decouples BorrowedMessage<'_> lifetime from the returned stream.
-            // Unbounded: backpressure is the broker's responsibility here; callers that
-            // fall behind will see their consumer lag grow in Kafka metrics.
-            let (tx, rx) = mpsc::unbounded::<Result<Message, BrokerError>>();
+            // Bounded channel decouples BorrowedMessage<'_> lifetime from the returned
+            // stream and applies backpressure to slow subscribers: when the channel is
+            // full, the poll loop yield-waits on `send`, slowing Kafka consumption
+            // instead of growing the heap without limit.
+            let (mut tx, rx) = mpsc::channel::<Result<Message, BrokerError>>(
+                crate::core::task::KAFKA_SUBSCRIBE_CHANNEL_CAPACITY,
+            );
 
             tokio::spawn(async move {
                 loop {
@@ -128,10 +132,12 @@ impl MessageBroker for KafkaMessageBroker {
                             continue;
                         }
                         Err(e) => {
-                            let _ = tx.unbounded_send(Err(BrokerError::Subscribe {
-                                topic: String::new(),
-                                reason: e.to_string(),
-                            }));
+                            let _ = tx
+                                .send(Err(BrokerError::Subscribe {
+                                    topic: String::new(),
+                                    reason: e.to_string(),
+                                }))
+                                .await;
                             break;
                         }
                         Ok(msg) => {
@@ -140,7 +146,10 @@ impl MessageBroker for KafkaMessageBroker {
                                 payload,
                                 headers: HashMap::new(),
                             };
-                            if tx.unbounded_send(Ok(broker_msg)).is_err() {
+                            // Drop borrowed message before the await to avoid holding the
+                            // rdkafka lifetime across the yield point.
+                            drop(msg);
+                            if tx.send(Ok(broker_msg)).await.is_err() {
                                 // Receiver dropped — subscriber gone.
                                 break;
                             }
@@ -203,6 +212,20 @@ mod tests {
         assert!(
             matches!(result, Err(BrokerError::Connection(_))),
             "expected Connection error for unreachable broker, got: {result:?}"
+        );
+    }
+
+    /// @covers: subscribe
+    #[test]
+    fn test_subscribe_channel_capacity_is_positive_and_bounded() {
+        let cap = crate::core::task::KAFKA_SUBSCRIBE_CHANNEL_CAPACITY;
+        assert!(
+            cap > 0,
+            "capacity must be positive; 0 would deadlock on first send"
+        );
+        assert!(
+            cap <= 1_000_000,
+            "capacity {cap} exceeds sanity limit of 1 M; backpressure would be ineffective"
         );
     }
 }

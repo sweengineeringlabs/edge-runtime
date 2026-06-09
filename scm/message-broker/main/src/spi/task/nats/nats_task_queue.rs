@@ -126,10 +126,8 @@ impl TaskQueue for NatsTaskQueue {
             if let Some(msg_result) = futures::stream::StreamExt::next(&mut messages).await {
                 let msg = msg_result.map_err(|e| QueueError::Dequeue(e.to_string()))?;
 
-                // Extract task_id from message sequence (or headers if available)
-                let task_id = crate::api::task::types::task_id::TaskId::new();
+                let task = crate::api::task::types::task::Task::new(msg.payload.clone());
 
-                // Create ack and nack futures
                 let msg_clone = msg.clone();
                 let ack = Box::pin(async move {
                     msg.ack()
@@ -146,7 +144,7 @@ impl TaskQueue for NatsTaskQueue {
                         .map_err(|e| QueueError::Dequeue(e.to_string()))
                 });
 
-                return Ok(Some(TaskHandle::new(task_id, ack, nack)));
+                return Ok(Some(TaskHandle::new(task, ack, nack)));
             }
 
             // No messages available

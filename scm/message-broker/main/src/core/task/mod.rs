@@ -35,6 +35,14 @@ pub(crate) const KAFKA_SESSION_TIMEOUT_MS: &str = "6000";
 #[cfg(feature = "kafka")]
 pub(crate) const KAFKA_HEALTH_CHECK_TIMEOUT_SECS: u64 = 5;
 
+/// Kafka subscribe channel capacity — bounds the in-memory buffer between the
+/// rdkafka poll loop and the returned [`MessageStream`](crate::api::broker::MessageStream).
+///
+/// When the channel is full the poll loop yield-waits on `send`, slowing Kafka
+/// consumption and applying natural backpressure to slow subscribers.
+#[cfg(feature = "kafka")]
+pub(crate) const KAFKA_SUBSCRIBE_CHANNEL_CAPACITY: usize = 1024;
+
 /// Maximum task payload size for in-memory queues (4 MiB).
 ///
 /// Payloads exceeding this limit are rejected at enqueue time to avoid
