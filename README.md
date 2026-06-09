@@ -24,3 +24,25 @@ swe-edge-runtime-message-broker = { git = "https://github.com/sweengineeringlabs
 # message-broker: Kafka backend (requires cmake and a C compiler)
 swe-edge-runtime-message-broker = { git = "https://github.com/sweengineeringlabs/edge-runtime.git", rev = "<sha>", features = ["kafka"] }
 ```
+
+## Development
+
+Run the bootstrap script once after cloning to install the git hooks and
+pre-fetch dependencies:
+
+```bash
+# macOS / Linux
+bash scm/bootstrap.sh
+```
+
+```powershell
+# Windows
+pwsh scm/bootstrap.ps1
+```
+
+This sets `core.hooksPath` to `scm/scripts/hooks`, activating two guards:
+
+| Hook | What it enforces |
+|------|-----------------|
+| `commit-msg` | Rejects AI-attribution lines (`Co-Authored-By`, `Generated with`, 🤖) |
+| `pre-commit` | Runs `cargo fmt`, `cargo clippy -D warnings`, `arch audit`, `cargo audit` |
