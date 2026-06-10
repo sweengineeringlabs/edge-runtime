@@ -59,3 +59,10 @@ pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingForm
 pub use swe_edge_runtime_message_broker::MessageBrokerFactory;
 #[cfg(feature = "message-broker")]
 pub use swe_edge_runtime_message_broker::{Message, MessageBroker, MessageStream};
+
+// ── Subprocess ────────────────────────────────────────────────────────────────
+#[cfg(feature = "subprocess")]
+pub use swe_edge_egress_subprocess::{
+    SubprocessArgs, SubprocessArgsBuilder, SubprocessConfig, SubprocessConfigBuilder,
+    SubprocessResult, SubprocessRunner, SubprocessRunnerExtension, SubprocessSvc,
+};

@@ -30,6 +30,8 @@ impl Runtime {
             scaling_policy: None,
             #[cfg(feature = "message-broker")]
             message_broker: None,
+            #[cfg(feature = "subprocess")]
+            subprocess_runner: None,
         }
     }
 }

@@ -18,6 +18,7 @@ swe-edge-configbuilder          = { git = "https://github.com/sweengineeringlabs
 swe-edge-message-broker         = { git = "https://github.com/sweengineeringlabs/edge-message-broker.git", tag = "v0.3.0" }
 swe-edge-observ-config          = { git = "https://github.com/sweengineeringlabs/edge-observ-config.git",  tag = "v0.2.0" }
 swe-edge-runtime-message-broker = { path = "message-broker", features = ["tokio-rt"] }
+swe-edge-egress-subprocess      = { path = "../../egress/subprocess/scm/subprocess" }
 
 edge-domain                      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",             tag = "v0.8.1" }
 edge-proxy                       = { git = "https://github.com/sweengineeringlabs/edge-proxy.git",              tag = "v0.3.0" }

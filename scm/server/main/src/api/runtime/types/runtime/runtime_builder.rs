@@ -41,6 +41,9 @@ pub struct RuntimeBuilder {
     pub(crate) scaling_policy: Option<Arc<dyn ScalingPolicy>>,
     #[cfg(feature = "message-broker")]
     pub(crate) message_broker: Option<Arc<dyn swe_edge_runtime_message_broker::MessageBroker>>,
+    #[cfg(feature = "subprocess")]
+    pub(crate) subprocess_runner:
+        Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
 }
 
 impl RuntimeBuilder {
@@ -202,6 +205,20 @@ impl RuntimeBuilder {
         self
     }
 
+    /// Attach a subprocess runner to the service registry.
+    ///
+    /// The runner is made available to handlers via
+    /// [`ServiceRegistry::subprocess`] — handlers call it directly to spawn
+    /// child processes with policy from a [`SubprocessConfig`].
+    #[cfg(feature = "subprocess")]
+    pub fn with_subprocess(
+        mut self,
+        runner: impl swe_edge_egress_subprocess::SubprocessRunner + 'static,
+    ) -> Self {
+        self.subprocess_runner = Some(Arc::new(runner));
+        self
+    }
+
     /// Attach a programmatic scaling policy evaluated once per second by the
     /// background sampler.
     ///
@@ -214,12 +231,18 @@ impl RuntimeBuilder {
     }
 
     /// Build a [`ServiceRegistry`] from the configured egress clients, if any.
+    ///
+    /// Returns `None` when no HTTP egress client has been registered via
+    /// [`RuntimeBuilder::egress_http`].
     pub fn build_registry(&self) -> Option<Arc<ServiceRegistry>> {
         self.egress_http.as_ref().map(|http| {
-            Arc::new(ServiceRegistry::new(
-                Arc::clone(http),
-                self.egress_grpc.clone(),
-            ))
+            let registry = ServiceRegistry::new(Arc::clone(http), self.egress_grpc.clone());
+            #[cfg(feature = "subprocess")]
+            let registry = match &self.subprocess_runner {
+                Some(r) => registry.with_subprocess(Arc::clone(r)),
+                None => registry,
+            };
+            Arc::new(registry)
         })
     }
 }
