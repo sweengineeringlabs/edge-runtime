@@ -43,7 +43,10 @@ pub use edge_proxy::{HealthReport, LifecycleMonitor, ProxySvc};
 
 // ── Load monitoring / auto-scaling ────────────────────────────────────────────
 pub use crate::api::monitor::types::ring_buffer::RingBuffer;
-pub use crate::api::monitor::{AutoscalePolicy, MetricsConfig, SharedCounters, TrafficCounters};
+pub use crate::api::monitor::{
+    AutoscalePolicy, MetricsConfig, ScalingDecision, ScalingPolicy, SharedCounters,
+    ThresholdPolicy, TrafficCounters,
+};
 pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 
 // ── Observability ─────────────────────────────────────────────────────────────

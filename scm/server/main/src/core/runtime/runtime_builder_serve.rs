@@ -17,6 +17,7 @@ use tokio::sync::oneshot;
 
 use crate::api::config::traits::loader::ConfigLoader;
 use crate::api::ingress::Ingress;
+use crate::api::monitor::ThresholdPolicy;
 use crate::api::monitor::{SharedCounters, TrafficCounters};
 use crate::api::runtime::RuntimeBuilder;
 use crate::api::runtime::{RuntimeError, RuntimeResult};
@@ -148,7 +149,15 @@ impl RuntimeBuilder {
             let c = Arc::new(TrafficCounters::new(Arc::new(
                 create_local_metrics_backend(),
             )));
-            let sampler = BackgroundSampler::new(Arc::clone(&c), config.autoscale.clone());
+            // Prefer the programmatic policy set via with_scaling(); fall back
+            // to the TOML autoscale section wrapped in ThresholdPolicy.
+            let scaling = self.scaling_policy.clone().or_else(|| {
+                config.autoscale.clone().map(|p| {
+                    Arc::new(ThresholdPolicy::from(p))
+                        as Arc<dyn crate::api::monitor::ScalingPolicy>
+                })
+            });
+            let sampler = BackgroundSampler::new(Arc::clone(&c), scaling);
             tokio::spawn(async move { sampler.run().await });
             c
         });

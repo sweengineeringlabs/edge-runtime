@@ -16,6 +16,7 @@ use swe_edge_ingress_http::{
 };
 use swe_edge_ingress_verifier::TokenVerifier;
 
+use crate::api::monitor::traits::scaling_policy::ScalingPolicy;
 use crate::api::runtime::types::runtime::runtime_config::RuntimeConfig;
 use crate::api::runtime::types::service_registry::ServiceRegistry;
 
@@ -37,6 +38,7 @@ pub struct RuntimeBuilder {
     pub(crate) lifecycle: Option<Arc<dyn LifecycleMonitor>>,
     pub(crate) tracing_config: Option<crate::api::config::TracingConfig>,
     pub(crate) stream_handler: Option<Arc<dyn HttpStream>>,
+    pub(crate) scaling_policy: Option<Arc<dyn ScalingPolicy>>,
     #[cfg(feature = "message-broker")]
     pub(crate) message_broker: Option<Arc<dyn swe_edge_runtime_message_broker::MessageBroker>>,
 }
@@ -197,6 +199,17 @@ impl RuntimeBuilder {
         broker: impl swe_edge_runtime_message_broker::MessageBroker + 'static,
     ) -> Self {
         self.message_broker = Some(Arc::new(broker));
+        self
+    }
+
+    /// Attach a programmatic scaling policy evaluated once per second by the
+    /// background sampler.
+    ///
+    /// Takes priority over the `autoscale` section in `RuntimeConfig` / TOML.
+    /// Use [`ThresholdPolicy`][crate::core::monitor::threshold_policy::ThresholdPolicy]
+    /// for the standard threshold-based implementation.
+    pub fn with_scaling(mut self, policy: impl ScalingPolicy + 'static) -> Self {
+        self.scaling_policy = Some(Arc::new(policy));
         self
     }
 

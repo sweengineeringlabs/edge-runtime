@@ -9,5 +9,8 @@ pub(crate) mod traits;
 pub(crate) mod types;
 pub(crate) mod vo;
 
-pub use traits::{GrpcLoadMonitor, HttpLoadMonitor, LifecycleObserver, Sampler};
-pub use types::{AutoscalePolicy, MetricsConfig, RingBuffer, SharedCounters, TrafficCounters};
+pub use traits::{GrpcLoadMonitor, HttpLoadMonitor, LifecycleObserver, Sampler, ScalingPolicy};
+pub use types::{
+    AutoscalePolicy, MetricsConfig, RingBuffer, ScalingDecision, SharedCounters, ThresholdPolicy,
+    TrafficCounters,
+};

@@ -27,6 +27,7 @@ impl Runtime {
             lifecycle: None,
             tracing_config: None,
             stream_handler: None,
+            scaling_policy: None,
             #[cfg(feature = "message-broker")]
             message_broker: None,
         }

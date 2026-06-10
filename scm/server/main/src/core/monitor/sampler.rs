@@ -1,18 +1,19 @@
 use std::sync::atomic::Ordering;
+use std::sync::Arc;
 
-use crate::api::monitor::{AutoscalePolicy, SharedCounters};
+use crate::api::monitor::{ScalingDecision, ScalingPolicy, SharedCounters};
 
-/// Ticks every second: pushes derived gauges into the provider and checks
-/// autoscale thresholds.
+/// Ticks every second: pushes derived gauges into the provider and evaluates
+/// the configured scaling policy.
 pub(crate) struct BackgroundSampler {
     counters: SharedCounters,
-    policy: Option<AutoscalePolicy>,
+    policy: Option<Arc<dyn ScalingPolicy>>,
 }
 
 impl crate::api::monitor::Sampler for BackgroundSampler {}
 
 impl BackgroundSampler {
-    pub(crate) fn new(counters: SharedCounters, policy: Option<AutoscalePolicy>) -> Self {
+    pub(crate) fn new(counters: SharedCounters, policy: Option<Arc<dyn ScalingPolicy>>) -> Self {
         Self { counters, policy }
     }
 
@@ -33,25 +34,12 @@ impl BackgroundSampler {
             p.record_gauge("edge_request_latency_p99_ms", p99, &[]);
 
             if let Some(ref policy) = self.policy {
-                if active as u64 > policy.requests_active_max {
+                if policy.evaluate(active as u64, rps as u64, p99) == ScalingDecision::ScaleOut {
                     tracing::warn!(
                         active,
-                        max = policy.requests_active_max,
-                        "scale-out signal: requests_active exceeded threshold"
-                    );
-                }
-                if rps as u64 > policy.requests_per_sec_max {
-                    tracing::warn!(
                         rps,
-                        max = policy.requests_per_sec_max,
-                        "scale-out signal: requests_per_second exceeded threshold"
-                    );
-                }
-                if p99 > policy.latency_p99_ms_max {
-                    tracing::warn!(
                         p99_ms = p99,
-                        max = policy.latency_p99_ms_max,
-                        "scale-out signal: latency_p99_ms exceeded threshold"
+                        "scale-out signal: load exceeded policy threshold"
                     );
                 }
             }
@@ -62,6 +50,7 @@ impl BackgroundSampler {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::api::monitor::ThresholdPolicy;
     use crate::api::monitor::TrafficCounters;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
@@ -75,6 +64,12 @@ mod tests {
     #[test]
     fn test_background_sampler_new_does_not_panic() {
         let _s = BackgroundSampler::new(counters(), None);
+    }
+
+    #[test]
+    fn test_background_sampler_new_with_policy_does_not_panic() {
+        let policy: Arc<dyn ScalingPolicy> = Arc::new(ThresholdPolicy::new(100, 500, 50.0));
+        let _s = BackgroundSampler::new(counters(), Some(policy));
     }
 
     #[test]
