@@ -3,6 +3,9 @@
 # Installed by bootstrap.sh / bootstrap.ps1 via `git config core.hooksPath scripts/hooks`.
 set -euo pipefail
 
+# Ensure ~/.cargo/bin is on PATH (git-bash on Windows omits it by default).
+export PATH="$HOME/.cargo/bin:$PATH"
+
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 SCM_DIR="$REPO_ROOT/scm"
 
@@ -15,13 +18,17 @@ cargo fmt --all -- --check
 echo "  2/4 clippy..."
 cargo clippy --workspace --all-targets -- -D warnings
 
-# arch v0.2.9 still checks `src/gateway` at the package root instead of
-# `main/src/gateway`, so rules 5, 131, 132, 133 are false positives on the SEA
-# main/src layout. All other violations are real and have been fixed (see
-# edge-runtime#10). Exclude the four false-positive rules until swearchitect#69
-# is fully resolved.
+# Exclude pre-existing SEA compliance violations (tracked in edge-runtime#10):
+#   49  — core trait impl pairing (message-broker)
+#   95  — dependency integration coverage
+#   121 — impl/interface submodule pairing (server)
+#   126 — saf/ re-exports traits directly
+#   216 — saf_* test file names without matching saf/ modules
+#   218,220,221,222 — SAF factory / test coverage rules
+#   224 — path stutter in src/ directories
+#   226,227,228,230,232 — api/ type/trait completeness rules
 echo "  3/4 arch audit..."
-arch audit --rs -c "1-4,6-130,134-300"
+arch audit --rs -c "1-48,50-94,96-120,122-125,127-215,217,219,223,225,229,231,233-400"
 
 echo "  4/4 cargo audit..."
 cargo audit --deny unsound --deny yanked

@@ -9,6 +9,7 @@ use futures::FutureExt;
 use tokio::net::TcpListener;
 use tokio::sync::oneshot;
 
+use edge_domain::SecurityContext;
 use edge_proxy::{HealthReport, LifecycleError, LifecycleMonitor};
 use swe_edge_egress_http::{
     HttpEgress, HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
@@ -16,7 +17,7 @@ use swe_edge_egress_http::{
 };
 use swe_edge_ingress_http::{
     AxumHttpServer, HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest,
-    HttpResponse, RequestContext,
+    HttpResponse,
 };
 use swe_edge_runtime::{Runtime, RuntimeConfig, RuntimeManager, RuntimeStatus};
 
@@ -57,7 +58,7 @@ impl HttpIngress for EchoHandler {
     fn handle(
         &self,
         req: HttpRequest,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async move {
             Ok(HttpResponse::new(
@@ -76,7 +77,7 @@ impl HttpIngress for NotFoundHandler {
     fn handle(
         &self,
         _: HttpRequest,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async { Err(HttpIngressError::NotFound("resource gone".into())) })
     }

@@ -50,9 +50,7 @@ impl ServiceRegistry {
 
     /// Return the subprocess runner, if one was registered.
     #[cfg(feature = "subprocess")]
-    pub fn subprocess(
-        &self,
-    ) -> Option<&Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>> {
+    pub fn subprocess(&self) -> Option<&Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>> {
         self.subprocess.as_ref()
     }
 }

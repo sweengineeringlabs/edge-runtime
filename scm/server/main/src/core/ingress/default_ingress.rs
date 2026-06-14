@@ -53,21 +53,20 @@ impl Ingress for DefaultIngress {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use edge_domain::SecurityContext;
     use futures::future::BoxFuture;
     use std::collections::HashMap;
     use swe_edge_ingress_grpc::{
         GrpcHealthCheck, GrpcIngressResult, GrpcMetadata, GrpcRequest, GrpcResponse,
     };
-    use swe_edge_ingress_http::{
-        HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
-    };
+    use swe_edge_ingress_http::{HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse};
 
     struct DefaultIngressStubHttp;
     impl HttpIngress for DefaultIngressStubHttp {
         fn handle(
             &self,
             _: HttpRequest,
-            _: RequestContext,
+            _: SecurityContext,
         ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
             Box::pin(async { Ok(HttpResponse::new(200, vec![])) })
         }
@@ -81,7 +80,7 @@ mod tests {
         fn handle_unary(
             &self,
             _: GrpcRequest,
-            _: RequestContext,
+            _: SecurityContext,
         ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
             Box::pin(async {
                 Ok(GrpcResponse {

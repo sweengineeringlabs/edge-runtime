@@ -64,9 +64,7 @@ async fn test_subprocess_runner_from_registry_denies_empty_allow_list() {
         .build_registry()
         .expect("registry");
 
-    let args = SubprocessArgs::builder()
-        .argv(vec!["echo".into()])
-        .build();
+    let args = SubprocessArgs::builder().argv(vec!["echo".into()]).build();
     let result = reg.subprocess().expect("runner").run(args).await;
     assert!(
         matches!(result, SubprocessResult::Denied { .. }),
