@@ -1,6 +1,3 @@
-//! `GrpcLoadMonitor` — gRPC inbound load-monitoring wrapper interface.
+//! `GrpcLoadMonitor` — re-exported from parent theme module.
 
-use swe_edge_ingress_grpc::GrpcIngress;
-
-/// Marker supertrait for gRPC inbound handlers that record load metrics.
-pub trait GrpcLoadMonitor: GrpcIngress {}
+pub use crate::api::monitor::grpc_load_monitor::GrpcLoadMonitor;

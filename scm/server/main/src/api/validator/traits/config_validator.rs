@@ -1,8 +1,3 @@
-//! `ConfigValidator` — runtime configuration validator interface.
+//! `ConfigValidator` — re-exported from the runtime theme.
 
-use crate::api::runtime::RuntimeConfig;
-use crate::api::runtime::RuntimeError;
-use crate::api::validator::Validator;
-
-/// Marker supertrait for `RuntimeConfig` validators.
-pub trait ConfigValidator: Validator<Target = RuntimeConfig, Error = RuntimeError> {}
+pub use crate::api::runtime::traits::config_validator::ConfigValidator;

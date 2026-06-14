@@ -1,4 +1,4 @@
-﻿//! Runtime lifecycle — config loading, gateway assembly, start, health, shutdown.
+//! Runtime lifecycle — config loading, gateway assembly, start, health, shutdown.
 //!
 //! Run:
 //!     cargo run -p swe-edge-runtime --example runtime_lifecycle
@@ -14,6 +14,7 @@
 
 use std::sync::Arc;
 
+use edge_domain::SecurityContext;
 use edge_proxy::ProxySvc;
 use futures::future::BoxFuture;
 use swe_edge_egress_http::{
@@ -21,7 +22,7 @@ use swe_edge_egress_http::{
     HttpStreamResponse,
 };
 use swe_edge_ingress_http::{
-    HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, RequestContext,
+    HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse,
 };
 use swe_edge_runtime::{Runtime, RuntimeConfig, RuntimeManager, RuntimeStatus};
 
@@ -33,7 +34,7 @@ impl HttpIngress for NoopIngress {
     fn handle(
         &self,
         _: HttpRequest,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async { Ok(HttpResponse::new(204, vec![])) })
     }

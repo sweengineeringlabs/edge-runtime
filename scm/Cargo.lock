@@ -3,6 +3,19 @@
 version = 4
 
 [[package]]
+name = "ahash"
+version = "0.8.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a15f179cd60c4584b8a8c596927aadc462e27f2ca70c04e0071964a73ba7a75"
+dependencies = [
+ "cfg-if",
+ "getrandom 0.3.4",
+ "once_cell",
+ "version_check",
+ "zerocopy",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "1.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -21,10 +34,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "annotate-snippets"
+version = "0.12.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f211a51805bc641f3ad5b7664c77d2547af685cc33b4cd8d31964027a46f13f1"
+dependencies = [
+ "anstyle",
+ "memchr",
+ "unicode-width",
+]
+
+[[package]]
+name = "anstyle"
+version = "1.0.14"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "940b3a0ca603d1eade50a4846a2afffd5ef57a9feac2c0e2ec2e14f9ead76000"
+
+[[package]]
 name = "anyhow"
 version = "1.0.102"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
+
+[[package]]
+name = "arraydeque"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d902e3d592a523def97af8f317b08ce16b7ab854c1985a0c671e6f15cebc236"
 
 [[package]]
 name = "async-lock"
@@ -39,9 +75,9 @@ dependencies = [
 
 [[package]]
 name = "async-nats"
-version = "0.48.0"
+version = "0.49.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "31811585c7c5bc2f60f8b80d5a6b0f737115611dac47567d7f7d94562ebb180b"
+checksum = "fad3cd6df81292728e2a8cb1f1dcb4d7e7a1ab59b80c14fbbcba2baf9d5cf86a"
 dependencies = [
  "base64",
  "bytes",
@@ -495,7 +531,16 @@ version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
 dependencies = [
- "dirs-sys",
+ "dirs-sys 0.4.1",
+]
+
+[[package]]
+name = "dirs"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c3e8aa94d75141228480295a7d0e7feb620b1a5ad9f12bc40be62411e38cce4e"
+dependencies = [
+ "dirs-sys 0.5.0",
 ]
 
 [[package]]
@@ -506,8 +551,20 @@ checksum = "520f05a5cbd335fae5a99ff7a6ab8627577660ee5cfd6a94a6a929b52ff0321c"
 dependencies = [
  "libc",
  "option-ext",
- "redox_users",
+ "redox_users 0.4.6",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "dirs-sys"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e01a3366d27ee9890022452ee61b2b63a67e6f13f58900b651ff5665f0bb1fab"
+dependencies = [
+ "libc",
+ "option-ext",
+ "redox_users 0.5.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -552,10 +609,10 @@ dependencies = [
 [[package]]
 name = "edge-dispatch"
 version = "0.7.0"
-source = "git+https://github.com/sweengineeringlabs/edge-dispatch.git?tag=v0.7.0#122723dbce58ec0205f827855078d54b68dfa16b"
+source = "git+https://github.com/sweengineeringlabs/edge-dispatch.git?tag=v0.7.0#3f24ece4fe20c9d166e8c098f3b3fc4ac972e0f9"
 dependencies = [
  "async-trait",
- "edge-domain",
+ "edge-domain 0.8.0",
  "parking_lot",
  "thiserror 2.0.18",
  "tokio",
@@ -576,16 +633,197 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain"
+version = "0.8.19"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "async-trait",
+ "edge-domain-clock",
+ "edge-domain-command",
+ "edge-domain-entity",
+ "edge-domain-event",
+ "edge-domain-handler",
+ "edge-domain-policy",
+ "edge-domain-projection",
+ "edge-domain-query",
+ "edge-domain-repository",
+ "edge-domain-saga",
+ "edge-domain-security",
+ "edge-domain-service",
+ "edge-domain-snapshot",
+ "edge-domain-validator",
+ "edge-domain-valueobject",
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "edge-domain-clock"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-command"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "async-trait",
+ "futures",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-entity"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+
+[[package]]
+name = "edge-domain-event"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "async-trait",
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
+name = "edge-domain-handler"
+version = "0.1.1"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "async-trait",
+ "edge-domain-security",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-policy"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-projection"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "edge-domain-event",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-query"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "async-trait",
+ "futures",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-repository"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-saga"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "edge-domain-command",
+ "edge-domain-event",
+ "futures",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-security"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-service"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-snapshot"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-validator"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-valueobject"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.27#583e1409d87fafc326981c936e0bced8ad77cb3f"
+
+[[package]]
 name = "edge-proxy"
 version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-proxy.git?tag=v0.3.0#3941f038cd28e1bb4be155ed7d8bab3dc126c863"
+source = "git+https://github.com/sweengineeringlabs/edge-proxy.git?tag=v0.3.2#e3f8a0c94f36c5d4da62395a270437a09afbee80"
 dependencies = [
- "edge-domain",
+ "edge-domain 0.8.0",
  "futures",
  "parking_lot",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
+]
+
+[[package]]
+name = "encoding_rs"
+version = "0.8.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75030f3c4f45dafd7586dd6780965a8c7e8e285a5ecb86713e63a79c5b2766f3"
+dependencies = [
+ "cfg-if",
+]
+
+[[package]]
+name = "encoding_rs_io"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1cc3c5651fb62ab8aa3103998dade57efdd028544bd300516baa31840c252a83"
+dependencies = [
+ "encoding_rs",
 ]
 
 [[package]]
@@ -831,6 +1069,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
 
 [[package]]
+name = "granit-parser"
+version = "0.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f50ba32164f9e098d5da618776a32afbb32270adcbe3d3d006107dae11e37c91"
+dependencies = [
+ "arraydeque",
+ "smallvec",
+]
+
+[[package]]
 name = "h2"
 version = "0.4.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -893,9 +1141,9 @@ dependencies = [
 
 [[package]]
 name = "http"
-version = "1.4.1"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8be7462df143984c4598a256ef469b251d7d7f9e271135073e78fc535414f3d0"
+checksum = "6970f50e31d6fc17d3fa27329444bfa74e196cf62e95052a3f6fee181dba6425"
 dependencies = [
  "bytes",
  "itoa",
@@ -1396,6 +1644,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "nix"
+version = "0.27.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2eb04e9c688eff1c89d72b407f168cf79bb9e867a9d3323ed6c01519eb9cc053"
+dependencies = [
+ "bitflags",
+ "cfg-if",
+ "libc",
+]
+
+[[package]]
 name = "nkeys"
 version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1409,6 +1668,12 @@ dependencies = [
  "rand 0.8.6",
  "signatory",
 ]
+
+[[package]]
+name = "nohash-hasher"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2bf50223579dc7cdcfb3bfcacf7069ff68243f8c363f62ffa99cf000a6b9c451"
 
 [[package]]
 name = "nu-ansi-term"
@@ -1847,9 +2112,9 @@ checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
 
 [[package]]
 name = "rdkafka"
-version = "0.36.2"
+version = "0.39.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1beea247b9a7600a81d4cc33f659ce1a77e1988323d7d2809c7ed1c21f4c316d"
+checksum = "d7956f9ac12b5712e50372d9749a3102f4810a8d42481c5eae3748d36d585bcf"
 dependencies = [
  "futures-channel",
  "futures-util",
@@ -1897,10 +2162,21 @@ dependencies = [
 ]
 
 [[package]]
-name = "regex"
-version = "1.12.3"
+name = "redox_users"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e10754a14b9137dd7b1e3e5b0493cc9171fdd105e0ab477f51b72e7f3ac0e276"
+checksum = "a4e608c6638b9c18977b00b475ac1f28d14e84b27d8d42f70e0bf1e3dec127ac"
+dependencies = [
+ "getrandom 0.2.17",
+ "libredox",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "regex"
+version = "1.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f1292b7759ae1cb9ec195452d1390a074f0cd8541ab7a5a8c31cd6db45d4a6ba"
 dependencies = [
  "aho-corasick",
  "memchr",
@@ -1921,9 +2197,9 @@ dependencies = [
 
 [[package]]
 name = "regex-syntax"
-version = "0.8.10"
+version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
+checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 
 [[package]]
 name = "reqwest"
@@ -2153,6 +2429,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde-saphyr"
+version = "0.0.27"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5897b4c3faadadd35fdb6689f015641f3bc481d5adaaac56231ea15aeb243db3"
+dependencies = [
+ "ahash",
+ "annotate-snippets",
+ "base64",
+ "encoding_rs_io",
+ "getrandom 0.3.4",
+ "granit-parser",
+ "nohash-hasher",
+ "num-traits",
+ "serde",
+ "smallvec",
+ "zmij",
+]
+
+[[package]]
 name = "serde_core"
 version = "1.0.228"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2235,19 +2530,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "serde_yaml"
-version = "0.9.34+deprecated"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a8b1a1a2ebf674015cc02edccce75287f1a0130d394307b36743c2f5d504b47"
-dependencies = [
- "indexmap 2.14.0",
- "itoa",
- "ryu",
- "serde",
- "unsafe-libyaml",
 ]
 
 [[package]]
@@ -2387,10 +2669,10 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 
 [[package]]
 name = "swe-edge-configbuilder"
-version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.1.0#aa3c23c6b9373b75a859522640eaaada43f7c85d"
+version = "0.3.0"
+source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0#e5f50d6308bf30da1e5c51ff9166b9402b70a245"
 dependencies = [
- "dirs",
+ "dirs 5.0.1",
  "regex",
  "serde",
  "thiserror 2.0.18",
@@ -2400,9 +2682,9 @@ dependencies = [
 [[package]]
 name = "swe-edge-configbuilder"
 version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0#57c9855ca87c6b66b75b4e66e54fc72ebc16bcde"
+source = "git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.4.1#6a33cee8365b0bd55d1db858ef81fa50a696dd1d"
 dependencies = [
- "dirs",
+ "dirs 6.0.0",
  "regex",
  "serde",
  "thiserror 2.0.18",
@@ -2411,8 +2693,8 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-auth"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "async-trait",
  "base64",
@@ -2426,7 +2708,7 @@ dependencies = [
  "secrecy",
  "serde",
  "sha2",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "time",
  "toml",
@@ -2434,8 +2716,8 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-breaker"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2444,7 +2726,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2452,8 +2734,8 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-cache"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2462,7 +2744,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2470,8 +2752,8 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-cassette"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2481,10 +2763,10 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
+ "serde-saphyr",
  "serde_json",
- "serde_yaml",
  "sha2",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2492,8 +2774,8 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-grpc-transport"
-version = "0.4.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-grpc.git?tag=v0.4.0#24f67ce73df6f67e00fe81a03b9ff54a891cc8c1"
+version = "0.4.2"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-grpc.git?tag=v0.4.4#dcfd5d6c7feb8633bd0706258660c9fe79ec604c"
 dependencies = [
  "bytes",
  "futures",
@@ -2503,18 +2785,20 @@ dependencies = [
  "hyper-util",
  "rustls",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
+ "swe-edge-loadbalancer",
  "thiserror 2.0.18",
  "tokio",
  "tokio-util",
  "tonic",
+ "tower 0.4.13",
  "tracing",
 ]
 
 [[package]]
 name = "swe-edge-egress-http-transport"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "bytes",
  "futures",
@@ -2523,7 +2807,7 @@ dependencies = [
  "reqwest-middleware",
  "serde",
  "serde_json",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "swe-edge-egress-auth",
  "swe-edge-egress-breaker",
  "swe-edge-egress-cache",
@@ -2532,15 +2816,15 @@ dependencies = [
  "swe-edge-egress-rate",
  "swe-edge-egress-retry",
  "swe-edge-egress-tls",
- "swe_justobserv_metrics",
+ "swe_observability_metrics",
  "thiserror 2.0.18",
  "tokio",
 ]
 
 [[package]]
 name = "swe-edge-egress-oauth"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2549,7 +2833,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2558,8 +2842,8 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-rate"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "async-trait",
  "http",
@@ -2567,7 +2851,7 @@ dependencies = [
  "reqwest",
  "reqwest-middleware",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
@@ -2575,44 +2859,56 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-egress-retry"
-version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "async-trait",
  "http",
  "reqwest",
  "reqwest-middleware",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio",
  "toml",
 ]
 
 [[package]]
-name = "swe-edge-egress-tls"
+name = "swe-edge-egress-subprocess"
 version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.3.0#b044941bc5f60bba03e9ea6ef049cec63e03ce1e"
+dependencies = [
+ "futures",
+ "nix",
+ "serde",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "swe-edge-egress-tls"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-egress-http.git?tag=v0.4.1#9389e7fecfd0025b76afcca0446d5da343bd99f7"
 dependencies = [
  "reqwest",
  "secrecy",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "toml",
 ]
 
 [[package]]
 name = "swe-edge-ingress-grpc-reflection"
-version = "0.5.0"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.5.0#c116074fa4b3d47320e62f7e1297fa7ccbbf9fb2"
+version = "0.5.1"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.5.5#0a75190dcb4c4ee3ff4f6dd63b0b61193ce38291"
 dependencies = [
- "edge-dispatch",
- "edge-domain",
+ "edge-domain 0.8.19",
  "futures",
  "parking_lot",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "swe-edge-ingress-grpc-transport",
  "thiserror 2.0.18",
  "tracing",
@@ -2620,13 +2916,12 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-ingress-grpc-transport"
-version = "0.5.0"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.5.0#c116074fa4b3d47320e62f7e1297fa7ccbbf9fb2"
+version = "0.5.1"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-grpc.git?tag=v0.5.5#0a75190dcb4c4ee3ff4f6dd63b0b61193ce38291"
 dependencies = [
  "async-trait",
  "bytes",
- "edge-dispatch",
- "edge-domain",
+ "edge-domain 0.8.19",
  "futures",
  "http",
  "http-body",
@@ -2636,8 +2931,9 @@ dependencies = [
  "parking_lot",
  "serde",
  "sha2",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "swe-edge-ingress-tls",
+ "swe-edge-loadbalancer",
  "swe_justobserv_context",
  "swe_justobserv_metrics",
  "thiserror 2.0.18",
@@ -2651,14 +2947,13 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-ingress-http-transport"
-version = "0.3.1"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-http.git?tag=v0.3.1#5bdda6e4c4aa949893b5112d6f22ebf7782d608c"
+version = "0.4.0"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-http.git?tag=v0.4.3#45b2d9cb44b1eba7dfb43626bda4b3bc5c898d6e"
 dependencies = [
  "async-trait",
  "axum 0.8.9",
  "bytes",
- "edge-dispatch",
- "edge-domain",
+ "edge-domain 0.8.19",
  "futures",
  "http",
  "hyper",
@@ -2667,9 +2962,10 @@ dependencies = [
  "parking_lot",
  "serde",
  "serde_json",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "swe-edge-ingress-tls",
  "swe-edge-ingress-verifier",
+ "swe-edge-loadbalancer",
  "swe_justobserv_context",
  "swe_justobserv_metrics",
  "thiserror 2.0.18",
@@ -2682,12 +2978,11 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-tls"
 version = "0.5.0"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-security.git?tag=v0.5.0#7bb1f5891731850f4e64b17f376dc2a11a6e1eca"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-security.git?tag=v0.6.2#5b764e347a2cc7a1116d7843cab5666054fd45b1"
 dependencies = [
  "rustls",
- "rustls-pki-types",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
  "tokio-rustls",
 ]
@@ -2695,35 +2990,48 @@ dependencies = [
 [[package]]
 name = "swe-edge-ingress-verifier"
 version = "0.5.0"
-source = "git+https://github.com/sweengineeringlabs/edge-ingress-security.git?tag=v0.5.0#7bb1f5891731850f4e64b17f376dc2a11a6e1eca"
+source = "git+https://github.com/sweengineeringlabs/edge-ingress-security.git?tag=v0.6.2#5b764e347a2cc7a1116d7843cab5666054fd45b1"
 dependencies = [
- "edge-domain",
+ "edge-domain 0.8.0",
  "jsonwebtoken",
  "serde",
  "serde_json",
  "subtle",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
  "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
+name = "swe-edge-loadbalancer"
+version = "0.2.0"
+source = "git+https://github.com/sweengineeringlabs/edge-loadbalancer.git?tag=v0.2.0#167c74b23a290ad88a54c29bdd91878ae8d4263a"
+dependencies = [
+ "parking_lot",
+ "serde",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
+ "thiserror 2.0.18",
+ "toml",
  "tracing",
 ]
 
 [[package]]
 name = "swe-edge-message-broker"
 version = "0.3.0"
-source = "git+https://github.com/sweengineeringlabs/edge-message-broker.git?tag=v0.3.0#0ac06b436f94d4ec4ec586f6e925ef9f8e685da9"
+source = "git+https://github.com/sweengineeringlabs/edge-message-broker.git?tag=v0.3.2#9e29afeee8ecc0ef097b667d4b072f08f6d71de3"
 dependencies = [
  "bytes",
  "futures",
  "serde",
- "swe-edge-configbuilder 0.1.0",
- "thiserror 1.0.69",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
+ "thiserror 2.0.18",
  "tracing",
 ]
 
 [[package]]
 name = "swe-edge-observ-config"
 version = "0.2.0"
-source = "git+https://github.com/sweengineeringlabs/edge-observ-config.git?tag=v0.2.0#49a4cf2429114bcd6388f42102f1966c78fc02bc"
+source = "git+https://github.com/sweengineeringlabs/edge-observ-config.git?tag=v0.2.1#ea5280602167ecbcdd315754db2382fe228ca3b1"
 dependencies = [
  "serde",
  "thiserror 2.0.18",
@@ -2733,16 +3041,16 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-runtime-message-broker"
-version = "0.3.2"
+version = "0.3.7"
 dependencies = [
  "async-nats",
  "bytes",
  "futures",
  "rdkafka",
  "serde",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.4.1)",
  "swe-edge-message-broker",
- "thiserror 1.0.69",
+ "thiserror 2.0.18",
  "tokio",
  "tracing",
  "uuid",
@@ -2750,20 +3058,21 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-runtime-server"
-version = "0.3.2"
+version = "0.3.7"
 dependencies = [
  "async-trait",
- "dirs",
- "edge-domain",
+ "dirs 6.0.0",
+ "edge-domain 0.8.19",
  "edge-proxy",
  "futures",
  "parking_lot",
  "reqwest",
  "serde",
  "serde_json",
- "swe-edge-configbuilder 0.3.0",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.4.1)",
  "swe-edge-egress-grpc-transport",
  "swe-edge-egress-http-transport",
+ "swe-edge-egress-subprocess",
  "swe-edge-ingress-grpc-reflection",
  "swe-edge-ingress-grpc-transport",
  "swe-edge-ingress-http-transport",
@@ -2814,6 +3123,26 @@ dependencies = [
  "serde_json",
  "thiserror 2.0.18",
  "toml",
+]
+
+[[package]]
+name = "swe_observability_metrics"
+version = "0.2.0"
+source = "git+ssh://git@github.com/sweengineeringlabs/observability.git?tag=v0.2.4#39ec9b84f3497705a020df0a32375198f3713a64"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "edge-dispatch",
+ "edge-domain 0.8.0",
+ "futures",
+ "glob",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "swe-edge-configbuilder 0.3.0 (git+https://github.com/sweengineeringlabs/edge-configbuilder.git?tag=v0.3.0)",
+ "thiserror 2.0.18",
+ "toml",
+ "tracing",
 ]
 
 [[package]]
@@ -3368,16 +3697,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6e4313cd5fcd3dad5cafa179702e2b244f760991f45397d14d4ebf38247da75"
 
 [[package]]
+name = "unicode-width"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
+
+[[package]]
 name = "unicode-xid"
 version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
-
-[[package]]
-name = "unsafe-libyaml"
-version = "0.2.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "673aac59facbab8a9007c7f6108d11f63b603f7cabff99fabf650fea5c32b861"
 
 [[package]]
 name = "untrusted"
@@ -3405,9 +3734,9 @@ checksum = "b6c140620e7ffbb22c2dee59cafe6084a59b5ffc27a8859a5f0d494b5d52b6be"
 
 [[package]]
 name = "uuid"
-version = "1.23.2"
+version = "1.23.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d258b83ceec21034727ecee8c382cfa6c3e133699b0742c64571814fb420c9f7"
+checksum = "144d6b123cef80b301b8f72a9e2ca4370ddec21950d0a103dd22c437006d2db7"
 dependencies = [
  "getrandom 0.4.2",
  "js-sys",
@@ -4029,18 +4358,18 @@ dependencies = [
 
 [[package]]
 name = "zerocopy"
-version = "0.8.50"
+version = "0.8.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b065d4f0e55f82fae73202e189638116a87c55ab6b8e6c2721e13dd9d854ad1"
+checksum = "ce1022995ff5ff5d841ad7d994facc23098cd40152f2c1d11cd607c6f530653f"
 dependencies = [
  "zerocopy-derive",
 ]
 
 [[package]]
 name = "zerocopy-derive"
-version = "0.8.50"
+version = "0.8.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0b631b19d36a892ab55420c92dbc83ccd79274f25be714855d3074aa71cab639"
+checksum = "1ae7f38b72ec2a254e2b87ef277cf2cd4fb97cbebf944faa6f33354da0867930"
 dependencies = [
  "proc-macro2",
  "quote",

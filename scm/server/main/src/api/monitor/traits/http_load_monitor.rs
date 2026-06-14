@@ -1,6 +1,3 @@
-//! `HttpLoadMonitor` — HTTP inbound load-monitoring wrapper interface.
+//! `HttpLoadMonitor` — re-exported from parent theme module.
 
-use swe_edge_ingress_http::HttpIngress;
-
-/// Marker supertrait for HTTP inbound handlers that record load metrics.
-pub trait HttpLoadMonitor: HttpIngress {}
+pub use crate::api::monitor::http_load_monitor::HttpLoadMonitor;

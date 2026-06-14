@@ -9,4 +9,6 @@ pub(crate) mod types;
 
 pub use errors::ConfigError;
 pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig};
+pub use traits::{ApplicationConfigLoader, ConfigLoader};
 pub(crate) use types::ConfigOverride;
+pub use types::RuntimeConfig;

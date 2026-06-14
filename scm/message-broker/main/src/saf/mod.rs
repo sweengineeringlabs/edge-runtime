@@ -1,21 +1,33 @@
 //! SAF layer — message broker and task queue public facade.
 //!
-//! Single entry point: broker_svc.
+//! All public items flow through `_svc.rs` files; this module only
+//! declares submodules and re-exports from them.
 
-mod broker_svc;
+pub mod broker;
+mod config_provider_svc;
+pub mod task;
+mod validator_svc;
+
+pub use broker::BrokerErr as BrokerError;
+pub use broker::BrokerFactory;
+pub use broker::BrokerMessage as Message;
+pub use broker::MessageBrokerFactory;
+
+pub use config_provider_svc::ApplicationConfig;
+pub use config_provider_svc::BrokerBackendConfig;
+pub use config_provider_svc::ConfigProvider;
+pub use config_provider_svc::BROKER_CONFIG_SECTION;
+
+pub use task::QueueError;
+pub use task::Task;
+pub use task::TaskHandle;
+pub use task::TaskId;
+pub use task::TaskQueue;
+pub use task::TaskQueueFactory;
+pub use task::TaskQueueFactoryContract;
 
 #[cfg(feature = "tokio-rt")]
-pub use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
-pub use crate::api::broker::BrokerError;
-pub use crate::api::broker::Message;
-pub use crate::api::broker::MessageBroker;
-pub use crate::api::broker::MessageBrokerFactory;
-pub use crate::api::broker::MessageStream;
-#[cfg(feature = "tokio-rt")]
-pub use crate::api::task::types::in_memory_task_queue::InMemoryTaskQueue;
-pub use crate::api::task::QueueError;
-pub use crate::api::task::Task;
-pub use crate::api::task::TaskHandle;
-pub use crate::api::task::TaskId;
-pub use crate::api::task::TaskQueue;
-pub use crate::api::task::TaskQueueFactory;
+pub use task::InMemoryTaskQueue;
+
+pub use validator_svc::Validator;
+pub use validator_svc::VALIDATOR_SVC;

@@ -1,7 +1,9 @@
-//! Broker port contract.
+//! Broker theme port contracts.
 //!
-//! The [`MessageBroker`] trait and its [`Message`]/[`MessageStream`] value types
-//! are owned by the `swe-edge-message-broker` contract crate and re-exported here
-//! so backends and the factory import them from a single theme path.
+//! [`BrokerFactory`] is the native trait declared in this module.
+//! The [`MessageBroker`], [`Message`], and [`MessageStream`] types are re-exported
+//! from the `swe-edge-message-broker` contract crate.
+
+pub mod broker_factory;
 
 pub use swe_edge_message_broker::{Message, MessageBroker, MessageStream};

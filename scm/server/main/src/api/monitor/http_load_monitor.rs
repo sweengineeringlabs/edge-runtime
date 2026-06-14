@@ -1,3 +1,6 @@
-//! HTTP load monitor interface — mirrors `core/monitor/http_load_monitor`.
+//! `HttpLoadMonitor` — HTTP inbound load-monitoring wrapper interface.
 
-pub use crate::api::monitor::traits::http_load_monitor::HttpLoadMonitor;
+use swe_edge_ingress_http::HttpIngress;
+
+/// Marker supertrait for HTTP inbound handlers that record load metrics.
+pub trait HttpLoadMonitor: HttpIngress {}

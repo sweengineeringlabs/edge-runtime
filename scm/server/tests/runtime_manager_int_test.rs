@@ -9,6 +9,7 @@ use futures::FutureExt;
 use tokio::net::TcpListener;
 use tokio::sync::oneshot;
 
+use edge_domain::SecurityContext;
 use edge_proxy::{HealthReport, LifecycleError, LifecycleMonitor};
 use swe_edge_egress_http::{
     HttpEgress, HttpEgressResult, HttpRequest as EgressReq, HttpResponse as EgressResp,
@@ -16,7 +17,7 @@ use swe_edge_egress_http::{
 };
 use swe_edge_ingress_http::{
     AxumHttpServer, HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest,
-    HttpResponse, RequestContext,
+    HttpResponse,
 };
 use swe_edge_runtime::{Runtime, RuntimeConfig, RuntimeManager, RuntimeStatus};
 
@@ -57,7 +58,7 @@ impl HttpIngress for EchoHandler {
     fn handle(
         &self,
         req: HttpRequest,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async move {
             Ok(HttpResponse::new(
@@ -76,7 +77,7 @@ impl HttpIngress for NotFoundHandler {
     fn handle(
         &self,
         _: HttpRequest,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         Box::pin(async { Err(HttpIngressError::NotFound("resource gone".into())) })
     }
@@ -196,4 +197,84 @@ async fn test_server_refuses_connections_after_daemon_shutdown() {
         result.is_err(),
         "expected connection refused after shutdown"
     );
+}
+
+// ── Rule-222 coverage: test_<fn>_<condition>_<happy|error|edge> ──────────────
+
+fn make_manager() -> impl RuntimeManager {
+    let ingress = Arc::new(Runtime::http_ingress(Arc::new(EchoHandler)));
+    let egress = Arc::new(Runtime::http_egress(Arc::new(StubHttpEgress)));
+    Runtime::runtime_manager(
+        RuntimeConfig::default().with_systemd_notify(false),
+        ingress,
+        egress,
+        Arc::new(StubLifecycle),
+    )
+}
+
+#[tokio::test]
+async fn test_start_valid_components_returns_ok_happy() {
+    let mgr = make_manager();
+    assert!(mgr.start().await.is_ok());
+}
+
+#[tokio::test]
+async fn test_start_empty_ingress_returns_err_error() {
+    let ingress = Arc::new(Runtime::empty_ingress());
+    let egress = Arc::new(Runtime::http_egress(Arc::new(StubHttpEgress)));
+    let mgr = Runtime::runtime_manager(
+        RuntimeConfig::default().with_systemd_notify(false),
+        ingress,
+        egress,
+        Arc::new(StubLifecycle),
+    );
+    assert!(mgr.start().await.is_err());
+}
+
+#[tokio::test]
+async fn test_start_twice_does_not_panic_edge() {
+    let mgr = make_manager();
+    let _ = mgr.start().await;
+    let _ = mgr.start().await;
+}
+
+#[tokio::test]
+async fn test_shutdown_after_start_returns_ok_happy() {
+    let mgr = make_manager();
+    mgr.start().await.expect("start ok");
+    assert!(mgr.shutdown().await.is_ok());
+}
+
+#[tokio::test]
+async fn test_shutdown_before_start_does_not_panic_error() {
+    let mgr = make_manager();
+    let _ = mgr.shutdown().await;
+}
+
+#[tokio::test]
+async fn test_shutdown_twice_is_safe_edge() {
+    let mgr = make_manager();
+    mgr.start().await.expect("start ok");
+    let _ = mgr.shutdown().await;
+    let _ = mgr.shutdown().await;
+}
+
+#[tokio::test]
+async fn test_health_after_start_reports_running_happy() {
+    let mgr = make_manager();
+    mgr.start().await.expect("start ok");
+    assert_eq!(mgr.health().await.status, RuntimeStatus::Running);
+}
+
+#[tokio::test]
+async fn test_health_before_start_is_not_running_error() {
+    let mgr = make_manager();
+    assert_ne!(mgr.health().await.status, RuntimeStatus::Running);
+}
+
+#[tokio::test]
+async fn test_health_components_nonempty_after_start_edge() {
+    let mgr = make_manager();
+    mgr.start().await.expect("start ok");
+    assert!(!mgr.health().await.components.is_empty());
 }

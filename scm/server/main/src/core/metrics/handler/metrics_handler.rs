@@ -5,7 +5,7 @@
 
 use std::sync::Arc;
 
-use edge_domain::RequestContext;
+use edge_domain::SecurityContext;
 use futures::future::BoxFuture;
 use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest,
@@ -13,6 +13,7 @@ use swe_edge_ingress_http::{
 };
 use swe_observ_metrics::{MetricType, MetricsProvider};
 
+use crate::api::metrics::MetricsConfig;
 use crate::api::monitor::SharedCounters;
 
 /// Serves the Prometheus text exposition endpoint.
@@ -22,14 +23,17 @@ use crate::api::monitor::SharedCounters;
 /// (default `/metrics`); all other paths return `404 Not Found`.
 pub(crate) struct MetricsHandler {
     counters: SharedCounters,
-    path: String,
+    config: MetricsConfig,
 }
 
 impl MetricsHandler {
     pub(crate) fn new(counters: SharedCounters, path: impl Into<String>) -> Self {
         Self {
             counters,
-            path: path.into(),
+            config: MetricsConfig {
+                path: path.into(),
+                ..Default::default()
+            },
         }
     }
 
@@ -59,16 +63,26 @@ impl MetricsHandler {
     }
 }
 
-impl crate::api::metrics::traits::metrics::metrics_handler::MetricsHandler for MetricsHandler {}
+impl crate::api::metrics::traits::metrics_handler::MetricsHandler for MetricsHandler {}
+
+impl crate::api::metrics::traits::metrics_exporter::MetricsExporter for MetricsHandler {
+    fn config(&self) -> &MetricsConfig {
+        &self.config
+    }
+
+    fn export(&self) -> Vec<swe_observ_metrics::MetricSnapshot> {
+        self.counters.provider.export()
+    }
+}
 
 impl HttpIngress for MetricsHandler {
     fn handle(
         &self,
         request: HttpRequest,
-        _ctx: RequestContext,
+        _ctx: SecurityContext,
     ) -> BoxFuture<'_, HttpIngressResult<HttpResponse>> {
         let provider = Arc::clone(&self.counters.provider);
-        let path = self.path.clone();
+        let path = self.config.path.clone();
         Box::pin(async move {
             if request.method != HttpMethod::Get {
                 return Err(HttpIngressError::InvalidInput(
@@ -124,7 +138,7 @@ mod tests {
         let resp = h
             .handle(
                 HttpRequest::get("/metrics"),
-                RequestContext::unauthenticated(),
+                SecurityContext::unauthenticated(),
             )
             .await
             .unwrap();
@@ -151,7 +165,7 @@ mod tests {
         let err = h
             .handle(
                 HttpRequest::get("/healthz"),
-                RequestContext::unauthenticated(),
+                SecurityContext::unauthenticated(),
             )
             .await
             .unwrap_err();
@@ -164,7 +178,7 @@ mod tests {
         let resp = h
             .handle(
                 HttpRequest::get("/metrics/"),
-                RequestContext::unauthenticated(),
+                SecurityContext::unauthenticated(),
             )
             .await
             .unwrap();
@@ -177,7 +191,7 @@ mod tests {
         let err = h
             .handle(
                 HttpRequest::post("/metrics"),
-                RequestContext::unauthenticated(),
+                SecurityContext::unauthenticated(),
             )
             .await
             .unwrap_err();
@@ -205,6 +219,6 @@ mod tests {
         let provider = Arc::new(create_local_metrics_backend());
         let counters = Arc::new(TrafficCounters::new(provider));
         let h = MetricsHandler::new(counters, "/custom");
-        assert_eq!(h.path, "/custom");
+        assert_eq!(h.config.path, "/custom");
     }
 }

@@ -4,6 +4,7 @@
 //! public contract and may change between minor versions.
 
 pub(crate) mod broker;
+pub(crate) mod config;
 pub(crate) mod task;
 
 /// Maximum byte length of a message topic shared across broker and queue backends.

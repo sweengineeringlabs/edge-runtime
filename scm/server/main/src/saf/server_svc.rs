@@ -6,21 +6,21 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::api::config::traits::loader::ConfigLoader;
+use crate::api::config::traits::config_loader::ConfigLoader;
 use crate::api::config::ConfigError;
 use crate::api::egress::Egress;
 use crate::api::ingress::Ingress;
+use crate::api::runtime::traits::validator::Validator;
 use crate::api::runtime::Runtime;
 use crate::api::runtime::RuntimeConfig;
 use crate::api::runtime::ServerConfigLoader;
 use crate::api::runtime::ServerMonitor;
 use crate::api::runtime::{RuntimeError, RuntimeResult};
-use crate::api::validator::Validator;
 use crate::core::egress::DefaultEgress;
 use crate::core::ingress::DefaultIngress;
-use crate::core::runner::DaemonRunner;
 use crate::core::validator::ConfigValidator;
 use crate::core::ApplicationConfigLoader;
+use crate::core::DaemonRunner;
 use edge_proxy::LifecycleMonitor;
 use swe_observ_metrics::MetricsProvider;
 

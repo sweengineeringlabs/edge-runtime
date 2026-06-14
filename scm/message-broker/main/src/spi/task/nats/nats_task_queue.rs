@@ -126,7 +126,7 @@ impl TaskQueue for NatsTaskQueue {
             if let Some(msg_result) = futures::stream::StreamExt::next(&mut messages).await {
                 let msg = msg_result.map_err(|e| QueueError::Dequeue(e.to_string()))?;
 
-                let task = crate::api::task::types::task::Task::new(msg.payload.clone());
+                let task = Task::new(msg.payload.clone());
 
                 let msg_clone = msg.clone();
                 let ack = Box::pin(async move {

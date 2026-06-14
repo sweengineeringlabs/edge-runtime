@@ -5,6 +5,4 @@ pub(crate) mod queue;
 pub(crate) mod traits;
 pub(crate) mod types;
 
-pub use errors::QueueError;
-pub use traits::TaskQueue;
-pub use types::{Task, TaskHandle, TaskId, TaskQueueFactory};
+pub use types::TaskQueueFactory;

@@ -13,12 +13,19 @@ use swe_edge_egress_http::HttpEgress;
 pub struct ServiceRegistry {
     http: Arc<dyn HttpEgress>,
     grpc: Option<Arc<dyn GrpcEgress>>,
+    #[cfg(feature = "subprocess")]
+    subprocess: Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
 }
 
 impl ServiceRegistry {
     /// Construct a registry from an HTTP egress client and an optional gRPC client.
     pub fn new(http: Arc<dyn HttpEgress>, grpc: Option<Arc<dyn GrpcEgress>>) -> Self {
-        Self { http, grpc }
+        Self {
+            http,
+            grpc,
+            #[cfg(feature = "subprocess")]
+            subprocess: None,
+        }
     }
 
     /// Return the HTTP egress client.
@@ -29,5 +36,21 @@ impl ServiceRegistry {
     /// Return the gRPC egress client, if one was registered.
     pub fn grpc(&self) -> Option<&Arc<dyn GrpcEgress>> {
         self.grpc.as_ref()
+    }
+
+    /// Attach a subprocess runner, consumed by [`RuntimeBuilder::build_registry`].
+    #[cfg(feature = "subprocess")]
+    pub fn with_subprocess(
+        mut self,
+        runner: Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>,
+    ) -> Self {
+        self.subprocess = Some(runner);
+        self
+    }
+
+    /// Return the subprocess runner, if one was registered.
+    #[cfg(feature = "subprocess")]
+    pub fn subprocess(&self) -> Option<&Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>> {
+        self.subprocess.as_ref()
     }
 }

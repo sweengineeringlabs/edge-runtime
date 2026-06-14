@@ -22,6 +22,7 @@ path = "main/src/lib.rs"
 default = []
 observability  = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
 message-broker = ["dep:swe-edge-runtime-message-broker"]
+subprocess     = ["dep:swe-edge-egress-subprocess"]
 
 [dependencies]
 serde        = { version = "1.0", features = ["derive"] }
@@ -29,17 +30,18 @@ serde_json   = "1.0"
 thiserror    = "2"
 futures      = "0.3"
 async-trait  = "0.1"
-tokio        = { version = "1.0", features = ["rt-multi-thread", "sync", "signal", "macros", "time", "net"] }
+tokio        = { version = "1.52", features = ["rt-multi-thread", "sync", "signal", "macros", "time", "net"] }
 tracing      = { version = "0.1", default-features = false }
 parking_lot  = "0.12"
 toml        = "0.8"
-dirs        = "5"
+dirs        = "6"
 tracing-subscriber = { version = "0.3", optional = true, features = ["env-filter", "json"] }
 
 swe-edge-configbuilder          = { workspace = true }
 swe-edge-observ-config          = { workspace = true }
 
 swe-edge-runtime-message-broker = { workspace = true, optional = true }
+swe-edge-egress-subprocess      = { workspace = true, optional = true }
 
 edge-proxy                       = { workspace = true }
 swe-edge-ingress-http            = { workspace = true }
@@ -53,9 +55,10 @@ swe-observ-metrics               = { workspace = true }
 
 [dev-dependencies]
 swe-edge-runtime-message-broker = { workspace = true }
+swe-edge-egress-subprocess      = { workspace = true }
 swe-edge-configbuilder          = { workspace = true }
 async-trait  = "0.1"
-tokio        = { version = "1.0", features = ["rt-multi-thread", "macros", "test-util"] }
+tokio        = { version = "1.52", features = ["rt-multi-thread", "macros", "test-util"] }
 tempfile     = "3"
 swe-edge-observ-config          = { workspace = true }
 reqwest      = { version = "0.12", features = ["json"], default-features = false }
