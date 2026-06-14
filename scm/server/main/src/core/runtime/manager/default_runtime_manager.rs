@@ -9,7 +9,7 @@ use edge_proxy::{HealthStatus, LifecycleMonitor};
 use crate::api::egress::Egress;
 use crate::api::ingress::Ingress;
 use crate::api::runtime::traits::runtime_manager::RuntimeManager;
-use crate::api::runtime::types::health::ComponentHealth;
+use crate::api::runtime::types::component_health::ComponentHealth;
 use crate::api::runtime::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
 use crate::api::runtime::{RuntimeError, RuntimeResult};
 

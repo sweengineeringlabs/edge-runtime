@@ -9,7 +9,15 @@ use swe_edge_ingress_grpc::{
     GrpcResponse,
 };
 
-pub(crate) use crate::api::composite::types::composite_grpc_ingress::CompositeGrpcIngress;
+pub(crate) use crate::api::composite::composite_grpc_ingress::CompositeGrpcIngress;
+
+use crate::api::composite::traits::composite_ingress::CompositeIngress;
+
+impl CompositeIngress for CompositeGrpcIngress {
+    fn primary(&self) -> Arc<dyn GrpcIngress> {
+        Arc::clone(&self.primary)
+    }
+}
 
 const REFLECTION_PREFIX: &str = "/grpc.reflection.";
 

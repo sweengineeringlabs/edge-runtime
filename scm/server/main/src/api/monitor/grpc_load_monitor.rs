@@ -1,3 +1,6 @@
-//! gRPC load monitor interface — mirrors `core/monitor/grpc_load_monitor`.
+//! `GrpcLoadMonitor` — gRPC inbound load-monitoring wrapper interface.
 
-pub use crate::api::monitor::traits::grpc_load_monitor::GrpcLoadMonitor;
+use swe_edge_ingress_grpc::GrpcIngress;
+
+/// Marker supertrait for gRPC inbound handlers that record load metrics.
+pub trait GrpcLoadMonitor: GrpcIngress {}

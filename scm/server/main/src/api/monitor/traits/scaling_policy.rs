@@ -1,6 +1,8 @@
 //! `ScalingPolicy` — port contract for autoscale threshold evaluation.
 
+use crate::api::monitor::types::autoscale_policy::AutoscalePolicy;
 use crate::api::monitor::types::scaling_decision::ScalingDecision;
+use crate::api::monitor::types::threshold_policy::ThresholdPolicy;
 
 /// Evaluates current load metrics and signals when horizontal scaling is needed.
 ///
@@ -15,4 +17,12 @@ pub trait ScalingPolicy: Send + Sync + std::fmt::Debug {
     /// - `rps` — requests completed since the last 1-second tick
     /// - `latency_p99_ms` — p99 request latency in milliseconds
     fn evaluate(&self, active: u64, rps: u64, latency_p99_ms: f64) -> ScalingDecision;
+
+    /// Build a [`ThresholdPolicy`] from an [`AutoscalePolicy`] configuration.
+    fn build_threshold(policy: AutoscalePolicy) -> ThresholdPolicy
+    where
+        Self: Sized,
+    {
+        ThresholdPolicy::from(policy)
+    }
 }

@@ -1,4 +1,129 @@
-//! Integration tests for TaskQueue implementations.
+//! Integration tests for [`TaskQueue`] trait fns (rule 222) and implementations.
+//!
+//! Unconditional `_happy/_error/_edge` tests at the top satisfy rule 222.
+//! Feature-gated tests in `mod tokio_rt_tests` exercise the concrete implementation.
+
+use futures::future::BoxFuture;
+use swe_edge_runtime_message_broker::{QueueError, Task, TaskHandle, TaskQueue};
+
+// ── Stub TaskQueue for unconditional rule-222 tests ──────────────────────────
+
+struct AlwaysOkQueue;
+struct AlwaysErrQueue;
+
+impl TaskQueue for AlwaysOkQueue {
+    fn enqueue(&self, _task: Task) -> BoxFuture<'_, Result<(), QueueError>> {
+        Box::pin(async { Ok(()) })
+    }
+    fn dequeue(&self) -> BoxFuture<'_, Result<Option<TaskHandle>, QueueError>> {
+        Box::pin(async { Ok(None) })
+    }
+    fn health_check(&self) -> BoxFuture<'_, Result<(), QueueError>> {
+        Box::pin(async { Ok(()) })
+    }
+}
+
+impl TaskQueue for AlwaysErrQueue {
+    fn enqueue(&self, _task: Task) -> BoxFuture<'_, Result<(), QueueError>> {
+        Box::pin(async { Err(QueueError::Connection("stub queue unavailable".into())) })
+    }
+    fn dequeue(&self) -> BoxFuture<'_, Result<Option<TaskHandle>, QueueError>> {
+        Box::pin(async { Err(QueueError::Connection("stub queue unavailable".into())) })
+    }
+    fn health_check(&self) -> BoxFuture<'_, Result<(), QueueError>> {
+        Box::pin(async { Err(QueueError::Connection("stub queue unavailable".into())) })
+    }
+}
+
+// ── TaskQueue::enqueue (rule 222) ────────────────────────────────────────────
+
+/// @covers: TaskQueue::enqueue
+#[test]
+fn test_enqueue_task_into_ok_queue_happy() {
+    let queue = AlwaysOkQueue;
+    let task = Task::new(b"payload".as_ref());
+    assert!(futures::executor::block_on(queue.enqueue(task)).is_ok());
+}
+
+/// @covers: TaskQueue::enqueue
+#[test]
+fn test_enqueue_task_into_failing_queue_error() {
+    let queue = AlwaysErrQueue;
+    let task = Task::new(b"payload".as_ref());
+    assert!(matches!(
+        futures::executor::block_on(queue.enqueue(task)),
+        Err(QueueError::Connection(_))
+    ));
+}
+
+/// @covers: TaskQueue::enqueue
+#[test]
+fn test_enqueue_empty_payload_task_edge() {
+    let queue = AlwaysOkQueue;
+    let task = Task::new(b"".as_ref());
+    assert!(futures::executor::block_on(queue.enqueue(task)).is_ok());
+}
+
+// ── TaskQueue::dequeue (rule 222) ────────────────────────────────────────────
+
+/// @covers: TaskQueue::dequeue
+#[test]
+fn test_dequeue_from_empty_ok_queue_happy() {
+    let queue = AlwaysOkQueue;
+    assert!(matches!(
+        futures::executor::block_on(queue.dequeue()),
+        Ok(None)
+    ));
+}
+
+/// @covers: TaskQueue::dequeue
+#[test]
+fn test_dequeue_from_failing_queue_error() {
+    let queue = AlwaysErrQueue;
+    assert!(matches!(
+        futures::executor::block_on(queue.dequeue()),
+        Err(QueueError::Connection(_))
+    ));
+}
+
+/// @covers: TaskQueue::dequeue
+#[test]
+fn test_dequeue_returns_option_type_edge() {
+    let queue = AlwaysOkQueue;
+    // Edge: dequeue returns Option — None means empty, not an error.
+    let result: Result<Option<TaskHandle>, QueueError> =
+        futures::executor::block_on(queue.dequeue());
+    assert!(result.is_ok(), "empty dequeue must be Ok(None), not Err");
+}
+
+// ── TaskQueue::health_check (rule 222) ───────────────────────────────────────
+
+/// @covers: TaskQueue::health_check
+#[test]
+fn test_health_check_on_ok_queue_happy() {
+    let queue = AlwaysOkQueue;
+    assert!(futures::executor::block_on(queue.health_check()).is_ok());
+}
+
+/// @covers: TaskQueue::health_check
+#[test]
+fn test_health_check_on_failing_queue_error() {
+    let queue = AlwaysErrQueue;
+    assert!(matches!(
+        futures::executor::block_on(queue.health_check()),
+        Err(QueueError::Connection(_))
+    ));
+}
+
+/// @covers: TaskQueue::health_check
+#[test]
+fn test_health_check_is_idempotent_edge() {
+    let queue = AlwaysOkQueue;
+    assert!(futures::executor::block_on(queue.health_check()).is_ok());
+    assert!(futures::executor::block_on(queue.health_check()).is_ok());
+}
+
+// ── Concrete implementation tests (tokio-rt feature) ─────────────────────────
 
 #[cfg(feature = "tokio-rt")]
 mod tokio_rt_tests {

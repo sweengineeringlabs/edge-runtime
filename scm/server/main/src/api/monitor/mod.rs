@@ -5,6 +5,7 @@ pub(crate) mod http_load_monitor;
 pub(crate) mod lifecycle;
 pub(crate) mod lifecycle_monitor;
 pub(crate) mod sampler;
+pub(crate) mod threshold_policy;
 pub(crate) mod traits;
 pub(crate) mod types;
 pub(crate) mod vo;

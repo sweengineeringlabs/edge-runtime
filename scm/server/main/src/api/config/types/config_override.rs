@@ -1,8 +1,8 @@
 //! `ConfigOverride` — partial TOML overlay applied over a `RuntimeConfig`.
 
 use crate::api::config::errors::config_error::ConfigError;
+use crate::api::config::types::runtime_config::RuntimeConfig;
 use crate::api::monitor::{AutoscalePolicy, MetricsConfig};
-use crate::api::runtime::RuntimeConfig;
 use serde::Deserialize;
 use swe_edge_egress_grpc::GrpcChannelConfig;
 use swe_edge_egress_http::HttpConfig;

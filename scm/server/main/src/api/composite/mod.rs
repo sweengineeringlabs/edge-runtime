@@ -4,5 +4,5 @@ pub(crate) mod composite_grpc_ingress;
 pub(crate) mod traits;
 pub(crate) mod types;
 
+pub use composite_grpc_ingress::CompositeGrpcIngress;
 pub use traits::CompositeIngress;
-pub use types::CompositeGrpcIngress;

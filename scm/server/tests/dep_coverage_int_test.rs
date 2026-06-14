@@ -128,6 +128,20 @@ fn test_jwt_verifier_rejects_invalid_token_directly() {
 
 // ── swe-edge-ingress-grpc ─────────────────────────────────────────────────────
 
+// ── swe-edge-egress-subprocess ────────────────────────────────────────────────
+
+/// Exercises swe-edge-egress-subprocess directly via its SubprocessSvc entry-point.
+///
+/// The subprocess crate is an optional dependency behind the `subprocess` feature
+/// and is always present as a dev-dependency for integration-test coverage.
+#[test]
+fn test_subprocess_svc_runner_is_accessible_as_dev_dep() {
+    use swe_edge_egress_subprocess::SubprocessSvc;
+    let _runner = SubprocessSvc::runner();
+}
+
+// ── swe-edge-ingress-grpc ─────────────────────────────────────────────────────
+
 /// Exercises swe-edge-ingress-grpc through the RuntimeBuilder gRPC route path.
 #[test]
 fn test_ingress_grpc_handler_registered_via_builder() {

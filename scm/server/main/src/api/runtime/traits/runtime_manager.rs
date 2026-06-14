@@ -2,8 +2,11 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::runtime::types::health::RuntimeHealth;
-use crate::api::runtime::RuntimeResult;
+use crate::api::runtime::errors::runtime_result::RuntimeResult;
+use crate::api::runtime::types::component_health::ComponentHealth;
+use crate::api::runtime::types::runtime_health::RuntimeHealth;
+use crate::api::runtime::types::runtime_status::RuntimeStatus;
+use crate::api::runtime::types::service_registry::ServiceRegistry;
 
 /// Manages the full process lifecycle: start, shutdown, and health.
 ///
@@ -24,4 +27,19 @@ pub trait RuntimeManager: Send + Sync {
 
     /// Aggregate health across all wired components.
     fn health(&self) -> BoxFuture<'_, RuntimeHealth>;
+
+    /// Current lifecycle status derived from the last health snapshot.
+    fn runtime_status(&self) -> RuntimeStatus {
+        RuntimeStatus::Running
+    }
+
+    /// Per-subsystem health snapshots derived from the last health snapshot.
+    fn list_components(&self) -> Vec<ComponentHealth> {
+        vec![]
+    }
+
+    /// Access the service registry if one was wired at construction time.
+    fn service_registry(&self) -> Option<&ServiceRegistry> {
+        None
+    }
 }

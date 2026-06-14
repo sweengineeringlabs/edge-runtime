@@ -1,9 +1,3 @@
-//! Runner contract — start, await signal, drain.
+//! Runner contract — re-exported from the runtime theme.
 
-use crate::api::runtime::RuntimeResult;
-
-/// Drives a [`RuntimeManager`] through start → signal → shutdown.
-pub trait Runner: Send + Sync {
-    /// Drive the runtime through start → signal → shutdown.
-    fn run(&self) -> RuntimeResult<()>;
-}
+pub use crate::api::runtime::traits::runner::Runner;

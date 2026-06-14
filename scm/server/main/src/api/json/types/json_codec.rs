@@ -3,11 +3,11 @@
 //! These are the function-pointer types used by `http_route` and `grpc_route`
 //! when no explicit codec is supplied by the caller.
 
-/// Marker trait for types that can be used as JSON codecs.
-pub trait JsonCodec: Send + Sync {}
-
 use swe_edge_ingress_grpc::GrpcIngressError;
 use swe_edge_ingress_http::{HttpIngressError, HttpRequest, HttpResponse};
+
+/// Marker trait for types that provide JSON encode/decode capabilities.
+pub trait JsonCodec: Send + Sync {}
 
 /// Default JSON decode: deserialises the HTTP request body into `Req`.
 pub(crate) type JsonHttpDecodeFn<Req> = fn(&HttpRequest) -> Result<Req, HttpIngressError>;

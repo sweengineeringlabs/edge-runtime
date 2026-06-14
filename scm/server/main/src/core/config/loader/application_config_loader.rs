@@ -3,9 +3,8 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::api::config::traits::loader::ConfigLoader;
-use crate::api::config::{ConfigError, ConfigOverride};
-use crate::api::runtime::RuntimeConfig;
+use crate::api::config::traits::config_loader::ConfigLoader;
+use crate::api::config::{ConfigError, ConfigOverride, RuntimeConfig};
 
 /// Refuse to read a config file larger than this — prevents accidental or
 /// deliberate memory exhaustion via an oversized TOML blob.
@@ -184,7 +183,10 @@ impl ApplicationConfigLoader {
     }
 }
 
-impl crate::api::config::traits::loader::ApplicationConfigLoader for ApplicationConfigLoader {}
+impl crate::api::config::traits::application_config_loader::ApplicationConfigLoader
+    for ApplicationConfigLoader
+{
+}
 
 impl ConfigLoader for ApplicationConfigLoader {
     fn load(&self) -> Result<RuntimeConfig, ConfigError> {

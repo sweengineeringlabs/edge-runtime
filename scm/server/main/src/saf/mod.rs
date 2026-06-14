@@ -1,18 +1,51 @@
 //! SAF layer — daemon public facade.
 
+pub mod config;
+pub mod daemon;
+pub mod lifecycle;
+mod metrics;
+mod runtime;
 mod server_svc;
 
-pub use crate::api::config::traits::loader::ConfigLoader;
-pub use crate::api::config::ConfigError;
-pub use crate::api::egress::Egress;
-pub use crate::api::ingress::Ingress;
-pub use crate::api::runtime::traits::runtime_manager::RuntimeManager;
-pub use crate::api::runtime::types::health::ComponentHealth;
-pub use crate::api::runtime::ServiceRegistry;
-pub use crate::api::runtime::{Runtime, RuntimeBuilder};
-pub use crate::api::runtime::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
-pub use crate::api::runtime::{RuntimeError, RuntimeResult};
-pub use crate::api::runtime::{ServerConfigLoader, ServerMonitor};
+// ── _svc modules (rule 218) ───────────────────────────────────────────────────
+mod application_config_loader_svc;
+mod codec_svc;
+mod composite_ingress_svc;
+mod egress_svc;
+mod grpc_load_monitor_svc;
+mod http_load_monitor_svc;
+mod ingress_svc;
+mod json_codec_svc;
+mod runner_svc;
+mod sampler_svc;
+mod scaling_policy_svc;
+mod validator_svc;
+
+pub use runtime::*;
+pub use server_svc::*;
+
+// Traits + SVC consts from grouped subdirectory modules
+pub use application_config_loader_svc::{ApplicationConfigLoader, APPLICATION_CONFIG_LOADER_SVC};
+pub use codec_svc::{Codec, CODEC_SVC};
+pub use composite_ingress_svc::{CompositeGrpcIngress, CompositeIngress, COMPOSITE_INGRESS_SVC};
+pub use config::{ConfigValidator, CONFIG_LOADER_SVC, CONFIG_VALIDATOR_SVC};
+pub use grpc_load_monitor_svc::{GrpcLoadMonitor, GRPC_LOAD_MONITOR_SVC};
+pub use http_load_monitor_svc::{HttpLoadMonitor, HTTP_LOAD_MONITOR_SVC};
+pub use json_codec_svc::{JsonCodec, JSON_CODEC_SVC};
+pub use lifecycle::LIFECYCLE_OBSERVER_SVC;
+pub use metrics::{
+    MetricsExporter, MetricsHandler as MetricsHandlerTrait, METRICS_EXPORTER_SVC,
+    METRICS_HANDLER_SVC,
+};
+pub use runner_svc::{Runner, RuntimeBuilderServe, RUNNER_SVC};
+pub use runtime::RUNTIME_MANAGER_SVC;
+pub use sampler_svc::{Sampler, SAMPLER_SVC};
+pub use validator_svc::{Validator, VALIDATOR_SVC};
+
+// SVC consts for traits already exported via runtime::*
+pub use egress_svc::EGRESS_SVC;
+pub use ingress_svc::INGRESS_SVC;
+pub use scaling_policy_svc::SCALING_POLICY_SVC;
 
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_grpc::{
@@ -41,17 +74,9 @@ pub use swe_edge_egress_http::{HttpEgress, HttpEgressError, HttpEgressResult, Ht
 // ── Lifecycle / health ────────────────────────────────────────────────────────
 pub use edge_proxy::{HealthReport, LifecycleMonitor, ProxySvc};
 
-// ── Load monitoring / auto-scaling ────────────────────────────────────────────
-pub use crate::api::monitor::types::ring_buffer::RingBuffer;
-pub use crate::api::monitor::{
-    AutoscalePolicy, MetricsConfig, ScalingDecision, ScalingPolicy, SharedCounters,
-    ThresholdPolicy, TrafficCounters,
-};
 pub use swe_observ_metrics::{MetricSnapshot, MetricType, MetricsProvider};
 
 // ── Observability ─────────────────────────────────────────────────────────────
-#[cfg(feature = "observability")]
-pub use crate::api::runtime::TracingInitializer;
 pub use swe_edge_observ_config::{ObservabilityConfig, TracingConfig, TracingFormat, TracingLevel};
 
 // ── Message broker ────────────────────────────────────────────────────────────

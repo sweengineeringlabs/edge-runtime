@@ -15,7 +15,7 @@ use swe_edge_ingress_http::AxumHttpServer;
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
-use crate::api::config::traits::loader::ConfigLoader;
+use crate::api::config::traits::config_loader::ConfigLoader;
 use crate::api::ingress::Ingress;
 use crate::api::monitor::ThresholdPolicy;
 use crate::api::monitor::{SharedCounters, TrafficCounters};
@@ -26,8 +26,8 @@ use crate::core::egress::DefaultEgress;
 use crate::core::ingress::DefaultIngress;
 use crate::core::metrics::handler::MetricsHandler;
 use crate::core::monitor::{BackgroundSampler, GrpcLoadMonitor, HttpLoadMonitor};
-use crate::core::runner::DaemonRunner;
 use crate::core::runtime::manager::DefaultRuntimeManager;
+use crate::core::DaemonRunner;
 use swe_observ_metrics::create_local_metrics_backend;
 
 const DEFAULT_APP_NAME: &str = "swe-edge";
