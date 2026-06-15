@@ -56,7 +56,7 @@ pub use swe_edge_ingress_verifier::{
 };
 
 // ── Ingress surface (handlers + request/response types) ───────────────────────
-pub use edge_domain::{Handler, HandlerError, SecurityContext};
+pub use edge_domain::{Handler, HandlerContext, HandlerError, SecurityContext};
 pub use swe_edge_ingress_grpc::{
     GrpcDecodeFn, GrpcEncodeFn, GrpcHealthCheck, GrpcIngress, GrpcIngressError, GrpcIngressResult,
     GrpcMessageStream, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode,

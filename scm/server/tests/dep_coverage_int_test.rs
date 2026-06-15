@@ -10,7 +10,7 @@ use swe_edge_runtime::{Runtime, RuntimeConfig};
 /// Exercises edge-domain via the RuntimeBuilder HTTP route path.
 #[tokio::test]
 async fn test_edge_domain_handler_registered_via_builder() {
-    use edge_domain::{Handler, HandlerError};
+    use edge_domain::{Handler, HandlerContext, HandlerError};
 
     struct PingHandler;
 
@@ -25,7 +25,11 @@ async fn test_edge_domain_handler_registered_via_builder() {
         fn pattern(&self) -> &str {
             "/ping"
         }
-        async fn execute(&self, _: String) -> Result<String, HandlerError> {
+        async fn execute(
+            &self,
+            _: String,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<String, HandlerError> {
             Ok("pong".into())
         }
     }
@@ -145,7 +149,7 @@ fn test_subprocess_svc_runner_is_accessible_as_dev_dep() {
 /// Exercises swe-edge-ingress-grpc through the RuntimeBuilder gRPC route path.
 #[test]
 fn test_ingress_grpc_handler_registered_via_builder() {
-    use edge_domain::{Handler, HandlerError};
+    use edge_domain::{Handler, HandlerContext, HandlerError};
     use swe_edge_runtime::Runtime;
 
     struct EchoHandler;
@@ -161,7 +165,11 @@ fn test_ingress_grpc_handler_registered_via_builder() {
         fn pattern(&self) -> &str {
             "/echo"
         }
-        async fn execute(&self, req: Vec<u8>) -> Result<Vec<u8>, HandlerError> {
+        async fn execute(
+            &self,
+            req: Vec<u8>,
+            _ctx: HandlerContext<'_>,
+        ) -> Result<Vec<u8>, HandlerError> {
             Ok(req)
         }
     }
