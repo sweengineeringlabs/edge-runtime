@@ -12,11 +12,21 @@ pub(crate) struct LoggingConsumerContext;
 impl ClientContext for LoggingConsumerContext {}
 
 impl ConsumerContext for LoggingConsumerContext {
-    fn pre_rebalance(&self, rebalance: &Rebalance) {
+    fn pre_rebalance(
+        &self,
+        base_consumer: &rdkafka::consumer::BaseConsumer<Self>,
+        rebalance: &Rebalance<'_>,
+    ) {
+        let _ = base_consumer;
         tracing::info!(event = "kafka.pre_rebalance", ?rebalance);
     }
 
-    fn post_rebalance(&self, rebalance: &Rebalance) {
+    fn post_rebalance(
+        &self,
+        base_consumer: &rdkafka::consumer::BaseConsumer<Self>,
+        rebalance: &Rebalance<'_>,
+    ) {
+        let _ = base_consumer;
         tracing::info!(event = "kafka.post_rebalance", ?rebalance);
     }
 }

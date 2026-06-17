@@ -5,7 +5,7 @@
 //! [`MessageBrokerFactory::nats`] for NATS-backed production deployments, and
 //! [`MessageBrokerFactory::from_config`] to build a broker from configuration.
 //!
-//! Single entry point: [`crate::gateway`] (message_broker_svc).
+//! Single entry point: `gateway::message_broker_svc`.
 
 // `unwrap`/`expect` are denied in production code (workspace lints) but are the
 // idiomatic assertion mechanism inside inline `#[cfg(test)]` modules.

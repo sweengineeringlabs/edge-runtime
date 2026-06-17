@@ -15,7 +15,7 @@ use crate::spi::task::kafka::logging_consumer_context::{LoggingConsumer, Logging
 use crate::api::task::errors::queue_error::QueueError;
 use crate::api::task::traits::task_queue::TaskQueue;
 use crate::api::task::types::task::Task;
-use crate::api::task::types::TaskHandle;
+use crate::api::task::types::task_handle::TaskHandle;
 
 /// Kafka-backed competing-consumer work queue.
 ///

@@ -7,7 +7,7 @@ use swe_edge_egress_http::HttpEgress;
 
 /// Holds egress clients that handlers may use to make outbound calls.
 ///
-/// Constructed by [`RuntimeBuilder::build_registry`] and passed to
+/// Constructed by [`RuntimeBuilder::build_registry`](crate::RuntimeBuilder::build_registry) and passed to
 /// handler constructors at startup — not per-request.  Share it via
 /// `Arc<ServiceRegistry>`.
 pub struct ServiceRegistry {
@@ -38,7 +38,7 @@ impl ServiceRegistry {
         self.grpc.as_ref()
     }
 
-    /// Attach a subprocess runner, consumed by [`RuntimeBuilder::build_registry`].
+    /// Attach a subprocess runner, consumed by [`RuntimeBuilder::build_registry`](crate::RuntimeBuilder::build_registry).
     #[cfg(feature = "subprocess")]
     pub fn with_subprocess(
         mut self,

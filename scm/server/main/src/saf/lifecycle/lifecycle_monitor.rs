@@ -2,6 +2,6 @@
 //!
 //! Public entry-point for `ServerMonitor::observe` and related wrapping
 //! operations. The method implementations are defined via `impl ServerMonitor`
-//! in [`server_svc`](super::super::server_svc).
+//! in `server_svc`.
 
 pub use crate::api::runtime::ServerMonitor;

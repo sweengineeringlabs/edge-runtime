@@ -1,6 +1,6 @@
 //! `ScalingDecision` — outcome of a scaling policy evaluation.
 
-/// The outcome of evaluating a [`ScalingPolicy`] against current load metrics.
+/// The outcome of evaluating a [`ScalingPolicy`](crate::ScalingPolicy) against current load metrics.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ScalingDecision {
     /// Current load exceeds at least one threshold — signal the orchestrator to scale out.

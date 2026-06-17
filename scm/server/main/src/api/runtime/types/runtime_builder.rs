@@ -46,7 +46,7 @@ pub struct RuntimeBuilder {
 }
 
 impl RuntimeBuilder {
-    /// Override the default TOML config with an explicit [`RuntimeConfig`].
+    /// Override the default TOML config with an explicit [`RuntimeConfig`](crate::RuntimeConfig).
     pub fn config(mut self, config: RuntimeConfig) -> Self {
         self.config = Some(config);
         self
@@ -199,8 +199,8 @@ impl RuntimeBuilder {
 
     /// Attach a message broker for health monitoring during runtime lifecycle.
     ///
-    /// The runtime probes [`MessageBroker::health_check`] on startup and
-    /// includes `"message-broker"` in every [`RuntimeHealth`] report.
+    /// The runtime probes `MessageBroker::health_check` on startup and
+    /// includes `"message-broker"` in every [`RuntimeHealth`](crate::RuntimeHealth) report.
     #[cfg(feature = "message-broker")]
     pub fn with_message_broker(
         mut self,
@@ -213,8 +213,8 @@ impl RuntimeBuilder {
     /// Attach a subprocess runner to the service registry.
     ///
     /// The runner is made available to handlers via
-    /// [`ServiceRegistry::subprocess`] — handlers call it directly to spawn
-    /// child processes with policy from a [`SubprocessConfig`].
+    /// [`ServiceRegistry::subprocess`](crate::ServiceRegistry::subprocess) — handlers call it directly to spawn
+    /// child processes with policy from a [`SubprocessConfig`](crate::SubprocessConfig).
     #[cfg(feature = "subprocess")]
     pub fn with_subprocess(
         mut self,
@@ -228,14 +228,14 @@ impl RuntimeBuilder {
     /// background sampler.
     ///
     /// Takes priority over the `autoscale` section in `RuntimeConfig` / TOML.
-    /// Use [`ThresholdPolicy`][crate::core::monitor::threshold_policy::ThresholdPolicy]
+    /// Use [`ThresholdPolicy`](crate::ThresholdPolicy)
     /// for the standard threshold-based implementation.
     pub fn with_scaling(mut self, policy: impl ScalingPolicy + 'static) -> Self {
         self.scaling_policy = Some(Arc::new(policy));
         self
     }
 
-    /// Build a [`ServiceRegistry`] from the configured egress clients, if any.
+    /// Build a [`ServiceRegistry`](crate::ServiceRegistry) from the configured egress clients, if any.
     ///
     /// Returns `None` when no HTTP egress client has been registered via
     /// [`RuntimeBuilder::egress_http`].

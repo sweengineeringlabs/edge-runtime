@@ -1,4 +1,4 @@
-//! `ThresholdPolicy` — threshold-based [`ScalingPolicy`] implementation.
+//! `ThresholdPolicy` — threshold-based [`ScalingPolicy`](crate::ScalingPolicy) implementation.
 
 use crate::api::monitor::traits::scaling_policy::ScalingPolicy;
 use crate::api::monitor::types::autoscale_policy::AutoscalePolicy;
@@ -8,7 +8,7 @@ use crate::api::monitor::types::scaling_decision::ScalingDecision;
 /// its configured ceiling.
 ///
 /// Construct via [`ThresholdPolicy::new`] for programmatic use, or via
-/// [`From<AutoscalePolicy>`] to derive limits from a TOML-loaded config.
+/// `From<AutoscalePolicy>` to derive limits from a TOML-loaded config.
 #[derive(Debug, Clone)]
 pub struct ThresholdPolicy {
     requests_active_max: u64,
