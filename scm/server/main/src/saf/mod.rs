@@ -1,8 +1,8 @@
 //! SAF layer — daemon public facade.
 
-pub mod config;
+mod config;
 pub mod daemon;
-pub mod lifecycle;
+mod lifecycle;
 mod metrics;
 mod runtime;
 mod server_svc;

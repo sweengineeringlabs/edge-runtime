@@ -3,15 +3,16 @@
 //! All public items flow through `_svc.rs` files; this module only
 //! declares submodules and re-exports from them.
 
-pub mod broker;
+mod broker;
 mod config_provider_svc;
-pub mod task;
+mod task;
 mod validator_svc;
 
 pub use broker::BrokerErr as BrokerError;
 pub use broker::BrokerFactory;
 pub use broker::BrokerMessage as Message;
 pub use broker::MessageBrokerFactory;
+pub use broker::DEFAULT_BROKER_BACKEND;
 
 pub use config_provider_svc::ApplicationConfig;
 pub use config_provider_svc::BrokerBackendConfig;
@@ -25,6 +26,8 @@ pub use task::TaskId;
 pub use task::TaskQueue;
 pub use task::TaskQueueFactory;
 pub use task::TaskQueueFactoryContract;
+pub use task::MAX_TASK_PAYLOAD_BYTES;
+pub use task::TASK_QUEUE_FACTORY_CONTRACT_ID;
 
 #[cfg(feature = "tokio-rt")]
 pub use task::InMemoryTaskQueue;

@@ -18,10 +18,6 @@ use crate::api::config::traits::config_provider::ConfigProvider;
 use crate::api::config::types::application_config::ApplicationConfig;
 #[cfg(feature = "tokio-rt")]
 use crate::api::task::types::in_memory_task_queue::InMemoryTaskQueue;
-#[cfg(any(feature = "nats", feature = "kafka"))]
-use crate::api::task::QueueError;
-#[cfg(any(feature = "nats", feature = "kafka"))]
-use crate::api::task::TaskQueue;
 use crate::api::task::TaskQueueFactory;
 use crate::core::config::DefaultConfigProvider;
 #[cfg(feature = "kafka")]
@@ -32,6 +28,10 @@ use crate::spi::KafkaTaskQueue;
 use crate::spi::NatsMessageBroker;
 #[cfg(feature = "nats")]
 use crate::spi::NatsTaskQueue;
+#[cfg(any(feature = "nats", feature = "kafka"))]
+use crate::QueueError;
+#[cfg(any(feature = "nats", feature = "kafka"))]
+use crate::TaskQueue;
 #[cfg(feature = "tokio-rt")]
 use std::collections::HashMap;
 #[cfg(feature = "tokio-rt")]
