@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- `cli` feature — wires `swe-edge-runtime-cli` into `RuntimeBuilder` and `ServiceRegistry`.
+  - `RuntimeBuilder::with_cli_runner(impl CliRunner + 'static)` — registers a CLI runner.
+  - `ServiceRegistry::cli_runner()` — returns the registered runner for handler use.
+  - Re-exports `CliArgs`, `CliCommand`, `CliError`, `CliOutput`, `CliRunner`, `NoopCliCommand`, `NoopCliRunner` from `swe_edge_runtime` when the feature is enabled.
+  - Follows the same slot pattern as `subprocess` — feature-gated, no compile regression without `--features cli`.
+
 ## [0.3.2]
 
 ### Fixed

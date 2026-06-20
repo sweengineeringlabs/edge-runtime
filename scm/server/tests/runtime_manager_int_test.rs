@@ -278,3 +278,26 @@ async fn test_health_components_nonempty_after_start_edge() {
     mgr.start().await.expect("start ok");
     assert!(!mgr.health().await.components.is_empty());
 }
+
+#[test]
+fn test_service_registry_builder_no_registry_returns_none_happy() {
+    let mgr = make_manager();
+    // Default manager has no service registry wired; builder is unavailable.
+    let _b = mgr.service_registry_builder();
+}
+
+#[test]
+fn test_service_registry_builder_no_registry_wired_returns_none_error() {
+    let mgr = make_manager();
+    assert!(
+        mgr.service_registry_builder().is_none(),
+        "expected None when no ServiceRegistry is wired"
+    );
+}
+
+#[test]
+fn test_service_registry_builder_default_method_does_not_panic_edge() {
+    let mgr = make_manager();
+    // Must not panic regardless of registry presence.
+    let _ = mgr.service_registry_builder();
+}

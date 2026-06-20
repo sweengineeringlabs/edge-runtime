@@ -3210,7 +3210,7 @@ dependencies = [
 
 [[package]]
 name = "swe-edge-runtime-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "futures",
  "serde",
@@ -3267,6 +3267,7 @@ dependencies = [
  "swe-edge-ingress-http-transport",
  "swe-edge-ingress-verifier",
  "swe-edge-observ-config",
+ "swe-edge-runtime-cli",
  "swe-edge-runtime-message-broker",
  "swe_justobserv_metrics",
  "tempfile",

@@ -43,6 +43,8 @@ pub struct RuntimeBuilder {
     pub(crate) message_broker: Option<Arc<dyn swe_edge_runtime_message_broker::MessageBroker>>,
     #[cfg(feature = "subprocess")]
     pub(crate) subprocess_runner: Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
+    #[cfg(feature = "cli")]
+    pub(crate) cli_runner: Option<Arc<dyn swe_edge_runtime_cli::CliRunner>>,
 }
 
 impl RuntimeBuilder {
@@ -224,6 +226,20 @@ impl RuntimeBuilder {
         self
     }
 
+    /// Attach a CLI runner to the service registry.
+    ///
+    /// The runner is made available to handlers via
+    /// [`ServiceRegistry::cli_runner`](crate::ServiceRegistry::cli_runner) — handlers call it directly to
+    /// dispatch CLI commands at runtime.
+    #[cfg(feature = "cli")]
+    pub fn with_cli_runner(
+        mut self,
+        runner: impl swe_edge_runtime_cli::CliRunner + 'static,
+    ) -> Self {
+        self.cli_runner = Some(Arc::new(runner));
+        self
+    }
+
     /// Attach a programmatic scaling policy evaluated once per second by the
     /// background sampler.
     ///
@@ -245,6 +261,11 @@ impl RuntimeBuilder {
             #[cfg(feature = "subprocess")]
             let registry = match &self.subprocess_runner {
                 Some(r) => registry.with_subprocess(Arc::clone(r)),
+                None => registry,
+            };
+            #[cfg(feature = "cli")]
+            let registry = match &self.cli_runner {
+                Some(r) => registry.with_cli_runner(Arc::clone(r)),
                 None => registry,
             };
             Arc::new(registry)

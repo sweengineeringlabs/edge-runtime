@@ -28,8 +28,8 @@ pub use runtime::{
     AutoscalePolicy, ComponentHealth, ConfigError, ConfigLoader, Egress, Ingress, MetricsConfig,
     RingBuffer, Runtime, RuntimeBuilder, RuntimeConfig, RuntimeError, RuntimeHealth,
     RuntimeManager, RuntimeResult, RuntimeStatus, ScalingDecision, ScalingPolicy,
-    ServerConfigLoader, ServerMonitor, ServiceRegistry, SharedCounters, ThresholdPolicy,
-    TrafficCounters, RUNTIME_API_VERSION, RUNTIME_MANAGER_SVC,
+    ServerConfigLoader, ServerMonitor, ServiceRegistry, ServiceRegistryBuilder, SharedCounters,
+    ThresholdPolicy, TrafficCounters, RUNTIME_API_VERSION, RUNTIME_MANAGER_SVC,
 };
 
 // Traits + SVC consts from grouped subdirectory modules
@@ -95,4 +95,10 @@ pub use swe_edge_runtime_message_broker::{Message, MessageBroker, MessageStream}
 pub use swe_edge_egress_subprocess::{
     SubprocessArgs, SubprocessArgsBuilder, SubprocessConfig, SubprocessConfigBuilder,
     SubprocessResult, SubprocessRunner, SubprocessRunnerExtension, SubprocessSvc,
+};
+
+// ── CLI ───────────────────────────────────────────────────────────────────────
+#[cfg(feature = "cli")]
+pub use swe_edge_runtime_cli::{
+    CliArgs, CliCommand, CliError, CliOutput, CliRunner, NoopCliCommand, NoopCliRunner,
 };

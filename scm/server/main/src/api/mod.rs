@@ -49,7 +49,7 @@ pub use monitor::{
 pub use runtime::{
     ComponentHealth, ConfigValidator, Runner, Runtime, RuntimeBuilder, RuntimeBuilderServe,
     RuntimeError, RuntimeHealth, RuntimeManager, RuntimeResult, RuntimeStatus, ServerConfigLoader,
-    ServerMonitor, ServiceRegistry, TracingInitializer, Validator,
+    ServerMonitor, ServiceRegistry, ServiceRegistryBuilder, TracingInitializer, Validator,
 };
 
 // ── validator ────────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ pub mod runtime_status;
 pub mod server_config_loader;
 pub mod server_monitor;
 pub mod service_registry;
+pub mod service_registry_builder;
 pub mod tracing_initializer;
 
 pub use component_health::ComponentHealth;
@@ -22,4 +23,5 @@ pub use runtime_status::RuntimeStatus;
 pub use server_config_loader::ServerConfigLoader;
 pub use server_monitor::ServerMonitor;
 pub use service_registry::ServiceRegistry;
+pub use service_registry_builder::ServiceRegistryBuilder;
 pub use tracing_initializer::TracingInitializer;

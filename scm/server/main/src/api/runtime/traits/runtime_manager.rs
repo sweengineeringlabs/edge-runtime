@@ -7,6 +7,7 @@ use crate::api::runtime::types::component_health::ComponentHealth;
 use crate::api::runtime::types::runtime_health::RuntimeHealth;
 use crate::api::runtime::types::runtime_status::RuntimeStatus;
 use crate::api::runtime::types::service_registry::ServiceRegistry;
+use crate::api::runtime::types::service_registry_builder::ServiceRegistryBuilder;
 
 /// Manages the full process lifecycle: start, shutdown, and health.
 ///
@@ -41,5 +42,13 @@ pub trait RuntimeManager: Send + Sync {
     /// Access the service registry if one was wired at construction time.
     fn service_registry(&self) -> Option<&ServiceRegistry> {
         None
+    }
+
+    /// Return a builder pre-loaded with the HTTP egress from the wired registry.
+    ///
+    /// Returns `None` when no service registry is available.
+    fn service_registry_builder(&self) -> Option<ServiceRegistryBuilder> {
+        self.service_registry()
+            .map(|r| ServiceRegistryBuilder::new(std::sync::Arc::clone(r.http())))
     }
 }

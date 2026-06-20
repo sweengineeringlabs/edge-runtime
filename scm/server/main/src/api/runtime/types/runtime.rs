@@ -32,6 +32,8 @@ impl Runtime {
             message_broker: None,
             #[cfg(feature = "subprocess")]
             subprocess_runner: None,
+            #[cfg(feature = "cli")]
+            cli_runner: None,
         }
     }
 }

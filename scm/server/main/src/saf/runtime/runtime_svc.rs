@@ -10,6 +10,7 @@ pub use crate::api::RuntimeHealth;
 pub use crate::api::RuntimeManager;
 pub use crate::api::RuntimeStatus;
 pub use crate::api::ServiceRegistry;
+pub use crate::api::ServiceRegistryBuilder;
 pub use crate::api::{Runtime, RuntimeBuilder};
 pub use crate::api::{RuntimeError, RuntimeResult};
 pub use crate::api::{ServerConfigLoader, ServerMonitor};

@@ -12,5 +12,5 @@ pub use traits::{ConfigValidator, Runner, RuntimeManager, Validator};
 pub use types::runtime_config::RuntimeConfig;
 pub use types::{
     ComponentHealth, Runtime, RuntimeBuilder, RuntimeBuilderServe, RuntimeHealth, RuntimeStatus,
-    ServerConfigLoader, ServerMonitor, ServiceRegistry, TracingInitializer,
+    ServerConfigLoader, ServerMonitor, ServiceRegistry, ServiceRegistryBuilder, TracingInitializer,
 };

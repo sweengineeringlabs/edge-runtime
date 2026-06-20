@@ -15,6 +15,8 @@ pub struct ServiceRegistry {
     grpc: Option<Arc<dyn GrpcEgress>>,
     #[cfg(feature = "subprocess")]
     subprocess: Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
+    #[cfg(feature = "cli")]
+    cli_runner: Option<Arc<dyn swe_edge_runtime_cli::CliRunner>>,
 }
 
 impl ServiceRegistry {
@@ -25,6 +27,8 @@ impl ServiceRegistry {
             grpc,
             #[cfg(feature = "subprocess")]
             subprocess: None,
+            #[cfg(feature = "cli")]
+            cli_runner: None,
         }
     }
 
@@ -52,5 +56,18 @@ impl ServiceRegistry {
     #[cfg(feature = "subprocess")]
     pub fn subprocess(&self) -> Option<&Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>> {
         self.subprocess.as_ref()
+    }
+
+    /// Attach a CLI runner, consumed by [`RuntimeBuilder::build_registry`](crate::RuntimeBuilder::build_registry).
+    #[cfg(feature = "cli")]
+    pub fn with_cli_runner(mut self, runner: Arc<dyn swe_edge_runtime_cli::CliRunner>) -> Self {
+        self.cli_runner = Some(runner);
+        self
+    }
+
+    /// Return the CLI runner, if one was registered.
+    #[cfg(feature = "cli")]
+    pub fn cli_runner(&self) -> Option<&Arc<dyn swe_edge_runtime_cli::CliRunner>> {
+        self.cli_runner.as_ref()
     }
 }

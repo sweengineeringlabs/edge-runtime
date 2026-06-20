@@ -8,6 +8,6 @@ pub use runtime_svc::{
     AutoscalePolicy, ComponentHealth, ConfigError, ConfigLoader, Egress, Ingress, MetricsConfig,
     RingBuffer, Runtime, RuntimeBuilder, RuntimeConfig, RuntimeError, RuntimeHealth,
     RuntimeManager, RuntimeResult, RuntimeStatus, ScalingDecision, ScalingPolicy,
-    ServerConfigLoader, ServerMonitor, ServiceRegistry, SharedCounters, ThresholdPolicy,
-    TrafficCounters, RUNTIME_API_VERSION,
+    ServerConfigLoader, ServerMonitor, ServiceRegistry, ServiceRegistryBuilder, SharedCounters,
+    ThresholdPolicy, TrafficCounters, RUNTIME_API_VERSION,
 };
