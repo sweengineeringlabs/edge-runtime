@@ -3,7 +3,9 @@
 use edge_domain::SecurityContext;
 use futures::future::BoxFuture;
 
-use crate::api::{GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcRequest, GrpcResponse};
+use crate::api::{
+    GrpcHealthCheck, GrpcIngressError, GrpcIngressResult, GrpcMethod, GrpcRequest, GrpcResponse,
+};
 
 /// Receives and handles inbound gRPC calls.
 ///
@@ -19,6 +21,13 @@ pub trait GrpcIngress: Send + Sync {
 
     /// Perform a health check of this ingress handler.
     fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>>;
+
+    /// Return which gRPC method types this ingress handler accepts.
+    ///
+    /// Defaults to `[Unary]`. Override to advertise support for streaming patterns.
+    fn accepted_methods(&self) -> Vec<GrpcMethod> {
+        vec![GrpcMethod::Unary]
+    }
 
     /// Return the error kind label for a given ingress error.
     fn error_kind(&self, _err: &GrpcIngressError) -> &'static str {
