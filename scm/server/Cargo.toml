@@ -18,6 +18,11 @@ service_type     = "runtime"
 name = "swe_edge_runtime"
 path = "main/src/lib.rs"
 
+[[example]]
+name = "hello-cli"
+path = "../examples/hello-cli/main.rs"
+required-features = ["cli"]
+
 [features]
 default = []
 observability  = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
