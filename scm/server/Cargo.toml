@@ -23,6 +23,11 @@ name = "hello-cli"
 path = "../examples/hello-cli/main.rs"
 required-features = ["cli"]
 
+[[example]]
+name = "handler-cli"
+path = "../examples/handler-cli/main.rs"
+required-features = ["cli"]
+
 [features]
 default = []
 observability  = ["dep:tracing-subscriber", "swe-edge-observ-config/observability"]
