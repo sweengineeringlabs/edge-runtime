@@ -7,7 +7,7 @@ set -euo pipefail
 export PATH="$HOME/.cargo/bin:$PATH"
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
-SCM_DIR="$REPO_ROOT/scm"
+SCM_DIR="$REPO_ROOT/edge/scm"
 
 echo "pre-commit ── runtime ──"
 cd "$SCM_DIR"
