@@ -3,13 +3,14 @@
 #![allow(clippy::unwrap_used)]
 
 use futures::executor::block_on;
-use swe_edge_runtime_cli::{CliArgs, CliRunner, NoopCliRunner};
+use swe_edge_runtime_cli::{CliRunner, NoopCliCommand, NoopCliRunner};
 
 /// @covers: NoopCliRunner::create
 #[test]
 fn test_create_returns_usable_runner_happy() {
     let runner = NoopCliRunner::create();
-    let out = block_on(runner.run("ping", &CliArgs::new())).unwrap();
+    let cmd = NoopCliCommand::create("ping");
+    let out = block_on(runner.run(&cmd)).unwrap();
     assert!(out.is_success());
 }
 
@@ -23,6 +24,7 @@ fn test_create_is_zero_sized_error() {
 #[test]
 fn test_create_callable_as_dyn_cli_runner_edge() {
     let runner: &dyn CliRunner = &NoopCliRunner::create();
-    let out = block_on(runner.run("dyn", &CliArgs::new())).unwrap();
+    let cmd = NoopCliCommand::create("dyn");
+    let out = block_on(runner.run(&cmd)).unwrap();
     assert!(out.is_success());
 }

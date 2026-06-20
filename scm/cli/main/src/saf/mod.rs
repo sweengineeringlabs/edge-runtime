@@ -1,7 +1,7 @@
 //! Service Abstraction Framework — the only public export surface for consumers.
 
-mod cli_runner_svc;
+mod cli;
 mod validator_svc;
 
-pub use cli_runner_svc::*;
-pub use validator_svc::*;
+pub use cli::{CliArgs, CliCommand, CliError, CliOutput, CliRunner, NoopCliCommand, NoopCliRunner};
+pub use validator_svc::{NoopValidator, Validator};

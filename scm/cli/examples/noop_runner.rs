@@ -1,12 +1,13 @@
-//! Demonstrates wiring a [`NoopCliRunner`] as the CLI surface.
+//! Demonstrates wiring a [`NoopCliRunner`] with a [`NoopCliCommand`].
 #![allow(clippy::expect_used)]
 
 use futures::executor::block_on;
-use swe_edge_runtime_cli::{CliArgs, CliRunner, NoopCliRunner};
+use swe_edge_runtime_cli::{CliRunner, NoopCliCommand, NoopCliRunner};
 
 fn main() {
     let runner = NoopCliRunner::create();
-    match block_on(runner.run("list", &CliArgs::new())) {
+    let cmd = NoopCliCommand::create("list");
+    match block_on(runner.run(&cmd)) {
         Ok(out) => println!("exit_code={} stdout={:?}", out.exit_code, out.stdout),
         Err(e) => eprintln!("run failed: {e}"),
     }

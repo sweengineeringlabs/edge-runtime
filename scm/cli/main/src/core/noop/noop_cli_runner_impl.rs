@@ -2,10 +2,10 @@
 
 use futures::future::BoxFuture;
 
-use crate::api::{CliArgs, CliError, CliOutput, CliRunner, NoopCliRunner};
+use crate::api::{CliCommand, CliError, CliOutput, CliRunner, NoopCliRunner};
 
 impl CliRunner for NoopCliRunner {
-    fn run(&self, _name: &str, _args: &CliArgs) -> BoxFuture<'_, Result<CliOutput, CliError>> {
+    fn run(&self, _command: &dyn CliCommand) -> BoxFuture<'_, Result<CliOutput, CliError>> {
         Box::pin(async { Ok(CliOutput::success("")) })
     }
 }
