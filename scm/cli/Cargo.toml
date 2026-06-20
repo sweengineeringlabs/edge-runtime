@@ -1,0 +1,39 @@
+[package]
+name             = "swe-edge-runtime-cli"
+version          = "0.1.0"
+edition          = "2021"
+license          = "MIT OR Apache-2.0"
+rust-version     = "1.95"
+authors          = ["SWE Engineering Labs"]
+repository       = "https://github.com/sweengineeringlabs/edge-runtime"
+description      = "CLI runner/command contracts — traits and value types only, no CLI framework dependencies"
+keywords         = ["cli", "runner", "contracts", "async", "swe"]
+categories       = ["command-line-interface", "asynchronous"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "cli-runtime"
+
+[lib]
+name = "swe_edge_runtime_cli"
+path = "main/src/lib.rs"
+
+[dependencies]
+futures   = "0.3"
+serde     = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[[example]]
+name = "noop_runner"
+path = "examples/noop_runner.rs"
+
+[dev-dependencies]
+futures = "0.3"
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
