@@ -6,12 +6,12 @@ use parking_lot::Mutex;
 
 use edge_proxy::{HealthStatus, LifecycleMonitor};
 
-use crate::api::egress::Egress;
-use crate::api::ingress::Ingress;
-use crate::api::runtime::traits::runtime_manager::RuntimeManager;
-use crate::api::runtime::types::component_health::ComponentHealth;
-use crate::api::runtime::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
-use crate::api::runtime::{RuntimeError, RuntimeResult};
+use crate::api::ComponentHealth;
+use crate::api::Egress;
+use crate::api::Ingress;
+use crate::api::RuntimeManager;
+use crate::api::{RuntimeConfig, RuntimeHealth, RuntimeStatus};
+use crate::api::{RuntimeError, RuntimeResult};
 
 pub(crate) struct DefaultRuntimeManager {
     config: RuntimeConfig,

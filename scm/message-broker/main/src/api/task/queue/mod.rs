@@ -3,4 +3,5 @@
 /// Maximum number of in-flight tasks the default in-memory queue accepts.
 ///
 /// Used as the channel capacity in [`TaskQueueFactory::in_memory`] (tokio-rt feature).
+#[cfg(feature = "tokio-rt")]
 pub const MAX_QUEUE_DEPTH: usize = 16_384;

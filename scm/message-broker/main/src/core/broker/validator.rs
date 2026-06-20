@@ -1,6 +1,6 @@
 //! [`DefaultValidator`] — default implementation of the [`Validator`] contract.
 
-use crate::api::config::traits::validator::Validator;
+use crate::api::Validator;
 
 /// Default validator implementation that always returns success.
 ///

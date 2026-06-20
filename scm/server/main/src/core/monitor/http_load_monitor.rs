@@ -7,7 +7,7 @@ use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse,
 };
 
-use crate::api::monitor::SharedCounters;
+use crate::api::SharedCounters;
 
 /// Wraps an `HttpIngress` handler; records load metrics on every request.
 pub(crate) struct HttpLoadMonitor {
@@ -21,7 +21,7 @@ impl HttpLoadMonitor {
     }
 }
 
-impl crate::api::monitor::HttpLoadMonitor for HttpLoadMonitor {}
+impl crate::api::HttpLoadMonitor for HttpLoadMonitor {}
 
 impl HttpIngress for HttpLoadMonitor {
     fn handle(
@@ -48,7 +48,7 @@ impl HttpIngress for HttpLoadMonitor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::monitor::TrafficCounters;
+    use crate::api::TrafficCounters;
     use std::sync::atomic::Ordering;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;

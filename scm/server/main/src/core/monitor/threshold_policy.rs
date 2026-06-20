@@ -1,7 +1,7 @@
 //! `DefaultThresholdPolicy` — threshold-based [`ScalingPolicy`] core implementation.
 
-use crate::api::monitor::traits::scaling_policy::ScalingPolicy;
-use crate::api::monitor::types::scaling_decision::ScalingDecision;
+use crate::api::ScalingDecision;
+use crate::api::ScalingPolicy;
 
 /// Core threshold-based scaling policy: signals scale-out when any metric
 /// exceeds its configured ceiling.

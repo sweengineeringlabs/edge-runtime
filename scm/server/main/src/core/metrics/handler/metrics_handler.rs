@@ -13,8 +13,8 @@ use swe_edge_ingress_http::{
 };
 use swe_observ_metrics::{MetricType, MetricsProvider};
 
-use crate::api::metrics::MetricsConfig;
-use crate::api::monitor::SharedCounters;
+use crate::api::MetricsConfig;
+use crate::api::SharedCounters;
 
 /// Serves the Prometheus text exposition endpoint.
 ///
@@ -63,9 +63,9 @@ impl MetricsHandler {
     }
 }
 
-impl crate::api::metrics::traits::metrics_handler::MetricsHandler for MetricsHandler {}
+impl crate::api::MetricsHandler for MetricsHandler {}
 
-impl crate::api::metrics::traits::metrics_exporter::MetricsExporter for MetricsHandler {
+impl crate::api::MetricsExporter for MetricsHandler {
     fn config(&self) -> &MetricsConfig {
         &self.config
     }
@@ -120,7 +120,7 @@ impl HttpIngress for MetricsHandler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::monitor::TrafficCounters;
+    use crate::api::TrafficCounters;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
 

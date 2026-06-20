@@ -49,7 +49,13 @@ impl TaskQueue for InMemoryTaskQueue {
                 Some(task) => {
                     let ack = Box::pin(async move { Ok(()) });
                     let nack = Box::pin(async move { Ok(()) });
-                    Ok(Some(TaskHandle::new(task, ack, nack)))
+                    Ok(Some(TaskHandle::new(
+                        task.id,
+                        task.payload,
+                        task.headers,
+                        ack,
+                        nack,
+                    )))
                 }
                 None => Ok(None),
             }

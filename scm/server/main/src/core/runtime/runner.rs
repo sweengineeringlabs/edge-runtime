@@ -2,8 +2,8 @@
 
 use std::time::Duration;
 
-use crate::api::runtime::traits::runtime_manager::RuntimeManager;
-use crate::api::runtime::{RuntimeError, RuntimeResult};
+use crate::api::RuntimeManager;
+use crate::api::{RuntimeError, RuntimeResult};
 
 /// Zero-size orchestrator for the start → await-signal → shutdown cycle.
 ///
@@ -43,7 +43,7 @@ impl DaemonRunner {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::runtime::{RuntimeHealth, RuntimeStatus};
+    use crate::api::{RuntimeHealth, RuntimeStatus};
     use futures::future::BoxFuture;
 
     struct DaemonRunnerOkManager;

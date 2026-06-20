@@ -6,10 +6,10 @@ use bytes::Bytes;
 use futures::future::BoxFuture;
 use futures::StreamExt;
 
-use crate::api::broker::BrokerError;
-use crate::api::broker::Message;
-use crate::api::broker::MessageBroker;
-use crate::api::broker::MessageStream;
+use crate::api::BrokerError;
+use crate::api::Message;
+use crate::api::MessageBroker;
+use crate::api::MessageStream;
 
 /// NATS-backed pub/sub broker.
 ///

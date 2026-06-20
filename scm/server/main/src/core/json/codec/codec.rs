@@ -6,8 +6,8 @@
 /// Primary implementation type for this module (satisfies Rule 89 filename match).
 pub(crate) struct Codec;
 
-impl crate::api::json::types::json_codec::JsonCodec for Codec {}
-impl crate::api::json::traits::codec::Codec for Codec {}
+impl crate::api::JsonCodec for Codec {}
+impl crate::api::Codec for Codec {}
 
 use swe_edge_ingress_grpc::GrpcIngressError;
 use swe_edge_ingress_http::{HttpBody, HttpIngressError, HttpRequest, HttpResponse};

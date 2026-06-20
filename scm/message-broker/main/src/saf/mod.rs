@@ -22,6 +22,7 @@ pub use config_provider_svc::BROKER_CONFIG_SECTION;
 pub use task::QueueError;
 pub use task::Task;
 pub use task::TaskHandle;
+pub use task::TaskHandleBuilder;
 pub use task::TaskId;
 pub use task::TaskQueue;
 pub use task::TaskQueueFactory;

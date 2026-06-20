@@ -8,7 +8,7 @@ use swe_edge_ingress_grpc::{
     GrpcResponse,
 };
 
-use crate::api::monitor::SharedCounters;
+use crate::api::SharedCounters;
 
 /// Wraps a `GrpcIngress` handler; records load metrics on every call.
 pub(crate) struct GrpcLoadMonitor {
@@ -22,7 +22,7 @@ impl GrpcLoadMonitor {
     }
 }
 
-impl crate::api::monitor::GrpcLoadMonitor for GrpcLoadMonitor {}
+impl crate::api::GrpcLoadMonitor for GrpcLoadMonitor {}
 
 impl GrpcIngress for GrpcLoadMonitor {
     fn handle_unary(
@@ -67,7 +67,7 @@ impl GrpcIngress for GrpcLoadMonitor {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::monitor::TrafficCounters;
+    use crate::api::TrafficCounters;
     use std::sync::Arc;
     use swe_edge_ingress_grpc::GrpcIngressError;
     use swe_observ_metrics::create_local_metrics_backend;

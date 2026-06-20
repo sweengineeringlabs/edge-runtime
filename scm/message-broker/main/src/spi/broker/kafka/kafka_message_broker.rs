@@ -14,10 +14,10 @@ use rdkafka::producer::{FutureProducer, FutureRecord, Producer as _};
 use rdkafka::types::RDKafkaErrorCode;
 use std::sync::Arc;
 
-use crate::api::broker::BrokerError;
-use crate::api::broker::Message;
-use crate::api::broker::MessageBroker;
-use crate::api::broker::MessageStream;
+use crate::api::BrokerError;
+use crate::api::Message;
+use crate::api::MessageBroker;
+use crate::api::MessageStream;
 
 /// Kafka-backed pub/sub broker using `rdkafka`.
 ///

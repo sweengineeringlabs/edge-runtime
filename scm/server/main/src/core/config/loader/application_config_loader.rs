@@ -3,8 +3,8 @@
 use std::env;
 use std::path::{Path, PathBuf};
 
-use crate::api::config::traits::config_loader::ConfigLoader;
-use crate::api::config::{ConfigError, ConfigOverride, RuntimeConfig};
+use crate::api::ConfigLoader;
+use crate::api::{ConfigError, ConfigOverride, RuntimeConfig};
 
 /// Refuse to read a config file larger than this — prevents accidental or
 /// deliberate memory exhaustion via an oversized TOML blob.
@@ -183,10 +183,7 @@ impl ApplicationConfigLoader {
     }
 }
 
-impl crate::api::config::traits::application_config_loader::ApplicationConfigLoader
-    for ApplicationConfigLoader
-{
-}
+impl crate::api::ApplicationConfigLoader for ApplicationConfigLoader {}
 
 impl ConfigLoader for ApplicationConfigLoader {
     fn load(&self) -> Result<RuntimeConfig, ConfigError> {
@@ -567,7 +564,7 @@ mod tests {
 
     #[test]
     fn test_load_section_observability_tracing_reads_from_default_toml() {
-        use crate::api::config::TracingConfig;
+        use crate::api::TracingConfig;
         use swe_edge_observ_config::TracingLevel;
         let dir = TempDir::new().unwrap();
         let cfg: TracingConfig = loader_in(dir.path())
@@ -579,7 +576,7 @@ mod tests {
 
     #[test]
     fn test_load_section_application_toml_overrides_default_toml_tracing() {
-        use crate::api::config::TracingConfig;
+        use crate::api::TracingConfig;
         use swe_edge_observ_config::TracingLevel;
         let dir = TempDir::new().unwrap();
         write(

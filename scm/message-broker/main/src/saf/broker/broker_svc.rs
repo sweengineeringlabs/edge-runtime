@@ -9,17 +9,15 @@
 //! lives in `swe-edge-message-broker`; this crate owns the concrete backends and
 //! the [`MessageBrokerFactory::from_config`] construction factory.
 
+use crate::api::ApplicationConfig;
+use crate::api::BrokerError;
 #[cfg(feature = "tokio-rt")]
-use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
-use crate::api::broker::BrokerError;
-use crate::api::broker::MessageBroker;
-pub use crate::api::broker::MessageBrokerFactory;
-use crate::api::config::traits::config_provider::ConfigProvider;
-use crate::api::config::types::application_config::ApplicationConfig;
+use crate::api::InMemoryMessageBroker;
 #[cfg(feature = "tokio-rt")]
-use crate::api::task::types::in_memory_task_queue::InMemoryTaskQueue;
-use crate::api::task::TaskQueueFactory;
-use crate::core::config::DefaultConfigProvider;
+use crate::api::InMemoryTaskQueue;
+use crate::api::MessageBroker;
+pub use crate::api::MessageBrokerFactory;
+use crate::api::TaskQueueFactory;
 #[cfg(feature = "kafka")]
 use crate::spi::KafkaMessageBroker;
 #[cfg(feature = "kafka")]
@@ -40,17 +38,15 @@ use swe_edge_message_broker::{BackendKind, MessageBrokerConfig};
 #[cfg(feature = "tokio-rt")]
 use tokio::sync::RwLock;
 
-pub use crate::api::broker::BrokerError as BrokerErr;
-pub use crate::api::broker::Message as BrokerMessage;
+pub use crate::api::BrokerError as BrokerErr;
+pub use crate::api::Message as BrokerMessage;
 
 impl MessageBrokerFactory {
     /// Return the default [`ApplicationConfig`] for the message broker.
     ///
     /// Seeds the in-memory defaults; callers can clone and override fields.
     pub fn default_application_config() -> ApplicationConfig {
-        DefaultConfigProvider::new(ApplicationConfig::default())
-            .application_config()
-            .clone()
+        ApplicationConfig::default()
     }
 
     /// Return a [`swe_edge_configbuilder::ConfigBuilderImpl`] pre-seeded with this crate's package name and version.
@@ -182,7 +178,7 @@ impl TaskQueueFactory {
     /// Requires the `tokio-rt` feature.
     #[cfg(feature = "tokio-rt")]
     pub fn in_memory() -> InMemoryTaskQueue {
-        let (tx, rx) = tokio::sync::mpsc::channel(crate::api::task::queue::MAX_QUEUE_DEPTH);
+        let (tx, rx) = tokio::sync::mpsc::channel(crate::api::MAX_QUEUE_DEPTH);
         InMemoryTaskQueue {
             tx: Arc::new(tx),
             rx: Arc::new(tokio::sync::Mutex::new(rx)),

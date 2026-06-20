@@ -21,16 +21,26 @@ mod sampler_svc;
 mod scaling_policy_svc;
 mod validator_svc;
 
-pub use runtime::*;
-pub use server_svc::*;
+// ── Runtime type surface (explicit, no globs) ─────────────────────────────────
+#[cfg(feature = "observability")]
+pub use runtime::TracingInitializer;
+pub use runtime::{
+    AutoscalePolicy, ComponentHealth, ConfigError, ConfigLoader, Egress, Ingress, MetricsConfig,
+    RingBuffer, Runtime, RuntimeBuilder, RuntimeConfig, RuntimeError, RuntimeHealth,
+    RuntimeManager, RuntimeResult, RuntimeStatus, ScalingDecision, ScalingPolicy,
+    ServerConfigLoader, ServerMonitor, ServiceRegistry, SharedCounters, ThresholdPolicy,
+    TrafficCounters, RUNTIME_API_VERSION, RUNTIME_MANAGER_SVC,
+};
 
 // Traits + SVC consts from grouped subdirectory modules
 pub use application_config_loader_svc::{ApplicationConfigLoader, APPLICATION_CONFIG_LOADER_SVC};
 pub use codec_svc::{Codec, CODEC_SVC};
 pub use composite_ingress_svc::{CompositeGrpcIngress, CompositeIngress, COMPOSITE_INGRESS_SVC};
 pub use config::{ConfigValidator, CONFIG_LOADER_SVC, CONFIG_VALIDATOR_SVC};
+pub use egress_svc::EGRESS_SVC;
 pub use grpc_load_monitor_svc::{GrpcLoadMonitor, GRPC_LOAD_MONITOR_SVC};
 pub use http_load_monitor_svc::{HttpLoadMonitor, HTTP_LOAD_MONITOR_SVC};
+pub use ingress_svc::INGRESS_SVC;
 pub use json_codec_svc::{JsonCodec, JSON_CODEC_SVC};
 pub use lifecycle::LIFECYCLE_OBSERVER_SVC;
 pub use metrics::{
@@ -38,14 +48,9 @@ pub use metrics::{
     METRICS_HANDLER_SVC,
 };
 pub use runner_svc::{Runner, RuntimeBuilderServe, RUNNER_SVC};
-pub use runtime::RUNTIME_MANAGER_SVC;
 pub use sampler_svc::{Sampler, SAMPLER_SVC};
-pub use validator_svc::{Validator, VALIDATOR_SVC};
-
-// SVC consts for traits already exported via runtime::*
-pub use egress_svc::EGRESS_SVC;
-pub use ingress_svc::INGRESS_SVC;
 pub use scaling_policy_svc::SCALING_POLICY_SVC;
+pub use validator_svc::{Validator, VALIDATOR_SVC};
 
 // ── Auth / TLS ────────────────────────────────────────────────────────────────
 pub use swe_edge_ingress_grpc::{

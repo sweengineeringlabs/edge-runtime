@@ -1,15 +1,15 @@
 //! Config validation — ensures `RuntimeConfig` fields are in bounds before serve().
 
-use crate::api::config::RuntimeConfig;
-use crate::api::runtime::errors::runtime_error::RuntimeError;
-use crate::api::runtime::traits::validator::Validator;
+use crate::api::RuntimeConfig;
+use crate::api::RuntimeError;
+use crate::api::Validator;
 
 /// Validates a [`RuntimeConfig`] before the runtime starts.
 ///
 /// Checks non-empty bind addresses and positive shutdown timeout.
 pub(crate) struct ConfigValidator;
 
-impl crate::api::runtime::traits::config_validator::ConfigValidator for ConfigValidator {}
+impl crate::api::ConfigValidator for ConfigValidator {}
 
 impl Validator for ConfigValidator {
     type Target = RuntimeConfig;

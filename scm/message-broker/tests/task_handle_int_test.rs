@@ -1,34 +1,55 @@
 //! Integration tests for [`TaskHandle`].
 
-use swe_edge_runtime_message_broker::{QueueError, Task, TaskHandle};
+use std::collections::HashMap;
 
-/// @covers: TaskHandle::new — task_id mirrors task.id for convenience.
+use bytes::Bytes;
+use swe_edge_runtime_message_broker::{QueueError, Task, TaskHandle, TaskId};
+
+/// @covers: TaskHandle::new — task_id is stored correctly.
 #[test]
-fn test_task_handle_new_task_id_mirrors_task_id() {
-    let task = Task::new(b"payload".as_ref());
-    let expected_id = task.id;
+fn test_task_handle_new_task_id_is_stored() {
+    let id = TaskId::new();
+    let payload = Bytes::from_static(b"payload");
     let ack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
         Box::pin(async { Ok(()) });
     let nack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
         Box::pin(async { Ok(()) });
-    let handle = TaskHandle::new(task, ack, nack);
-    assert_eq!(handle.task_id, expected_id);
-    assert_eq!(handle.task.id, expected_id);
+    let handle = TaskHandle::new(id, payload, HashMap::new(), ack, nack);
+    assert_eq!(handle.task_id, id);
 }
 
-/// @covers: TaskHandle::new — task payload is accessible after construction.
+/// @covers: TaskHandle::new — payload is accessible after construction.
 #[test]
-fn test_task_handle_new_task_payload_is_accessible() {
-    let payload = b"test-payload";
-    let task = Task::new(payload.as_ref());
+fn test_task_handle_new_payload_is_accessible() {
+    let payload_bytes = b"test-payload";
+    let task = Task::new(payload_bytes.as_ref());
+    let id = task.id;
     let ack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
         Box::pin(async { Ok(()) });
     let nack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
         Box::pin(async { Ok(()) });
-    let handle = TaskHandle::new(task, ack, nack);
+    let handle = TaskHandle::new(id, task.payload, task.headers, ack, nack);
     assert_eq!(
-        handle.task.payload.as_ref(),
-        payload,
-        "task payload must be accessible via handle.task.payload"
+        handle.payload.as_ref(),
+        payload_bytes,
+        "task payload must be accessible via handle.payload"
+    );
+}
+
+/// @covers: TaskHandle::new — headers are stored and accessible.
+#[test]
+fn test_task_handle_new_headers_are_stored() {
+    let id = TaskId::new();
+    let payload = Bytes::from_static(b"data");
+    let mut headers = HashMap::new();
+    headers.insert("x-trace-id".to_owned(), "abc123".to_owned());
+    let ack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let nack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let handle = TaskHandle::new(id, payload, headers.clone(), ack, nack);
+    assert_eq!(
+        handle.headers, headers,
+        "headers must be preserved through TaskHandle"
     );
 }

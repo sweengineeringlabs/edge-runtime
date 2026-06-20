@@ -6,10 +6,10 @@ use async_nats::jetstream;
 use futures::future::BoxFuture;
 use tokio::sync::Mutex;
 
-use crate::api::task::errors::queue_error::QueueError;
-use crate::api::task::traits::task_queue::TaskQueue;
-use crate::api::task::types::task::Task;
-use crate::api::task::types::task_handle::TaskHandle;
+use crate::api::QueueError;
+use crate::api::Task;
+use crate::api::TaskHandle;
+use crate::api::TaskQueue;
 
 /// Visibility timeout for nacked messages before redelivery (5 minutes).
 const VISIBILITY_TIMEOUT: std::time::Duration =
@@ -144,7 +144,13 @@ impl TaskQueue for NatsTaskQueue {
                         .map_err(|e| QueueError::Dequeue(e.to_string()))
                 });
 
-                return Ok(Some(TaskHandle::new(task, ack, nack)));
+                return Ok(Some(TaskHandle::new(
+                    task.id,
+                    task.payload,
+                    task.headers,
+                    ack,
+                    nack,
+                )));
             }
 
             // No messages available

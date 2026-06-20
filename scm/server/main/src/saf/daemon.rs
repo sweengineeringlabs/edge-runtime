@@ -5,4 +5,4 @@
 //! The method implementations are defined via `impl Runtime` in
 //! `server_svc`.
 
-pub use crate::api::runtime::{Runtime, RuntimeConfig, RuntimeError, RuntimeResult};
+pub use crate::api::{Runtime, RuntimeConfig, RuntimeError, RuntimeResult};

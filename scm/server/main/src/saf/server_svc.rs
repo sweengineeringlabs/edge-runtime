@@ -6,21 +6,16 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use crate::api::config::traits::config_loader::ConfigLoader;
-use crate::api::config::ConfigError;
-use crate::api::egress::Egress;
-use crate::api::ingress::Ingress;
-use crate::api::runtime::traits::validator::Validator;
-use crate::api::runtime::Runtime;
-use crate::api::runtime::RuntimeConfig;
-use crate::api::runtime::ServerConfigLoader;
-use crate::api::runtime::ServerMonitor;
-use crate::api::runtime::{RuntimeError, RuntimeResult};
-use crate::core::egress::DefaultEgress;
-use crate::core::ingress::DefaultIngress;
-use crate::core::validator::ConfigValidator;
-use crate::core::ApplicationConfigLoader;
-use crate::core::DaemonRunner;
+use crate::api::ConfigError;
+use crate::api::ConfigLoader;
+use crate::api::Egress;
+use crate::api::Ingress;
+use crate::api::Runtime;
+use crate::api::RuntimeConfig;
+use crate::api::ServerConfigLoader;
+use crate::api::ServerMonitor;
+use crate::api::Validator;
+use crate::api::{RuntimeError, RuntimeResult};
 use edge_proxy::LifecycleMonitor;
 use swe_observ_metrics::MetricsProvider;
 
@@ -43,7 +38,7 @@ impl ServerConfigLoader {
     /// Consumer apps should prefer [`ServerConfigLoader::load_config_from`] to supply their
     /// own path explicitly.
     pub fn load_config() -> Result<RuntimeConfig, ConfigError> {
-        let loader = ApplicationConfigLoader::new();
+        let loader = crate::core::ApplicationConfigLoader::new();
         loader.load()
     }
 
@@ -54,14 +49,14 @@ impl ServerConfigLoader {
     pub fn load_config_from(
         dir: impl Into<std::path::PathBuf>,
     ) -> Result<RuntimeConfig, ConfigError> {
-        let loader = ApplicationConfigLoader::with_dir(dir);
+        let loader = crate::core::ApplicationConfigLoader::with_dir(dir);
         loader.load()
     }
 
     /// Load config scoped to a tenant
     /// (`default.toml` → `application.toml` → `tenants/<id>.toml` → env vars).
     pub fn load_tenant_config(tenant_id: &str) -> Result<RuntimeConfig, ConfigError> {
-        let loader = ApplicationConfigLoader::new();
+        let loader = crate::core::ApplicationConfigLoader::new();
         loader.load_for_tenant(tenant_id)
     }
 
@@ -72,13 +67,13 @@ impl ServerConfigLoader {
         tenant_id: &str,
         dir: impl Into<std::path::PathBuf>,
     ) -> Result<RuntimeConfig, ConfigError> {
-        let loader = ApplicationConfigLoader::with_dir(dir);
+        let loader = crate::core::ApplicationConfigLoader::with_dir(dir);
         loader.load_for_tenant(tenant_id)
     }
 
     /// Load config following the XDG Base Directory specification.
     pub fn load_config_xdg(app_name: &str) -> Result<RuntimeConfig, ConfigError> {
-        let loader = ApplicationConfigLoader::xdg(app_name);
+        let loader = crate::core::ApplicationConfigLoader::xdg(app_name);
         loader.load()
     }
 
@@ -87,7 +82,7 @@ impl ServerConfigLoader {
         app_name: &str,
         tenant_id: &str,
     ) -> Result<RuntimeConfig, ConfigError> {
-        let loader = ApplicationConfigLoader::xdg(app_name);
+        let loader = crate::core::ApplicationConfigLoader::xdg(app_name);
         loader.load_for_tenant(tenant_id)
     }
 
@@ -95,7 +90,7 @@ impl ServerConfigLoader {
     ///
     /// Returns `Err(RuntimeError::StartFailed)` if any field is out of bounds.
     pub fn validate_config(config: &RuntimeConfig) -> Result<(), RuntimeError> {
-        ConfigValidator.validate(config)
+        crate::core::validator::ConfigValidator.validate(config)
     }
 
     /// Load an arbitrary TOML section from the default config chain.
@@ -106,7 +101,7 @@ impl ServerConfigLoader {
     where
         T: serde::de::DeserializeOwned + Default,
     {
-        let loader = ApplicationConfigLoader::new();
+        let loader = crate::core::ApplicationConfigLoader::new();
         loader.load_section(key)
     }
 
@@ -118,7 +113,7 @@ impl ServerConfigLoader {
     where
         T: serde::de::DeserializeOwned + Default,
     {
-        let loader = ApplicationConfigLoader::with_dir(dir);
+        let loader = crate::core::ApplicationConfigLoader::with_dir(dir);
         loader.load_section(key)
     }
 
@@ -127,7 +122,7 @@ impl ServerConfigLoader {
     where
         T: serde::de::DeserializeOwned + Default,
     {
-        let loader = ApplicationConfigLoader::xdg(app_name);
+        let loader = crate::core::ApplicationConfigLoader::xdg(app_name);
         loader.load_section(key)
     }
 }
@@ -159,7 +154,7 @@ impl Runtime {
         ingress: Arc<dyn Ingress>,
         egress: Arc<dyn Egress>,
         lifecycle: Arc<dyn LifecycleMonitor>,
-    ) -> impl crate::api::runtime::traits::runtime_manager::RuntimeManager {
+    ) -> impl crate::api::RuntimeManager {
         let mgr = crate::core::DefaultRuntimeManager::new(config, ingress, egress, lifecycle);
         mgr
     }
@@ -237,8 +232,12 @@ impl Runtime {
         });
 
         let mgr = Runtime::runtime_manager(config, ingress, egress, lifecycle);
-        let result =
-            DaemonRunner::run_until_signal(mgr, timeout_secs, Runtime::wait_for_signal()).await;
+        let result = crate::core::DaemonRunner::run_until_signal(
+            mgr,
+            timeout_secs,
+            Runtime::wait_for_signal(),
+        )
+        .await;
 
         let _ = http_shutdown_tx.send(());
         let _ = grpc_shutdown_tx.send(());
@@ -280,10 +279,8 @@ impl Runtime {
     }
 
     /// Construct an egress adapter holding an HTTP-only outbound client.
-    pub fn http_egress(
-        http: Arc<dyn swe_edge_egress_http::HttpEgress>,
-    ) -> impl crate::api::egress::Egress {
-        let egress = DefaultEgress::new_http(http);
+    pub fn http_egress(http: Arc<dyn swe_edge_egress_http::HttpEgress>) -> impl crate::api::Egress {
+        let egress = crate::core::egress::DefaultEgress::new_http(http);
         egress
     }
 
@@ -291,30 +288,30 @@ impl Runtime {
     pub fn http_grpc_egress(
         http: Arc<dyn swe_edge_egress_http::HttpEgress>,
         grpc: Arc<dyn swe_edge_egress_grpc::GrpcEgress>,
-    ) -> impl crate::api::egress::Egress {
-        let egress = DefaultEgress::new_http(http).with_grpc(grpc);
+    ) -> impl crate::api::Egress {
+        let egress = crate::core::egress::DefaultEgress::new_http(http).with_grpc(grpc);
         egress
     }
 
     /// Construct an ingress adapter with no transports (add via `with_http`/`with_grpc` on serve).
-    pub fn empty_ingress() -> impl crate::api::ingress::Ingress {
-        let ingress = DefaultIngress::empty();
+    pub fn empty_ingress() -> impl crate::api::Ingress {
+        let ingress = crate::core::ingress::DefaultIngress::empty();
         ingress
     }
 
     /// Construct an ingress adapter bound to an HTTP transport.
     pub fn http_ingress(
         http: Arc<dyn swe_edge_ingress_http::HttpIngress>,
-    ) -> impl crate::api::ingress::Ingress {
-        let ingress = DefaultIngress::new_http(http);
+    ) -> impl crate::api::Ingress {
+        let ingress = crate::core::ingress::DefaultIngress::new_http(http);
         ingress
     }
 
     /// Construct an ingress adapter bound to a gRPC transport.
     pub fn grpc_ingress(
         grpc: Arc<dyn swe_edge_ingress_grpc::GrpcIngress>,
-    ) -> impl crate::api::ingress::Ingress {
-        let ingress = DefaultIngress::new_grpc(grpc);
+    ) -> impl crate::api::Ingress {
+        let ingress = crate::core::ingress::DefaultIngress::new_grpc(grpc);
         ingress
     }
 
@@ -322,8 +319,8 @@ impl Runtime {
     pub fn http_grpc_ingress(
         http: Arc<dyn swe_edge_ingress_http::HttpIngress>,
         grpc: Arc<dyn swe_edge_ingress_grpc::GrpcIngress>,
-    ) -> impl crate::api::ingress::Ingress {
-        let ingress = DefaultIngress::new_http(http).with_grpc(grpc);
+    ) -> impl crate::api::Ingress {
+        let ingress = crate::core::ingress::DefaultIngress::new_http(http).with_grpc(grpc);
         ingress
     }
 }

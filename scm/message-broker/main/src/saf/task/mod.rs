@@ -10,6 +10,7 @@ pub use task_queue_svc::InMemoryTaskQueue;
 pub use task_queue_svc::QueueError;
 pub use task_queue_svc::Task;
 pub use task_queue_svc::TaskHandle;
+pub use task_queue_svc::TaskHandleBuilder;
 pub use task_queue_svc::TaskId;
 pub use task_queue_svc::TaskQueue;
 pub use task_queue_svc::TaskQueueFactory;

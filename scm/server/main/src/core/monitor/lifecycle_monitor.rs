@@ -14,7 +14,7 @@ pub(crate) struct MetricsLifecycleMonitor {
     provider: Arc<dyn MetricsProvider>,
 }
 
-impl crate::api::monitor::LifecycleObserver for MetricsLifecycleMonitor {}
+impl crate::api::LifecycleObserver for MetricsLifecycleMonitor {}
 
 impl MetricsLifecycleMonitor {
     pub(crate) fn new(

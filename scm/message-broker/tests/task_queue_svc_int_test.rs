@@ -91,7 +91,7 @@ async fn test_task_handle_ack_completes_future_happy() {
     let task = Task::new(b"t".as_ref());
     let ack = Box::pin(async { Ok::<(), swe_edge_runtime_message_broker::QueueError>(()) });
     let nack = Box::pin(async { Ok::<(), swe_edge_runtime_message_broker::QueueError>(()) });
-    let handle = TaskHandle::new(task, ack, nack);
+    let handle = TaskHandle::new(task.id, task.payload, task.headers, ack, nack);
     assert!(handle.ack.await.is_ok());
 }
 
@@ -101,7 +101,7 @@ async fn test_task_handle_nack_completes_future_edge() {
     let task = Task::new(b"t".as_ref());
     let ack = Box::pin(async { Ok::<(), swe_edge_runtime_message_broker::QueueError>(()) });
     let nack = Box::pin(async { Ok::<(), swe_edge_runtime_message_broker::QueueError>(()) });
-    let handle = TaskHandle::new(task, ack, nack);
+    let handle = TaskHandle::new(task.id, task.payload, task.headers, ack, nack);
     assert!(handle.nack.await.is_ok());
 }
 
@@ -112,7 +112,7 @@ fn test_task_handle_carries_task_id_error() {
     let task_id = task.id;
     let ack = Box::pin(async { Ok::<(), swe_edge_runtime_message_broker::QueueError>(()) });
     let nack = Box::pin(async { Ok::<(), swe_edge_runtime_message_broker::QueueError>(()) });
-    let handle = TaskHandle::new(task, ack, nack);
+    let handle = TaskHandle::new(task.id, task.payload, task.headers, ack, nack);
     assert_eq!(handle.task_id, task_id);
 }
 

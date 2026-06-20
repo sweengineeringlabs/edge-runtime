@@ -4,4 +4,4 @@
 //! operations. The method implementations are defined via `impl ServerMonitor`
 //! in `server_svc`.
 
-pub use crate::api::runtime::ServerMonitor;
+pub use crate::api::ServerMonitor;

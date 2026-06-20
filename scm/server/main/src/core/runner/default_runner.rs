@@ -1,7 +1,7 @@
 //! `DefaultRunner` — synchronous facade over [`DaemonRunner`].
 
-use crate::api::runtime::errors::runtime_result::RuntimeResult;
-use crate::api::runtime::traits::runner::Runner;
+use crate::api::RuntimeResult;
+use crate::api::Runner;
 
 /// Minimal synchronous [`Runner`] impl for test-time and CLI use.
 ///

@@ -17,6 +17,7 @@ mod saf;
 mod spi;
 
 #[cfg(feature = "tokio-rt")]
-pub use crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker;
-pub use crate::api::broker::{MessageBroker, MessageStream};
+pub use crate::api::InMemoryMessageBroker;
+pub use crate::api::MessageBroker;
+pub use crate::api::MessageStream;
 pub use crate::saf::*;

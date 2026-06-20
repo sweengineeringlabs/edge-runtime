@@ -12,10 +12,10 @@ use rdkafka::topic_partition_list::Offset;
 
 use crate::spi::task::kafka::logging_consumer_context::{LoggingConsumer, LoggingConsumerContext};
 
-use crate::api::task::errors::queue_error::QueueError;
-use crate::api::task::traits::task_queue::TaskQueue;
-use crate::api::task::types::task::Task;
-use crate::api::task::types::task_handle::TaskHandle;
+use crate::api::QueueError;
+use crate::api::Task;
+use crate::api::TaskHandle;
+use crate::api::TaskQueue;
 
 /// Kafka-backed competing-consumer work queue.
 ///
@@ -172,7 +172,13 @@ impl TaskQueue for KafkaTaskQueue {
                     .map_err(|e| QueueError::Dequeue(e.to_string()))
             });
 
-            Ok(Some(TaskHandle::new(task, ack, nack)))
+            Ok(Some(TaskHandle::new(
+                task.id,
+                task.payload,
+                task.headers,
+                ack,
+                nack,
+            )))
         })
     }
 

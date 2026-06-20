@@ -1,7 +1,12 @@
 //! Integration tests for [`TaskQueueFactoryContract`] trait (rule 222).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_runtime_message_broker::{TaskQueueFactory, TaskQueueFactoryContract};
+use std::collections::HashMap;
+
+use bytes::Bytes;
+use swe_edge_runtime_message_broker::{
+    QueueError, TaskId, TaskQueueFactory, TaskQueueFactoryContract,
+};
 
 // --- TaskQueueFactoryContract::default_factory (rule 222) ---
 
@@ -55,6 +60,58 @@ fn test_new_task_id_many_calls_all_unique_error() {
         ids.len(),
         unique.len(),
         "all generated task IDs must be unique"
+    );
+}
+
+// --- TaskQueueFactoryContract::build_handle (rule 222) ---
+
+/// @covers: TaskQueueFactoryContract::build_handle
+#[test]
+fn test_build_handle_returns_builder_with_correct_task_id_happy() {
+    let id = TaskId::new();
+    let payload = Bytes::from_static(b"payload");
+    let ack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let nack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let handle = TaskQueueFactory::build_handle(id, payload, HashMap::new(), ack, nack).build();
+    assert_eq!(
+        handle.task_id, id,
+        "build_handle must seed the builder with the given task_id"
+    );
+}
+
+/// @covers: TaskQueueFactoryContract::build_handle
+#[test]
+fn test_build_handle_empty_payload_produces_valid_handle_edge() {
+    let id = TaskId::new();
+    let payload = Bytes::new();
+    let ack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let nack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let handle = TaskQueueFactory::build_handle(id, payload, HashMap::new(), ack, nack).build();
+    assert!(
+        handle.payload.is_empty(),
+        "build_handle must accept empty payload"
+    );
+}
+
+/// @covers: TaskQueueFactoryContract::build_handle
+#[test]
+fn test_build_handle_with_headers_stores_headers_error() {
+    let id = TaskId::new();
+    let payload = Bytes::from_static(b"data");
+    let mut headers = HashMap::new();
+    headers.insert("x-key".to_owned(), "v".to_owned());
+    let ack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let nack: futures::future::BoxFuture<'static, Result<(), QueueError>> =
+        Box::pin(async { Ok(()) });
+    let handle = TaskQueueFactory::build_handle(id, payload, headers.clone(), ack, nack).build();
+    assert_eq!(
+        handle.headers, headers,
+        "build_handle must forward headers to the resulting TaskHandle"
     );
 }
 

@@ -1,7 +1,7 @@
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 
-use crate::api::monitor::{ScalingDecision, ScalingPolicy, SharedCounters};
+use crate::api::{ScalingDecision, ScalingPolicy, SharedCounters};
 
 /// Ticks every second: pushes derived gauges into the provider and evaluates
 /// the configured scaling policy.
@@ -10,7 +10,7 @@ pub(crate) struct BackgroundSampler {
     policy: Option<Arc<dyn ScalingPolicy>>,
 }
 
-impl crate::api::monitor::Sampler for BackgroundSampler {}
+impl crate::api::Sampler for BackgroundSampler {}
 
 impl BackgroundSampler {
     pub(crate) fn new(counters: SharedCounters, policy: Option<Arc<dyn ScalingPolicy>>) -> Self {
@@ -50,8 +50,8 @@ impl BackgroundSampler {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::api::monitor::ThresholdPolicy;
-    use crate::api::monitor::TrafficCounters;
+    use crate::api::ThresholdPolicy;
+    use crate::api::TrafficCounters;
     use std::sync::Arc;
     use swe_observ_metrics::create_local_metrics_backend;
 

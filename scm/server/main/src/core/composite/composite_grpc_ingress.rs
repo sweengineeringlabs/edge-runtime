@@ -9,9 +9,9 @@ use swe_edge_ingress_grpc::{
     GrpcResponse,
 };
 
-pub(crate) use crate::api::composite::composite_grpc_ingress::CompositeGrpcIngress;
+pub(crate) use crate::api::CompositeGrpcIngress;
 
-use crate::api::composite::traits::composite_ingress::CompositeIngress;
+use crate::api::CompositeIngress;
 
 impl CompositeIngress for CompositeGrpcIngress {
     fn primary(&self) -> Arc<dyn GrpcIngress> {

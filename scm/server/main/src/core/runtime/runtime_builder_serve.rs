@@ -15,12 +15,12 @@ use swe_edge_ingress_http::{AxumHttpServer, HttpServer};
 use swe_edge_ingress_verifier::{JwtVerifier, TokenVerifier};
 use tokio::sync::oneshot;
 
-use crate::api::config::traits::config_loader::ConfigLoader;
-use crate::api::ingress::Ingress;
-use crate::api::monitor::ThresholdPolicy;
-use crate::api::monitor::{SharedCounters, TrafficCounters};
-use crate::api::runtime::RuntimeBuilder;
-use crate::api::runtime::{RuntimeError, RuntimeResult};
+use crate::api::ConfigLoader;
+use crate::api::Ingress;
+use crate::api::RuntimeBuilder;
+use crate::api::ThresholdPolicy;
+use crate::api::{RuntimeError, RuntimeResult};
+use crate::api::{SharedCounters, TrafficCounters};
 use crate::core::config::loader::ApplicationConfigLoader;
 use crate::core::egress::DefaultEgress;
 use crate::core::ingress::DefaultIngress;
@@ -36,7 +36,7 @@ impl RuntimeBuilder {
     /// Assemble all registered components and start the runtime.
     ///
     /// Blocks until SIGTERM / SIGINT or an error.
-    pub async fn serve(self) -> RuntimeResult<()> {
+    pub(crate) async fn serve(self) -> RuntimeResult<()> {
         let config = match self.config {
             Some(c) => c,
             None => {
@@ -55,7 +55,7 @@ impl RuntimeBuilder {
                 .as_ref()
                 .or_else(|| config.observability.as_ref().map(|o| &o.tracing));
             if let Some(cfg) = tracing_cfg {
-                crate::api::runtime::TracingInitializer::init(cfg);
+                crate::api::TracingInitializer::init(cfg);
             }
         }
 
@@ -153,8 +153,7 @@ impl RuntimeBuilder {
             // to the TOML autoscale section wrapped in ThresholdPolicy.
             let scaling = self.scaling_policy.clone().or_else(|| {
                 config.autoscale.clone().map(|p| {
-                    Arc::new(ThresholdPolicy::from(p))
-                        as Arc<dyn crate::api::monitor::ScalingPolicy>
+                    Arc::new(ThresholdPolicy::from(p)) as Arc<dyn crate::api::ScalingPolicy>
                 })
             });
             let sampler = BackgroundSampler::new(Arc::clone(&c), scaling);
@@ -328,8 +327,8 @@ impl RuntimeBuilderServe {
 
 #[cfg(test)]
 mod tests {
-    use crate::api::runtime::Runtime;
-    use crate::api::runtime::RuntimeError;
+    use crate::api::Runtime;
+    use crate::api::RuntimeError;
 
     /// @covers: serve
     #[test]
