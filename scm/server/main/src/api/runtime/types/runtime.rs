@@ -34,6 +34,10 @@ impl Runtime {
             subprocess_runner: None,
             #[cfg(feature = "cli")]
             cli_runner: None,
+            #[cfg(feature = "http")]
+            http_ingress: None,
+            #[cfg(feature = "grpc")]
+            grpc_ingress: None,
         }
     }
 }

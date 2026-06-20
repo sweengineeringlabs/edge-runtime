@@ -34,6 +34,8 @@ observability  = ["dep:tracing-subscriber", "swe-edge-observ-config/observabilit
 message-broker = ["dep:swe-edge-runtime-message-broker"]
 subprocess     = ["dep:swe-edge-egress-subprocess"]
 cli            = ["dep:swe-edge-runtime-cli"]
+http           = ["dep:swe-edge-runtime-http"]
+grpc           = ["dep:swe-edge-runtime-grpc"]
 
 [dependencies]
 serde        = { version = "1.0", features = ["derive"] }
@@ -52,6 +54,8 @@ swe-edge-configbuilder          = { workspace = true }
 swe-edge-observ-config          = { workspace = true }
 
 swe-edge-runtime-cli            = { workspace = true, optional = true }
+swe-edge-runtime-grpc           = { workspace = true, optional = true }
+swe-edge-runtime-http           = { workspace = true, optional = true }
 swe-edge-runtime-message-broker = { workspace = true, optional = true }
 swe-edge-egress-subprocess      = { workspace = true, optional = true }
 
@@ -67,6 +71,8 @@ swe-observ-metrics               = { workspace = true }
 
 [dev-dependencies]
 swe-edge-runtime-cli            = { workspace = true }
+swe-edge-runtime-grpc           = { workspace = true }
+swe-edge-runtime-http           = { workspace = true }
 swe-edge-runtime-message-broker = { workspace = true }
 swe-edge-egress-subprocess      = { workspace = true }
 swe-edge-configbuilder          = { workspace = true }

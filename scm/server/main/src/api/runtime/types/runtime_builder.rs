@@ -45,6 +45,10 @@ pub struct RuntimeBuilder {
     pub(crate) subprocess_runner: Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
     #[cfg(feature = "cli")]
     pub(crate) cli_runner: Option<Arc<dyn swe_edge_runtime_cli::CliRunner>>,
+    #[cfg(feature = "http")]
+    pub(crate) http_ingress: Option<Arc<dyn swe_edge_runtime_http::HttpIngress>>,
+    #[cfg(feature = "grpc")]
+    pub(crate) grpc_ingress: Option<Arc<dyn swe_edge_runtime_grpc::GrpcIngress>>,
 }
 
 impl RuntimeBuilder {
@@ -226,6 +230,36 @@ impl RuntimeBuilder {
         self
     }
 
+    /// Attach a runtime HTTP ingress handler to the service registry.
+    ///
+    /// The handler is made available to handlers via
+    /// [`ServiceRegistry::http_ingress`](crate::ServiceRegistry::http_ingress) — use this
+    /// when you want to pass a contracts-layer [`HttpIngress`](swe_edge_runtime_http::HttpIngress)
+    /// implementor without binding to a specific transport crate.
+    #[cfg(feature = "http")]
+    pub fn with_http_ingress(
+        mut self,
+        handler: impl swe_edge_runtime_http::HttpIngress + 'static,
+    ) -> Self {
+        self.http_ingress = Some(Arc::new(handler));
+        self
+    }
+
+    /// Attach a runtime gRPC ingress handler to the service registry.
+    ///
+    /// The handler is made available to handlers via
+    /// [`ServiceRegistry::grpc_ingress`](crate::ServiceRegistry::grpc_ingress) — use this
+    /// when you want to pass a contracts-layer [`GrpcIngress`](swe_edge_runtime_grpc::GrpcIngress)
+    /// implementor without binding to a specific transport crate.
+    #[cfg(feature = "grpc")]
+    pub fn with_grpc_ingress(
+        mut self,
+        handler: impl swe_edge_runtime_grpc::GrpcIngress + 'static,
+    ) -> Self {
+        self.grpc_ingress = Some(Arc::new(handler));
+        self
+    }
+
     /// Attach a CLI runner to the service registry.
     ///
     /// The runner is made available to handlers via
@@ -266,6 +300,16 @@ impl RuntimeBuilder {
             #[cfg(feature = "cli")]
             let registry = match &self.cli_runner {
                 Some(r) => registry.with_cli_runner(Arc::clone(r)),
+                None => registry,
+            };
+            #[cfg(feature = "http")]
+            let registry = match &self.http_ingress {
+                Some(h) => registry.with_http_ingress(Arc::clone(h)),
+                None => registry,
+            };
+            #[cfg(feature = "grpc")]
+            let registry = match &self.grpc_ingress {
+                Some(h) => registry.with_grpc_ingress(Arc::clone(h)),
                 None => registry,
             };
             Arc::new(registry)

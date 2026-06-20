@@ -18,6 +18,10 @@ pub struct ServiceRegistryBuilder {
     subprocess: Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
     #[cfg(feature = "cli")]
     cli_runner: Option<Arc<dyn swe_edge_runtime_cli::CliRunner>>,
+    #[cfg(feature = "http")]
+    http_ingress: Option<Arc<dyn swe_edge_runtime_http::HttpIngress>>,
+    #[cfg(feature = "grpc")]
+    grpc_ingress: Option<Arc<dyn swe_edge_runtime_grpc::GrpcIngress>>,
 }
 
 impl ServiceRegistryBuilder {
@@ -30,6 +34,10 @@ impl ServiceRegistryBuilder {
             subprocess: None,
             #[cfg(feature = "cli")]
             cli_runner: None,
+            #[cfg(feature = "http")]
+            http_ingress: None,
+            #[cfg(feature = "grpc")]
+            grpc_ingress: None,
         }
     }
 
@@ -56,6 +64,20 @@ impl ServiceRegistryBuilder {
         self
     }
 
+    /// Attach a runtime HTTP ingress handler.
+    #[cfg(feature = "http")]
+    pub fn http_ingress(mut self, handler: Arc<dyn swe_edge_runtime_http::HttpIngress>) -> Self {
+        self.http_ingress = Some(handler);
+        self
+    }
+
+    /// Attach a runtime gRPC ingress handler.
+    #[cfg(feature = "grpc")]
+    pub fn grpc_ingress(mut self, handler: Arc<dyn swe_edge_runtime_grpc::GrpcIngress>) -> Self {
+        self.grpc_ingress = Some(handler);
+        self
+    }
+
     /// Consume the builder and produce a [`ServiceRegistry`].
     pub fn build(self) -> ServiceRegistry {
         let reg = ServiceRegistry::new(self.http, self.grpc);
@@ -67,6 +89,16 @@ impl ServiceRegistryBuilder {
         #[cfg(feature = "cli")]
         let reg = match self.cli_runner {
             Some(r) => reg.with_cli_runner(r),
+            None => reg,
+        };
+        #[cfg(feature = "http")]
+        let reg = match self.http_ingress {
+            Some(h) => reg.with_http_ingress(h),
+            None => reg,
+        };
+        #[cfg(feature = "grpc")]
+        let reg = match self.grpc_ingress {
+            Some(h) => reg.with_grpc_ingress(h),
             None => reg,
         };
         reg

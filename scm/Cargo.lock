@@ -3218,6 +3218,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "swe-edge-runtime-grpc"
+version = "0.3.9"
+dependencies = [
+ "edge-domain 0.9.0",
+ "futures",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "swe-edge-runtime-http"
 version = "0.3.9"
 dependencies = [
@@ -3268,6 +3277,8 @@ dependencies = [
  "swe-edge-ingress-verifier",
  "swe-edge-observ-config",
  "swe-edge-runtime-cli",
+ "swe-edge-runtime-grpc",
+ "swe-edge-runtime-http",
  "swe-edge-runtime-message-broker",
  "swe_justobserv_metrics",
  "tempfile",

@@ -1,0 +1,40 @@
+[package]
+name             = "swe-edge-runtime-grpc"
+version.workspace     = true
+edition.workspace     = true
+license.workspace     = true
+rust-version.workspace = true
+authors.workspace     = true
+repository.workspace  = true
+description      = "gRPC ingress contract crate for the swe-edge runtime layer — traits and value types only, no transport dependencies"
+keywords         = ["grpc", "ingress", "contracts", "async", "swe"]
+categories       = ["network-programming", "asynchronous"]
+
+[package.metadata.struct-engine]
+application_type = "lib"
+service_type     = "grpc-runtime"
+
+[lib]
+name = "swe_edge_runtime_grpc"
+path = "main/src/lib.rs"
+
+[dependencies]
+edge-domain = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.9.0", features = ["security"] }
+futures     = "0.3"
+thiserror   = "2"
+
+[[example]]
+name = "noop_ingress"
+path = "examples/noop_ingress.rs"
+
+[dev-dependencies]
+futures     = "0.3"
+edge-domain = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.9.0", features = ["security"] }
+
+[lints.rust]
+unsafe_code  = "deny"
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"

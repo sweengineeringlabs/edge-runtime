@@ -102,3 +102,11 @@ pub use swe_edge_egress_subprocess::{
 pub use swe_edge_runtime_cli::{
     CliArgs, CliCommand, CliError, CliOutput, CliRunner, NoopCliCommand, NoopCliRunner,
 };
+
+// ── Runtime HTTP ingress ──────────────────────────────────────────────────────
+#[cfg(feature = "http")]
+pub use swe_edge_runtime_http::NoopHttpIngress;
+
+// ── Runtime gRPC ingress ──────────────────────────────────────────────────────
+#[cfg(feature = "grpc")]
+pub use swe_edge_runtime_grpc::NoopGrpcIngress;

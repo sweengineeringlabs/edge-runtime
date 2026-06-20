@@ -17,6 +17,10 @@ pub struct ServiceRegistry {
     subprocess: Option<Arc<dyn swe_edge_egress_subprocess::SubprocessRunner>>,
     #[cfg(feature = "cli")]
     cli_runner: Option<Arc<dyn swe_edge_runtime_cli::CliRunner>>,
+    #[cfg(feature = "http")]
+    http_ingress: Option<Arc<dyn swe_edge_runtime_http::HttpIngress>>,
+    #[cfg(feature = "grpc")]
+    grpc_ingress: Option<Arc<dyn swe_edge_runtime_grpc::GrpcIngress>>,
 }
 
 impl ServiceRegistry {
@@ -29,6 +33,10 @@ impl ServiceRegistry {
             subprocess: None,
             #[cfg(feature = "cli")]
             cli_runner: None,
+            #[cfg(feature = "http")]
+            http_ingress: None,
+            #[cfg(feature = "grpc")]
+            grpc_ingress: None,
         }
     }
 
@@ -69,5 +77,37 @@ impl ServiceRegistry {
     #[cfg(feature = "cli")]
     pub fn cli_runner(&self) -> Option<&Arc<dyn swe_edge_runtime_cli::CliRunner>> {
         self.cli_runner.as_ref()
+    }
+
+    /// Attach a runtime HTTP ingress handler, consumed by [`RuntimeBuilder::build_registry`](crate::RuntimeBuilder::build_registry).
+    #[cfg(feature = "http")]
+    pub fn with_http_ingress(
+        mut self,
+        handler: Arc<dyn swe_edge_runtime_http::HttpIngress>,
+    ) -> Self {
+        self.http_ingress = Some(handler);
+        self
+    }
+
+    /// Return the runtime HTTP ingress handler, if one was registered.
+    #[cfg(feature = "http")]
+    pub fn http_ingress(&self) -> Option<&Arc<dyn swe_edge_runtime_http::HttpIngress>> {
+        self.http_ingress.as_ref()
+    }
+
+    /// Attach a runtime gRPC ingress handler, consumed by [`RuntimeBuilder::build_registry`](crate::RuntimeBuilder::build_registry).
+    #[cfg(feature = "grpc")]
+    pub fn with_grpc_ingress(
+        mut self,
+        handler: Arc<dyn swe_edge_runtime_grpc::GrpcIngress>,
+    ) -> Self {
+        self.grpc_ingress = Some(handler);
+        self
+    }
+
+    /// Return the runtime gRPC ingress handler, if one was registered.
+    #[cfg(feature = "grpc")]
+    pub fn grpc_ingress(&self) -> Option<&Arc<dyn swe_edge_runtime_grpc::GrpcIngress>> {
+        self.grpc_ingress.as_ref()
     }
 }
