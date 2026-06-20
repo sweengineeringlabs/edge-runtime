@@ -10,6 +10,11 @@ use crate::api::monitor::types::traffic_counters::TrafficCounters;
 
 /// Marker trait for types that run a background metric-sampling loop.
 pub trait Sampler: Send + Sync {
+    /// Return the sampler's source identifier for observability labels.
+    fn sampler_name(&self) -> &'static str {
+        "sampler"
+    }
+
     /// Create a new [`TrafficCounters`] backed by the given metrics provider.
     fn make_counters(provider: Arc<dyn MetricsProvider>) -> TrafficCounters
     where

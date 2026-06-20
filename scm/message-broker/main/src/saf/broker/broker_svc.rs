@@ -1,7 +1,7 @@
 //! SAF — message broker public factory surface.
 //!
 //! Factory methods are grouped on [`MessageBrokerFactory`] and the
-//! [`BrokerFactory`] trait. Implementation types are returned directly —
+//! [`BrokerProvider`] trait. Implementation types are returned directly —
 //! consumers receive concrete types from the factory methods below and may
 //! use them as `impl Trait` at call sites.
 //!

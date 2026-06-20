@@ -9,8 +9,8 @@ mod task;
 mod validator_svc;
 
 pub use broker::BrokerErr as BrokerError;
-pub use broker::BrokerFactory;
 pub use broker::BrokerMessage as Message;
+pub use broker::BrokerProvider;
 pub use broker::MessageBrokerFactory;
 pub use broker::DEFAULT_BROKER_BACKEND;
 

@@ -638,21 +638,49 @@ version = "0.8.19"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
 dependencies = [
  "async-trait",
- "edge-domain-clock",
- "edge-domain-command",
- "edge-domain-entity",
- "edge-domain-event",
- "edge-domain-handler",
- "edge-domain-policy",
- "edge-domain-projection",
- "edge-domain-query",
- "edge-domain-repository",
- "edge-domain-saga",
- "edge-domain-security",
- "edge-domain-service",
- "edge-domain-snapshot",
- "edge-domain-validator",
- "edge-domain-valueobject",
+ "edge-domain-clock 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-command 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-entity 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-event 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-handler 0.1.1 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-policy 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-projection 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-query 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-repository 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-saga 0.1.0",
+ "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-service 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-snapshot 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-validator 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-valueobject 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "edge-domain"
+version = "0.9.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "async-trait",
+ "edge-domain-clock 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-command 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-entity 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-event 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-handler 0.1.1 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-policy 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-projection 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-query 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-repository 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-saga 0.2.0",
+ "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-service 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-snapshot 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-validator 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-valueobject 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
  "futures",
  "parking_lot",
  "thiserror 2.0.18",
@@ -669,6 +697,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-clock"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "edge-domain-command"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
@@ -680,9 +716,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-command"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "async-trait",
+ "futures",
+ "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
 name = "edge-domain-entity"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
+
+[[package]]
+name = "edge-domain-entity"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
 
 [[package]]
 name = "edge-domain-event"
@@ -697,13 +749,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-event"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "async-trait",
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+ "tokio",
+]
+
+[[package]]
 name = "edge-domain-handler"
 version = "0.1.1"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
 dependencies = [
  "async-trait",
- "edge-domain-command",
- "edge-domain-security",
+ "edge-domain-command 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-handler"
+version = "0.1.1"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "async-trait",
+ "edge-domain-command 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
  "parking_lot",
  "thiserror 2.0.18",
 ]
@@ -717,11 +793,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-policy"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "edge-domain-projection"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
 dependencies = [
- "edge-domain-event",
+ "edge-domain-event 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-projection"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "edge-domain-event 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
  "thiserror 2.0.18",
 ]
 
@@ -729,6 +822,17 @@ dependencies = [
 name = "edge-domain-query"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
+dependencies = [
+ "async-trait",
+ "futures",
+ "thiserror 2.0.18",
+ "tracing",
+]
+
+[[package]]
+name = "edge-domain-query"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
 dependencies = [
  "async-trait",
  "futures",
@@ -747,12 +851,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-repository"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "edge-domain-saga"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
 dependencies = [
- "edge-domain-command",
- "edge-domain-event",
+ "edge-domain-command 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "edge-domain-event 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31)",
+ "futures",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-saga"
+version = "0.2.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "edge-domain-command 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
+ "edge-domain-event 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0)",
  "futures",
  "thiserror 2.0.18",
 ]
@@ -766,9 +891,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-security"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "edge-domain-service"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "edge-domain-service"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
 dependencies = [
  "futures",
  "parking_lot",
@@ -786,6 +929,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-snapshot"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "futures",
+ "parking_lot",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "edge-domain-validator"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
@@ -794,9 +947,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "edge-domain-validator"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
+dependencies = [
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "edge-domain-valueobject"
 version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.31#53d99b9dca91b691adf6446efb9d278a61a689f1"
+
+[[package]]
+name = "edge-domain-valueobject"
+version = "0.1.0"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.9.0#fb1712bbd8a31bb97126428e1bbd7d64c2e4244a"
 
 [[package]]
 name = "edge-proxy"
@@ -3046,7 +3212,7 @@ dependencies = [
 name = "swe-edge-runtime-http"
 version = "0.3.9"
 dependencies = [
- "edge-domain 0.8.19",
+ "edge-domain 0.9.0",
  "futures",
  "serde",
  "serde_json",

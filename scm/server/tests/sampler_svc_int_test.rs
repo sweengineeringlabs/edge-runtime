@@ -13,6 +13,36 @@ fn test_sampler_svc_slug_is_correct_happy() {
     assert_eq!(SAMPLER_SVC, "sampler");
 }
 
+// ── Sampler::sampler_name ─────────────────────────────────────────────────────
+
+/// @covers: Sampler::sampler_name
+#[test]
+fn test_sampler_name_returns_nonempty_string_happy() {
+    let s = NoopSampler;
+    assert!(
+        !s.sampler_name().is_empty(),
+        "sampler_name must return a non-empty identifier"
+    );
+}
+
+/// @covers: Sampler::sampler_name
+#[test]
+fn test_sampler_name_is_idempotent_error() {
+    let s = NoopSampler;
+    assert_eq!(
+        s.sampler_name(),
+        s.sampler_name(),
+        "sampler_name must return the same value on repeated calls"
+    );
+}
+
+/// @covers: Sampler::sampler_name
+#[test]
+fn test_sampler_name_is_callable_via_trait_object_edge() {
+    let s: &dyn Sampler = &NoopSampler;
+    let _ = s.sampler_name();
+}
+
 // ── Sampler::make_counters ────────────────────────────────────────────────────
 
 #[test]

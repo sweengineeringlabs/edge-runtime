@@ -1,4 +1,4 @@
-//! [`BrokerFactory`] — contract for types that construct [`MessageBroker`] instances.
+//! [`BrokerProvider`] — contract for types that construct [`MessageBroker`] instances.
 
 use futures::future::BoxFuture;
 
@@ -9,7 +9,7 @@ use crate::api::broker::types::message_broker_factory::MessageBrokerFactory;
 ///
 /// Implementors produce concrete broker instances from a factory type.
 /// [`MessageBrokerFactory`] is the canonical implementor in this crate.
-pub trait BrokerFactory {
+pub trait BrokerProvider {
     /// Construct an in-memory broker backend.
     ///
     /// Requires the `tokio-rt` feature.
@@ -35,7 +35,7 @@ pub trait BrokerFactory {
     }
 }
 
-impl BrokerFactory for MessageBrokerFactory {
+impl BrokerProvider for MessageBrokerFactory {
     #[cfg(feature = "tokio-rt")]
     fn build_in_memory(
         &self,

@@ -5,7 +5,7 @@ mod config;
 mod task;
 
 // Broker theme — flat re-exports
-pub use broker::traits::broker_factory::BrokerFactory;
+pub use broker::traits::broker_provider::BrokerProvider;
 #[cfg(feature = "tokio-rt")]
 pub use broker::types::in_memory_message_broker::InMemoryMessageBroker;
 pub use broker::BrokerError;

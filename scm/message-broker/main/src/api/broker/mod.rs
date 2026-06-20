@@ -1,6 +1,6 @@
 //! Broker theme — message broker port, value types, and errors.
 //!
-//! The [`BrokerFactory`] trait is declared natively in this crate's `traits/`.
+//! The [`BrokerProvider`] trait is declared natively in this crate's `traits/`.
 //! The [`MessageBroker`] trait and the [`Message`]/[`MessageStream`]/[`BrokerError`]
 //! value types are owned by the `swe-edge-message-broker` contract crate and are
 //! re-exported through this theme's `traits`/`error` dirs for a single import

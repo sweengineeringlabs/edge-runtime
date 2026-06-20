@@ -1,25 +1,25 @@
-//! Integration tests for [`BrokerFactory`] trait (rule 222) and broker factory SAF fns (rule 221).
+//! Integration tests for [`BrokerProvider`] trait (rule 222) and broker factory SAF fns (rule 221).
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_message_broker::{BackendKind, MessageBrokerConfig};
-use swe_edge_runtime_message_broker::{BrokerFactory, MessageBrokerFactory};
+use swe_edge_runtime_message_broker::{BrokerProvider, MessageBrokerFactory};
 
-// --- BrokerFactory::default_factory (rule 222) ---
+// --- BrokerProvider::default_factory (rule 222) ---
 
-/// @covers: BrokerFactory::default_factory
+/// @covers: BrokerProvider::default_factory
 #[test]
 fn test_default_factory_returns_factory_instance_happy() {
     let _factory = MessageBrokerFactory::default_factory();
 }
 
-/// @covers: BrokerFactory::default_factory
+/// @covers: BrokerProvider::default_factory
 #[test]
 fn test_default_factory_is_callable_multiple_times_edge() {
     let _f1 = MessageBrokerFactory::default_factory();
     let _f2 = MessageBrokerFactory::default_factory();
 }
 
-/// @covers: BrokerFactory::default_factory
+/// @covers: BrokerProvider::default_factory
 #[test]
 fn test_default_factory_produces_usable_value_error() {
     // Calling default_factory on a type without a broker feature compiled in still succeeds;
@@ -34,9 +34,9 @@ fn test_default_factory_produces_usable_value_error() {
     let _ = (factory, config);
 }
 
-// --- BrokerFactory::build_in_memory (rule 222, cfg tokio-rt) ---
+// --- BrokerProvider::build_in_memory (rule 222, cfg tokio-rt) ---
 
-/// @covers: BrokerFactory::build_in_memory
+/// @covers: BrokerProvider::build_in_memory
 #[cfg(feature = "tokio-rt")]
 #[test]
 fn test_build_in_memory_returns_broker_happy() {
@@ -44,7 +44,7 @@ fn test_build_in_memory_returns_broker_happy() {
     let _broker = factory.build_in_memory();
 }
 
-/// @covers: BrokerFactory::build_in_memory
+/// @covers: BrokerProvider::build_in_memory
 #[cfg(feature = "tokio-rt")]
 #[test]
 fn test_build_in_memory_broker_is_send_and_sync_edge() {
@@ -52,7 +52,7 @@ fn test_build_in_memory_broker_is_send_and_sync_edge() {
     _assert_send_sync::<swe_edge_runtime_message_broker::InMemoryMessageBroker>();
 }
 
-/// @covers: BrokerFactory::build_in_memory
+/// @covers: BrokerProvider::build_in_memory
 #[cfg(feature = "tokio-rt")]
 #[tokio::test]
 async fn test_build_in_memory_broker_health_check_succeeds_error() {
@@ -66,9 +66,9 @@ async fn test_build_in_memory_broker_health_check_succeeds_error() {
     );
 }
 
-// --- BrokerFactory::build_from_config (rule 222) ---
+// --- BrokerProvider::build_from_config (rule 222) ---
 
-/// @covers: BrokerFactory::build_from_config
+/// @covers: BrokerProvider::build_from_config
 #[cfg(feature = "tokio-rt")]
 #[tokio::test]
 async fn test_build_from_config_in_memory_backend_happy() {
@@ -82,7 +82,7 @@ async fn test_build_from_config_in_memory_backend_happy() {
     assert!(broker.health_check().await.is_ok());
 }
 
-/// @covers: BrokerFactory::build_from_config
+/// @covers: BrokerProvider::build_from_config
 #[tokio::test]
 async fn test_build_from_config_nats_without_feature_returns_unavailable_error() {
     #[cfg(not(feature = "nats"))]
@@ -117,7 +117,7 @@ async fn test_build_from_config_nats_without_feature_returns_unavailable_error()
     }
 }
 
-/// @covers: BrokerFactory::build_from_config
+/// @covers: BrokerProvider::build_from_config
 #[tokio::test]
 async fn test_build_from_config_kafka_without_feature_returns_unavailable_edge() {
     #[cfg(not(feature = "kafka"))]
