@@ -1,11 +1,14 @@
+[workspace]
+resolver = "2"
+
 [package]
 name             = "swe-edge-runtime-grpc"
-version.workspace     = true
-edition.workspace     = true
-license.workspace     = true
-rust-version.workspace = true
-authors.workspace     = true
-repository.workspace  = true
+version          = "0.3.9"
+edition          = "2021"
+license          = "MIT OR Apache-2.0"
+rust-version     = "1.95"
+authors          = ["SWE Engineering Labs"]
+repository       = "https://github.com/sweengineeringlabs/edge-runtime"
 description      = "gRPC ingress contract crate for the swe-edge runtime layer — traits and value types only, no transport dependencies"
 keywords         = ["grpc", "ingress", "contracts", "async", "swe"]
 categories       = ["network-programming", "asynchronous"]

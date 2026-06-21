@@ -1,3 +1,6 @@
+[workspace]
+resolver = "2"
+
 [package]
 name             = "swe-edge-runtime-cli"
 version          = "0.1.1"
