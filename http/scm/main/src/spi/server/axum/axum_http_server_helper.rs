@@ -292,8 +292,8 @@ mod tests {
         HttpStream, SecurityContext, SseStream, WsChannel,
     };
 
-    struct NoopHandler;
-    impl HttpIngress for NoopHandler {
+    struct AxumHttpServerHelperNoopIngress;
+    impl HttpIngress for AxumHttpServerHelperNoopIngress {
         fn handle(
             &self,
             _: HttpRequest,
@@ -306,8 +306,8 @@ mod tests {
         }
     }
 
-    struct NoopStream;
-    impl HttpStream for NoopStream {
+    struct AxumHttpServerHelperNoopStream;
+    impl HttpStream for AxumHttpServerHelperNoopStream {
         fn handle_sse(
             &self,
             _: HttpRequest,
@@ -366,7 +366,7 @@ mod tests {
             .uri("/events")
             .body(axum::body::Body::empty())
             .unwrap();
-        let handler: Arc<dyn HttpStream> = Arc::new(NoopStream);
+        let handler: Arc<dyn HttpStream> = Arc::new(AxumHttpServerHelperNoopStream);
         let resp = futures::executor::block_on(AxumHttpServerHelper::dispatch_sse(
             req,
             usize::MAX,
@@ -381,7 +381,7 @@ mod tests {
             .uri("/ws")
             .body(axum::body::Body::empty())
             .unwrap();
-        let handler: Arc<dyn HttpStream> = Arc::new(NoopStream);
+        let handler: Arc<dyn HttpStream> = Arc::new(AxumHttpServerHelperNoopStream);
         let resp =
             futures::executor::block_on(AxumHttpServerHelper::dispatch_websocket(req, handler));
         assert_eq!(resp.status(), axum::http::StatusCode::BAD_REQUEST);
@@ -399,7 +399,7 @@ mod tests {
                 let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
                 AxumHttpServerHelper::serve_tls(
                     listener,
-                    Arc::new(NoopHandler),
+                    Arc::new(AxumHttpServerHelperNoopIngress),
                     usize::MAX,
                     std::time::Duration::from_secs(30),
                     None,

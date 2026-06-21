@@ -199,8 +199,8 @@ mod dedicated_coverage {
     use swe_edge_ingress_tls::IngressTlsConfig;
 
     fn make_handler() -> Arc<dyn HttpIngress> {
-        struct OkHandler;
-        impl HttpIngress for OkHandler {
+        struct AxumServerDispatcherOkIngress;
+        impl HttpIngress for AxumServerDispatcherOkIngress {
             fn handle(
                 &self,
                 _: HttpRequest,
@@ -212,7 +212,7 @@ mod dedicated_coverage {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
-        Arc::new(OkHandler)
+        Arc::new(AxumServerDispatcherOkIngress)
     }
 
     fn server() -> AxumHttpServer {
@@ -275,8 +275,8 @@ mod sync_coverage {
     };
 
     fn make_handler() -> Arc<dyn HttpIngress> {
-        struct OkHandler;
-        impl HttpIngress for OkHandler {
+        struct AxumServerDispatcherOkIngress;
+        impl HttpIngress for AxumServerDispatcherOkIngress {
             fn handle(
                 &self,
                 _: HttpRequest,
@@ -288,7 +288,7 @@ mod sync_coverage {
                 Box::pin(async { Ok(HttpHealthCheck::healthy()) })
             }
         }
-        Arc::new(OkHandler)
+        Arc::new(AxumServerDispatcherOkIngress)
     }
 
     #[test]
