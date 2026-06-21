@@ -8,7 +8,9 @@ use tokio::net::TcpListener;
 use swe_edge_ingress_http::HttpIngress;
 
 use crate::api::server::errors::HttpServerError;
-use crate::api::server::types::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper};
+use crate::api::server::types::{
+    AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServerSvc,
+};
 
 /// A runnable HTTP server that drives an [`HttpIngress`] handler.
 pub trait HttpServer: Send + Sync {
@@ -56,5 +58,13 @@ pub trait HttpServer: Send + Sync {
         Self: Sized,
     {
         AxumHttpServer::new(bind, handler)
+    }
+
+    /// Return the SAF factory for HTTP servers.
+    fn new_server_svc() -> HttpServerSvc
+    where
+        Self: Sized,
+    {
+        HttpServerSvc
     }
 }

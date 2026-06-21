@@ -5,4 +5,4 @@ mod types;
 
 pub use errors::HttpServerError;
 pub use traits::HttpServer;
-pub use types::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper};
+pub use types::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServerSvc};

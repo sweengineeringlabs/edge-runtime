@@ -1,7 +1,6 @@
 //! SAF factory surface for [`HttpServer`].
 //!
-//! Provides the `HttpServerSvc` factory for constructing HTTP servers without
-//! exposing the concrete Axum implementation to consumers.
+//! Implements factory methods on [`HttpServerSvc`] (declared in `api/`).
 
 use std::sync::Arc;
 
@@ -9,11 +8,7 @@ use swe_edge_ingress_http::HttpIngress;
 
 use crate::api::{AxumHttpServer, AxumHttpServerBuilder};
 
-/// Factory for HTTP server construction.
-///
-/// Consumers call [`HttpServerSvc::new_server`] to obtain an [`AxumHttpServer`]
-/// without naming the concrete type directly.
-pub(crate) struct HttpServerSvc;
+pub use crate::api::HttpServerSvc;
 
 impl HttpServerSvc {
     /// Construct a new [`AxumHttpServer`] bound to `bind`, delegating all

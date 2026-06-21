@@ -7,7 +7,7 @@ mod validator_svc;
 pub use http::{
     FormPart, HttpAuth, HttpBody, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngress,
     HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest, HttpRequestBuilder, HttpResponse,
-    NoopHttpIngress,
+    HttpServerSvc, NoopHttpIngress,
 };
 pub use server_svc::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServer, HttpServerError,

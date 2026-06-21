@@ -8,6 +8,4 @@ pub use http_ingress_svc::{
     HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest, HttpRequestBuilder, HttpResponse,
     NoopHttpIngress,
 };
-// HttpServerSvc provides factory functions — accessible within the crate via
-// the `http_server_svc` module if needed by future callers.
-pub(crate) use http_server_svc::HttpServerSvc as _;
+pub use http_server_svc::HttpServerSvc;
