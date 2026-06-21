@@ -12,8 +12,8 @@
 use std::sync::Arc;
 
 use swe_edge_runtime_http::{
-    AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServerError,
-    NoopHttpIngress, HTTP_SERVER_SVC,
+    AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServerError, NoopHttpIngress,
+    HTTP_SERVER_SVC,
 };
 
 fn noop_handler() -> Arc<NoopHttpIngress> {
@@ -24,7 +24,10 @@ fn noop_handler() -> Arc<NoopHttpIngress> {
 
 #[test]
 fn test_http_server_svc_slug_is_non_empty_happy() {
-    assert!(!HTTP_SERVER_SVC.is_empty(), "HTTP_SERVER_SVC slug must not be empty");
+    assert!(
+        !HTTP_SERVER_SVC.is_empty(),
+        "HTTP_SERVER_SVC slug must not be empty"
+    );
 }
 
 #[test]
@@ -118,7 +121,10 @@ fn test_http_server_error_serve_display_is_non_empty_happy() {
 fn test_http_server_error_bind_display_contains_address_error() {
     let e = HttpServerError::Bind("0.0.0.0:80".into(), std::io::Error::other("denied"));
     let msg = e.to_string();
-    assert!(msg.contains("0.0.0.0:80"), "expected address in error: {msg}");
+    assert!(
+        msg.contains("0.0.0.0:80"),
+        "expected address in error: {msg}"
+    );
 }
 
 #[test]

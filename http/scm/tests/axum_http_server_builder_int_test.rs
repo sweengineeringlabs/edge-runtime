@@ -6,11 +6,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use futures::future::BoxFuture;
-use swe_edge_runtime_http::{AxumHttpServerBuilder, HttpIngress, HttpServer};
 use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse, SecurityContext,
     DEFAULT_REQUEST_TIMEOUT,
 };
+use swe_edge_runtime_http::{AxumHttpServerBuilder, HttpIngress, HttpServer};
 
 // @allow: no_mocks_in_integration — StubIngress implements the real HttpIngress trait
 struct StubIngress; // @allow: no_mocks_in_integration
@@ -29,7 +29,8 @@ impl HttpIngress for StubIngress {
     }
 }
 
-fn handler() -> Arc<StubIngress> { // @allow: no_mocks_in_integration
+fn handler() -> Arc<StubIngress> {
+    // @allow: no_mocks_in_integration
     Arc::new(StubIngress) // @allow: no_mocks_in_integration
 }
 
@@ -129,16 +130,17 @@ fn test_builder_tls_serve_rejects_missing_cert_edge() {
         .block_on(async {
             use futures::future::BoxFuture;
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-            let server = AxumHttpServerBuilder::new(
-                listener.local_addr().unwrap().to_string(),
-                handler(),
-            )
-            .with_tls(IngressTlsConfig::tls("no.pem", "no.pem"))
-            .build();
+            let server =
+                AxumHttpServerBuilder::new(listener.local_addr().unwrap().to_string(), handler())
+                    .with_tls(IngressTlsConfig::tls("no.pem", "no.pem"))
+                    .build();
             let shutdown: BoxFuture<'static, ()> = Box::pin(async {});
             server.serve_with_listener(listener, shutdown).await
         });
-    assert!(result.is_err(), "missing cert must produce an error at serve time");
+    assert!(
+        result.is_err(),
+        "missing cert must produce an error at serve time"
+    );
 }
 
 // ── with_bearer_auth ──────────────────────────────────────────────────────────

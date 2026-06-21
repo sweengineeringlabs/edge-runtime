@@ -70,7 +70,10 @@ fn test_collect_headers_returns_content_type_happy() {
         axum::http::HeaderValue::from_static("application/json"),
     );
     let map = AxumHttpServerHelper::collect_headers(&headers);
-    assert_eq!(map.get("content-type").map(|s| s.as_str()), Some("application/json"));
+    assert_eq!(
+        map.get("content-type").map(|s| s.as_str()),
+        Some("application/json")
+    );
 }
 
 #[test]
@@ -89,7 +92,11 @@ fn test_collect_headers_keys_are_lowercase_edge() {
     );
     let map = AxumHttpServerHelper::collect_headers(&headers);
     for key in map.keys() {
-        assert_eq!(key.to_lowercase(), *key, "header key must be lowercase: {key}");
+        assert_eq!(
+            key.to_lowercase(),
+            *key,
+            "header key must be lowercase: {key}"
+        );
     }
 }
 
@@ -139,7 +146,10 @@ fn test_verify_auth_with_verifier_missing_auth_header_returns_401_error() {
         .body(axum::body::Body::empty())
         .unwrap();
     let result = AxumHttpServerHelper::verify_auth(req, Some(&AcceptAll));
-    assert!(result.is_err(), "missing auth header with verifier must fail");
+    assert!(
+        result.is_err(),
+        "missing auth header with verifier must fail"
+    );
     if let Err(resp) = result {
         assert_eq!(resp.status(), axum::http::StatusCode::UNAUTHORIZED);
     }
@@ -160,5 +170,8 @@ fn test_verify_auth_with_bearer_token_verified_ok_edge() {
         .body(axum::body::Body::empty())
         .unwrap();
     let result = AxumHttpServerHelper::verify_auth(req, Some(&AcceptAll));
-    assert!(result.is_ok(), "valid bearer token with AcceptAll must pass");
+    assert!(
+        result.is_ok(),
+        "valid bearer token with AcceptAll must pass"
+    );
 }

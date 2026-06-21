@@ -15,9 +15,9 @@ use swe_edge_ingress_http::{
 };
 
 use super::axum_http_server_helper::AxumHttpServerHelper;
-use crate::api::HttpServerError;
-use crate::api::HttpServer;
 use crate::api::AxumHttpServer;
+use crate::api::HttpServer;
+use crate::api::HttpServerError;
 
 impl AxumHttpServer {
     /// Bind and serve until `shutdown` resolves.

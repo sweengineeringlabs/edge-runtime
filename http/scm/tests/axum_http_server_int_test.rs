@@ -6,11 +6,11 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use futures::future::BoxFuture;
-use swe_edge_runtime_http::{AxumHttpServer, HttpIngress, HttpServer};
 use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngressResult, HttpRequest, HttpResponse, SecurityContext,
     DEFAULT_REQUEST_TIMEOUT,
 };
+use swe_edge_runtime_http::{AxumHttpServer, HttpIngress, HttpServer};
 
 struct OkIngress;
 
@@ -166,7 +166,9 @@ fn test_with_stream_handler_does_not_panic_edge() {
 
 #[tokio::test]
 async fn test_serve_invalid_port_returns_bind_error_happy() {
-    let result = AxumHttpServer::new("127.0.0.1:99999", Arc::new(OkIngress)).serve().await;
+    let result = AxumHttpServer::new("127.0.0.1:99999", Arc::new(OkIngress))
+        .serve()
+        .await;
     assert!(result.is_err());
 }
 

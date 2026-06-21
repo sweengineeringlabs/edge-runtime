@@ -95,7 +95,10 @@ async fn test_serve_error_impl_propagates_error_edge() {
     // Edge: a custom impl that always errors — trait consumers must handle Err.
     let s = ErrorServer;
     let result = s.serve().await;
-    assert!(result.is_err(), "ErrorServer::serve must propagate the error");
+    assert!(
+        result.is_err(),
+        "ErrorServer::serve must propagate the error"
+    );
 }
 
 // ── serve_with_shutdown ───────────────────────────────────────────────────────
@@ -131,7 +134,9 @@ async fn test_serve_with_shutdown_real_server_binds_and_stops_edge() {
         let _ = rx.await;
     });
     // Trigger shutdown immediately from another task.
-    tokio::spawn(async move { let _ = tx.send(()); });
+    tokio::spawn(async move {
+        let _ = tx.send(());
+    });
     let result = s.serve_with_shutdown(shutdown).await;
     assert!(
         result.is_ok(),
@@ -305,8 +310,7 @@ fn test_new_server_with_invalid_address_does_not_panic_error() {
     // "Error" scenario: construction with an invalid address must not panic —
     // the error surfaces only at serve time.
     let handler = noop_handler();
-    let _server: AxumHttpServer =
-        OkServer::new_server("not-a-valid-addr".to_string(), handler);
+    let _server: AxumHttpServer = OkServer::new_server("not-a-valid-addr".to_string(), handler);
     // No panic means the error is deferred to serve().
 }
 

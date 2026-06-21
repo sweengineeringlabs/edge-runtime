@@ -12,8 +12,8 @@ use swe_edge_ingress_tls::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 use tokio::net::TcpListener;
 
-use crate::api::HttpServerError;
 pub(crate) use crate::api::AxumHttpServerHelper;
+use crate::api::HttpServerError;
 
 const WS_OUTBOUND_BUFFER: usize = 64;
 
@@ -138,9 +138,7 @@ impl AxumHttpServerHelper {
                 let incoming: swe_edge_ingress_http::WsReceiver =
                     Box::pin(socket_recv.filter_map(|item| async move {
                         match item {
-                            Ok(Message::Text(t)) => {
-                                Some(Ok(WsMessage::text(t.as_str())))
-                            }
+                            Ok(Message::Text(t)) => Some(Ok(WsMessage::text(t.as_str()))),
                             Ok(Message::Binary(b)) => Some(Ok(WsMessage::binary(b))),
                             Ok(Message::Close(_)) => None,
                             Ok(_) => None,
@@ -162,9 +160,7 @@ impl AxumHttpServerHelper {
                         let ws_msg = if msg.binary {
                             Message::Binary(msg.data.to_vec().into())
                         } else {
-                            Message::Text(
-                                String::from_utf8_lossy(&msg.data).into_owned().into(),
-                            )
+                            Message::Text(String::from_utf8_lossy(&msg.data).into_owned().into())
                         };
                         use futures::SinkExt as _;
                         if socket_send.send(ws_msg).await.is_err() {
@@ -288,8 +284,8 @@ mod tests {
     use futures::future::BoxFuture;
     use std::sync::Arc;
     use swe_edge_ingress_http::{
-        HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest, HttpResponse,
-        HttpStream, SecurityContext, SseStream, WsChannel,
+        HttpHealthCheck, HttpIngress, HttpIngressError, HttpIngressResult, HttpRequest,
+        HttpResponse, HttpStream, SecurityContext, SseStream, WsChannel,
     };
 
     struct AxumHttpServerHelperNoopIngress;

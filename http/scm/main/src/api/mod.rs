@@ -7,4 +7,6 @@ mod noop;
 mod server;
 
 pub use noop::{NoopHttpIngress, NoopValidator};
-pub use server::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServer, HttpServerError};
+pub use server::{
+    AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServer, HttpServerError,
+};

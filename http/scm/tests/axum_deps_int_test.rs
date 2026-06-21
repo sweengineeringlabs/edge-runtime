@@ -17,15 +17,15 @@ use std::time::Duration;
 
 use futures::future::BoxFuture;
 // axum is used directly for header types and the AxumHttpServer binds axum::serve.
-use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
+use axum::http::{header, HeaderMap, HeaderValue, StatusCode};
 // hyper_util provides the TokioExecutor + TowerToHyperService used in the TLS path.
 use hyper_util::rt::TokioExecutor;
 use swe_edge_runtime_http::{AxumHttpServer, AxumHttpServerHelper, HttpIngress, HttpServer};
 
+use swe_edge_ingress_http::SecurityContext;
 use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngressError, HttpIngressResult, HttpRequest, HttpResponse,
 };
-use swe_edge_ingress_http::SecurityContext;
 
 // ── Shared stubs ─────────────────────────────────────────────────────────────
 
@@ -48,7 +48,8 @@ impl HttpIngress for StubIngress {
     }
 }
 
-fn stub() -> Arc<StubIngress> { // @allow: no_mocks_in_integration
+fn stub() -> Arc<StubIngress> {
+    // @allow: no_mocks_in_integration
     Arc::new(StubIngress) // @allow: no_mocks_in_integration
 }
 
@@ -61,7 +62,10 @@ async fn test_axum_server_binds_on_ephemeral_port_happy() {
     let server = AxumHttpServer::new(listener.local_addr().unwrap().to_string(), stub());
     let shutdown: BoxFuture<'static, ()> = Box::pin(async {});
     let result = server.serve_with_listener(listener, shutdown).await;
-    assert!(result.is_ok(), "axum server must shut down cleanly: {result:?}");
+    assert!(
+        result.is_ok(),
+        "axum server must shut down cleanly: {result:?}"
+    );
 }
 
 #[tokio::test]
@@ -76,10 +80,7 @@ async fn test_axum_server_invalid_bind_returns_error_error() {
 fn test_axum_helper_header_detection_is_deterministic_edge() {
     // Uses axum::http::HeaderMap + HeaderValue directly
     let mut headers = HeaderMap::new();
-    headers.insert(
-        header::UPGRADE,
-        HeaderValue::from_static("websocket"),
-    );
+    headers.insert(header::UPGRADE, HeaderValue::from_static("websocket"));
     assert!(AxumHttpServerHelper::is_websocket_upgrade(&headers));
     let empty = HeaderMap::new();
     assert!(!AxumHttpServerHelper::is_websocket_upgrade(&empty));
@@ -121,7 +122,10 @@ fn test_swe_edge_ingress_http_ingress_error_variants_display_edge() {
         HttpIngressError::Unauthorized("z".into()),
     ];
     for v in variants {
-        assert!(!v.to_string().is_empty(), "variant {v:?} must have non-empty Display");
+        assert!(
+            !v.to_string().is_empty(),
+            "variant {v:?} must have non-empty Display"
+        );
     }
 }
 
@@ -167,8 +171,8 @@ fn test_swe_edge_ingress_verifier_ok_verifier_wires_to_server_happy() {
         }
     }
     // Confirm the verifier can be attached without panic.
-    let _server = AxumHttpServer::new("127.0.0.1:0", stub())
-        .with_bearer_auth(Arc::new(AlwaysOkVerifier));
+    let _server =
+        AxumHttpServer::new("127.0.0.1:0", stub()).with_bearer_auth(Arc::new(AlwaysOkVerifier));
 }
 
 #[test]
@@ -200,8 +204,8 @@ fn test_tower_timeout_overridden_via_with_request_timeout_error() {
     use tower::timeout::TimeoutLayer;
     // Confirm the TimeoutLayer type is available (tower dep is reachable).
     let _layer = TimeoutLayer::new(Duration::from_millis(100));
-    let server = AxumHttpServer::new("127.0.0.1:0", stub())
-        .with_request_timeout(Duration::from_millis(100));
+    let server =
+        AxumHttpServer::new("127.0.0.1:0", stub()).with_request_timeout(Duration::from_millis(100));
     assert_eq!(server.request_timeout(), Duration::from_millis(100));
 }
 
@@ -244,8 +248,8 @@ async fn test_hyper_util_tls_path_rejects_missing_cert_happy() {
     use swe_edge_ingress_tls::IngressTlsConfig;
     let cfg = IngressTlsConfig::tls("no_cert.pem", "no_key.pem");
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-    let server = AxumHttpServer::new(listener.local_addr().unwrap().to_string(), stub())
-        .with_tls(cfg);
+    let server =
+        AxumHttpServer::new(listener.local_addr().unwrap().to_string(), stub()).with_tls(cfg);
     let shutdown: BoxFuture<'static, ()> = Box::pin(async {});
     let result = server.serve_with_listener(listener, shutdown).await;
     assert!(result.is_err(), "missing cert must produce an error");

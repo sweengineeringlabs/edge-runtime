@@ -8,14 +8,23 @@ use swe_edge_runtime_http::HttpServerError;
 
 #[test]
 fn test_http_server_error_bind_display_contains_address_happy() {
-    let e = HttpServerError::Bind("127.0.0.1:8080".into(), std::io::Error::other("address in use"));
+    let e = HttpServerError::Bind(
+        "127.0.0.1:8080".into(),
+        std::io::Error::other("address in use"),
+    );
     let msg = e.to_string();
-    assert!(msg.contains("127.0.0.1:8080"), "expected address in message: {msg}");
+    assert!(
+        msg.contains("127.0.0.1:8080"),
+        "expected address in message: {msg}"
+    );
 }
 
 #[test]
 fn test_http_server_error_bind_display_contains_io_cause_error() {
-    let e = HttpServerError::Bind("0.0.0.0:443".into(), std::io::Error::other("permission denied"));
+    let e = HttpServerError::Bind(
+        "0.0.0.0:443".into(),
+        std::io::Error::other("permission denied"),
+    );
     let msg = e.to_string();
     assert!(!msg.is_empty(), "Bind error Display must not be empty");
 }
@@ -38,7 +47,10 @@ fn test_http_server_error_serve_display_is_non_empty_happy() {
 fn test_http_server_error_serve_source_is_io_error_error() {
     use std::error::Error;
     let e = HttpServerError::Serve(std::io::Error::other("io fail"));
-    assert!(e.source().is_some(), "Serve must expose its IO error as source");
+    assert!(
+        e.source().is_some(),
+        "Serve must expose its IO error as source"
+    );
 }
 
 #[test]
@@ -52,7 +64,8 @@ fn test_http_server_error_serve_is_send_sync_edge() {
 #[test]
 fn test_http_server_error_tls_display_contains_tls_prefix_happy() {
     use swe_edge_ingress_tls::IngressTlsError;
-    let inner = IngressTlsError::CertLoad("bad_cert.pem".into(), std::io::Error::other("not found"));
+    let inner =
+        IngressTlsError::CertLoad("bad_cert.pem".into(), std::io::Error::other("not found"));
     let e = HttpServerError::Tls(inner);
     let msg = e.to_string();
     assert!(!msg.is_empty(), "TLS error must display: {msg}");
@@ -71,7 +84,10 @@ fn test_http_server_error_tls_source_is_ingress_tls_error_error() {
 fn test_http_server_error_all_variants_are_error_impl_edge() {
     use std::error::Error;
     let variants: Vec<Box<dyn Error>> = vec![
-        Box::new(HttpServerError::Bind("addr".into(), std::io::Error::other("x"))),
+        Box::new(HttpServerError::Bind(
+            "addr".into(),
+            std::io::Error::other("x"),
+        )),
         Box::new(HttpServerError::Serve(std::io::Error::other("y"))),
     ];
     for v in &variants {

@@ -29,7 +29,15 @@ fn test_create_noop_http_ingress_independent_instances_edge() {
     // Edge: create() can be called multiple times, each returns an independent instance.
     let i1 = NoopHttpIngress::create();
     let i2 = NoopHttpIngress::create();
-    let r1 = block_on(i1.handle(HttpRequest::get("/ping"), edge_domain::SecurityContext::unauthenticated())).unwrap();
-    let r2 = block_on(i2.handle(HttpRequest::get("/ping"), edge_domain::SecurityContext::unauthenticated())).unwrap();
+    let r1 = block_on(i1.handle(
+        HttpRequest::get("/ping"),
+        edge_domain::SecurityContext::unauthenticated(),
+    ))
+    .unwrap();
+    let r2 = block_on(i2.handle(
+        HttpRequest::get("/ping"),
+        edge_domain::SecurityContext::unauthenticated(),
+    ))
+    .unwrap();
     assert_eq!(r1.status, r2.status);
 }
