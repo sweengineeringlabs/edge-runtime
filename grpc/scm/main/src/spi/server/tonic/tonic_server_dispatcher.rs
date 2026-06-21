@@ -23,24 +23,24 @@ use edge_domain::SecurityContext;
 
 use super::grpc_principal::GrpcPrincipal;
 
-use swe_edge_ingress_grpc::AuditEvent;
-use swe_edge_ingress_grpc::GrpcIngressError;
-use swe_edge_ingress_grpc::{HealthService, HEALTH_CHECK_METHOD, HEALTH_WATCH_METHOD};
-use swe_edge_ingress_grpc::{
-    GrpcIngressInterceptorChain, TraceContextInterceptor, EXTRACTED_TRACEPARENT,
-};
 use crate::api::server::error::GrpcServerError;
 use crate::api::server::types::{
     StatusCodeConverter, TonicGrpcServer, MISSING_AUTHORIZATION_INTERCEPTOR_MSG,
     REFLECTION_ENABLED_WARN_MSG,
 };
 use crate::api::server::PeerIdentityExtractor;
-use swe_edge_ingress_grpc::{GrpcTimeoutParser, DEFAULT_DEADLINE};
+use swe_edge_ingress_grpc::AuditEvent;
+use swe_edge_ingress_grpc::GrpcIngressError;
+use swe_edge_ingress_grpc::{AuditSink, GrpcIngress};
 use swe_edge_ingress_grpc::{
     CompressionMode, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode, PeerIdentity, PEER_CN,
 };
+use swe_edge_ingress_grpc::{
+    GrpcIngressInterceptorChain, TraceContextInterceptor, EXTRACTED_TRACEPARENT,
+};
 use swe_edge_ingress_grpc::{GrpcIngressResult, GrpcMessageStream};
-use swe_edge_ingress_grpc::{AuditSink, GrpcIngress};
+use swe_edge_ingress_grpc::{GrpcTimeoutParser, DEFAULT_DEADLINE};
+use swe_edge_ingress_grpc::{HealthService, HEALTH_CHECK_METHOD, HEALTH_WATCH_METHOD};
 
 type BoxBody = http_body_util::combinators::BoxBody<Bytes, Infallible>;
 
@@ -872,12 +872,12 @@ impl TonicServerDispatcher {
 mod tests {
     use super::*;
     use crate::GrpcServerConfig;
-    use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
-    use swe_edge_ingress_grpc::GrpcIngress;
-    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
-    use swe_edge_ingress_grpc::{AuthorizationInterceptor, GrpcIngressInterceptor};
-    use swe_edge_ingress_grpc::HealthService;
     use futures::future::BoxFuture;
+    use swe_edge_ingress_grpc::GrpcIngress;
+    use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
+    use swe_edge_ingress_grpc::HealthService;
+    use swe_edge_ingress_grpc::{AuthorizationInterceptor, GrpcIngressInterceptor};
+    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
 
     // ── read_deadline ─────────────────────────────────────────────────────
 
@@ -1134,14 +1134,14 @@ mod tests {
 #[cfg(test)]
 mod dedicated_coverage {
     use super::TonicGrpcServer;
-    use swe_edge_ingress_grpc::GrpcIngress;
-    use swe_edge_ingress_grpc::{CompressionMode, GrpcRequest, GrpcResponse};
-    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
-    use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
     use edge_domain::SecurityContext;
     use futures::future::BoxFuture;
     use std::sync::Arc;
+    use swe_edge_ingress_grpc::GrpcIngress;
+    use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
     use swe_edge_ingress_grpc::GrpcMetadata;
+    use swe_edge_ingress_grpc::{CompressionMode, GrpcRequest, GrpcResponse};
+    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
 
     struct TonicGrpcServerStub;
     impl GrpcIngress for TonicGrpcServerStub {
@@ -1241,12 +1241,12 @@ mod dedicated_coverage {
 #[cfg(test)]
 mod sync_coverage {
     use super::TonicGrpcServer;
-    use swe_edge_ingress_grpc::GrpcIngress;
-    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
-    use swe_edge_ingress_grpc::{GrpcRequest, GrpcResponse};
     use edge_domain::SecurityContext;
     use futures::future::BoxFuture;
     use std::sync::Arc;
+    use swe_edge_ingress_grpc::GrpcIngress;
+    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
+    use swe_edge_ingress_grpc::{GrpcRequest, GrpcResponse};
 
     struct TonicGrpcServerStub;
     impl GrpcIngress for TonicGrpcServerStub {

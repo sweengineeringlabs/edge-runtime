@@ -2,8 +2,8 @@
 
 use std::sync::Arc;
 
-use swe_edge_ingress_tls::IngressTlsConfig;
 use swe_edge_ingress_grpc::{AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain};
+use swe_edge_ingress_tls::IngressTlsConfig;
 
 use crate::api::server::types::TonicGrpcServer;
 

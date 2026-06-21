@@ -1,9 +1,7 @@
 //! Integration tests for the GrpcServerObserver trait.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_runtime_grpc::{
-    GrpcServerObserver, NoopGrpcIngress, TonicGrpcServer,
-};
+use swe_edge_runtime_grpc::{GrpcServerObserver, NoopGrpcIngress, TonicGrpcServer};
 
 fn server() -> TonicGrpcServer {
     TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create())

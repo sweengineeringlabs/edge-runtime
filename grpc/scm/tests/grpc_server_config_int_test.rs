@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use swe_edge_runtime_grpc::{
-    GrpcServerConfig, GrpcServerConfigError, TonicGrpcServer, NoopGrpcIngress,
+    GrpcServerConfig, GrpcServerConfigError, NoopGrpcIngress, TonicGrpcServer,
 };
 
 fn make_handler() -> Arc<NoopGrpcIngress> {
@@ -44,13 +44,17 @@ fn test_grpc_server_config_new_sets_tls_required_true() {
 #[test]
 fn test_grpc_server_config_with_max_message_bytes_overrides_default() {
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
-    let cfg = GrpcServerConfig::new(bind).allow_plaintext().with_max_message_bytes(1024);
+    let cfg = GrpcServerConfig::new(bind)
+        .allow_plaintext()
+        .with_max_message_bytes(1024);
     assert_eq!(cfg.max_message_bytes, 1024);
 }
 
 #[test]
 fn test_grpc_server_config_enable_reflection_flips_flag() {
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
-    let cfg = GrpcServerConfig::new(bind).allow_plaintext().enable_reflection();
+    let cfg = GrpcServerConfig::new(bind)
+        .allow_plaintext()
+        .enable_reflection();
     assert!(cfg.enable_reflection);
 }

@@ -18,7 +18,9 @@ fn test_grpc_server_config_builder_builds_with_defaults() {
 
 #[test]
 fn test_grpc_server_config_builder_allow_plaintext_clears_tls_required() {
-    let cfg = GrpcServerConfigBuilder::new(bind()).allow_plaintext().build();
+    let cfg = GrpcServerConfigBuilder::new(bind())
+        .allow_plaintext()
+        .build();
     assert!(!cfg.tls_required);
 }
 

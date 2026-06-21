@@ -10,5 +10,8 @@ fn test_grpc_server_error_bind_formats_address_and_source() {
         std::io::Error::new(std::io::ErrorKind::AddrInUse, "port in use"),
     );
     let msg = err.to_string();
-    assert!(msg.contains("127.0.0.1:443"), "must include address in message");
+    assert!(
+        msg.contains("127.0.0.1:443"),
+        "must include address in message"
+    );
 }

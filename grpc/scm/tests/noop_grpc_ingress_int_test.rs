@@ -3,14 +3,16 @@
 
 use std::time::Duration;
 
-use swe_edge_runtime_grpc::{
-    GrpcIngress, GrpcRequest, NoopGrpcIngress, SecurityContext,
-};
+use swe_edge_runtime_grpc::{GrpcIngress, GrpcRequest, NoopGrpcIngress, SecurityContext};
 
 #[tokio::test]
 async fn test_noop_grpc_ingress_handle_unary_returns_empty_body() {
     let ingress = NoopGrpcIngress;
-    let req = GrpcRequest::new("/pkg.Svc/Method".to_string(), vec![1, 2, 3], Duration::from_secs(5));
+    let req = GrpcRequest::new(
+        "/pkg.Svc/Method".to_string(),
+        vec![1, 2, 3],
+        Duration::from_secs(5),
+    );
     let ctx = SecurityContext::unauthenticated();
     let resp = ingress.handle_unary(req, ctx).await.unwrap();
     assert!(resp.body.is_empty());

@@ -4,8 +4,8 @@ use std::sync::Arc;
 
 use futures::future::BoxFuture;
 use swe_edge_ingress_grpc::{
-    GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMetadata, GrpcRequest,
-    GrpcResponse, SecurityContext,
+    GrpcHealthCheck, GrpcIngress, GrpcIngressResult, GrpcMetadata, GrpcRequest, GrpcResponse,
+    SecurityContext,
 };
 
 /// No-op gRPC ingress — used in tests and as a placeholder.
