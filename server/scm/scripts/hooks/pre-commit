@@ -29,6 +29,6 @@ run_workspace_checks "cli"            "$REPO_ROOT/cli/scm"
 run_workspace_checks "grpc"           "$REPO_ROOT/grpc/scm"
 run_workspace_checks "http"           "$REPO_ROOT/http/scm"
 run_workspace_checks "message-broker" "$REPO_ROOT/message-broker/scm"
-run_workspace_checks "server"         "$REPO_ROOT/server/scm"
+run_workspace_checks "server"         "$REPO_ROOT/server"
 
 echo "pre-commit: all checks passed."
