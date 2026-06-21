@@ -118,7 +118,7 @@ fn test_new_svc_returned_svc_can_validate_error() {
     let v = NoopGrpcValidator;
     // The returned svc must be able to validate any Validator.
     assert!(ValidatorSvc::validate(&v).is_ok());
-    drop(svc);
+    let _ = svc;
 }
 
 #[test]

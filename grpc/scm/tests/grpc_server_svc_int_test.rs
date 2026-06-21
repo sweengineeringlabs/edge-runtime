@@ -59,7 +59,7 @@ fn test_new_tonic_server_with_empty_bind_returns_error_error() {
     let server = TonicGrpcServer::new_tonic_server(String::new(), NoopGrpcIngress::create())
         .allow_unauthenticated(true);
     // We just verify construction succeeds (error is at bind time).
-    drop(server);
+    let _ = server;
 }
 
 #[test]
@@ -264,8 +264,7 @@ fn test_new_server_svc_multiple_instances_are_independent_edge() {
     let svc1 = TonicGrpcServer::new_server_svc();
     let svc2 = TonicGrpcServer::new_server_svc();
     // Both are usable; no panic or resource contention.
-    drop(svc1);
-    drop(svc2);
+    let _ = (svc1, svc2);
 }
 
 #[test]
@@ -274,6 +273,5 @@ fn test_new_observer_svc_multiple_instances_are_independent_edge() {
     // Each call produces an independent value — no shared mutable state.
     let svc1 = TonicGrpcServer::new_observer_svc();
     let svc2 = TonicGrpcServer::new_observer_svc();
-    drop(svc1);
-    drop(svc2);
+    let _ = (svc1, svc2);
 }
