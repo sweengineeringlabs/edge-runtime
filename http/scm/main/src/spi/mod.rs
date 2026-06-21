@@ -1,6 +1,2 @@
-//! Extension anchor for downstream consumers.
-//!
-//! Downstream crates implement [`crate::api::HttpIngress`] against this crate's types.
-
-#[doc(hidden)]
-const _: () = ();
+//! SPI layer — server binding implementations backed by external libraries.
+pub(crate) mod server;

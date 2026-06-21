@@ -12,7 +12,7 @@ fn test_edge_domain_security_context_unauthenticated_happy() {
     let ctx = SecurityContext::unauthenticated();
     let ingress = NoopHttpIngress;
     let req = HttpRequest::get("/");
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert_eq!(resp.status, 200);
 }
 
@@ -22,7 +22,7 @@ fn test_edge_domain_security_context_passed_through_error() {
     let ctx = SecurityContext::unauthenticated();
     let ingress = NoopHttpIngress;
     let req = HttpRequest::post("/secure");
-    let result = block_on(ingress.handle(&req, ctx));
+    let result = block_on(ingress.handle(req, ctx));
     assert!(result.is_ok());
 }
 
@@ -32,6 +32,6 @@ fn test_edge_domain_security_context_used_with_delete_edge() {
     let ctx = SecurityContext::unauthenticated();
     let ingress = NoopHttpIngress;
     let req = HttpRequest::delete("/resource/42");
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert!(resp.is_success());
 }

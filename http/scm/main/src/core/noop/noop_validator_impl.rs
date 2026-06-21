@@ -1,9 +1,11 @@
 //! No-op [`Validator`] implementation.
 
-use crate::api::{HttpIngressError, NoopValidator, Validator};
+use swe_edge_ingress_http::Validator;
+
+use crate::api::noop::NoopValidator;
 
 impl Validator for NoopValidator {
-    fn validate(&self) -> Result<(), HttpIngressError> {
+    fn validate(&self) -> Result<(), String> {
         Ok(())
     }
 }

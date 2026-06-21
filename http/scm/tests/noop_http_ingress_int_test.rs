@@ -15,7 +15,7 @@ fn test_noop_http_ingress_handle_returns_200_happy() {
     let ingress = NoopHttpIngress;
     let req = HttpRequest::get("/");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert_eq!(resp.status, 200);
 }
 
@@ -24,7 +24,7 @@ fn test_noop_http_ingress_handle_never_errors_error() {
     let ingress = NoopHttpIngress;
     let req = HttpRequest::post("/anything");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let result = block_on(ingress.handle(&req, ctx));
+    let result = block_on(ingress.handle(req, ctx));
     assert!(result.is_ok());
 }
 
@@ -33,7 +33,7 @@ fn test_noop_http_ingress_handle_empty_body_edge() {
     let ingress = NoopHttpIngress;
     let req = HttpRequest::get("/");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert!(resp.body.is_empty());
 }
 

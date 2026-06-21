@@ -2,7 +2,7 @@
 // @covers NoopValidator::validate
 #![allow(clippy::unwrap_used)]
 
-use swe_edge_runtime_http::{HttpIngressError, NoopValidator, Validator};
+use swe_edge_runtime_http::{NoopValidator, Validator};
 
 fn noop() -> NoopValidator {
     NoopValidator
@@ -21,17 +21,14 @@ fn test_validate_noop_error() {
     // An always-failing validator documents the error path.
     struct AlwaysFail;
     impl Validator for AlwaysFail {
-        fn validate(&self) -> Result<(), HttpIngressError> {
-            Err(HttpIngressError::InvalidInput("bad config".to_string()))
+        fn validate(&self) -> Result<(), String> {
+            Err("bad config".to_string())
         }
     }
     let v = AlwaysFail;
     let result = v.validate();
     assert!(result.is_err());
-    assert!(matches!(
-        result.unwrap_err(),
-        HttpIngressError::InvalidInput(_)
-    ));
+    assert_eq!(result.unwrap_err(), "bad config");
 }
 
 #[test]

@@ -1,6 +1,8 @@
 //! Service factory for [`Validator`] — SAF re-export surface.
 
-pub use crate::api::{NoopValidator, Validator};
+pub use swe_edge_ingress_http::Validator;
+
+pub use crate::api::noop::NoopValidator;
 
 impl NoopValidator {
     /// Create a new [`NoopValidator`] that always returns `Ok(())`.
@@ -14,8 +16,8 @@ impl NoopValidator {
     ///
     /// This is the canonical SAF entry point for callers that want to validate
     /// without naming the concrete implementor.
-    pub fn run_validate(&self) -> Result<(), crate::api::HttpIngressError> {
-        use crate::api::Validator;
+    pub fn run_validate(&self) -> Result<(), String> {
+        use swe_edge_ingress_http::Validator;
         self.validate()
     }
 }

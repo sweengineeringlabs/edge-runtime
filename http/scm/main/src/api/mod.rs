@@ -1,14 +1,7 @@
-//! Public HTTP contract surface.
+//! Public HTTP runtime contract surface.
+//!
+//! Port types (HttpIngress, HttpRequest, etc.) are provided by `swe-edge-ingress-http`.
+//! Server binding types live in `server/`. Noop stubs live in `noop/`.
 
-mod error;
-mod noop;
-mod traits;
-mod types;
-
-pub use error::HttpIngressError;
-pub use noop::{NoopHttpIngress, NoopValidator};
-pub use traits::{HttpIngress, Validator};
-pub use types::{
-    FormPart, HttpAuth, HttpBody, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngressResult,
-    HttpMethod, HttpRequest, HttpRequestBuilder, HttpResponse,
-};
+pub mod noop;
+pub mod server;

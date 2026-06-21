@@ -27,7 +27,7 @@ fn test_handle_noop_get_happy() {
     let ingress = noop();
     let req = HttpRequest::get("/");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert_eq!(resp.status, 200);
     assert!(resp.body.is_empty());
 }
@@ -37,7 +37,7 @@ fn test_handle_noop_post_happy() {
     let ingress = noop();
     let req = HttpRequest::post("/echo");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert!(resp.is_success());
 }
 
@@ -47,7 +47,7 @@ fn test_handle_noop_error() {
     let ingress = noop();
     let req = HttpRequest::delete("/resource/1");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let result = block_on(ingress.handle(&req, ctx));
+    let result = block_on(ingress.handle(req, ctx));
     // The error path is unreachable for Noop; confirm the happy result is success.
     assert!(result.is_ok());
 }
@@ -58,7 +58,7 @@ fn test_handle_noop_put_edge() {
     let ingress = noop();
     let req = HttpRequest::put("/");
     let ctx = edge_domain::SecurityContext::unauthenticated();
-    let resp = block_on(ingress.handle(&req, ctx)).unwrap();
+    let resp = block_on(ingress.handle(req, ctx)).unwrap();
     assert_eq!(resp.status, 200);
 }
 
