@@ -18,18 +18,20 @@ service_type     = "grpc-runtime"
 name = "swe_edge_runtime_grpc"
 path = "main/src/lib.rs"
 
+[[example]]
+name = "noop-server"
+path = "examples/noop_server.rs"
+
 [dependencies]
 swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git", tag = "v0.6.2" }
 edge-domain           = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.10.7", features = ["handler", "security", "command"] }
 swe-edge-ingress-tls  = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.6.3" }
-swe-edge-loadbalancer = { git = "https://github.com/sweengineeringlabs/edge-loadbalancer.git", tag = "v0.2.0" }
 swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
 futures        = "0.3"
 serde          = { version = "1.0", features = ["derive"] }
 thiserror      = "2"
 tokio          = { version = "1.52", features = ["rt-multi-thread", "rt", "sync", "macros", "time"] }
 tokio-util     = { version = "0.7", default-features = false }
-parking_lot    = "0.12"
 bytes          = "1"
 tracing        = { version = "0.1", default-features = false }
 tonic          = { version = "0.12", default-features = false, features = ["transport"] }

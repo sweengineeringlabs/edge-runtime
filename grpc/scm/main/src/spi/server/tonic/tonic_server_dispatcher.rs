@@ -23,18 +23,17 @@ use edge_domain::SecurityContext;
 
 use super::grpc_principal::GrpcPrincipal;
 
-use crate::api::server::error::GrpcServerError;
-use crate::api::server::types::{
-    StatusCodeConverter, TonicGrpcServer, MISSING_AUTHORIZATION_INTERCEPTOR_MSG,
+use super::peer_identity_extractor::PeerIdentityExtractor;
+use crate::api::StatusCodeConverter;
+use crate::api::{
+    GrpcServerError, TonicGrpcServer, MISSING_AUTHORIZATION_INTERCEPTOR_MSG,
     REFLECTION_ENABLED_WARN_MSG,
 };
-use crate::api::server::PeerIdentityExtractor;
-use swe_edge_ingress_grpc::AuditEvent;
-use swe_edge_ingress_grpc::GrpcIngressError;
-use swe_edge_ingress_grpc::{AuditSink, GrpcIngress};
+use swe_edge_ingress_grpc::{AuditEvent, AuditSink};
 use swe_edge_ingress_grpc::{
     CompressionMode, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode, PeerIdentity, PEER_CN,
 };
+use swe_edge_ingress_grpc::{GrpcIngress, GrpcIngressError};
 use swe_edge_ingress_grpc::{
     GrpcIngressInterceptorChain, TraceContextInterceptor, EXTRACTED_TRACEPARENT,
 };
@@ -736,57 +735,6 @@ impl TonicServerDispatcher {
             }
         }
 
-        let mut http_frames: Vec<Result<http_body::Frame<Bytes>, Infallible>> = frames
-            .into_iter()
-            .map(|b| Ok(http_body::Frame::data(b)))
-            .collect();
-        http_frames.push(Ok(http_body::Frame::trailers(trailers)));
-
-        let response_body = BodyExt::boxed(StreamBody::new(futures::stream::iter(http_frames)));
-
-        Self::grpc_response(response_body)
-    }
-
-    /// Collect a response stream into a single HTTP/2 response with one DATA frame
-    /// per stream item plus a trailing `grpc-status=0` header and any response metadata.
-    #[expect(dead_code, reason = "SEA api/ interface anchor")]
-    async fn grpc_stream_response(
-        mut stream: GrpcMessageStream,
-        meta: GrpcMetadata,
-    ) -> Response<BoxBody> {
-        use futures::StreamExt;
-
-        // Collect all response messages.
-        let mut frames: Vec<Bytes> = Vec::new();
-        loop {
-            match stream.next().await {
-                Some(Ok(payload)) => {
-                    let mut buf = BytesMut::with_capacity(5 + payload.len());
-                    buf.put_u8(0); // not compressed
-                    buf.put_u32(payload.len() as u32);
-                    buf.put_slice(&payload);
-                    frames.push(buf.freeze());
-                }
-                Some(Err(e)) => {
-                    let (code, msg) = StatusCodeConverter::map_inbound_error(e);
-                    return Self::grpc_error(code, msg);
-                }
-                None => break,
-            }
-        }
-
-        let mut trailers = http::HeaderMap::new();
-        trailers.insert("grpc-status", http::HeaderValue::from_static("0"));
-        for (k, v) in &meta.headers {
-            if let (Ok(name), Ok(val)) = (
-                http::HeaderName::from_bytes(k.as_bytes()),
-                http::HeaderValue::from_str(v),
-            ) {
-                trailers.insert(name, val);
-            }
-        }
-
-        // Build the response body: one DATA frame per response message, then trailers.
         let mut http_frames: Vec<Result<http_body::Frame<Bytes>, Infallible>> = frames
             .into_iter()
             .map(|b| Ok(http_body::Frame::data(b)))

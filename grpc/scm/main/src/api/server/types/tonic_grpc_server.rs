@@ -9,7 +9,7 @@ use swe_edge_ingress_grpc::{
 };
 use swe_edge_ingress_tls::IngressTlsConfig;
 
-use crate::api::server::error::GrpcServerConfigError;
+use crate::api::server::errors::GrpcServerConfigError;
 use crate::api::server::types::GrpcServerConfig;
 
 /// Default maximum inbound message size (4 MiB).
@@ -27,6 +27,9 @@ pub const MISSING_AUTHORIZATION_INTERCEPTOR_MSG: &str =
      (e.g. swe-edge-ingress-grpc-authz::AuthzInterceptor). To explicitly run \
      without authz, set `allow_unauthenticated = true` in \
      GrpcServerConfig (logged at startup as a warning).";
+
+/// Sanitized message returned to clients for any `Internal` server error.
+pub const SANITIZED_INTERNAL_MSG: &str = "internal server error";
 
 /// Warning logged at startup when gRPC reflection is enabled.
 pub const REFLECTION_ENABLED_WARN_MSG: &str =

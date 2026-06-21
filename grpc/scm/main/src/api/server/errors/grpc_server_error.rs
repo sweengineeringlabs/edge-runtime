@@ -2,7 +2,7 @@
 
 use super::grpc_server_config_error::GrpcServerConfigError;
 
-/// Error returned by a [`GrpcServer`](crate::api::server::traits::GrpcServer)
+/// Error returned by a [`GrpcServer`](crate::api::GrpcServer)
 /// implementation while binding or serving.
 #[derive(Debug, thiserror::Error)]
 pub enum GrpcServerError {

@@ -1,7 +1,14 @@
 //! Server theme — runnable gRPC server contract.
-pub mod error;
-pub mod peer_identity_extractor;
-pub mod traits;
-pub mod types;
+mod errors;
+mod traits;
+mod types;
 
-pub use peer_identity_extractor::PeerIdentityExtractor;
+pub use errors::{GrpcServerConfigError, GrpcServerError};
+pub use traits::{GrpcServer, GrpcServerObserver};
+pub use types::{
+    GrpcServerConfig, GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc,
+    StatusCodeConverter, TonicGrpcServer, TonicGrpcServerBuilder, DEFAULT_KEEPALIVE_INTERVAL,
+    DEFAULT_KEEPALIVE_INTERVAL_SECS, DEFAULT_KEEPALIVE_TIMEOUT, DEFAULT_KEEPALIVE_TIMEOUT_SECS,
+    DEFAULT_MAX_CONCURRENT_STREAMS, DEFAULT_MAX_MESSAGE_BYTES, MAX_MESSAGE_BYTES,
+    MISSING_AUTHORIZATION_INTERCEPTOR_MSG, REFLECTION_ENABLED_WARN_MSG, SANITIZED_INTERNAL_MSG,
+};

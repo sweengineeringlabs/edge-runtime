@@ -1,4 +1,4 @@
-//! PeerIdentityExtractor type declaration — SEA api/server/types/ is the legal struct home.
+//! PeerIdentityExtractor — extracts peer identity from DER-encoded leaf certificates.
 
 use std::collections::HashMap;
 
@@ -26,14 +26,14 @@ const OID_COMMON_NAME: &[u8] = &[0x55, 0x04, 0x03];
 const OID_SUBJECT_ALT_NAME: &[u8] = &[0x55, 0x1D, 0x11];
 
 /// Extractor for peer identity from DER-encoded leaf certificates.
-pub struct PeerIdentityExtractor;
+pub(crate) struct PeerIdentityExtractor;
 
 impl PeerIdentityExtractor {
     /// Extract peer-identity key/value pairs from a DER-encoded leaf cert.
     ///
     /// Returns at minimum a SHA-256 fingerprint; CN / SAN / DN are added
     /// when the cert structure is parseable.
-    pub fn extract(leaf_der: &[u8]) -> HashMap<String, String> {
+    pub(crate) fn extract(leaf_der: &[u8]) -> HashMap<String, String> {
         Self::extract_impl(leaf_der)
     }
 
@@ -307,5 +307,48 @@ impl PeerIdentityExtractor {
             10..=15 => (b'a' + n - 10) as char,
             _ => '?',
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use swe_edge_ingress_grpc::PEER_CERT_FINGERPRINT_SHA256;
+
+    /// Empty DER input must not panic — returns at least the fingerprint key.
+    #[test]
+    fn test_extract_empty_der_returns_fingerprint_happy() {
+        let out = PeerIdentityExtractor::extract(&[]);
+        // SHA-256 of empty input is deterministic.
+        assert!(
+            out.contains_key(PEER_CERT_FINGERPRINT_SHA256),
+            "fingerprint must always be present"
+        );
+        // SHA-256("") is 64 hex chars.
+        assert_eq!(out[PEER_CERT_FINGERPRINT_SHA256].len(), 64);
+    }
+
+    /// Random garbage DER must not panic — graceful fallback to fingerprint only.
+    #[test]
+    fn test_extract_garbage_der_does_not_panic_error() {
+        let garbage = b"\xFF\xFE\xFD\xFC\xFB";
+        let out = PeerIdentityExtractor::extract(garbage);
+        assert!(
+            out.contains_key(PEER_CERT_FINGERPRINT_SHA256),
+            "fingerprint must always be present even for garbage input"
+        );
+        // Must not contain CN or SAN — no valid structure to parse.
+        assert!(!out.contains_key(swe_edge_ingress_grpc::PEER_CN));
+    }
+
+    /// A truncated sequence TLV must fall back gracefully rather than panicking.
+    #[test]
+    fn test_extract_truncated_sequence_falls_back_edge() {
+        // 0x30 = SEQUENCE, 0x82 = long-form length (2 bytes), 0x01, 0x00 = 256 bytes,
+        // but we only provide 1 body byte — simulates truncation.
+        let truncated = &[0x30u8, 0x82, 0x01, 0x00, 0xAB];
+        let out = PeerIdentityExtractor::extract(truncated);
+        // Must not panic and fingerprint must be present.
+        assert!(out.contains_key(PEER_CERT_FINGERPRINT_SHA256));
     }
 }

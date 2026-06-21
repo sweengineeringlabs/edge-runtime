@@ -1,9 +1,9 @@
-//! StatusCodeConverter type declaration and conversions — SEA api/ is the legal declaration site.
+//! StatusCodeConverter — type declaration and code-conversion methods.
+//! All implementations live here since SEA requires public method bodies in api/.
 
 use swe_edge_ingress_grpc::{GrpcIngressError, GrpcStatusCode};
 
-/// Sanitized message returned to clients for any `Internal` server error.
-pub const SANITIZED_INTERNAL_MSG: &str = "internal server error";
+use super::tonic_grpc_server::SANITIZED_INTERNAL_MSG;
 
 /// Converter for gRPC status codes between representations.
 pub struct StatusCodeConverter;

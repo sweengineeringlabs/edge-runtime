@@ -11,4 +11,5 @@ mod core;
 mod saf;
 mod spi;
 
+pub use api::GrpcServerObserver;
 pub use saf::*;
