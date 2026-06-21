@@ -140,13 +140,23 @@ fn test_serve_with_listener_minimal_impl_has_default_edge() {
     struct MinimalServer;
     impl HttpServer for MinimalServer {
         fn serve<'s>(&'s self) -> BoxFuture<'s, Result<(), HttpServerError>> {
-            Box::pin(async { Err(HttpServerError::Bind("x".into())) })
+            Box::pin(async {
+                Err(HttpServerError::Bind(
+                    "x".into(),
+                    std::io::Error::other("stub"),
+                ))
+            })
         }
         fn serve_with_shutdown<'s>(
             &'s self,
             _: BoxFuture<'static, ()>,
         ) -> BoxFuture<'s, Result<(), HttpServerError>> {
-            Box::pin(async { Err(HttpServerError::Bind("x".into())) })
+            Box::pin(async {
+                Err(HttpServerError::Bind(
+                    "x".into(),
+                    std::io::Error::other("stub"),
+                ))
+            })
         }
     }
     let _ = MinimalServer;
