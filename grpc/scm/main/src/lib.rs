@@ -1,13 +1,11 @@
-//! `swe-edge-runtime-grpc` — gRPC ingress contract crate.
+//! `swe-edge-runtime-grpc` — gRPC server hosting crate for the swe-edge runtime layer.
 //!
-//! Provides [`GrpcIngress`](crate::GrpcIngress) trait and supporting value types.
-//! Contains no transport dependencies (no Tonic, no TLS, no connection-pool).
-//! Plugins and transport crates implement [`GrpcIngress`](crate::GrpcIngress);
-//! the composition root wires them in.
+//! Provides [`TonicGrpcServer`], [`GrpcServerConfig`], the full dispatch loop,
+//! and re-exports all ingress-grpc port contract types.
 
-#![deny(unsafe_code)]
 #![warn(missing_docs)]
-
+#![deny(unsafe_code)]
+#![cfg_attr(test, allow(clippy::unwrap_used, clippy::expect_used))]
 mod api;
 mod core;
 mod saf;

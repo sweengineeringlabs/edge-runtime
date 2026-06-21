@@ -1,13 +1,13 @@
 [package]
 name             = "swe-edge-runtime-grpc"
-version          = "0.3.9"
+version          = "0.4.0"
 edition          = "2021"
 license          = "MIT OR Apache-2.0"
 rust-version     = "1.95"
 authors          = ["SWE Engineering Labs"]
 repository       = "https://github.com/sweengineeringlabs/edge-runtime"
-description      = "gRPC ingress contract crate for the swe-edge runtime layer — traits and value types only, no transport dependencies"
-keywords         = ["grpc", "ingress", "contracts", "async", "swe"]
+description      = "gRPC server hosting crate for the swe-edge runtime layer — TonicGrpcServer, GrpcServerConfig, and dispatch loop"
+keywords         = ["grpc", "server", "runtime", "async", "swe"]
 categories       = ["network-programming", "asynchronous"]
 
 [package.metadata.struct-engine]
@@ -19,17 +19,45 @@ name = "swe_edge_runtime_grpc"
 path = "main/src/lib.rs"
 
 [dependencies]
-edge-domain = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.9.0", features = ["security"] }
-futures     = "0.3"
-thiserror   = "2"
-
-[[example]]
-name = "noop_ingress"
-path = "examples/noop_ingress.rs"
+swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git", tag = "v0.6.2" }
+edge-domain           = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.10.7", features = ["handler", "security", "command"] }
+swe-edge-ingress-tls  = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.6.3" }
+swe-edge-loadbalancer = { git = "https://github.com/sweengineeringlabs/edge-loadbalancer.git", tag = "v0.2.0" }
+swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
+futures        = "0.3"
+serde          = { version = "1.0", features = ["derive"] }
+thiserror      = "2"
+tokio          = { version = "1.52", features = ["rt-multi-thread", "rt", "sync", "macros", "time"] }
+tokio-util     = { version = "0.7", default-features = false }
+parking_lot    = "0.12"
+bytes          = "1"
+tracing        = { version = "0.1", default-features = false }
+tonic          = { version = "0.12", default-features = false, features = ["transport"] }
+http-body-util = "0.1"
+http           = "1"
+http-body      = "1"
+hyper          = { version = "1", features = ["http2", "server"] }
+hyper-util     = { version = "0.1", features = ["tokio", "server"] }
+tower          = "0.5"
+tower-http     = { version = "0.6", features = ["trace"] }
+sha2           = "0.10"
 
 [dev-dependencies]
-futures     = "0.3"
-edge-domain = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.9.0", features = ["security"] }
+swe-edge-ingress-grpc = { package = "swe-edge-ingress-grpc-transport", git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git", tag = "v0.6.2" }
+edge-domain    = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.10.7", features = ["handler", "security", "command"] }
+swe-edge-configbuilder = { git = "https://github.com/sweengineeringlabs/edge-configbuilder.git", tag = "v0.3.0" }
+swe-edge-ingress-tls  = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.6.3" }
+tokio          = { version = "1.52", features = ["rt-multi-thread", "macros", "time"] }
+hyper          = { version = "1", features = ["http2", "client", "server"] }
+bytes          = "1"
+http           = "1"
+http-body-util = "0.1"
+hyper-util     = { version = "0.1", features = ["tokio"] }
+async-trait    = "0.1"
+futures        = "0.3"
+tracing-subscriber = { version = "0.3", features = ["registry"] }
+rcgen          = "0.13"
+tempfile       = "3"
 
 [lints.rust]
 unsafe_code  = "deny"

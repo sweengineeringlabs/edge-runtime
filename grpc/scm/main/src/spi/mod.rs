@@ -1,3 +1,2 @@
-//! SPI — extension hooks for downstream consumers.
-
-const _: () = ();
+//! SPI layer — implementations of `api/` contracts backed by external libraries.
+pub(crate) mod server;
