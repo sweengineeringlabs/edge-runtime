@@ -5,7 +5,7 @@ pub use swe_edge_ingress_http::{
     HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest, HttpRequestBuilder, HttpResponse,
 };
 
-pub use crate::api::noop::NoopHttpIngress;
+pub use crate::api::NoopHttpIngress;
 
 impl NoopHttpIngress {
     /// Create a new [`NoopHttpIngress`] — a pass-through ingress handler for tests and

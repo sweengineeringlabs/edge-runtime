@@ -6,7 +6,7 @@ use swe_edge_ingress_http::{
     HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse,
 };
 
-use crate::api::noop::NoopHttpIngress;
+use crate::api::NoopHttpIngress;
 
 impl HttpIngress for NoopHttpIngress {
     fn handle(

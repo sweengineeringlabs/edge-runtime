@@ -2,7 +2,7 @@
 
 pub use swe_edge_ingress_http::Validator;
 
-pub use crate::api::noop::NoopValidator;
+pub use crate::api::NoopValidator;
 
 impl NoopValidator {
     /// Create a new [`NoopValidator`] that always returns `Ok(())`.

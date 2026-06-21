@@ -7,7 +7,7 @@ use tokio::net::TcpListener;
 
 use swe_edge_ingress_http::HttpIngress;
 
-use crate::api::server::error::HttpServerError;
+use crate::api::server::errors::HttpServerError;
 use crate::api::server::types::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper};
 
 /// A runnable HTTP server that drives an [`HttpIngress`] handler.

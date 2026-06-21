@@ -1,4 +1,8 @@
 //! HTTP server API — traits, types, and errors for the Axum server binding.
-pub mod error;
-pub mod traits;
-pub mod types;
+mod errors;
+mod traits;
+mod types;
+
+pub use errors::HttpServerError;
+pub use traits::HttpServer;
+pub use types::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper};

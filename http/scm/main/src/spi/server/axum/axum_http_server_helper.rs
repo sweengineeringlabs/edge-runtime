@@ -12,8 +12,8 @@ use swe_edge_ingress_tls::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 use tokio::net::TcpListener;
 
-use crate::api::server::error::HttpServerError;
-pub(crate) use crate::api::server::types::AxumHttpServerHelper;
+use crate::api::HttpServerError;
+pub(crate) use crate::api::AxumHttpServerHelper;
 
 const WS_OUTBOUND_BUFFER: usize = 64;
 
