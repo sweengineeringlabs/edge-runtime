@@ -1,8 +1,7 @@
-//! Service factory for [`Validator`] — SAF re-export surface.
+//! Service factory for [`Validator`].
 
-pub use swe_edge_ingress_http::Validator;
-
-pub use crate::api::NoopValidator;
+use crate::api::NoopValidator;
+use swe_edge_ingress_http::Validator;
 
 impl NoopValidator {
     /// Create a new [`NoopValidator`] that always returns `Ok(())`.

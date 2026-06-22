@@ -6,9 +6,7 @@ use std::sync::Arc;
 
 use swe_edge_ingress_http::HttpIngress;
 
-use crate::api::{AxumHttpServer, AxumHttpServerBuilder};
-
-pub use crate::api::HttpServerSvc;
+use crate::api::{AxumHttpServer, AxumHttpServerBuilder, HttpServerSvc};
 
 impl HttpServerSvc {
     /// Construct a new [`AxumHttpServer`] bound to `bind`, delegating all

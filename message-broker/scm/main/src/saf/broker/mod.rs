@@ -1,10 +1,4 @@
-//! SAF broker sub-module — factory surface and broker factory contract.
+//! SAF broker sub-module — implementation.
 
-pub mod broker_provider_svc;
-pub mod broker_svc;
-
-pub use broker_provider_svc::BrokerProvider;
-pub use broker_provider_svc::DEFAULT_BROKER_BACKEND;
-pub use broker_svc::BrokerErr;
-pub use broker_svc::BrokerMessage;
-pub use broker_svc::MessageBrokerFactory;
+mod broker_provider_svc;
+mod broker_svc;

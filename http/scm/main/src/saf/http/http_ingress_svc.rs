@@ -1,11 +1,6 @@
-//! Service factory for [`HttpIngress`] — SAF re-export surface.
+//! Service factory for [`HttpIngress`].
 
-pub use swe_edge_ingress_http::{
-    FormPart, HttpAuth, HttpBody, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngress,
-    HttpIngressError, HttpIngressResult, HttpMethod, HttpRequest, HttpRequestBuilder, HttpResponse,
-};
-
-pub use crate::api::NoopHttpIngress;
+use crate::api::NoopHttpIngress;
 
 impl NoopHttpIngress {
     /// Create a new [`NoopHttpIngress`] — a pass-through ingress handler for tests and

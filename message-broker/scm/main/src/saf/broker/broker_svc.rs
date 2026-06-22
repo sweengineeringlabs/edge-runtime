@@ -16,7 +16,7 @@ use crate::api::InMemoryMessageBroker;
 #[cfg(feature = "tokio-rt")]
 use crate::api::InMemoryTaskQueue;
 use crate::api::MessageBroker;
-pub use crate::api::MessageBrokerFactory;
+use crate::api::MessageBrokerFactory;
 use crate::api::TaskQueueFactory;
 #[cfg(feature = "kafka")]
 use crate::spi::KafkaMessageBroker;
