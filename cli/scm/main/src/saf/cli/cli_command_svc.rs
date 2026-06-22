@@ -2,7 +2,8 @@
 
 use std::collections::HashMap;
 
-pub use crate::api::{CliArgs, CliCommand, NoopCliCommand};
+use crate::api::CliArgs;
+pub use crate::api::{CliCommand, NoopCliCommand};
 
 impl NoopCliCommand {
     /// Create a [`NoopCliCommand`] with the given name and empty args.
