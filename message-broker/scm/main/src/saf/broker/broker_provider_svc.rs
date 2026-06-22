@@ -1,5 +1,5 @@
 //! SAF — [`BrokerProvider`] implementation.
 
 /// Default backend identifier used when no configuration override is provided.
-#[expect(dead_code)]
+#[allow(dead_code)]
 pub const DEFAULT_BROKER_BACKEND: &str = "inmemory";
