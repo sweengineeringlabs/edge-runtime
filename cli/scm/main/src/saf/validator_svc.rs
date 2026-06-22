@@ -1,6 +1,6 @@
-//! Service factory for [`Validator`] — SAF re-export surface.
+//! Service factory for [`Validator`] — SAF implementation surface.
 
-pub use crate::api::{NoopValidator, Validator};
+pub(crate) use crate::api::NoopValidator;
 
 impl NoopValidator {
     /// Create a new [`NoopValidator`] that always returns `Ok(())`.

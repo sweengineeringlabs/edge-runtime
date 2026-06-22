@@ -1,6 +1,6 @@
 //! SAF surface for [`crate::api::CliRunner`] and [`crate::api::NoopCliRunner`].
 
-pub use crate::api::{CliError, CliOutput, CliRunner, NoopCliRunner};
+pub(crate) use crate::api::NoopCliRunner;
 
 impl NoopCliRunner {
     /// Create a no-op runner that always succeeds.
