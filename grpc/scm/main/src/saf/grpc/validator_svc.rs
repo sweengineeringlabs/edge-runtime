@@ -1,8 +1,6 @@
 //! SAF factory surface for Validator.
 
-use crate::api::{NoopGrpcValidator, Validator};
-
-pub use crate::api::ValidatorSvc;
+use crate::api::{NoopGrpcValidator, Validator, ValidatorSvc};
 
 impl ValidatorSvc {
     /// Validate a value using the provided [`Validator`].
