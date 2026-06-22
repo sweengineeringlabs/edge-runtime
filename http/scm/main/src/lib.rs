@@ -17,5 +17,4 @@ mod saf;
 mod spi;
 
 pub use api::*;
-#[expect(unused_imports)]
 pub use saf::*;

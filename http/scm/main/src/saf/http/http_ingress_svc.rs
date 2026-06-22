@@ -1,5 +1,7 @@
 //! Service factory for [`HttpIngress`].
 
+pub use swe_edge_ingress_http::HttpIngress;
+
 use crate::api::NoopHttpIngress;
 
 impl NoopHttpIngress {

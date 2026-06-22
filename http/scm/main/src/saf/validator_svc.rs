@@ -1,5 +1,7 @@
 //! Service factory for [`Validator`].
 
+pub use swe_edge_ingress_http::Validator;
+
 use crate::api::NoopValidator;
 
 impl NoopValidator {
