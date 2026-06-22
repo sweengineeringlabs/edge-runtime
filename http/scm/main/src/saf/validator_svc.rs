@@ -1,7 +1,6 @@
 //! Service factory for [`Validator`].
 
 use crate::api::NoopValidator;
-use swe_edge_ingress_http::Validator;
 
 impl NoopValidator {
     /// Create a new [`NoopValidator`] that always returns `Ok(())`.
