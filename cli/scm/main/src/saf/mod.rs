@@ -3,6 +3,5 @@
 mod cli;
 mod validator_svc;
 
-pub use crate::api::CliArgs;
-pub use cli::{CliCommand, CliError, CliOutput, CliRunner, NoopCliCommand, NoopCliRunner};
+pub use cli::{CliArgs, CliCommand, CliError, CliOutput, CliRunner, NoopCliCommand, NoopCliRunner};
 pub use validator_svc::{NoopValidator, Validator};
