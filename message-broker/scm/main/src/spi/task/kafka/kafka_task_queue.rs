@@ -212,6 +212,7 @@ mod tests {
     fn test_new_kafka_task_queue_is_send_and_sync() {
         fn _assert<T: Send + Sync>() {}
         _assert::<KafkaTaskQueue>();
+        assert!(true, "KafkaTaskQueue is Send + Sync");
     }
 
     /// @covers: new

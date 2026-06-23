@@ -24,6 +24,7 @@ mod tests {
 
     #[test]
     fn test_validate_always_ok() {
-        assert!(DefaultValidator.validate().is_ok());
+        let result = DefaultValidator.validate();
+        assert_eq!(result, Ok(()), "DefaultValidator must return Ok(())");
     }
 }

@@ -42,7 +42,9 @@ impl TaskQueue for AlwaysErrQueue {
 fn test_enqueue_task_into_ok_queue_happy() {
     let queue = AlwaysOkQueue;
     let task = Task::new(b"payload".as_ref());
-    assert!(futures::executor::block_on(queue.enqueue(task)).is_ok());
+    let result = futures::executor::block_on(queue.enqueue(task));
+    assert!(result.is_ok(), "enqueue must return Ok(())");
+    let _ = result.unwrap();
 }
 
 /// @covers: TaskQueue::enqueue
@@ -61,7 +63,9 @@ fn test_enqueue_task_into_failing_queue_error() {
 fn test_enqueue_empty_payload_task_edge() {
     let queue = AlwaysOkQueue;
     let task = Task::new(b"".as_ref());
-    assert!(futures::executor::block_on(queue.enqueue(task)).is_ok());
+    let result = futures::executor::block_on(queue.enqueue(task));
+    assert!(result.is_ok(), "enqueue with empty payload must return Ok(())");
+    let _ = result.unwrap();
 }
 
 // ── TaskQueue::dequeue (rule 222) ────────────────────────────────────────────
@@ -93,7 +97,9 @@ fn test_dequeue_returns_option_type_edge() {
     // Edge: dequeue returns Option — None means empty, not an error.
     let result: Result<Option<TaskHandle>, QueueError> =
         futures::executor::block_on(queue.dequeue());
-    assert!(result.is_ok(), "empty dequeue must be Ok(None), not Err");
+    assert!(result.is_ok(), "empty dequeue must return Ok(None)");
+    let inner = result.unwrap();
+    assert!(inner.is_none(), "empty queue must return None");
 }
 
 // ── TaskQueue::health_check (rule 222) ───────────────────────────────────────
@@ -102,7 +108,9 @@ fn test_dequeue_returns_option_type_edge() {
 #[test]
 fn test_health_check_on_ok_queue_happy() {
     let queue = AlwaysOkQueue;
-    assert!(futures::executor::block_on(queue.health_check()).is_ok());
+    let health = futures::executor::block_on(queue.health_check());
+    assert!(health.is_ok(), "health check must return Ok(())");
+    let _ = health.unwrap();
 }
 
 /// @covers: TaskQueue::health_check
@@ -119,8 +127,11 @@ fn test_health_check_on_failing_queue_error() {
 #[test]
 fn test_health_check_is_idempotent_edge() {
     let queue = AlwaysOkQueue;
-    assert!(futures::executor::block_on(queue.health_check()).is_ok());
-    assert!(futures::executor::block_on(queue.health_check()).is_ok());
+    let check1 = futures::executor::block_on(queue.health_check());
+    let check2 = futures::executor::block_on(queue.health_check());
+    assert!(check1.is_ok(), "first health check must return Ok(())");
+    assert!(check2.is_ok(), "second health check must return Ok(())");
+    let _ = (check1.unwrap(), check2.unwrap());
 }
 
 // ── Concrete implementation tests (tokio-rt feature) ─────────────────────────

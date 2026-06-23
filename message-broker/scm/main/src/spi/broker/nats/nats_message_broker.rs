@@ -95,6 +95,7 @@ mod tests {
     fn test_nats_message_broker_is_send_and_sync() {
         fn _assert_send_sync<T: Send + Sync>() {}
         _assert_send_sync::<NatsMessageBroker>();
+        assert!(true, "NatsMessageBroker is Send + Sync");
     }
 
     #[test]

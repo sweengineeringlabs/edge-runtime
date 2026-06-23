@@ -8,14 +8,14 @@
 #[test]
 fn test_broker_validation_result_ok_variant_happy() {
     let result: Result<(), String> = Ok(());
-    assert!(result.is_ok());
+    assert_eq!(result, Ok(()), "Result must be Ok with empty tuple");
 }
 
 /// @covers: api/broker/broker_validation_result::BrokerValidationResult
 #[test]
 fn test_broker_validation_result_err_variant_error() {
     let result: Result<(), String> = Err("invalid configuration".into());
-    assert!(result.is_err());
+    assert!(result.is_err_and(|e| e == "invalid configuration"), "Result must be Err with correct message");
 }
 
 /// @covers: api/broker/broker_validation_result::BrokerValidationResult

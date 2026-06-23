@@ -15,8 +15,7 @@ fn test_rdkafka_client_config_constructs_without_network() {
     let result: Result<BaseProducer, _> = ClientConfig::new()
         .set("bootstrap.servers", "127.0.0.1:9999")
         .create();
-    assert!(
-        result.is_ok(),
-        "rdkafka ClientConfig must succeed before the first IO attempt"
-    );
+    let producer = result.expect("rdkafka ClientConfig must succeed before IO");
+    // Verify the producer was created successfully by checking it's a valid type
+    drop(producer);
 }

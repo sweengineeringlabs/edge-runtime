@@ -8,6 +8,7 @@ fn test_message_broker_factory_create_config_builder_is_pre_seeded() {
     let builder = MessageBrokerFactory::create_config_builder();
     let loader = builder.build_loader();
     assert!(loader.is_ok(), "builder must construct a valid loader");
+    let _ = loader.unwrap();
 }
 
 /// @covers: MessageBrokerFactory::in_memory
@@ -20,5 +21,5 @@ fn test_message_broker_factory_in_memory_returns_broker() {
         .build()
         .expect("tokio rt");
     let health = rt.block_on(broker.health_check());
-    assert!(health.is_ok(), "in-memory broker must be healthy");
+    assert_eq!(health, Ok(()), "in-memory broker must be healthy");
 }

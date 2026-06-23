@@ -11,7 +11,8 @@ fn test_custom_validator_ok_path() {
             Ok(())
         }
     }
-    assert!(AlwaysOk.validate().is_ok());
+    let result = AlwaysOk.validate();
+    assert_eq!(result, Ok(()), "custom validator must return Ok(())");
 }
 
 #[test]
