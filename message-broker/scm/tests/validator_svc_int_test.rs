@@ -22,13 +22,17 @@ impl Validator for AlwaysErr {
 /// @covers: Validator::validate
 #[test]
 fn test_validate_valid_impl_happy() {
-    assert!(AlwaysOk.validate().is_ok());
+    let result = AlwaysOk.validate();
+    assert_eq!(result, Ok(()), "valid impl must return Ok(())");
 }
 
 /// @covers: Validator::validate
 #[test]
 fn test_validate_invalid_impl_error() {
-    assert!(AlwaysErr.validate().is_err());
+    let result = AlwaysErr.validate();
+    assert!(result.is_err(), "invalid impl must return Err");
+    let err = result.unwrap_err();
+    assert_eq!(err, "configuration is invalid: missing required field", "error message must match");
 }
 
 /// @covers: Validator::validate

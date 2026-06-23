@@ -38,9 +38,6 @@ use swe_edge_message_broker::{BackendKind, MessageBrokerConfig};
 #[cfg(feature = "tokio-rt")]
 use tokio::sync::RwLock;
 
-pub(crate) use crate::api::BrokerError;
-pub(crate) use crate::api::Message;
-
 impl MessageBrokerFactory {
     /// Return the default [`ApplicationConfig`] for the message broker.
     ///
