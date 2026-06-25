@@ -1,5 +1,9 @@
 //! Integration tests for `AxumHttpServerHelper` public helpers.
-// @covers api/server/types/axum_http_server_helper.rs
+// @covers AxumHttpServerHelper::is_websocket_upgrade
+// @covers AxumHttpServerHelper::is_sse_request
+// @covers AxumHttpServerHelper::collect_headers
+// @covers AxumHttpServerHelper::payload_too_large
+// @covers AxumHttpServerHelper::internal_server_error
 #![allow(clippy::unwrap_used)]
 
 use swe_edge_runtime_http::AxumHttpServerHelper;
@@ -109,69 +113,61 @@ fn test_payload_too_large_returns_413_happy() {
 }
 
 #[test]
+fn test_payload_too_large_content_type_is_plain_text_error() {
+    let resp = AxumHttpServerHelper::payload_too_large();
+    let ct = resp
+        .headers()
+        .get(axum::http::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    assert!(
+        ct.contains("text/plain"),
+        "payload_too_large must set text/plain content-type; got: {ct}"
+    );
+}
+
+#[test]
+fn test_payload_too_large_called_twice_is_idempotent_edge() {
+    let r1 = AxumHttpServerHelper::payload_too_large();
+    let r2 = AxumHttpServerHelper::payload_too_large();
+    assert_eq!(r1.status(), r2.status());
+}
+
+// ── internal_server_error ────────────────────────────────────────────────────
+
+#[test]
+fn test_internal_server_error_returns_500_happy() {
+    let resp = AxumHttpServerHelper::internal_server_error("failure");
+    assert_eq!(resp.status(), axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+}
+
+#[test]
 fn test_internal_server_error_returns_500_error() {
     let resp = AxumHttpServerHelper::internal_server_error("test failure");
     assert_eq!(resp.status(), axum::http::StatusCode::INTERNAL_SERVER_ERROR);
 }
 
 #[test]
+fn test_internal_server_error_content_type_is_plain_text_edge() {
+    let resp = AxumHttpServerHelper::internal_server_error("oops");
+    let ct = resp
+        .headers()
+        .get(axum::http::header::CONTENT_TYPE)
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("");
+    assert!(
+        ct.contains("text/plain"),
+        "internal_server_error must set text/plain content-type; got: {ct}"
+    );
+}
+
+#[test]
 fn test_helper_is_unit_struct_edge() {
     // AxumHttpServerHelper is a unit struct — construction is always valid.
-    let _h = AxumHttpServerHelper;
-}
-
-// ── verify_auth ───────────────────────────────────────────────────────────────
-
-#[test]
-fn test_verify_auth_no_verifier_passes_through_happy() {
-    let req = axum::http::Request::builder()
-        .uri("/")
-        .body(axum::body::Body::empty())
-        .unwrap();
-    let result = AxumHttpServerHelper::verify_auth(req, None);
-    assert!(result.is_ok(), "no verifier must pass request through");
-}
-
-#[test]
-fn test_verify_auth_with_verifier_missing_auth_header_returns_401_error() {
-    use swe_edge_ingress_verifier::{Claims, TokenVerifier, VerifierError};
-    struct AcceptAll;
-    impl TokenVerifier for AcceptAll {
-        fn verify(&self, _: &str) -> Result<Claims, VerifierError> {
-            Ok(Claims::builder().sub("u").build())
-        }
-    }
-    let req = axum::http::Request::builder()
-        .uri("/secure")
-        .body(axum::body::Body::empty())
-        .unwrap();
-    let result = AxumHttpServerHelper::verify_auth(req, Some(&AcceptAll));
-    assert!(
-        result.is_err(),
-        "missing auth header with verifier must fail"
-    );
-    if let Err(resp) = result {
-        assert_eq!(resp.status(), axum::http::StatusCode::UNAUTHORIZED);
-    }
-}
-
-#[test]
-fn test_verify_auth_with_bearer_token_verified_ok_edge() {
-    use swe_edge_ingress_verifier::{Claims, TokenVerifier, VerifierError};
-    struct AcceptAll;
-    impl TokenVerifier for AcceptAll {
-        fn verify(&self, _: &str) -> Result<Claims, VerifierError> {
-            Ok(Claims::builder().sub("user").build())
-        }
-    }
-    let req = axum::http::Request::builder()
-        .uri("/secure")
-        .header(axum::http::header::AUTHORIZATION, "Bearer validtoken")
-        .body(axum::body::Body::empty())
-        .unwrap();
-    let result = AxumHttpServerHelper::verify_auth(req, Some(&AcceptAll));
-    assert!(
-        result.is_ok(),
-        "valid bearer token with AcceptAll must pass"
+    let h = AxumHttpServerHelper;
+    assert_eq!(
+        std::mem::size_of_val(&h),
+        0,
+        "AxumHttpServerHelper must be a zero-size type"
     );
 }

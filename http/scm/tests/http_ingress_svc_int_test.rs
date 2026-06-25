@@ -22,6 +22,11 @@ fn test_create_noop_http_ingress_never_errors_error() {
     let ctx = edge_domain::SecurityContext::unauthenticated();
     let result = block_on(ingress.handle(req, ctx));
     assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().status,
+        200,
+        "noop handle must always return HTTP 200"
+    );
 }
 
 #[test]

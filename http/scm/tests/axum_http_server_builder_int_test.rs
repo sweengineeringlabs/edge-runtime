@@ -38,7 +38,13 @@ fn handler() -> Arc<StubIngress> {
 
 #[test]
 fn test_builder_new_constructs_without_panic_happy() {
-    let _b = AxumHttpServerBuilder::new("127.0.0.1:8080", handler());
+    let b = AxumHttpServerBuilder::new("127.0.0.1:8080", handler());
+    let s = b.build();
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "new builder must produce server with default timeout"
+    );
 }
 
 #[test]
@@ -49,23 +55,39 @@ fn test_builder_new_default_request_timeout_is_expected_error() {
 
 #[test]
 fn test_builder_new_empty_bind_does_not_panic_edge() {
-    let _b = AxumHttpServerBuilder::new("", handler());
+    let b = AxumHttpServerBuilder::new("", handler());
+    let s = b.build();
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "empty bind must still produce server with default timeout"
+    );
 }
 
 // ── with_body_limit ───────────────────────────────────────────────────────────
 
 #[test]
 fn test_builder_with_body_limit_does_not_panic_happy() {
-    let _server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
+    let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
         .with_body_limit(512)
         .build();
+    assert_eq!(
+        server.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_body_limit must not affect request timeout"
+    );
 }
 
 #[test]
 fn test_builder_with_body_limit_zero_does_not_panic_error() {
-    let _server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
+    let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
         .with_body_limit(0)
         .build();
+    assert_eq!(
+        server.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "zero body limit must not affect request timeout"
+    );
 }
 
 #[test]
@@ -106,17 +128,27 @@ fn test_builder_without_timeout_override_uses_default_edge() {
 #[test]
 fn test_builder_with_tls_does_not_panic_happy() {
     use swe_edge_ingress_tls::IngressTlsConfig;
-    let _server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
+    let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
         .with_tls(IngressTlsConfig::tls("c.pem", "k.pem"))
         .build();
+    assert_eq!(
+        server.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_tls must not affect request timeout"
+    );
 }
 
 #[test]
 fn test_builder_with_mtls_does_not_panic_error() {
     use swe_edge_ingress_tls::IngressTlsConfig;
-    let _server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
+    let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
         .with_tls(IngressTlsConfig::mtls("c.pem", "k.pem", "ca.pem"))
         .build();
+    assert_eq!(
+        server.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_mtls must not affect request timeout"
+    );
 }
 
 #[test]
@@ -154,9 +186,14 @@ fn test_builder_with_bearer_auth_does_not_panic_happy() {
             Err(VerifierError::Invalid("denied".into()))
         }
     }
-    let _server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
+    let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
         .with_bearer_auth(Arc::new(DenyAll))
         .build();
+    assert_eq!(
+        server.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_bearer_auth must not affect request timeout"
+    );
 }
 
 #[test]

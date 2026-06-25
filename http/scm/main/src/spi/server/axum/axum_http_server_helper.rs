@@ -1,5 +1,6 @@
 //! SPI-only methods for `AxumHttpServerHelper` that require spi-layer dependencies.
 
+use std::collections::HashMap;
 use std::convert::Infallible;
 use std::sync::Arc;
 
@@ -7,7 +8,10 @@ use axum::http::StatusCode;
 use axum::response::IntoResponse as _;
 use edge_domain::SecurityContext;
 use futures::StreamExt as _;
-use swe_edge_ingress_http::{HttpIngress, HttpRequest, HttpStream, WsChannel, WsMessage};
+use swe_edge_ingress_http::{
+    HttpBody, HttpIngress, HttpIngressError, HttpMethod, HttpRequest, HttpResponse, HttpStream,
+    WsChannel, WsMessage,
+};
 use swe_edge_ingress_tls::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 use tokio::net::TcpListener;
@@ -278,6 +282,150 @@ impl AxumHttpServerHelper {
     }
 }
 
+impl AxumHttpServerHelper {
+    pub(crate) fn plain_text_response(
+        status: axum::http::StatusCode,
+        body: impl Into<String>,
+    ) -> axum::response::Response {
+        let mut response = axum::response::Response::new(axum::body::Body::from(body.into()));
+        *response.status_mut() = status;
+        response.headers_mut().insert(
+            axum::http::header::CONTENT_TYPE,
+            axum::http::HeaderValue::from_static("text/plain; charset=utf-8"),
+        );
+        response
+    }
+
+    pub(crate) fn map_method(m: &axum::http::Method) -> HttpMethod {
+        match *m {
+            axum::http::Method::GET => HttpMethod::Get,
+            axum::http::Method::POST => HttpMethod::Post,
+            axum::http::Method::PUT => HttpMethod::Put,
+            axum::http::Method::PATCH => HttpMethod::Patch,
+            axum::http::Method::DELETE => HttpMethod::Delete,
+            axum::http::Method::HEAD => HttpMethod::Head,
+            axum::http::Method::OPTIONS => HttpMethod::Options,
+            _ => HttpMethod::Get,
+        }
+    }
+
+    pub(crate) fn parse_query(raw: Option<&str>) -> HashMap<String, String> {
+        let mut map = HashMap::new();
+        if let Some(q) = raw {
+            for pair in q.split('&') {
+                let mut parts = pair.splitn(2, '=');
+                let key = Self::percent_decode(parts.next().unwrap_or(""));
+                let value = Self::percent_decode(parts.next().unwrap_or(""));
+                if !key.is_empty() {
+                    map.insert(key, value);
+                }
+            }
+        }
+        map
+    }
+
+    pub(crate) fn build_body(bytes: &bytes::Bytes, content_type: &str) -> Option<HttpBody> {
+        if bytes.is_empty() {
+            return None;
+        }
+        if content_type.contains("application/json") {
+            serde_json::from_slice(bytes)
+                .ok()
+                .map(HttpBody::Json)
+                .or_else(|| Some(HttpBody::Raw(bytes.to_vec())))
+        } else if content_type.contains("application/x-www-form-urlencoded") {
+            Some(HttpBody::Form(Self::parse_form(bytes)))
+        } else {
+            Some(HttpBody::Raw(bytes.to_vec()))
+        }
+    }
+
+    pub(crate) fn parse_form(bytes: &bytes::Bytes) -> HashMap<String, String> {
+        let mut map = HashMap::new();
+        let s = std::str::from_utf8(bytes).unwrap_or("");
+        for pair in s.split('&') {
+            let mut parts = pair.splitn(2, '=');
+            let key = Self::percent_decode(parts.next().unwrap_or(""));
+            let value = Self::percent_decode(parts.next().unwrap_or(""));
+            if !key.is_empty() {
+                map.insert(key, value);
+            }
+        }
+        map
+    }
+
+    pub(crate) fn percent_decode(s: &str) -> String {
+        let s = s.replace('+', " ");
+        let mut out = String::with_capacity(s.len());
+        let mut chars = s.chars().peekable();
+        while let Some(c) = chars.next() {
+            if c == '%' {
+                let h1 = chars.next();
+                let h2 = chars.next();
+                match (h1, h2) {
+                    (Some(a), Some(b)) => {
+                        if let Ok(byte) = u8::from_str_radix(&format!("{a}{b}"), 16) {
+                            out.push(byte as char);
+                        } else {
+                            out.push('%');
+                            out.push(a);
+                            out.push(b);
+                        }
+                    }
+                    (Some(a), None) => {
+                        out.push('%');
+                        out.push(a);
+                    }
+                    _ => {
+                        out.push('%');
+                    }
+                }
+                continue;
+            }
+            out.push(c);
+        }
+        out
+    }
+
+    pub(crate) fn build_response(resp: HttpResponse) -> axum::response::Response {
+        let status = axum::http::StatusCode::from_u16(resp.status)
+            .unwrap_or(axum::http::StatusCode::INTERNAL_SERVER_ERROR);
+        let mut builder = axum::response::Response::builder().status(status);
+        for (k, v) in &resp.headers {
+            builder = builder.header(k.as_str(), v.as_str());
+        }
+        builder
+            .body(axum::body::Body::from(resp.body))
+            .unwrap_or_else(|_| Self::internal_server_error("response build failed"))
+    }
+
+    pub(crate) fn error_response(e: HttpIngressError) -> axum::response::Response {
+        let status = match &e {
+            HttpIngressError::NotFound(_) => axum::http::StatusCode::NOT_FOUND,
+            HttpIngressError::InvalidInput(_) => axum::http::StatusCode::BAD_REQUEST,
+            HttpIngressError::Unauthorized(_) => axum::http::StatusCode::UNAUTHORIZED,
+            HttpIngressError::PermissionDenied(_) => axum::http::StatusCode::FORBIDDEN,
+            HttpIngressError::Conflict(_) => axum::http::StatusCode::CONFLICT,
+            HttpIngressError::MethodNotAllowed(_) => axum::http::StatusCode::METHOD_NOT_ALLOWED,
+            HttpIngressError::UnprocessableEntity(_) => {
+                axum::http::StatusCode::UNPROCESSABLE_ENTITY
+            }
+            HttpIngressError::Timeout(_) => axum::http::StatusCode::GATEWAY_TIMEOUT,
+            HttpIngressError::Unavailable(_) => axum::http::StatusCode::SERVICE_UNAVAILABLE,
+            HttpIngressError::Internal(_) => axum::http::StatusCode::INTERNAL_SERVER_ERROR,
+        };
+        axum::response::Response::builder()
+            .status(status)
+            .header("content-type", "text/plain; charset=utf-8")
+            .body(axum::body::Body::from(e.to_string()))
+            .unwrap_or_else(|_| Self::internal_server_error("error response build failed"))
+    }
+
+    pub(crate) fn request_timeout_response() -> axum::response::Response {
+        Self::plain_text_response(axum::http::StatusCode::REQUEST_TIMEOUT, "request timed out")
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::AxumHttpServerHelper;
@@ -381,6 +529,106 @@ mod tests {
         let resp =
             futures::executor::block_on(AxumHttpServerHelper::dispatch_websocket(req, handler));
         assert_eq!(resp.status(), axum::http::StatusCode::BAD_REQUEST);
+    }
+
+    #[test]
+    fn test_plain_text_response_sets_status_and_content_type() {
+        let resp = AxumHttpServerHelper::plain_text_response(
+            axum::http::StatusCode::BAD_REQUEST,
+            "bad input",
+        );
+        assert_eq!(resp.status(), axum::http::StatusCode::BAD_REQUEST);
+    }
+
+    #[test]
+    fn test_map_method_get_returns_http_method_get() {
+        use swe_edge_ingress_http::HttpMethod;
+        let m = AxumHttpServerHelper::map_method(&axum::http::Method::GET);
+        assert!(matches!(m, HttpMethod::Get));
+    }
+
+    #[test]
+    fn test_map_method_unknown_falls_back_to_get() {
+        use swe_edge_ingress_http::HttpMethod;
+        let m = AxumHttpServerHelper::map_method(&axum::http::Method::CONNECT);
+        assert!(matches!(m, HttpMethod::Get), "unknown method must fall back to Get");
+    }
+
+    #[test]
+    fn test_parse_query_extracts_key_value_pairs() {
+        let map = AxumHttpServerHelper::parse_query(Some("a=1&b=2"));
+        assert_eq!(map.get("a").map(|s| s.as_str()), Some("1"));
+        assert_eq!(map.get("b").map(|s| s.as_str()), Some("2"));
+    }
+
+    #[test]
+    fn test_parse_query_empty_returns_empty_map() {
+        let map = AxumHttpServerHelper::parse_query(None);
+        assert!(map.is_empty());
+    }
+
+    #[test]
+    fn test_build_body_empty_bytes_returns_none() {
+        use bytes::Bytes;
+        let result = AxumHttpServerHelper::build_body(&Bytes::new(), "application/json");
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_build_body_raw_bytes_returns_raw_variant() {
+        use bytes::Bytes;
+        use swe_edge_ingress_http::HttpBody;
+        let result = AxumHttpServerHelper::build_body(&Bytes::from_static(b"hello"), "text/plain");
+        assert!(matches!(result, Some(HttpBody::Raw(_))));
+    }
+
+    #[test]
+    fn test_parse_form_extracts_url_encoded_pairs() {
+        use bytes::Bytes;
+        let bytes = Bytes::from_static(b"key=val&x=y");
+        let map = AxumHttpServerHelper::parse_form(&bytes);
+        assert_eq!(map.get("key").map(|s| s.as_str()), Some("val"));
+    }
+
+    #[test]
+    fn test_percent_decode_plus_becomes_space() {
+        let decoded = AxumHttpServerHelper::percent_decode("hello+world");
+        assert_eq!(decoded, "hello world");
+    }
+
+    #[test]
+    fn test_percent_decode_encoded_char() {
+        let decoded = AxumHttpServerHelper::percent_decode("hello%20world");
+        assert_eq!(decoded, "hello world");
+    }
+
+    #[test]
+    fn test_build_response_maps_status_code() {
+        use swe_edge_ingress_http::HttpResponse;
+        let resp = HttpResponse::new(201, b"created".to_vec());
+        let axum_resp = AxumHttpServerHelper::build_response(resp);
+        assert_eq!(axum_resp.status(), axum::http::StatusCode::CREATED);
+    }
+
+    #[test]
+    fn test_error_response_not_found_returns_404() {
+        use swe_edge_ingress_http::HttpIngressError;
+        let resp = AxumHttpServerHelper::error_response(HttpIngressError::NotFound("missing".into()));
+        assert_eq!(resp.status(), axum::http::StatusCode::NOT_FOUND);
+    }
+
+    #[test]
+    fn test_error_response_unauthorized_returns_401() {
+        use swe_edge_ingress_http::HttpIngressError;
+        let resp =
+            AxumHttpServerHelper::error_response(HttpIngressError::Unauthorized("no auth".into()));
+        assert_eq!(resp.status(), axum::http::StatusCode::UNAUTHORIZED);
+    }
+
+    #[test]
+    fn test_request_timeout_response_returns_408() {
+        let resp = AxumHttpServerHelper::request_timeout_response();
+        assert_eq!(resp.status(), axum::http::StatusCode::REQUEST_TIMEOUT);
     }
 
     #[test]

@@ -48,35 +48,59 @@ fn test_http_server_svc_slug_is_lowercase_edge() {
 
 #[test]
 fn test_axum_http_server_new_valid_addr_happy() {
-    let _s = AxumHttpServer::new("127.0.0.1:0", noop_handler());
+    use swe_edge_runtime_http::HttpServer;
+    let s = AxumHttpServer::new("127.0.0.1:0", noop_handler());
+    assert!(
+        s.request_timeout() > std::time::Duration::ZERO,
+        "server must have positive request timeout"
+    );
 }
 
 #[test]
 fn test_axum_http_server_new_empty_addr_does_not_panic_error() {
     // Construction never panics — errors surface at serve time.
-    let _s = AxumHttpServer::new("", noop_handler());
+    use swe_edge_runtime_http::HttpServer;
+    let s = AxumHttpServer::new("", noop_handler());
+    assert!(
+        s.request_timeout() > std::time::Duration::ZERO,
+        "empty-addr server must still have positive timeout"
+    );
 }
 
 #[test]
 fn test_axum_http_server_new_ipv6_addr_edge() {
-    let _s = AxumHttpServer::new("[::1]:0", noop_handler());
+    use swe_edge_runtime_http::HttpServer;
+    let s = AxumHttpServer::new("[::1]:0", noop_handler());
+    assert!(
+        s.request_timeout() > std::time::Duration::ZERO,
+        "IPv6 server must have positive timeout"
+    );
 }
 
 // ── AxumHttpServerBuilder ────────────────────────────────────────────────────
 
 #[test]
 fn test_axum_http_server_builder_new_returns_builder_happy() {
+    use swe_edge_runtime_http::HttpServer;
     let b = AxumHttpServerBuilder::new("127.0.0.1:8080", noop_handler());
     let server = b.build();
-    let _: AxumHttpServer = server;
+    assert_eq!(
+        server.request_timeout(),
+        std::time::Duration::from_secs(30),
+        "builder.build() must produce a server with the default 30s request timeout"
+    );
 }
 
 #[test]
 fn test_axum_http_server_builder_with_body_limit_overrides_default_error() {
-    // body_limit is pub(crate); verify indirectly that construction succeeds.
-    let _server = AxumHttpServerBuilder::new("127.0.0.1:0", noop_handler())
+    use swe_edge_runtime_http::HttpServer;
+    let server = AxumHttpServerBuilder::new("127.0.0.1:0", noop_handler())
         .with_body_limit(512)
         .build();
+    assert!(
+        server.request_timeout() > std::time::Duration::ZERO,
+        "body limit must not zero-out request timeout"
+    );
 }
 
 #[test]
@@ -95,6 +119,13 @@ fn test_axum_http_server_builder_with_request_timeout_edge() {
 fn test_axum_http_server_helper_is_send_sync_happy() {
     fn assert_send_sync<T: Send + Sync>() {}
     assert_send_sync::<AxumHttpServerHelper>();
+    // Runtime complement: construct and verify it's a ZST.
+    let h = AxumHttpServerHelper;
+    assert_eq!(
+        std::mem::size_of_val(&h),
+        0,
+        "AxumHttpServerHelper must be a ZST"
+    );
 }
 
 #[test]
@@ -130,5 +161,10 @@ fn test_http_server_error_bind_display_contains_address_error() {
 #[test]
 fn test_http_server_error_is_debug_edge() {
     let e = HttpServerError::Serve(std::io::Error::other("x"));
-    let _ = format!("{e:?}");
+    let debug = format!("{e:?}");
+    assert!(!debug.is_empty(), "Debug output must be non-empty");
+    assert!(
+        debug.contains("Serve"),
+        "Debug must identify the Serve variant"
+    );
 }

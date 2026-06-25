@@ -236,6 +236,10 @@ mod dedicated_coverage {
         let cfg = IngressTlsConfig::tls("cert.pem", "key.pem");
         let s = server().with_tls(cfg);
         assert!(s.tls.is_some());
+        assert_eq!(
+            s.body_limit, MAX_BODY_BYTES,
+            "with_tls must not affect body_limit"
+        );
     }
 
     #[tokio::test]
@@ -256,12 +260,20 @@ mod dedicated_coverage {
 
     #[test]
     fn test_serve_is_constructible() {
-        let _ = server();
+        let s = server();
+        assert_eq!(
+            s.body_limit, MAX_BODY_BYTES,
+            "server must have default body limit"
+        );
     }
 
     #[test]
     fn test_dispatch_is_constructible() {
-        let _ = server();
+        let s = server();
+        assert_eq!(
+            s.body_limit, MAX_BODY_BYTES,
+            "server must have default body limit"
+        );
     }
 }
 
@@ -271,7 +283,7 @@ mod sync_coverage {
     use futures::future::BoxFuture;
     use std::sync::Arc;
     use swe_edge_ingress_http::{
-        HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse,
+        HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, MAX_BODY_BYTES,
     };
 
     fn make_handler() -> Arc<dyn HttpIngress> {
@@ -293,6 +305,10 @@ mod sync_coverage {
 
     #[test]
     fn test_serve_type_exists() {
-        let _ = AxumHttpServer::new("127.0.0.1:0", make_handler());
+        let s = AxumHttpServer::new("127.0.0.1:0", make_handler());
+        assert_eq!(
+            s.body_limit, MAX_BODY_BYTES,
+            "server must have default body limit"
+        );
     }
 }

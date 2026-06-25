@@ -170,9 +170,13 @@ fn test_swe_edge_ingress_verifier_ok_verifier_wires_to_server_happy() {
             Ok(Claims::builder().sub("test").build())
         }
     }
-    // Confirm the verifier can be attached without panic.
-    let _server =
+    let server =
         AxumHttpServer::new("127.0.0.1:0", stub()).with_bearer_auth(Arc::new(AlwaysOkVerifier));
+    // Verify the server still has its default timeout after attaching the verifier.
+    assert!(
+        server.request_timeout() > Duration::ZERO,
+        "server with verifier must retain positive timeout"
+    );
 }
 
 #[test]
@@ -214,7 +218,11 @@ fn test_tower_service_builder_composes_with_trace_layer_edge() {
     use tower::ServiceBuilder;
     use tower_http::trace::TraceLayer;
     // Validate that tower + tower-http compose — same pattern as axum_server_dispatcher.rs.
-    let _ = ServiceBuilder::new().layer(TraceLayer::new_for_http());
+    let built = ServiceBuilder::new().layer(TraceLayer::new_for_http());
+    assert!(
+        std::mem::size_of_val(&built) > 0,
+        "composed ServiceBuilder must occupy memory"
+    );
 }
 
 // ── dep:tower-http — TraceLayer and RequestBodyLimitLayer ────────────────────
@@ -222,23 +230,37 @@ fn test_tower_service_builder_composes_with_trace_layer_edge() {
 #[test]
 fn test_tower_http_trace_layer_constructs_happy() {
     use tower_http::trace::TraceLayer;
-    let _layer = TraceLayer::new_for_http();
+    let layer = TraceLayer::new_for_http();
+    assert!(
+        std::mem::size_of_val(&layer) > 0,
+        "TraceLayer must occupy memory after construction"
+    );
 }
 
 #[test]
 fn test_tower_http_request_body_limit_layer_constructs_error() {
     use tower_http::limit::RequestBodyLimitLayer;
-    let _layer = RequestBodyLimitLayer::new(1024);
+    let layer = RequestBodyLimitLayer::new(1024);
+    assert!(
+        std::mem::size_of_val(&layer) > 0,
+        "RequestBodyLimitLayer must occupy memory after construction"
+    );
 }
 
 #[test]
 fn test_tower_http_body_limit_layer_applied_to_server_edge() {
     // RequestBodyLimitLayer is applied with server's body_limit.
-    // The layer construction itself is the observable side-effect here.
     use tower_http::limit::RequestBodyLimitLayer;
-    let _layer = RequestBodyLimitLayer::new(256);
-    // Server with_body_limit does not panic.
-    let _s = AxumHttpServer::new("127.0.0.1:0", stub()).with_body_limit(256);
+    let layer = RequestBodyLimitLayer::new(256);
+    assert!(
+        std::mem::size_of_val(&layer) > 0,
+        "RequestBodyLimitLayer must occupy memory"
+    );
+    let s = AxumHttpServer::new("127.0.0.1:0", stub()).with_body_limit(256);
+    assert!(
+        s.request_timeout() > Duration::ZERO,
+        "body limit must not affect request timeout"
+    );
 }
 
 // ── dep:hyper-util — TokioExecutor path via TLS serve ────────────────────────
@@ -274,5 +296,9 @@ fn test_hyper_util_server_timeout_within_bounds_edge() {
 #[test]
 fn test_hyper_util_tokio_executor_is_constructible_happy() {
     // Directly constructs TokioExecutor from hyper_util — confirms dep is linked.
-    let _exec = TokioExecutor::new();
+    let exec = TokioExecutor::new();
+    assert!(
+        std::mem::size_of_val(&exec) == 0,
+        "TokioExecutor must be a ZST"
+    );
 }

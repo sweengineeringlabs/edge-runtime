@@ -11,8 +11,12 @@ use http::{Method, Request, Response, StatusCode, Uri, Version};
 
 #[test]
 fn test_http_method_get_is_get_happy() {
-    assert_eq!(Method::GET, Method::GET);
     assert_eq!(Method::GET.as_str(), "GET");
+    assert_ne!(
+        Method::GET,
+        Method::POST,
+        "GET and POST must be distinct methods"
+    );
 }
 
 #[test]

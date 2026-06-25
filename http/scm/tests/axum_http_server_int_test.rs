@@ -35,7 +35,12 @@ fn server() -> AxumHttpServer {
 
 #[test]
 fn test_new_constructs_without_panic_happy() {
-    let _s = server();
+    let s = server();
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "new server must have default timeout"
+    );
 }
 
 #[test]
@@ -45,19 +50,34 @@ fn test_new_default_request_timeout_is_expected_happy() {
 
 #[test]
 fn test_new_accepts_ipv6_bind_edge() {
-    let _s = AxumHttpServer::new("[::1]:0", Arc::new(OkIngress));
+    let s = AxumHttpServer::new("[::1]:0", Arc::new(OkIngress));
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "IPv6 bind must retain default timeout"
+    );
 }
 
 // ── with_body_limit ───────────────────────────────────────────────────────────
 
 #[test]
 fn test_with_body_limit_does_not_panic_happy() {
-    let _s = server().with_body_limit(1024);
+    let s = server().with_body_limit(1024);
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_body_limit must not affect request timeout"
+    );
 }
 
 #[test]
 fn test_with_body_limit_zero_does_not_panic_error() {
-    let _s = server().with_body_limit(0);
+    let s = server().with_body_limit(0);
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "zero body limit must not affect request timeout"
+    );
 }
 
 #[test]
@@ -94,13 +114,23 @@ fn test_with_request_timeout_large_value_edge() {
 #[test]
 fn test_with_tls_does_not_panic_happy() {
     use swe_edge_ingress_tls::IngressTlsConfig;
-    let _s = server().with_tls(IngressTlsConfig::tls("c.pem", "k.pem"));
+    let s = server().with_tls(IngressTlsConfig::tls("c.pem", "k.pem"));
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_tls must not affect request timeout"
+    );
 }
 
 #[test]
 fn test_with_mtls_does_not_panic_error() {
     use swe_edge_ingress_tls::IngressTlsConfig;
-    let _s = server().with_tls(IngressTlsConfig::mtls("c.pem", "k.pem", "ca.pem"));
+    let s = server().with_tls(IngressTlsConfig::mtls("c.pem", "k.pem", "ca.pem"));
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_mtls must not affect request timeout"
+    );
 }
 
 #[test]
@@ -130,7 +160,12 @@ fn test_with_bearer_auth_does_not_panic_happy() {
             Err(VerifierError::Invalid("no".into()))
         }
     }
-    let _s = server().with_bearer_auth(Arc::new(DenyAll));
+    let s = server().with_bearer_auth(Arc::new(DenyAll));
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_bearer_auth must not affect request timeout"
+    );
 }
 
 #[test]
@@ -159,7 +194,12 @@ fn test_with_stream_handler_does_not_panic_edge() {
             Box::pin(async { Ok(()) })
         }
     }
-    let _s = server().with_stream_handler(Arc::new(NoopStream));
+    let s = server().with_stream_handler(Arc::new(NoopStream));
+    assert_eq!(
+        s.request_timeout(),
+        DEFAULT_REQUEST_TIMEOUT,
+        "with_stream_handler must not affect request timeout"
+    );
 }
 
 // ── serve ─────────────────────────────────────────────────────────────────────

@@ -20,5 +20,8 @@ fn test_http_ingress_result_err_error() {
 fn test_http_ingress_result_ok_unit_edge() {
     // Edge: unit Ok — used when the operation has no return value.
     let result: HttpIngressResult<()> = Ok(());
-    assert!(result.is_ok());
+    assert!(
+        matches!(result, Ok(())),
+        "unit Ok must match Ok(()) exactly"
+    );
 }

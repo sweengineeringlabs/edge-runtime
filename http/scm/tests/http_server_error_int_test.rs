@@ -32,7 +32,12 @@ fn test_http_server_error_bind_display_contains_io_cause_error() {
 #[test]
 fn test_http_server_error_bind_is_debug_edge() {
     let e = HttpServerError::Bind("::1:0".into(), std::io::Error::other("x"));
-    let _ = format!("{e:?}");
+    let debug = format!("{e:?}");
+    assert!(!debug.is_empty(), "Debug output must be non-empty");
+    assert!(
+        debug.contains("Bind"),
+        "Debug must identify the Bind variant"
+    );
 }
 
 // ── Serve variant ─────────────────────────────────────────────────────────────
@@ -51,12 +56,22 @@ fn test_http_server_error_serve_source_is_io_error_error() {
         e.source().is_some(),
         "Serve must expose its IO error as source"
     );
+    assert!(
+        !e.source().unwrap().to_string().is_empty(),
+        "source IO error must have non-empty message"
+    );
 }
 
 #[test]
 fn test_http_server_error_serve_is_send_sync_edge() {
     fn assert_send_sync<T: Send + Sync>() {}
     assert_send_sync::<HttpServerError>();
+    // Runtime complement: constructing and dropping the type must not panic.
+    let e = HttpServerError::Serve(std::io::Error::other("sync check"));
+    assert!(
+        !e.to_string().is_empty(),
+        "Send+Sync type must remain usable at runtime"
+    );
 }
 
 // ── Tls variant ───────────────────────────────────────────────────────────────
@@ -78,6 +93,10 @@ fn test_http_server_error_tls_source_is_ingress_tls_error_error() {
     let inner = IngressTlsError::CertLoad("bad.pem".into(), std::io::Error::other("no file"));
     let e = HttpServerError::Tls(inner);
     assert!(e.source().is_some(), "Tls variant must expose source error");
+    assert!(
+        !e.source().unwrap().to_string().is_empty(),
+        "TLS source error must have non-empty message"
+    );
 }
 
 #[test]

@@ -7,7 +7,12 @@ use swe_edge_runtime_http::{HttpIngress, HttpRequest, NoopHttpIngress};
 
 #[test]
 fn test_noop_http_ingress_constructs_happy() {
-    let _ingress = NoopHttpIngress;
+    let ingress = NoopHttpIngress;
+    assert_eq!(
+        std::mem::size_of_val(&ingress),
+        0,
+        "NoopHttpIngress must be a zero-size type"
+    );
 }
 
 #[test]
@@ -26,6 +31,11 @@ fn test_noop_http_ingress_handle_never_errors_error() {
     let ctx = edge_domain::SecurityContext::unauthenticated();
     let result = block_on(ingress.handle(req, ctx));
     assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().status,
+        200,
+        "noop handle must always return HTTP 200"
+    );
 }
 
 #[test]

@@ -94,7 +94,12 @@ async fn test_serve_with_listener_completes_on_immediate_shutdown_error() {
 #[test]
 fn test_serve_server_construction_does_not_panic_edge() {
     // @covers: HttpServer::serve — object is constructable
-    let _s = server();
+    let s = server();
+    assert_eq!(
+        s.request_timeout(),
+        Duration::from_secs(30),
+        "server must be constructable with default timeout"
+    );
 }
 
 // ── HttpServer::serve_with_shutdown — missing _happy + _error ────────────────
@@ -159,7 +164,13 @@ fn test_serve_with_listener_minimal_impl_has_default_edge() {
             })
         }
     }
-    let _ = MinimalServer;
+    // The default request_timeout() returns the trait's default (30 seconds).
+    let ms = MinimalServer;
+    assert_eq!(
+        ms.request_timeout(),
+        Duration::from_secs(30),
+        "minimal impl must use default request_timeout"
+    );
 }
 
 // ── HttpServer::axum_helper ───────────────────────────────────────────────────
@@ -188,7 +199,11 @@ fn test_axum_helper_upgrade_header_detected_error() {
 fn test_axum_helper_return_type_is_axum_http_server_helper_edge() {
     // @covers: HttpServer::axum_helper
     let helper: AxumHttpServerHelper = server().axum_helper();
-    let _ = helper;
+    assert_eq!(
+        std::mem::size_of_val(&helper),
+        0,
+        "axum_helper must return ZST AxumHttpServerHelper"
+    );
 }
 
 // ── HttpServer::builder_bind ──────────────────────────────────────────────────
@@ -233,7 +248,12 @@ fn test_new_server_ipv6_addr_constructs_error() {
 #[test]
 fn test_new_server_out_of_range_port_defers_error_to_bind_edge() {
     // @covers: HttpServer::new_server / HttpServerSvc::new_server
-    let _s = HttpServerSvc::new_server("127.0.0.1:99999".to_string(), handler());
+    let s = HttpServerSvc::new_server("127.0.0.1:99999".to_string(), handler());
+    assert_eq!(
+        s.request_timeout(),
+        Duration::from_secs(30),
+        "out-of-range port defers error to bind — construction must succeed"
+    );
 }
 
 // ── HttpServer::new_server_svc + HttpServerSvc svc ───────────────────────────
@@ -242,13 +262,23 @@ fn test_new_server_out_of_range_port_defers_error_to_bind_edge() {
 fn test_new_server_svc_returns_server_svc_instance_happy() {
     // @covers: HttpServer::new_server_svc / HttpServerSvc
     let svc = AxumHttpServer::new_server_svc();
-    let _ = svc;
+    assert_eq!(
+        std::mem::size_of_val(&svc),
+        0,
+        "HttpServerSvc must be a ZST"
+    );
 }
 
 #[test]
 fn test_new_server_svc_via_builder_constructs_server_error() {
     // @covers: HttpServer::new_server_svc / HttpServerSvc::builder
-    let _b = HttpServerSvc::builder("127.0.0.1:0".to_string(), handler());
+    let b = HttpServerSvc::builder("127.0.0.1:0".to_string(), handler());
+    let s = b.build();
+    assert_eq!(
+        s.request_timeout(),
+        Duration::from_secs(30),
+        "builder must produce server with default timeout"
+    );
 }
 
 #[test]

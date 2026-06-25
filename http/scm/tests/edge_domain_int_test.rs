@@ -24,6 +24,11 @@ fn test_edge_domain_security_context_passed_through_error() {
     let req = HttpRequest::post("/secure");
     let result = block_on(ingress.handle(req, ctx));
     assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().status,
+        200,
+        "noop must return 200 regardless of auth context"
+    );
 }
 
 #[test]

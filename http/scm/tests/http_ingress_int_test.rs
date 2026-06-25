@@ -13,7 +13,7 @@
 
 use futures::executor::block_on;
 use swe_edge_runtime_http::{
-    HttpIngress, HttpIngressError, HttpMethod, HttpRequest, HttpResponse, NoopHttpIngress,
+    HttpBody, HttpIngress, HttpIngressError, HttpMethod, HttpRequest, HttpResponse, NoopHttpIngress,
 };
 
 fn noop() -> NoopHttpIngress {
@@ -50,6 +50,11 @@ fn test_handle_noop_error() {
     let result = block_on(ingress.handle(req, ctx));
     // The error path is unreachable for Noop; confirm the happy result is success.
     assert!(result.is_ok());
+    assert_eq!(
+        result.unwrap().status,
+        200,
+        "noop must always return HTTP 200"
+    );
 }
 
 #[test]
@@ -78,6 +83,10 @@ fn test_health_check_noop_error() {
     let ingress = noop();
     let result = block_on(ingress.health_check());
     assert!(result.is_ok());
+    assert!(
+        result.unwrap().healthy,
+        "noop health check must always report healthy"
+    );
 }
 
 #[test]
@@ -106,16 +115,23 @@ fn test_accepted_methods_noop_error() {
     // Confirm the return type is a Vec (documents the non-fallible contract).
     let ingress = noop();
     let methods: Vec<HttpMethod> = ingress.accepted_methods();
-    let _ = methods; // used
+    assert!(
+        methods.is_empty(),
+        "noop accepted_methods must return an empty vec"
+    );
 }
 
 #[test]
 fn test_accepted_methods_noop_edge() {
     // Edge: calling twice returns the same (empty) list — no side effects.
     let ingress = noop();
+    let first = ingress.accepted_methods();
+    let second = ingress.accepted_methods();
+    assert_eq!(first.len(), 0, "first call must return empty vec");
     assert_eq!(
-        ingress.accepted_methods().len(),
-        ingress.accepted_methods().len()
+        second.len(),
+        0,
+        "second call must also return empty vec (idempotent)"
     );
 }
 
@@ -182,7 +198,11 @@ fn test_extract_auth_noop_with_bearer_header_edge() {
 fn test_extract_body_noop_with_body_happy() {
     let ingress = noop();
     let req = HttpRequest::get("/").with_body(b"hello".to_vec(), "text/plain");
-    assert!(ingress.extract_body(&req).is_some());
+    let body = ingress.extract_body(&req);
+    assert!(
+        matches!(body, Some(HttpBody::Raw(_))),
+        "text/plain body must be extracted as Raw variant"
+    );
 }
 
 #[test]
@@ -195,11 +215,19 @@ fn test_extract_body_noop_no_body_error() {
 
 #[test]
 fn test_extract_body_noop_empty_bytes_edge() {
-    // Edge: empty byte slice body — body is Some but empty.
+    // Edge: body object existence differs between request-with-body and request-without-body.
     let ingress = noop();
-    let req = HttpRequest::get("/").with_body(vec![], "application/octet-stream");
-    let body = ingress.extract_body(&req);
-    assert!(body.is_some());
+    let req_with = HttpRequest::get("/").with_body(vec![], "application/octet-stream");
+    let req_without = HttpRequest::get("/");
+    let body = ingress.extract_body(&req_with);
+    assert!(
+        body.is_some(),
+        "request created with_body must produce a body object"
+    );
+    assert!(
+        ingress.extract_body(&req_without).is_none(),
+        "request without body must return None"
+    );
 }
 
 // ─── extract_form_parts ─────────────────────────────────────────────────────
@@ -219,8 +247,10 @@ fn test_extract_form_parts_noop_error() {
     let ingress = noop();
     let req = HttpRequest::post("/upload");
     let parts = ingress.extract_form_parts(&req);
-    // Confirm it does not panic and returns a Vec.
-    let _ = parts;
+    assert!(
+        parts.is_empty(),
+        "noop extract_form_parts must return an empty vec"
+    );
 }
 
 #[test]

@@ -13,7 +13,9 @@ fn noop() -> NoopValidator {
 #[test]
 fn test_validate_noop_happy() {
     let v = noop();
-    assert!(v.validate().is_ok());
+    let result = v.validate();
+    assert!(result.is_ok());
+    assert_eq!(result.unwrap(), (), "validate must return Ok(()) for noop");
 }
 
 #[test]
@@ -35,6 +37,14 @@ fn test_validate_noop_error() {
 fn test_validate_noop_idempotent_edge() {
     // Edge: calling validate() twice returns Ok both times.
     let v = noop();
-    assert!(v.validate().is_ok());
-    assert!(v.validate().is_ok());
+    let r1 = v.validate();
+    let r2 = v.validate();
+    assert!(r1.is_ok());
+    assert_eq!(r1.unwrap(), (), "first validate must return Ok(())");
+    assert!(r2.is_ok());
+    assert_eq!(
+        r2.unwrap(),
+        (),
+        "second validate must return Ok(()) (idempotent)"
+    );
 }
