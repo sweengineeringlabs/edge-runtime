@@ -12,4 +12,3 @@ pub struct CliArgs {
     /// Named flags (e.g. `--output json` → `"output" => "json"`).
     pub flags: HashMap<String, String>,
 }
-

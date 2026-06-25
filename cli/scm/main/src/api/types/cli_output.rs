@@ -12,4 +12,3 @@ pub struct CliOutput {
     /// Process exit code (0 = success).
     pub exit_code: i32,
 }
-
