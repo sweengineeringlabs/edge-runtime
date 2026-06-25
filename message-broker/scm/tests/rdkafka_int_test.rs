@@ -1,4 +1,5 @@
 //! Direct-dep integration test for rdkafka (arch rule 95 — dep must have test coverage).
+#![allow(clippy::expect_used)]
 //!
 //! This test exercises rdkafka unconditionally (no feature gate) to satisfy the
 //! structural audit requirement that every dependency used in src/ has integration

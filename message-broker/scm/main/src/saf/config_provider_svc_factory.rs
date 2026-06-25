@@ -1,4 +1,4 @@
-//! SAF — [`ConfigProvider`] implementation.
+//! SAF — [`ConfigProvider`] factory identifier.
 
 /// TOML section name under which message-broker configuration is nested.
 pub const BROKER_CONFIG_SECTION: &str = "message_broker";

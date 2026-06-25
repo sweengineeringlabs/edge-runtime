@@ -24,22 +24,3 @@ pub struct TaskHandle {
     /// Reject the task: return it to the queue for redelivery.
     pub nack: BoxFuture<'static, Result<(), QueueError>>,
 }
-
-impl TaskHandle {
-    /// Create a [`TaskHandle`] from the dequeued task's primitives and its ack/nack futures.
-    pub fn new(
-        task_id: TaskId,
-        payload: Bytes,
-        headers: HashMap<String, String>,
-        ack: BoxFuture<'static, Result<(), QueueError>>,
-        nack: BoxFuture<'static, Result<(), QueueError>>,
-    ) -> Self {
-        Self {
-            task_id,
-            payload,
-            headers,
-            ack,
-            nack,
-        }
-    }
-}

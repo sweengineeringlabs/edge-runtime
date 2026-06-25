@@ -20,32 +20,3 @@ pub struct Task {
     /// Optional key-value metadata headers.
     pub headers: HashMap<String, String>,
 }
-
-impl Task {
-    /// Construct a task from raw bytes with no headers.
-    pub fn new(payload: impl Into<Bytes>) -> Self {
-        Self {
-            id: TaskId::new(),
-            payload: payload.into(),
-            headers: HashMap::new(),
-        }
-    }
-
-    /// Construct a task with headers.
-    pub fn with_headers(payload: impl Into<Bytes>, headers: HashMap<String, String>) -> Self {
-        Self {
-            id: TaskId::new(),
-            payload: payload.into(),
-            headers,
-        }
-    }
-
-    /// Construct a task with a specific ID.
-    pub fn with_id(id: TaskId, payload: impl Into<Bytes>) -> Self {
-        Self {
-            id,
-            payload: payload.into(),
-            headers: HashMap::new(),
-        }
-    }
-}

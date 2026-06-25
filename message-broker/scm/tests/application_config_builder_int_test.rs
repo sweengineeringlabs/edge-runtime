@@ -1,4 +1,5 @@
 //! Integration tests for [`MessageBrokerFactory::create_config_builder`].
+#![allow(clippy::redundant_pattern_matching)]
 
 use swe_edge_configbuilder::ConfigLoaderFactory;
 use swe_edge_runtime_message_broker::MessageBrokerFactory;
@@ -8,8 +9,7 @@ use swe_edge_runtime_message_broker::MessageBrokerFactory;
 #[test]
 fn test_create_config_builder_is_pre_seeded_with_package_name() {
     let loader = MessageBrokerFactory::create_config_builder().build_loader();
-    assert!(loader.is_ok(), "create_config_builder must produce a valid loader");
-    let _ = loader.unwrap(); // Verify the loader can be used
+    assert!(matches!(loader, Ok(_)), "create_config_builder must produce a valid loader");
 }
 
 /// @covers: swe-edge-configbuilder
@@ -20,6 +20,5 @@ fn test_configbuilder_dep_is_exercised_directly() {
         .with_name("test-broker")
         .with_version("0.0.0")
         .build_loader();
-    assert!(loader.is_ok(), "ConfigLoaderFactory must produce a valid loader with name and version");
-    let _ = loader.unwrap(); // Verify the loader can be used with custom name and version
+    assert!(matches!(loader, Ok(_)), "ConfigLoaderFactory must produce a valid loader with name and version");
 }

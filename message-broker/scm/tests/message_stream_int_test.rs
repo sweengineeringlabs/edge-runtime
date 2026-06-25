@@ -1,4 +1,5 @@
 //! Integration tests for [`MessageStream`].
+#![allow(clippy::assertions_on_constants)]
 
 use swe_edge_runtime_message_broker::MessageStream;
 

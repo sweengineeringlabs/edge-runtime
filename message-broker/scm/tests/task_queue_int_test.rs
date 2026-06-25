@@ -1,4 +1,5 @@
 //! Integration tests for [`TaskQueue`] trait fns (rule 222) and implementations.
+#![allow(clippy::unwrap_used, clippy::expect_used, clippy::redundant_pattern_matching)]
 //!
 //! Unconditional `_happy/_error/_edge` tests at the top satisfy rule 222.
 //! Feature-gated tests in `mod tokio_rt_tests` exercise the concrete implementation.
@@ -43,8 +44,7 @@ fn test_enqueue_task_into_ok_queue_happy() {
     let queue = AlwaysOkQueue;
     let task = Task::new(b"payload".as_ref());
     let result = futures::executor::block_on(queue.enqueue(task));
-    assert!(result.is_ok(), "enqueue must return Ok(())");
-    let _ = result.unwrap();
+    assert!(matches!(result, Ok(())), "enqueue must return Ok(())");
 }
 
 /// @covers: TaskQueue::enqueue
@@ -64,8 +64,7 @@ fn test_enqueue_empty_payload_task_edge() {
     let queue = AlwaysOkQueue;
     let task = Task::new(b"".as_ref());
     let result = futures::executor::block_on(queue.enqueue(task));
-    assert!(result.is_ok(), "enqueue with empty payload must return Ok(())");
-    let _ = result.unwrap();
+    assert!(matches!(result, Ok(())), "enqueue with empty payload must return Ok(())");
 }
 
 // ── TaskQueue::dequeue (rule 222) ────────────────────────────────────────────
@@ -109,8 +108,7 @@ fn test_dequeue_returns_option_type_edge() {
 fn test_health_check_on_ok_queue_happy() {
     let queue = AlwaysOkQueue;
     let health = futures::executor::block_on(queue.health_check());
-    assert!(health.is_ok(), "health check must return Ok(())");
-    let _ = health.unwrap();
+    assert!(matches!(health, Ok(())), "health check must return Ok(())");
 }
 
 /// @covers: TaskQueue::health_check
@@ -129,9 +127,8 @@ fn test_health_check_is_idempotent_edge() {
     let queue = AlwaysOkQueue;
     let check1 = futures::executor::block_on(queue.health_check());
     let check2 = futures::executor::block_on(queue.health_check());
-    assert!(check1.is_ok(), "first health check must return Ok(())");
-    assert!(check2.is_ok(), "second health check must return Ok(())");
-    let _ = (check1.unwrap(), check2.unwrap());
+    assert!(matches!(check1, Ok(())), "first health check must return Ok(())");
+    assert!(matches!(check2, Ok(())), "second health check must return Ok(())");
 }
 
 // ── Concrete implementation tests (tokio-rt feature) ─────────────────────────

@@ -49,10 +49,3 @@ pub trait TaskQueueFactoryContract {
         TaskHandleBuilder::new(task_id, payload, ack, nack).headers(headers)
     }
 }
-
-impl TaskQueueFactoryContract for TaskQueueFactory {
-    #[cfg(feature = "tokio-rt")]
-    fn build_in_memory(&self) -> InMemoryTaskQueue {
-        TaskQueueFactory::in_memory()
-    }
-}

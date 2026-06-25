@@ -34,19 +34,3 @@ pub trait BrokerProvider {
         MessageBrokerFactory
     }
 }
-
-impl BrokerProvider for MessageBrokerFactory {
-    #[cfg(feature = "tokio-rt")]
-    fn build_in_memory(
-        &self,
-    ) -> crate::api::broker::types::in_memory_message_broker::InMemoryMessageBroker {
-        MessageBrokerFactory::in_memory()
-    }
-
-    fn build_from_config<'a>(
-        &'a self,
-        config: &'a swe_edge_message_broker::MessageBrokerConfig,
-    ) -> BoxFuture<'a, Result<Box<dyn swe_edge_message_broker::MessageBroker>, BrokerError>> {
-        Box::pin(MessageBrokerFactory::from_config(config))
-    }
-}

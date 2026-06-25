@@ -1,5 +1,7 @@
 //! Broker core layer — shared constraints and capacity constants.
 
+pub(crate) mod broker_trait_impls;
+
 /// Maximum byte length of a topic name (inclusive).
 ///
 /// Topics exceeding this limit are rejected at publish and subscribe time to

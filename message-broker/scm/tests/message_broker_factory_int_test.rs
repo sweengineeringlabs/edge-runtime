@@ -1,4 +1,5 @@
 //! Integration tests for [`MessageBrokerFactory`].
+#![allow(clippy::redundant_pattern_matching)]
 
 use swe_edge_runtime_message_broker::MessageBrokerFactory;
 
@@ -7,8 +8,7 @@ use swe_edge_runtime_message_broker::MessageBrokerFactory;
 fn test_message_broker_factory_create_config_builder_is_pre_seeded() {
     let builder = MessageBrokerFactory::create_config_builder();
     let loader = builder.build_loader();
-    assert!(loader.is_ok(), "builder must construct a valid loader");
-    let _ = loader.unwrap();
+    assert!(matches!(loader, Ok(_)), "builder must construct a valid loader");
 }
 
 /// @covers: MessageBrokerFactory::in_memory

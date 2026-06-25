@@ -1,4 +1,5 @@
 //! Default configuration values for the message broker.
+#![allow(dead_code)]
 
 use crate::api::ApplicationConfig;
 use crate::api::BrokerBackendConfig;

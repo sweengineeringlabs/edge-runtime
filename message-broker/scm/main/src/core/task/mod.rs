@@ -1,6 +1,7 @@
 //! Task core layer — shared constants for task queue backends.
 
 pub(crate) mod queue;
+pub(crate) mod task_trait_impls;
 
 /// Visibility timeout for nacked NATS JetStream tasks before redelivery (seconds).
 #[cfg(feature = "nats")]
@@ -47,8 +48,5 @@ pub(crate) const KAFKA_SUBSCRIBE_CHANNEL_CAPACITY: usize = 1024;
 ///
 /// Payloads exceeding this limit are rejected at enqueue time to avoid
 /// unbounded memory consumption inside the channel buffer.
-#[expect(
-    dead_code,
-    reason = "used in tokio-rt feature — dead when tokio-rt is disabled"
-)]
+#[cfg(feature = "tokio-rt")]
 pub(crate) const MAX_TASK_PAYLOAD_BYTES: usize = 4 * 1024 * 1024;
