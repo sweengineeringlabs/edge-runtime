@@ -9,7 +9,7 @@ use swe_edge_runtime_cli::{CliError, NoopValidator, Validator};
 #[test]
 fn test_validate_noop_returns_ok_happy() {
     let v = NoopValidator::create();
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate().ok(), Some(()));
 }
 
 #[test]
@@ -28,6 +28,6 @@ fn test_validate_always_fail_impl_returns_error() {
 #[test]
 fn test_validate_noop_idempotent_edge() {
     let v = NoopValidator::create();
-    assert!(v.validate().is_ok());
-    assert!(v.validate().is_ok());
+    assert_eq!(v.validate().ok(), Some(()));
+    assert_eq!(v.validate().ok(), Some(()));
 }

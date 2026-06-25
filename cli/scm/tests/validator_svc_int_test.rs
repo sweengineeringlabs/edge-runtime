@@ -11,7 +11,9 @@ use swe_edge_runtime_cli::NoopValidator;
 #[test]
 fn test_create_returns_usable_validator_happy() {
     let v = NoopValidator::create();
-    assert!(v.run_validate().is_ok());
+    let result = v.run_validate();
+    assert!(result.is_ok());
+    result.unwrap();
 }
 
 /// @covers: NoopValidator::create
@@ -25,8 +27,12 @@ fn test_create_is_zero_sized_error() {
 fn test_create_independent_instances_edge() {
     let a = NoopValidator::create();
     let b = NoopValidator::create();
-    assert!(a.run_validate().is_ok());
-    assert!(b.run_validate().is_ok());
+    let a_result = a.run_validate();
+    let b_result = b.run_validate();
+    assert!(a_result.is_ok());
+    assert!(b_result.is_ok());
+    a_result.unwrap();
+    b_result.unwrap();
 }
 
 // ─── run_validate ────────────────────────────────────────────────────────────
@@ -35,7 +41,9 @@ fn test_create_independent_instances_edge() {
 #[test]
 fn test_run_validate_returns_ok_happy() {
     let v = NoopValidator::create();
-    assert!(v.run_validate().is_ok());
+    let result = v.run_validate();
+    assert!(result.is_ok());
+    result.unwrap();
 }
 
 /// @covers: NoopValidator::run_validate
@@ -43,16 +51,18 @@ fn test_run_validate_returns_ok_happy() {
 fn test_run_validate_never_errors_error() {
     let v = NoopValidator::create();
     let result = v.run_validate();
-    assert!(
-        result.is_ok(),
-        "NoopValidator::run_validate must never return an error"
-    );
+    assert!(result.is_ok());
+    result.unwrap();
 }
 
 /// @covers: NoopValidator::run_validate
 #[test]
 fn test_run_validate_idempotent_edge() {
     let v = NoopValidator::create();
-    assert!(v.run_validate().is_ok());
-    assert!(v.run_validate().is_ok());
+    let first = v.run_validate();
+    let second = v.run_validate();
+    assert!(first.is_ok());
+    assert!(second.is_ok());
+    first.unwrap();
+    second.unwrap();
 }

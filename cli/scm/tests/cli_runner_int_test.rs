@@ -20,11 +20,8 @@ fn test_run_returns_success_for_known_command_happy() {
 fn test_run_noop_does_not_error_for_unknown_command_error() {
     let runner = NoopCliRunner::create();
     let cmd = NoopCliCommand::create("nonexistent");
-    let result = block_on(runner.run(&cmd));
-    assert!(
-        result.is_ok(),
-        "Noop must not error regardless of command name"
-    );
+    let out = block_on(runner.run(&cmd)).expect("NoopCliRunner must not error for unknown command");
+    assert_eq!(out.exit_code, 0);
 }
 
 #[test]
