@@ -41,6 +41,9 @@ fn test_health_service_default_returns_some_happy() {
     // @covers: GrpcServerObserver::health_service
     let s = server();
     assert!(GrpcServerObserver::health_service(&s).is_some());
+    // Negative: after removal, must be absent
+    let s2 = s.without_health_service();
+    assert!(GrpcServerObserver::health_service(&s2).is_none());
 }
 
 #[test]

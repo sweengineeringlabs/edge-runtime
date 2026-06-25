@@ -959,16 +959,23 @@ mod tests {
         let chain = GrpcIngressInterceptorChain::new().push(Arc::new(TonicGrpcServerFakeAuthz));
         let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
             .with_interceptors(chain);
-        // Should return Ok.
-        assert!(server.enforce_authorization_invariant().is_ok());
+        let result = server.enforce_authorization_invariant();
+        assert!(result.is_ok(), "authz interceptor registered → invariant must pass");
+        // The chain contains an authorization interceptor — that's why it passed.
+        assert!(
+            server.interceptors.contains_authorization(),
+            "chain must report the registered authz interceptor"
+        );
     }
 
     #[test]
     fn test_enforce_authorization_invariant_succeeds_when_allow_unauthenticated_is_set() {
         let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
             .allow_unauthenticated(true);
-        // Should return Ok, logs WARN.
-        assert!(server.enforce_authorization_invariant().is_ok());
+        let result = server.enforce_authorization_invariant();
+        assert!(result.is_ok(), "allow_unauthenticated=true → invariant must not reject");
+        // The flag itself is what grants the pass.
+        assert!(server.allow_unauthenticated, "allow_unauthenticated flag must be set");
     }
 
     #[test]
@@ -1059,6 +1066,9 @@ mod tests {
     fn test_new_autowires_health_service_by_default() {
         let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler));
         assert!(server.health_service().is_some());
+        // Negative: removal must make it absent
+        let without = server.without_health_service();
+        assert!(without.health_service().is_none());
     }
 
     #[test]
@@ -1147,7 +1157,11 @@ mod dedicated_coverage {
     fn test_with_interceptors_assigns_chain() {
         let chain = GrpcIngressInterceptorChain::new();
         let s = server().with_interceptors(chain);
-        drop(s); // interceptors field is not Option — assignment verified by compilation
+        // Empty chain has no authorization interceptor.
+        assert!(
+            !s.interceptors.contains_authorization(),
+            "freshly set empty chain must not contain an authz interceptor"
+        );
     }
 
     #[test]
@@ -1156,6 +1170,8 @@ mod dedicated_coverage {
         let cfg = IngressTlsConfig::tls("cert.pem", "key.pem");
         let s = server().with_tls(cfg);
         assert!(s.tls.is_some());
+        // Negative: without with_tls the field must be absent
+        assert!(server().tls.is_none());
     }
 
     /// @covers: serve
@@ -1222,13 +1238,15 @@ mod sync_coverage {
 
     #[test]
     fn test_serve_is_constructible() {
-        let _ = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerStub))
+        let s = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerStub))
             .allow_unauthenticated(true);
+        assert!(s.allow_unauthenticated, "allow_unauthenticated must be set after builder call");
     }
 
     #[test]
     fn test_serve_with_listener_is_constructible() {
-        let _ = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerStub))
+        let s = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerStub))
             .allow_unauthenticated(true);
+        assert_eq!(s.bind, "127.0.0.1:0", "bind address must reflect constructor argument");
     }
 }

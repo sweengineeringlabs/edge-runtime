@@ -31,7 +31,9 @@ fn test_grpc_server_config_from_config_rejects_tls_required_without_tls() {
 fn test_grpc_server_config_from_config_accepts_plaintext_opt_in() {
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
     let cfg = GrpcServerConfig::new(bind).allow_plaintext();
-    assert!(TonicGrpcServer::from_config(&cfg, make_handler()).is_ok());
+    let server = TonicGrpcServer::from_config(&cfg, make_handler()).unwrap();
+    // Verify the resulting server has the expected state: no reflection, no TLS.
+    assert!(!server.is_reflection_enabled(), "plaintext server must not have reflection enabled");
 }
 
 #[test]

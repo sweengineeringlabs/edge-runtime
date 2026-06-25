@@ -78,8 +78,10 @@ async fn test_tonic_grpc_server_serve_with_listener_completes_on_immediate_shutd
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let s =
         TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create()).allow_unauthenticated(true);
-    assert!(s
+    let result = s
         .serve_with_listener(listener, std::future::ready(()))
-        .await
-        .is_ok());
+        .await;
+    assert!(result.is_ok(), "serve_with_listener must return Ok on immediate shutdown");
+    // The server was not mutated during serve — reflection remains off.
+    assert!(!s.is_reflection_enabled(), "reflection must still be off after serve returns");
 }

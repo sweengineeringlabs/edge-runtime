@@ -32,8 +32,13 @@ fn test_server_builds_with_tls_happy() {
 fn test_server_plaintext_peer_metadata_is_empty_error() {
     // For plaintext connections, peer_metadata is always HashMap::new().
     // This verifies the extractor falls back gracefully rather than panicking.
-    let _s =
+    let s =
         TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create()).allow_unauthenticated(true);
+    // A plaintext server must not have reflection accidentally enabled.
+    assert!(
+        !s.is_reflection_enabled(),
+        "plaintext server must not have reflection enabled by default"
+    );
 }
 
 /// Verify that mTLS config is stored via GrpcServerConfig.

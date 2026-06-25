@@ -27,5 +27,10 @@ async fn test_noop_grpc_ingress_health_check_returns_healthy() {
 
 #[test]
 fn test_noop_grpc_ingress_create_returns_arc() {
-    let _ = NoopGrpcIngress::create();
+    let arc = NoopGrpcIngress::create();
+    assert_eq!(
+        std::sync::Arc::strong_count(&arc),
+        1,
+        "fresh Arc must have exactly one strong reference"
+    );
 }

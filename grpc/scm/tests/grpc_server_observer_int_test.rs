@@ -26,7 +26,12 @@ fn test_is_reflection_enabled_returns_false_after_toggle_off() {
 
 #[test]
 fn test_health_service_returns_some_on_new_server() {
-    assert!(GrpcServerObserver::health_service(&server()).is_some());
+    let s = server();
+    let hs = GrpcServerObserver::health_service(&s);
+    assert!(hs.is_some(), "health service must be auto-wired on a new server");
+    // Removing it must make it None — proving the first assertion wasn't an accident.
+    let s2 = server().without_health_service();
+    assert!(GrpcServerObserver::health_service(&s2).is_none(), "health service must be removable");
 }
 
 #[test]

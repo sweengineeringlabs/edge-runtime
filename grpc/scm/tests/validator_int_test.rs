@@ -8,7 +8,9 @@ use swe_edge_runtime_grpc::{NoopGrpcValidator, Validator};
 fn test_validate_noop_returns_ok_happy() {
     // @covers: Validator::validate
     let v = NoopGrpcValidator;
-    assert!(v.validate().is_ok());
+    let result = v.validate();
+    assert!(result.is_ok(), "noop validator must always pass");
+    assert_ne!(result, Err("rejected".to_string()), "noop must not produce RejectValidator's message");
 }
 
 struct RejectValidator;
@@ -32,5 +34,9 @@ fn test_validate_noop_as_trait_object_edge() {
     // @covers: Validator::validate
     let v = NoopGrpcValidator;
     let dyn_v: &dyn Validator = &v;
-    assert!(dyn_v.validate().is_ok());
+    assert!(dyn_v.validate().is_ok(), "noop via trait object must always pass");
+    // The reject validator distinguishes noop from a real failure.
+    let reject = RejectValidator;
+    let dyn_reject: &dyn Validator = &reject;
+    assert_eq!(dyn_reject.validate().unwrap_err(), "rejected");
 }

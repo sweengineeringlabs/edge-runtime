@@ -90,9 +90,12 @@ fn test_swe_edge_ingress_grpc_grpc_response_with_empty_body_error() {
 fn test_swe_edge_ingress_grpc_status_code_default_is_ok_edge() {
     // @covers: swe-edge-ingress-grpc / GrpcStatusCode
     use swe_edge_ingress_grpc::GrpcStatusCode;
-    // Ok is variant 0 per gRPC spec — verify it exists and the type is usable.
-    let _code = GrpcStatusCode::Ok;
-    let _cancelled = GrpcStatusCode::Cancelled;
+    // Per gRPC spec, Ok=0 and Cancelled=1 are distinct wire values.
+    assert_ne!(
+        GrpcStatusCode::Cancelled as i32,
+        GrpcStatusCode::Ok as i32,
+        "Ok and Cancelled must have distinct wire values per gRPC spec"
+    );
 }
 
 // ── swe-edge-ingress-tls ─────────────────────────────────────────────────────
@@ -193,12 +196,23 @@ async fn test_tower_layer_wraps_service_edge() {
 
 // ── tower-http ────────────────────────────────────────────────────────────────
 
-#[test]
-fn test_tower_http_trace_layer_constructs_happy() {
+#[tokio::test]
+async fn test_tower_http_trace_layer_constructs_happy() {
     // @covers: tower-http / TraceLayer
+    use bytes::Bytes;
+    use http::{Request, Response};
+    use http_body_util::Empty;
+    use tower::{Service as _, ServiceExt as _};
     use tower_http::trace::TraceLayer;
-    // Constructing TraceLayer proves the feature is wired correctly.
-    let _layer = TraceLayer::new_for_http();
+    let layer = TraceLayer::new_for_http();
+    use tower::Layer as _;
+    let svc = tower::service_fn(|_req: Request<Empty<Bytes>>| async move {
+        Ok::<Response<Empty<Bytes>>, std::convert::Infallible>(Response::new(Empty::new()))
+    });
+    let mut layered = layer.layer(svc);
+    let req = Request::builder().body(Empty::new()).unwrap();
+    let resp = layered.ready().await.unwrap().call(req).await.unwrap();
+    assert_eq!(resp.status(), 200, "TraceLayer must pass through 200 responses");
 }
 
 #[tokio::test]
@@ -217,10 +231,22 @@ async fn test_tower_http_trace_layer_wraps_service_error() {
         .service(svc);
 }
 
-#[test]
-fn test_tower_http_trace_layer_new_for_grpc_edge() {
+#[tokio::test]
+async fn test_tower_http_trace_layer_new_for_grpc_edge() {
     // @covers: tower-http / TraceLayer
+    use bytes::Bytes;
+    use http::{Request, Response};
+    use http_body_util::Empty;
+    use tower::{Service as _, ServiceExt as _};
     use tower_http::trace::TraceLayer;
-    // gRPC classification: status 200 is success (unlike HTTP semantics).
-    let _layer = TraceLayer::new_for_grpc();
+    let layer = TraceLayer::new_for_grpc();
+    use tower::Layer as _;
+    let svc = tower::service_fn(|_req: Request<Empty<Bytes>>| async move {
+        Ok::<Response<Empty<Bytes>>, std::convert::Infallible>(Response::new(Empty::new()))
+    });
+    let mut layered = layer.layer(svc);
+    let req = Request::builder().body(Empty::new()).unwrap();
+    let resp = layered.ready().await.unwrap().call(req).await.unwrap();
+    // gRPC uses HTTP status 200 for all responses; error is in grpc-status trailer.
+    assert_eq!(resp.status(), 200, "gRPC TraceLayer must pass through 200 responses");
 }
