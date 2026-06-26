@@ -9,7 +9,10 @@ use swe_edge_runtime_grpc::{StatusCodeConverter, SANITIZED_INTERNAL_MSG};
 #[test]
 fn test_from_tonic_code_ok_maps_to_ok_happy() {
     // @covers: from_tonic_code
-    assert_eq!(StatusCodeConverter::from_tonic_code(tonic::Code::Ok), GrpcStatusCode::Ok);
+    assert_eq!(
+        StatusCodeConverter::from_tonic_code(tonic::Code::Ok),
+        GrpcStatusCode::Ok
+    );
 }
 
 #[test]
@@ -54,8 +57,14 @@ fn test_to_tonic_code_not_found_maps_correctly_happy() {
 #[test]
 fn test_to_tonic_code_ok_maps_to_ok_happy() {
     // @covers: to_tonic_code
-    assert_eq!(StatusCodeConverter::to_tonic_code(GrpcStatusCode::Ok), tonic::Code::Ok);
-    assert_ne!(StatusCodeConverter::to_tonic_code(GrpcStatusCode::Ok), tonic::Code::NotFound);
+    assert_eq!(
+        StatusCodeConverter::to_tonic_code(GrpcStatusCode::Ok),
+        tonic::Code::Ok
+    );
+    assert_ne!(
+        StatusCodeConverter::to_tonic_code(GrpcStatusCode::Ok),
+        tonic::Code::NotFound
+    );
 }
 
 #[test]
@@ -95,7 +104,10 @@ fn test_to_wire_different_codes_produce_different_values_edge() {
     // @covers: to_wire
     let ok = StatusCodeConverter::to_wire(GrpcStatusCode::Ok);
     let not_found = StatusCodeConverter::to_wire(GrpcStatusCode::NotFound);
-    assert_ne!(ok, not_found, "different status codes must produce different wire values");
+    assert_ne!(
+        ok, not_found,
+        "different status codes must produce different wire values"
+    );
 }
 
 // ── from_wire ───────────────────────────────────────────────────────────────
@@ -110,7 +122,10 @@ fn test_from_wire_zero_is_ok_happy() {
 fn test_from_wire_roundtrip_not_found_edge() {
     // @covers: from_wire
     let wire = StatusCodeConverter::to_wire(GrpcStatusCode::NotFound);
-    assert_eq!(StatusCodeConverter::from_wire(wire), GrpcStatusCode::NotFound);
+    assert_eq!(
+        StatusCodeConverter::from_wire(wire),
+        GrpcStatusCode::NotFound
+    );
 }
 
 #[test]
@@ -118,7 +133,11 @@ fn test_from_wire_nonzero_is_not_ok_error() {
     // @covers: from_wire
     // Wire value 5 is PermissionDenied in gRPC protocol — must not map to Ok
     let wire = StatusCodeConverter::to_wire(GrpcStatusCode::PermissionDenied);
-    assert_ne!(StatusCodeConverter::from_wire(wire), GrpcStatusCode::Ok, "non-zero wire must not map to Ok");
+    assert_ne!(
+        StatusCodeConverter::from_wire(wire),
+        GrpcStatusCode::Ok,
+        "non-zero wire must not map to Ok"
+    );
 }
 
 // ── map_inbound_error ───────────────────────────────────────────────────────
@@ -140,16 +159,25 @@ fn test_map_inbound_error_internal_sanitizes_message_error() {
     let (code, msg) = StatusCodeConverter::map_inbound_error(GrpcIngressError::Internal(
         "secret db password".into(),
     ));
-    assert_eq!(code, tonic::Code::Internal, "Internal error must map to tonic::Code::Internal");
-    assert_eq!(msg, SANITIZED_INTERNAL_MSG, "Internal error must sanitize the wire message");
-    assert!(!msg.contains("secret"), "sanitized message must not leak internal details");
+    assert_eq!(
+        code,
+        tonic::Code::Internal,
+        "Internal error must map to tonic::Code::Internal"
+    );
+    assert_eq!(
+        msg, SANITIZED_INTERNAL_MSG,
+        "Internal error must sanitize the wire message"
+    );
+    assert!(
+        !msg.contains("secret"),
+        "sanitized message must not leak internal details"
+    );
 }
 
 #[test]
 fn test_map_inbound_error_not_found_variant_edge() {
     // @covers: map_inbound_error
-    let (code, _msg) = StatusCodeConverter::map_inbound_error(GrpcIngressError::NotFound(
-        "item not found".into(),
-    ));
+    let (code, _msg) =
+        StatusCodeConverter::map_inbound_error(GrpcIngressError::NotFound("item not found".into()));
     assert_eq!(code, tonic::Code::NotFound);
 }

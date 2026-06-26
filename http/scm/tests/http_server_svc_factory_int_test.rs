@@ -131,8 +131,7 @@ fn test_with_stream_handler_preserves_request_timeout_happy() {
             Box::pin(async { Ok(()) })
         }
     }
-    let s = AxumHttpServer::new("127.0.0.1:0", handler())
-        .with_stream_handler(Arc::new(NoopStream));
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_stream_handler(Arc::new(NoopStream));
     assert!(
         s.request_timeout() > Duration::ZERO,
         "with_stream_handler must not zero-out request timeout"
@@ -162,8 +161,7 @@ fn test_with_stream_handler_does_not_affect_default_timeout_error() {
             Box::pin(async { Err(HttpIngressError::Internal("fail".into())) })
         }
     }
-    let s = AxumHttpServer::new("127.0.0.1:0", handler())
-        .with_stream_handler(Arc::new(FailStream));
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_stream_handler(Arc::new(FailStream));
     assert_eq!(
         s.request_timeout(),
         DEFAULT_REQUEST_TIMEOUT,
@@ -211,8 +209,7 @@ fn test_with_bearer_auth_deny_all_does_not_panic_at_construction_error() {
             Err(VerifierError::Invalid("denied".into()))
         }
     }
-    let s = AxumHttpServer::new("127.0.0.1:0", handler())
-        .with_bearer_auth(Arc::new(DenyAll));
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_bearer_auth(Arc::new(DenyAll));
     assert_eq!(
         s.request_timeout(),
         DEFAULT_REQUEST_TIMEOUT,

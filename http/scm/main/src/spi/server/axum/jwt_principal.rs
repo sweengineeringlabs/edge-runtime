@@ -56,8 +56,7 @@ impl AxumHttpServerHelper {
 
         let claims = verifier.verify(token).map_err(|e| {
             tracing::debug!(error = %e, "bearer token rejected");
-            let mut r =
-                axum::response::Response::new(axum::body::Body::from("invalid token"));
+            let mut r = axum::response::Response::new(axum::body::Body::from("invalid token"));
             *r.status_mut() = StatusCode::UNAUTHORIZED;
             r.headers_mut().insert(
                 header::CONTENT_TYPE,
@@ -102,9 +101,7 @@ mod tests {
 
     #[test]
     fn test_jwt_principal_kind_returns_jwt() {
-        let p = JwtPrincipal {
-            sub: String::new(),
-        };
+        let p = JwtPrincipal { sub: String::new() };
         assert_eq!(p.kind(), "jwt");
     }
 

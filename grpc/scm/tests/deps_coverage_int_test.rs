@@ -212,7 +212,11 @@ async fn test_tower_http_trace_layer_constructs_happy() {
     let mut layered = layer.layer(svc);
     let req = Request::builder().body(Empty::new()).unwrap();
     let resp = layered.ready().await.unwrap().call(req).await.unwrap();
-    assert_eq!(resp.status(), 200, "TraceLayer must pass through 200 responses");
+    assert_eq!(
+        resp.status(),
+        200,
+        "TraceLayer must pass through 200 responses"
+    );
 }
 
 #[tokio::test]
@@ -248,5 +252,9 @@ async fn test_tower_http_trace_layer_new_for_grpc_edge() {
     let req = Request::builder().body(Empty::new()).unwrap();
     let resp = layered.ready().await.unwrap().call(req).await.unwrap();
     // gRPC uses HTTP status 200 for all responses; error is in grpc-status trailer.
-    assert_eq!(resp.status(), 200, "gRPC TraceLayer must pass through 200 responses");
+    assert_eq!(
+        resp.status(),
+        200,
+        "gRPC TraceLayer must pass through 200 responses"
+    );
 }

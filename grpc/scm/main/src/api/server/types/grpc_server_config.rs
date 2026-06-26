@@ -57,4 +57,3 @@ pub struct GrpcServerConfig {
     #[serde(default = "GrpcServerConfig::default_keepalive_timeout_secs")]
     pub keepalive_timeout_secs: u64,
 }
-

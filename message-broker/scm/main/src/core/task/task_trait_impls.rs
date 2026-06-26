@@ -1,8 +1,5 @@
 //! Trait implementations for task api types.
 
-use crate::api::TaskId;
-use crate::api::TaskQueueFactory;
-use crate::api::TaskQueueFactoryContract;
 #[cfg(feature = "tokio-rt")]
 use crate::api::InMemoryTaskQueue;
 #[cfg(feature = "tokio-rt")]
@@ -11,8 +8,11 @@ use crate::api::QueueError;
 use crate::api::Task;
 #[cfg(feature = "tokio-rt")]
 use crate::api::TaskHandle;
+use crate::api::TaskId;
 #[cfg(feature = "tokio-rt")]
 use crate::api::TaskQueue;
+use crate::api::TaskQueueFactory;
+use crate::api::TaskQueueFactoryContract;
 #[cfg(feature = "tokio-rt")]
 use futures::future::BoxFuture;
 

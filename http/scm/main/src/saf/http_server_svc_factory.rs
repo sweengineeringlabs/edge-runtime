@@ -167,6 +167,4 @@ impl AxumHttpServerHelper {
         );
         response
     }
-
 }
-

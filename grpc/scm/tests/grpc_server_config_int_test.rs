@@ -33,7 +33,10 @@ fn test_grpc_server_config_from_config_accepts_plaintext_opt_in() {
     let cfg = GrpcServerConfig::new(bind).allow_plaintext();
     let server = TonicGrpcServer::from_config(&cfg, make_handler()).unwrap();
     // Verify the resulting server has the expected state: no reflection, no TLS.
-    assert!(!server.is_reflection_enabled(), "plaintext server must not have reflection enabled");
+    assert!(
+        !server.is_reflection_enabled(),
+        "plaintext server must not have reflection enabled"
+    );
 }
 
 #[test]

@@ -1,5 +1,9 @@
 //! Integration tests for [`TaskQueue`] trait fns (rule 222) and implementations.
-#![allow(clippy::unwrap_used, clippy::expect_used, clippy::redundant_pattern_matching)]
+#![allow(
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::redundant_pattern_matching
+)]
 //!
 //! Unconditional `_happy/_error/_edge` tests at the top satisfy rule 222.
 //! Feature-gated tests in `mod tokio_rt_tests` exercise the concrete implementation.
@@ -64,7 +68,10 @@ fn test_enqueue_empty_payload_task_edge() {
     let queue = AlwaysOkQueue;
     let task = Task::new(b"".as_ref());
     let result = futures::executor::block_on(queue.enqueue(task));
-    assert!(matches!(result, Ok(())), "enqueue with empty payload must return Ok(())");
+    assert!(
+        matches!(result, Ok(())),
+        "enqueue with empty payload must return Ok(())"
+    );
 }
 
 // ── TaskQueue::dequeue (rule 222) ────────────────────────────────────────────
@@ -127,8 +134,14 @@ fn test_health_check_is_idempotent_edge() {
     let queue = AlwaysOkQueue;
     let check1 = futures::executor::block_on(queue.health_check());
     let check2 = futures::executor::block_on(queue.health_check());
-    assert!(matches!(check1, Ok(())), "first health check must return Ok(())");
-    assert!(matches!(check2, Ok(())), "second health check must return Ok(())");
+    assert!(
+        matches!(check1, Ok(())),
+        "first health check must return Ok(())"
+    );
+    assert!(
+        matches!(check2, Ok(())),
+        "second health check must return Ok(())"
+    );
 }
 
 // ── Concrete implementation tests (tokio-rt feature) ─────────────────────────

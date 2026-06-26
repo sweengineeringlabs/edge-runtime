@@ -15,7 +15,10 @@ fn test_broker_validation_result_ok_variant_happy() {
 #[test]
 fn test_broker_validation_result_err_variant_error() {
     let result: Result<(), String> = Err("invalid configuration".into());
-    assert!(result.is_err_and(|e| e == "invalid configuration"), "Result must be Err with correct message");
+    assert!(
+        result.is_err_and(|e| e == "invalid configuration"),
+        "Result must be Err with correct message"
+    );
 }
 
 /// @covers: api/broker/broker_validation_result::BrokerValidationResult

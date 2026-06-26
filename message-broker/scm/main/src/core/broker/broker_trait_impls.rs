@@ -7,11 +7,11 @@ use crate::api::BrokerError;
 use crate::api::BrokerProvider;
 #[cfg(feature = "tokio-rt")]
 use crate::api::InMemoryMessageBroker;
-use crate::api::MessageBrokerFactory;
 #[cfg(feature = "tokio-rt")]
 use crate::api::Message;
 #[cfg(feature = "tokio-rt")]
 use crate::api::MessageBroker;
+use crate::api::MessageBrokerFactory;
 #[cfg(feature = "tokio-rt")]
 use crate::api::MessageStream;
 

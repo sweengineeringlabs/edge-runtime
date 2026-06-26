@@ -551,7 +551,10 @@ mod tests {
     fn test_map_method_unknown_falls_back_to_get() {
         use swe_edge_ingress_http::HttpMethod;
         let m = AxumHttpServerHelper::map_method(&axum::http::Method::CONNECT);
-        assert!(matches!(m, HttpMethod::Get), "unknown method must fall back to Get");
+        assert!(
+            matches!(m, HttpMethod::Get),
+            "unknown method must fall back to Get"
+        );
     }
 
     #[test]
@@ -613,7 +616,8 @@ mod tests {
     #[test]
     fn test_error_response_not_found_returns_404() {
         use swe_edge_ingress_http::HttpIngressError;
-        let resp = AxumHttpServerHelper::error_response(HttpIngressError::NotFound("missing".into()));
+        let resp =
+            AxumHttpServerHelper::error_response(HttpIngressError::NotFound("missing".into()));
         assert_eq!(resp.status(), axum::http::StatusCode::NOT_FOUND);
     }
 

@@ -9,5 +9,9 @@ fn test_noop_grpc_validator_validate_always_returns_ok() {
     let v = NoopGrpcValidator;
     let result = v.validate();
     assert!(result.is_ok(), "noop validator must always return Ok");
-    assert_ne!(result, Err("unexpected error".to_string()), "noop must not produce an error");
+    assert_ne!(
+        result,
+        Err("unexpected error".to_string()),
+        "noop must not produce an error"
+    );
 }

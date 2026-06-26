@@ -28,7 +28,10 @@ fn test_new_sets_bind_field_happy() {
 fn test_new_default_reflection_off_error() {
     // @covers: new
     let s = builder().build();
-    assert!(!s.is_reflection_enabled(), "new builder must have reflection disabled");
+    assert!(
+        !s.is_reflection_enabled(),
+        "new builder must have reflection disabled"
+    );
 }
 
 // ── with_max_message_size ───────────────────────────────────────────────────
@@ -44,7 +47,11 @@ fn test_with_max_message_size_stores_value_happy() {
 fn test_with_max_message_size_default_is_none_error() {
     // @covers: with_max_message_size
     let s = builder().build();
-    assert_ne!(s.max_message_size(), 0, "default built server must have nonzero max message size");
+    assert_ne!(
+        s.max_message_size(),
+        0,
+        "default built server must have nonzero max message size"
+    );
 }
 
 #[test]
@@ -68,7 +75,11 @@ fn test_with_max_concurrent_streams_stores_value_happy() {
 fn test_with_max_concurrent_streams_default_is_none_error() {
     // @covers: with_max_concurrent_streams
     let s = builder().build();
-    assert_ne!(s.max_concurrent_streams(), 0, "default built server must have nonzero stream limit");
+    assert_ne!(
+        s.max_concurrent_streams(),
+        0,
+        "default built server must have nonzero stream limit"
+    );
 }
 
 #[test]
@@ -86,15 +97,24 @@ fn test_with_tls_stores_config_happy() {
     // @covers: with_tls
     let tls = IngressTlsConfig::tls("c.pem", "k.pem");
     let s = builder().with_tls(tls).build();
-    assert!(s.tls_config().is_some(), "with_tls must store the TLS config");
-    assert!(!s.is_unauthenticated_allowed(), "with_tls must not change allow_unauthenticated");
+    assert!(
+        s.tls_config().is_some(),
+        "with_tls must store the TLS config"
+    );
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "with_tls must not change allow_unauthenticated"
+    );
 }
 
 #[test]
 fn test_with_tls_default_is_none_error() {
     // @covers: with_tls
     let s = builder().build();
-    assert!(s.tls_config().is_none(), "new builder must produce server with no TLS");
+    assert!(
+        s.tls_config().is_none(),
+        "new builder must produce server with no TLS"
+    );
 }
 
 #[test]
@@ -103,8 +123,14 @@ fn test_with_tls_overwrites_previous_edge() {
     let tls1 = IngressTlsConfig::tls("a.pem", "b.pem");
     let tls2 = IngressTlsConfig::tls("c.pem", "d.pem");
     let s = builder().with_tls(tls1).with_tls(tls2).build();
-    assert!(s.tls_config().is_some(), "second with_tls must overwrite the first");
-    assert!(!s.is_unauthenticated_allowed(), "with_tls overwrite must not change allow_unauthenticated");
+    assert!(
+        s.tls_config().is_some(),
+        "second with_tls must overwrite the first"
+    );
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "with_tls overwrite must not change allow_unauthenticated"
+    );
 }
 
 // ── with_interceptors ───────────────────────────────────────────────────────
@@ -112,16 +138,27 @@ fn test_with_tls_overwrites_previous_edge() {
 #[test]
 fn test_with_interceptors_stores_chain_happy() {
     // @covers: with_interceptors
-    let s = builder().with_interceptors(GrpcIngressInterceptorChain::new()).build();
-    assert!(!s.interceptor_chain().contains_authorization(), "empty chain must not have authz");
-    assert!(!s.is_unauthenticated_allowed(), "with_interceptors must not change allow_unauthenticated");
+    let s = builder()
+        .with_interceptors(GrpcIngressInterceptorChain::new())
+        .build();
+    assert!(
+        !s.interceptor_chain().contains_authorization(),
+        "empty chain must not have authz"
+    );
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "with_interceptors must not change allow_unauthenticated"
+    );
 }
 
 #[test]
 fn test_with_interceptors_default_is_none_error() {
     // @covers: with_interceptors
     let s = builder().build();
-    assert!(!s.interceptor_chain().contains_authorization(), "default server must have no authz interceptor");
+    assert!(
+        !s.interceptor_chain().contains_authorization(),
+        "default server must have no authz interceptor"
+    );
 }
 
 #[test]
@@ -131,8 +168,14 @@ fn test_with_interceptors_overwrites_previous_edge() {
         .with_interceptors(GrpcIngressInterceptorChain::new())
         .with_interceptors(GrpcIngressInterceptorChain::new())
         .build();
-    assert!(!s.interceptor_chain().contains_authorization(), "second with_interceptors must still produce valid chain");
-    assert!(!s.is_unauthenticated_allowed(), "overwrite must not change allow_unauthenticated");
+    assert!(
+        !s.interceptor_chain().contains_authorization(),
+        "second with_interceptors must still produce valid chain"
+    );
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "overwrite must not change allow_unauthenticated"
+    );
 }
 
 // ── with_compression ────────────────────────────────────────────────────────
@@ -148,7 +191,10 @@ fn test_with_compression_stores_mode_happy() {
 fn test_with_compression_default_is_none_error() {
     // @covers: with_compression
     let s = builder().build();
-    assert!(matches!(s.compression_mode(), CompressionMode::None), "default built server must have no compression");
+    assert!(
+        matches!(s.compression_mode(), CompressionMode::None),
+        "default built server must have no compression"
+    );
 }
 
 #[test]
@@ -158,7 +204,10 @@ fn test_with_compression_override_gzip_to_none_edge() {
         .with_compression(CompressionMode::Gzip)
         .with_compression(CompressionMode::None)
         .build();
-    assert!(matches!(s.compression_mode(), CompressionMode::None), "compression must be overridable to None");
+    assert!(
+        matches!(s.compression_mode(), CompressionMode::None),
+        "compression must be overridable to None"
+    );
 }
 
 // ── allow_unauthenticated ───────────────────────────────────────────────────
@@ -167,14 +216,20 @@ fn test_with_compression_override_gzip_to_none_edge() {
 fn test_allow_unauthenticated_sets_flag_happy() {
     // @covers: allow_unauthenticated
     let s = builder().allow_unauthenticated().build();
-    assert!(s.is_unauthenticated_allowed(), "allow_unauthenticated must set the flag");
+    assert!(
+        s.is_unauthenticated_allowed(),
+        "allow_unauthenticated must set the flag"
+    );
 }
 
 #[test]
 fn test_allow_unauthenticated_default_is_false_error() {
     // @covers: allow_unauthenticated
     let s = builder().build();
-    assert!(!s.is_unauthenticated_allowed(), "default builder must not allow unauthenticated");
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "default builder must not allow unauthenticated"
+    );
 }
 
 #[test]
@@ -182,7 +237,10 @@ fn test_allow_unauthenticated_combined_with_tls_edge() {
     // @covers: allow_unauthenticated
     let tls = IngressTlsConfig::tls("c.pem", "k.pem");
     let s = builder().with_tls(tls).allow_unauthenticated().build();
-    assert!(s.is_unauthenticated_allowed(), "allow_unauthenticated must work alongside TLS");
+    assert!(
+        s.is_unauthenticated_allowed(),
+        "allow_unauthenticated must work alongside TLS"
+    );
     assert!(s.tls_config().is_some(), "TLS must survive chaining");
 }
 
@@ -191,21 +249,34 @@ fn test_allow_unauthenticated_combined_with_tls_edge() {
 #[test]
 fn test_with_audit_sink_stores_sink_happy() {
     // @covers: with_audit_sink
-    use swe_edge_ingress_grpc::{AuditEvent, AuditSink, GrpcStatusCode};
     use std::sync::Mutex;
+    use swe_edge_ingress_grpc::{AuditEvent, AuditSink, GrpcStatusCode};
     struct Counter(Arc<Mutex<usize>>);
     impl AuditSink for Counter {
-        fn record(&self, _: AuditEvent) { *self.0.lock().unwrap() += 1; }
+        fn record(&self, _: AuditEvent) {
+            *self.0.lock().unwrap() += 1;
+        }
     }
     let count = Arc::new(Mutex::new(0usize));
-    let s = builder().with_audit_sink(Arc::new(Counter(count.clone()))).build();
+    let s = builder()
+        .with_audit_sink(Arc::new(Counter(count.clone())))
+        .build();
     s.audit_sink_ref().record(AuditEvent {
         timestamp: std::time::SystemTime::UNIX_EPOCH,
-        method: "/test".into(), identity: None,
-        status: GrpcStatusCode::Ok, duration_ms: 0,
+        method: "/test".into(),
+        identity: None,
+        status: GrpcStatusCode::Ok,
+        duration_ms: 0,
     });
-    assert_eq!(*count.lock().unwrap(), 1, "with_audit_sink must store the sink for use by built server");
-    assert!(!s.is_unauthenticated_allowed(), "with_audit_sink must not change allow_unauthenticated");
+    assert_eq!(
+        *count.lock().unwrap(),
+        1,
+        "with_audit_sink must store the sink for use by built server"
+    );
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "with_audit_sink must not change allow_unauthenticated"
+    );
 }
 
 #[test]
@@ -216,20 +287,27 @@ fn test_with_audit_sink_default_is_none_error() {
     let s = builder().build();
     s.audit_sink_ref().record(AuditEvent {
         timestamp: std::time::SystemTime::UNIX_EPOCH,
-        method: "/test".into(), identity: None,
-        status: GrpcStatusCode::Ok, duration_ms: 0,
+        method: "/test".into(),
+        identity: None,
+        status: GrpcStatusCode::Ok,
+        duration_ms: 0,
     });
-    assert!(!s.is_unauthenticated_allowed(), "default builder must not allow unauthenticated");
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "default builder must not allow unauthenticated"
+    );
 }
 
 #[test]
 fn test_with_audit_sink_overwrites_previous_edge() {
     // @covers: with_audit_sink
-    use swe_edge_ingress_grpc::{AuditEvent, AuditSink, GrpcStatusCode};
     use std::sync::Mutex;
+    use swe_edge_ingress_grpc::{AuditEvent, AuditSink, GrpcStatusCode};
     struct Counter(Arc<Mutex<usize>>);
     impl AuditSink for Counter {
-        fn record(&self, _: AuditEvent) { *self.0.lock().unwrap() += 1; }
+        fn record(&self, _: AuditEvent) {
+            *self.0.lock().unwrap() += 1;
+        }
     }
     let count = Arc::new(Mutex::new(0usize));
     let s = builder()
@@ -238,11 +316,20 @@ fn test_with_audit_sink_overwrites_previous_edge() {
         .build();
     s.audit_sink_ref().record(AuditEvent {
         timestamp: std::time::SystemTime::UNIX_EPOCH,
-        method: "/test".into(), identity: None,
-        status: GrpcStatusCode::Ok, duration_ms: 0,
+        method: "/test".into(),
+        identity: None,
+        status: GrpcStatusCode::Ok,
+        duration_ms: 0,
     });
-    assert_eq!(*count.lock().unwrap(), 1, "second with_audit_sink must overwrite the first");
-    assert!(!s.is_unauthenticated_allowed(), "overwrite must not change allow_unauthenticated");
+    assert_eq!(
+        *count.lock().unwrap(),
+        1,
+        "second with_audit_sink must overwrite the first"
+    );
+    assert!(
+        !s.is_unauthenticated_allowed(),
+        "overwrite must not change allow_unauthenticated"
+    );
 }
 
 // ── enable_reflection ───────────────────────────────────────────────────────
@@ -251,14 +338,20 @@ fn test_with_audit_sink_overwrites_previous_edge() {
 fn test_enable_reflection_sets_flag_happy() {
     // @covers: enable_reflection
     let s = builder().enable_reflection().build();
-    assert!(s.is_reflection_enabled(), "enable_reflection must set the flag");
+    assert!(
+        s.is_reflection_enabled(),
+        "enable_reflection must set the flag"
+    );
 }
 
 #[test]
 fn test_enable_reflection_default_is_false_error() {
     // @covers: enable_reflection
     let s = builder().build();
-    assert!(!s.is_reflection_enabled(), "new builder must not have reflection enabled");
+    assert!(
+        !s.is_reflection_enabled(),
+        "new builder must not have reflection enabled"
+    );
 }
 
 #[test]
@@ -266,7 +359,10 @@ fn test_enable_reflection_combined_with_tls_edge() {
     // @covers: enable_reflection
     let tls = IngressTlsConfig::tls("c.pem", "k.pem");
     let s = builder().with_tls(tls).enable_reflection().build();
-    assert!(s.is_reflection_enabled(), "enable_reflection must work alongside TLS");
+    assert!(
+        s.is_reflection_enabled(),
+        "enable_reflection must work alongside TLS"
+    );
     assert!(s.tls_config().is_some(), "TLS must survive chaining");
 }
 
@@ -275,21 +371,37 @@ fn test_enable_reflection_combined_with_tls_edge() {
 #[test]
 fn test_build_propagates_reflection_flag_happy() {
     // @covers: build
-    let s = builder().allow_unauthenticated().enable_reflection().build();
-    assert!(s.is_reflection_enabled(), "build must propagate reflection flag to server");
+    let s = builder()
+        .allow_unauthenticated()
+        .enable_reflection()
+        .build();
+    assert!(
+        s.is_reflection_enabled(),
+        "build must propagate reflection flag to server"
+    );
 }
 
 #[test]
 fn test_build_default_no_reflection_error() {
     // @covers: build
     let s = builder().allow_unauthenticated().build();
-    assert!(!s.is_reflection_enabled(), "build without enable_reflection must have reflection off");
+    assert!(
+        !s.is_reflection_enabled(),
+        "build without enable_reflection must have reflection off"
+    );
 }
 
 #[test]
 fn test_build_with_max_message_size_propagated_edge() {
     // @covers: build
-    let s = builder().allow_unauthenticated().with_max_message_size(1).build();
-    assert_eq!(s.max_message_size(), 1, "build must propagate minimum message size");
+    let s = builder()
+        .allow_unauthenticated()
+        .with_max_message_size(1)
+        .build();
+    assert_eq!(
+        s.max_message_size(),
+        1,
+        "build must propagate minimum message size"
+    );
     assert_ne!(s.max_message_size(), 0);
 }

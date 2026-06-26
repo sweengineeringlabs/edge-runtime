@@ -12,7 +12,10 @@ fn test_default_factory_returns_usable_instance_happy() {
     let factory = MessageBrokerFactory::default_factory();
     let _ = factory;
     let default_backend = swe_edge_runtime_message_broker::BrokerBackendConfig::default().backend;
-    assert_eq!(default_backend, "inmemory", "default factory is backed by in-memory broker");
+    assert_eq!(
+        default_backend, "inmemory",
+        "default factory is backed by in-memory broker"
+    );
 }
 
 /// @covers: BrokerProvider::default_factory
@@ -38,7 +41,11 @@ fn test_default_factory_produces_value_that_holds_config_error() {
         group_id: None,
     };
     let _ = (&factory, &config);
-    assert_eq!(config.backend, BackendKind::InMemory, "InMemory backend config typed correctly");
+    assert_eq!(
+        config.backend,
+        BackendKind::InMemory,
+        "InMemory backend config typed correctly"
+    );
 }
 
 // ── BrokerProvider::build_in_memory ──────────────────────────────────────────
@@ -49,7 +56,10 @@ fn test_default_factory_produces_value_that_holds_config_error() {
 fn test_build_in_memory_returns_broker_happy() {
     let factory = MessageBrokerFactory::default_factory();
     let broker = factory.build_in_memory();
-    assert!(std::mem::size_of_val(&broker) > 0, "build_in_memory must return a non-ZST MessageBroker");
+    assert!(
+        std::mem::size_of_val(&broker) > 0,
+        "build_in_memory must return a non-ZST MessageBroker"
+    );
 }
 
 /// @covers: BrokerProvider::build_in_memory
@@ -68,7 +78,10 @@ async fn test_build_in_memory_health_check_passes_edge() {
 fn test_build_in_memory_is_send_and_sync_error() {
     fn _assert_send_sync<T: Send + Sync>() {} // @allow: no_mocks_in_integration
     _assert_send_sync::<swe_edge_runtime_message_broker::InMemoryMessageBroker>(); // @allow: no_mocks_in_integration
-    assert!(std::mem::size_of::<swe_edge_runtime_message_broker::InMemoryMessageBroker>() > 0, "InMemoryMessageBroker is a non-ZST type that compiles as Send + Sync");
+    assert!(
+        std::mem::size_of::<swe_edge_runtime_message_broker::InMemoryMessageBroker>() > 0,
+        "InMemoryMessageBroker is a non-ZST type that compiles as Send + Sync"
+    );
 }
 
 // ── BrokerProvider::build_from_config ────────────────────────────────────────

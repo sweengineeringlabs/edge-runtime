@@ -84,9 +84,15 @@ fn test_from_config_inmemory_returns_result_happy() {
         .expect("tokio rt");
     let result = rt.block_on(MessageBrokerFactory::from_config(&config));
     #[cfg(feature = "tokio-rt")]
-    assert!(result.is_ok(), "in-memory backend must be available with tokio-rt feature");
+    assert!(
+        result.is_ok(),
+        "in-memory backend must be available with tokio-rt feature"
+    );
     #[cfg(not(feature = "tokio-rt"))]
-    assert!(result.is_err(), "in-memory backend requires tokio-rt feature");
+    assert!(
+        result.is_err(),
+        "in-memory backend requires tokio-rt feature"
+    );
 }
 
 /// @covers: MessageBrokerFactory::from_config
@@ -129,8 +135,10 @@ fn test_kafka_with_valid_config_happy() {
     #[cfg(feature = "kafka")]
     {
         let result = MessageBrokerFactory::kafka("localhost:9092", "test-group");
-        assert!(result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
-                "kafka must return result, not Unavailable");
+        assert!(
+            result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
+            "kafka must return result, not Unavailable"
+        );
     }
     #[cfg(not(feature = "kafka"))]
     {
@@ -193,8 +201,10 @@ fn test_nats_with_valid_config_happy() {
     #[cfg(feature = "nats")]
     {
         let result = rt.block_on(MessageBrokerFactory::nats("nats://localhost:4222"));
-        assert!(result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
-                "nats must return result, not Unavailable");
+        assert!(
+            result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
+            "nats must return result, not Unavailable"
+        );
     }
     #[cfg(not(feature = "nats"))]
     {
@@ -314,7 +324,10 @@ fn test_task_queue_in_memory_is_constructible_happy() {
         .build()
         .expect("tokio rt");
     let health = rt.block_on(queue.health_check());
-    assert!(health.is_ok(), "in-memory task queue must be healthy when constructed");
+    assert!(
+        health.is_ok(),
+        "in-memory task queue must be healthy when constructed"
+    );
 }
 
 /// @covers: TaskQueueFactory::in_memory
@@ -328,7 +341,11 @@ fn test_task_queue_in_memory_health_check_passes_edge() {
         .build()
         .expect("tokio rt");
     let health = rt.block_on(queue.health_check());
-    assert_eq!(health, Ok(()), "in-memory task queue must always be healthy");
+    assert_eq!(
+        health,
+        Ok(()),
+        "in-memory task queue must always be healthy"
+    );
 }
 
 /// @covers: TaskQueueFactory::in_memory
@@ -349,8 +366,10 @@ fn test_task_queue_in_memory_is_send_and_sync_error() {
 fn test_task_queue_kafka_with_valid_config_happy() {
     use swe_edge_runtime_message_broker::TaskQueueFactory;
     let result = TaskQueueFactory::kafka("localhost:9092", "test-group", "test-topic");
-    assert!(result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
-            "kafka must return result, not Unavailable");
+    assert!(
+        result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
+        "kafka must return result, not Unavailable"
+    );
 }
 
 /// @covers: TaskQueueFactory::kafka
@@ -371,7 +390,10 @@ fn test_task_queue_kafka_missing_topic_error() {
             group_id: None,
         };
         let result = rt.block_on(MessageBrokerFactory::from_config(&config));
-        assert!(result.is_err(), "kafka without group_id or feature must fail");
+        assert!(
+            result.is_err(),
+            "kafka without group_id or feature must fail"
+        );
     }
 }
 
@@ -395,9 +417,15 @@ fn test_task_queue_nats_with_valid_config_happy() {
         .enable_all()
         .build()
         .expect("tokio rt");
-    let result = rt.block_on(TaskQueueFactory::nats("nats://localhost:4222", "test-stream".into(), "test-group".into()));
-    assert!(result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
-            "nats must return result, not Unavailable");
+    let result = rt.block_on(TaskQueueFactory::nats(
+        "nats://localhost:4222",
+        "test-stream".into(),
+        "test-group".into(),
+    ));
+    assert!(
+        result.is_ok() || matches!(result, Err(e) if e.to_string().contains("Connection")),
+        "nats must return result, not Unavailable"
+    );
 }
 
 /// @covers: TaskQueueFactory::nats
@@ -430,6 +458,10 @@ fn test_task_queue_nats_invalid_config_connection_error_edge() {
         .enable_all()
         .build()
         .expect("tokio rt");
-    let result = rt.block_on(TaskQueueFactory::nats("nats://invalid-host:4222", "test-stream".into(), "test-group".into()));
+    let result = rt.block_on(TaskQueueFactory::nats(
+        "nats://invalid-host:4222",
+        "test-stream".into(),
+        "test-group".into(),
+    ));
     assert!(result.is_err(), "nats with invalid server must fail");
 }

@@ -207,7 +207,10 @@ mod tests {
         fn _assert_fn_exists() {
             let _ = NatsTaskQueue::new as fn(_, _, _) -> _;
         }
-        assert!(true, "NatsTaskQueue::new has correct async constructor signature");
+        assert!(
+            true,
+            "NatsTaskQueue::new has correct async constructor signature"
+        );
     }
 
     #[test]

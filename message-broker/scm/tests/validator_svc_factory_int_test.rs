@@ -32,7 +32,10 @@ fn test_validate_invalid_impl_error() {
     let result = AlwaysErr.validate();
     assert!(result.is_err(), "invalid impl must return Err");
     let err = result.unwrap_err();
-    assert_eq!(err, "configuration is invalid: missing required field", "error message must match");
+    assert_eq!(
+        err, "configuration is invalid: missing required field",
+        "error message must match"
+    );
 }
 
 /// @covers: Validator::validate

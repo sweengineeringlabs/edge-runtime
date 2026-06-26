@@ -12,7 +12,10 @@ use swe_edge_runtime_message_broker::{
 fn test_task_queue_factory_is_constructible_happy() {
     let factory = TaskQueueFactory::default_factory();
     let id = factory.new_task_id();
-    assert!(!id.to_string().is_empty(), "factory must produce valid non-empty task IDs");
+    assert!(
+        !id.to_string().is_empty(),
+        "factory must produce valid non-empty task IDs"
+    );
 }
 
 /// @covers: TaskQueueFactory
@@ -31,7 +34,10 @@ fn test_task_queue_factory_missing_feature_does_not_panic_error() {
     let factory = TaskQueueFactory::default_factory();
     let id1 = factory.new_task_id();
     let id2 = factory.new_task_id();
-    assert_ne!(id1, id2, "factory produces distinct task IDs even without optional features");
+    assert_ne!(
+        id1, id2,
+        "factory produces distinct task IDs even without optional features"
+    );
 }
 
 // ── Task (value type) ────────────────────────────────────────────────────────
@@ -67,7 +73,10 @@ fn test_task_with_headers_stores_headers_error() {
 fn test_task_id_from_task_is_set_happy() {
     let task = Task::new(b"x".as_ref());
     let id: TaskId = task.id;
-    assert!(!id.to_string().is_empty(), "task ID extracted from Task must have a non-empty display");
+    assert!(
+        !id.to_string().is_empty(),
+        "task ID extracted from Task must have a non-empty display"
+    );
 }
 
 /// @covers: TaskId

@@ -33,7 +33,10 @@ fn test_application_config_returns_reference_happy() {
     let provider = TestConfigProvider::new();
     let cfg = provider.application_config();
     // Config reference must be valid and dereferenceable.
-    assert!(!cfg.message_broker.backend.is_empty(), "config must have a valid backend");
+    assert!(
+        !cfg.message_broker.backend.is_empty(),
+        "config must have a valid backend"
+    );
 }
 
 /// @covers: ConfigProvider::application_config
@@ -66,7 +69,10 @@ fn test_broker_backend_config_returns_reference_happy() {
     let provider = TestConfigProvider::new();
     let cfg = provider.broker_backend_config();
     // Backend config reference must be valid and contain a backend name.
-    assert!(!cfg.backend.is_empty(), "broker_backend_config must return a reference with a backend");
+    assert!(
+        !cfg.backend.is_empty(),
+        "broker_backend_config must return a reference with a backend"
+    );
 }
 
 /// @covers: ConfigProvider::broker_backend_config

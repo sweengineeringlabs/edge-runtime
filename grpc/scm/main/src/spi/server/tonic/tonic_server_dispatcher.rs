@@ -960,7 +960,10 @@ mod tests {
         let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
             .with_interceptors(chain);
         let result = server.enforce_authorization_invariant();
-        assert!(result.is_ok(), "authz interceptor registered → invariant must pass");
+        assert!(
+            result.is_ok(),
+            "authz interceptor registered → invariant must pass"
+        );
         // The chain contains an authorization interceptor — that's why it passed.
         assert!(
             server.interceptors.contains_authorization(),
@@ -973,9 +976,15 @@ mod tests {
         let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
             .allow_unauthenticated(true);
         let result = server.enforce_authorization_invariant();
-        assert!(result.is_ok(), "allow_unauthenticated=true → invariant must not reject");
+        assert!(
+            result.is_ok(),
+            "allow_unauthenticated=true → invariant must not reject"
+        );
         // The flag itself is what grants the pass.
-        assert!(server.allow_unauthenticated, "allow_unauthenticated flag must be set");
+        assert!(
+            server.allow_unauthenticated,
+            "allow_unauthenticated flag must be set"
+        );
     }
 
     #[test]
@@ -1240,13 +1249,19 @@ mod sync_coverage {
     fn test_serve_is_constructible() {
         let s = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerStub))
             .allow_unauthenticated(true);
-        assert!(s.allow_unauthenticated, "allow_unauthenticated must be set after builder call");
+        assert!(
+            s.allow_unauthenticated,
+            "allow_unauthenticated must be set after builder call"
+        );
     }
 
     #[test]
     fn test_serve_with_listener_is_constructible() {
         let s = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerStub))
             .allow_unauthenticated(true);
-        assert_eq!(s.bind, "127.0.0.1:0", "bind address must reflect constructor argument");
+        assert_eq!(
+            s.bind, "127.0.0.1:0",
+            "bind address must reflect constructor argument"
+        );
     }
 }

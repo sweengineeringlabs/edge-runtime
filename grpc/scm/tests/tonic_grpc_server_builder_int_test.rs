@@ -90,12 +90,18 @@ fn test_builder_with_tls_sets_tls_config_edge() {
     use std::net::SocketAddr;
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
     let cfg = GrpcServerConfig::new(bind).with_tls(tls);
-    assert!(cfg.tls.is_some(), "TLS config must be stored in GrpcServerConfig");
+    assert!(
+        cfg.tls.is_some(),
+        "TLS config must be stored in GrpcServerConfig"
+    );
     // With tls_required=true AND a TLS config present, from_config must succeed.
     let s = swe_edge_runtime_grpc::TonicGrpcServer::from_config(&cfg, NoopGrpcIngress::create())
         .unwrap();
     // Verify the resulting server is not reflection-enabled by default.
-    assert!(!s.is_reflection_enabled(), "TLS server must not have reflection enabled by default");
+    assert!(
+        !s.is_reflection_enabled(),
+        "TLS server must not have reflection enabled by default"
+    );
 }
 
 #[test]
@@ -104,7 +110,10 @@ fn test_builder_without_interceptors_produces_empty_chain_edge() {
         .allow_unauthenticated()
         .build();
     // Health service should still be auto-wired even without explicit interceptors.
-    assert!(GrpcServerObserver::health_service(&s).is_some(), "health service must be auto-wired");
+    assert!(
+        GrpcServerObserver::health_service(&s).is_some(),
+        "health service must be auto-wired"
+    );
     // Removing it proves the is_some() above wasn't a false positive.
     let s2 = TonicGrpcServerBuilder::new("127.0.0.1:0", NoopGrpcIngress::create())
         .allow_unauthenticated()

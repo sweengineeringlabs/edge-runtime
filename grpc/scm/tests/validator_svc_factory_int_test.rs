@@ -13,7 +13,11 @@ fn test_validate_noop_validator_returns_ok_happy() {
     let v = NoopGrpcValidator;
     let result = ValidatorSvc::validate(&v);
     assert!(result.is_ok(), "noop validator must always pass");
-    assert_ne!(result, Err("validation failed".to_string()), "noop must not produce an error");
+    assert_ne!(
+        result,
+        Err("validation failed".to_string()),
+        "noop must not produce an error"
+    );
 }
 
 struct AlwaysFailValidator;
@@ -59,7 +63,11 @@ fn test_create_noop_returns_validator_happy() {
     let v = ValidatorSvc::create_noop();
     let result = v.validate();
     assert!(result.is_ok(), "noop must always pass");
-    assert_ne!(result, Err("failed".to_string()), "noop must not produce errors");
+    assert_ne!(
+        result,
+        Err("failed".to_string()),
+        "noop must not produce errors"
+    );
 }
 
 #[test]
@@ -70,7 +78,11 @@ fn test_create_noop_always_returns_ok_error() {
         let v = ValidatorSvc::create_noop();
         let result = v.validate();
         assert!(result.is_ok(), "noop must always pass");
-        assert_ne!(result, Err("validation failed".to_string()), "noop must not produce error");
+        assert_ne!(
+            result,
+            Err("validation failed".to_string()),
+            "noop must not produce error"
+        );
     }
 }
 
@@ -92,7 +104,11 @@ fn test_new_noop_returns_noop_validator_happy() {
     // @covers: Validator::new_noop
     let v = NoopGrpcValidator::new_noop();
     assert!(v.validate().is_ok(), "new_noop must always pass");
-    assert_ne!(v.validate(), Err("anything".to_string()), "noop must not error");
+    assert_ne!(
+        v.validate(),
+        Err("anything".to_string()),
+        "noop must not error"
+    );
 }
 
 #[test]
@@ -109,7 +125,10 @@ fn test_new_noop_type_is_noop_grpc_validator_edge() {
     // verify the type is usable as a Validator trait object.
     let v = NoopGrpcValidator::new_noop();
     let dyn_v: &dyn Validator = &v;
-    assert!(dyn_v.validate().is_ok(), "noop trait object must always pass");
+    assert!(
+        dyn_v.validate().is_ok(),
+        "noop trait object must always pass"
+    );
     assert_ne!(dyn_v.validate(), Err("error".to_string()));
 }
 
@@ -160,7 +179,10 @@ fn test_new_svc_returns_validator_svc_edge() {
 fn test_validate_noop_via_trait_happy() {
     // @covers: Validator::validate
     let v = NoopGrpcValidator;
-    assert!(Validator::validate(&v).is_ok(), "noop must pass via trait dispatch");
+    assert!(
+        Validator::validate(&v).is_ok(),
+        "noop must pass via trait dispatch"
+    );
     assert_ne!(Validator::validate(&v), Err("error".to_string()));
 }
 

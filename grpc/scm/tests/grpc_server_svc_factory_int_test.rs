@@ -59,7 +59,10 @@ fn test_new_tonic_server_with_empty_bind_returns_error_error() {
     let server = TonicGrpcServer::new_tonic_server(String::new(), NoopGrpcIngress::create())
         .allow_unauthenticated(true);
     // Construction succeeds; reflection is off by default.
-    assert!(!server.is_reflection_enabled(), "empty-bind server must not have reflection enabled");
+    assert!(
+        !server.is_reflection_enabled(),
+        "empty-bind server must not have reflection enabled"
+    );
 }
 
 #[test]
@@ -80,7 +83,10 @@ fn test_from_config_valid_plaintext_config_happy() {
     let cfg = GrpcServerConfig::new(bind).allow_plaintext();
     let server = TonicGrpcServer::from_config(&cfg, NoopGrpcIngress::create()).unwrap();
     // plaintext server must not accidentally have reflection on.
-    assert!(!server.is_reflection_enabled(), "plaintext server must not have reflection by default");
+    assert!(
+        !server.is_reflection_enabled(),
+        "plaintext server must not have reflection by default"
+    );
 }
 
 #[test]
@@ -178,7 +184,11 @@ fn test_new_server_svc_returns_instance_happy() {
     let cfg = swe_edge_runtime_grpc::GrpcServerSvc::create_config_builder(addr)
         .allow_plaintext()
         .build();
-    assert_eq!(cfg.bind.port(), 9090, "config builder from new_server_svc must use the provided port");
+    assert_eq!(
+        cfg.bind.port(),
+        9090,
+        "config builder from new_server_svc must use the provided port"
+    );
 }
 
 #[test]
@@ -234,10 +244,16 @@ async fn test_serve_immediate_shutdown_exits_cleanly_happy() {
     )
     .await;
     // Verify the timeout did NOT fire (i.e. serve returned before 5s).
-    assert!(serve_result.is_ok(), "serve timed out — immediate shutdown must complete in <5s");
+    assert!(
+        serve_result.is_ok(),
+        "serve timed out — immediate shutdown must complete in <5s"
+    );
     // Verify serve itself returned Ok (not an error from the serve call).
     let inner = serve_result.unwrap();
-    assert!(inner.is_ok(), "serve with immediate shutdown must not return an error");
+    assert!(
+        inner.is_ok(),
+        "serve with immediate shutdown must not return an error"
+    );
     // The only non-trivial postcondition: reflection flag is still off (no mutation happened).
     assert!(!server.is_reflection_enabled());
 }
@@ -266,7 +282,10 @@ fn test_new_server_svc_is_not_error_error() {
     // A server built from the svc has fail-closed TLS by default.
     let addr: SocketAddr = "127.0.0.1:50099".parse().unwrap();
     let cfg = swe_edge_runtime_grpc::GrpcServerSvc::create_config_builder(addr).build();
-    assert!(cfg.tls_required, "default config must be fail-closed (tls_required=true)");
+    assert!(
+        cfg.tls_required,
+        "default config must be fail-closed (tls_required=true)"
+    );
 }
 
 #[test]
@@ -274,8 +293,8 @@ fn test_new_observer_svc_is_not_error_error() {
     // @covers: GrpcServer::new_observer_svc
     let _svc = TonicGrpcServer::new_observer_svc();
     // Reflection-on and reflection-off servers are distinguishable via the observer.
-    let server_on = TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create())
-        .enable_reflection(true);
+    let server_on =
+        TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create()).enable_reflection(true);
     assert!(
         swe_edge_runtime_grpc::GrpcServerObserverSvc::is_reflection_enabled(&server_on),
         "observer must see reflection=true on a reflection-enabled server"
@@ -305,9 +324,17 @@ fn test_new_server_svc_multiple_instances_are_independent_edge() {
     // Builders from different addresses produce configs with distinct ports.
     let a1: SocketAddr = "127.0.0.1:7001".parse().unwrap();
     let a2: SocketAddr = "127.0.0.1:7002".parse().unwrap();
-    let cfg1 = swe_edge_runtime_grpc::GrpcServerSvc::create_config_builder(a1).allow_plaintext().build();
-    let cfg2 = swe_edge_runtime_grpc::GrpcServerSvc::create_config_builder(a2).allow_plaintext().build();
-    assert_ne!(cfg1.bind.port(), cfg2.bind.port(), "independent builders must not share state");
+    let cfg1 = swe_edge_runtime_grpc::GrpcServerSvc::create_config_builder(a1)
+        .allow_plaintext()
+        .build();
+    let cfg2 = swe_edge_runtime_grpc::GrpcServerSvc::create_config_builder(a2)
+        .allow_plaintext()
+        .build();
+    assert_ne!(
+        cfg1.bind.port(),
+        cfg2.bind.port(),
+        "independent builders must not share state"
+    );
 }
 
 #[test]
@@ -317,7 +344,8 @@ fn test_new_observer_svc_multiple_instances_are_independent_edge() {
     let _svc2 = TonicGrpcServer::new_observer_svc();
     // Two independent servers with different reflection states are observable independently.
     let s_off = TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create());
-    let s_on = TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create()).enable_reflection(true);
+    let s_on =
+        TonicGrpcServer::new("127.0.0.1:0", NoopGrpcIngress::create()).enable_reflection(true);
     assert!(!swe_edge_runtime_grpc::GrpcServerObserverSvc::is_reflection_enabled(&s_off));
     assert!(swe_edge_runtime_grpc::GrpcServerObserverSvc::is_reflection_enabled(&s_on));
 }
