@@ -6,7 +6,7 @@ use std::time::Duration;
 
 use axum::http::{header, HeaderValue, StatusCode};
 use swe_edge_ingress_http::{HttpIngress, HttpStream, DEFAULT_REQUEST_TIMEOUT, MAX_BODY_BYTES};
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 
 use crate::api::{AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper};

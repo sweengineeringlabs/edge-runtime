@@ -4,7 +4,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use swe_edge_ingress_http::HttpIngress;
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 
 /// Fluent builder that constructs an [`AxumHttpServer`].

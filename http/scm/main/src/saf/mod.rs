@@ -3,6 +3,7 @@
 mod http;
 mod http_server_svc_factory;
 mod server_svc;
+mod tls_svc;
 mod validator_svc;
 
 pub use http::HttpIngress;
@@ -12,4 +13,5 @@ pub use swe_edge_ingress_http::{
     FormPart, HttpAuth, HttpBody, HttpDecodeFn, HttpEncodeFn, HttpHealthCheck, HttpIngressError,
     HttpIngressResult, HttpMethod, HttpRequest, HttpRequestBuilder, HttpResponse,
 };
+pub use tls_svc::TLS_SVC;
 pub use validator_svc::Validator;

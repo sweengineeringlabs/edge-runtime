@@ -127,9 +127,13 @@ fn test_builder_without_timeout_override_uses_default_edge() {
 
 #[test]
 fn test_builder_with_tls_does_not_panic_happy() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
+    use edge_domain_security::IngressTlsConfig;
     let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
-        .with_tls(IngressTlsConfig::tls("c.pem", "k.pem"))
+        .with_tls(IngressTlsConfig {
+            cert_pem_path: "c.pem".into(),
+            key_pem_path: "k.pem".into(),
+            client_ca_pem_path: None,
+        })
         .build();
     assert_eq!(
         server.request_timeout(),
@@ -140,9 +144,13 @@ fn test_builder_with_tls_does_not_panic_happy() {
 
 #[test]
 fn test_builder_with_mtls_does_not_panic_error() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
+    use edge_domain_security::IngressTlsConfig;
     let server = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
-        .with_tls(IngressTlsConfig::mtls("c.pem", "k.pem", "ca.pem"))
+        .with_tls(IngressTlsConfig {
+            cert_pem_path: "c.pem".into(),
+            key_pem_path: "k.pem".into(),
+            client_ca_pem_path: Some("ca.pem".into()),
+        })
         .build();
     assert_eq!(
         server.request_timeout(),
@@ -153,7 +161,7 @@ fn test_builder_with_mtls_does_not_panic_error() {
 
 #[test]
 fn test_builder_tls_serve_rejects_missing_cert_edge() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
+    use edge_domain_security::IngressTlsConfig;
     // The TLS path is exercised at serve time — build itself never panics.
     let result = tokio::runtime::Builder::new_current_thread()
         .enable_all()
@@ -164,7 +172,11 @@ fn test_builder_tls_serve_rejects_missing_cert_edge() {
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
             let server =
                 AxumHttpServerBuilder::new(listener.local_addr().unwrap().to_string(), handler())
-                    .with_tls(IngressTlsConfig::tls("no.pem", "no.pem"))
+                    .with_tls(IngressTlsConfig {
+                        cert_pem_path: "no.pem".into(),
+                        key_pem_path: "no.pem".into(),
+                        client_ca_pem_path: None,
+                    })
                     .build();
             let shutdown: BoxFuture<'static, ()> = Box::pin(async {});
             server.serve_with_listener(listener, shutdown).await

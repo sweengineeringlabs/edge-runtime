@@ -5,9 +5,11 @@
 
 mod noop;
 mod server;
+mod tls;
 
 pub use noop::{NoopHttpIngress, NoopValidator};
 pub use server::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServer, HttpServerError,
     HttpServerSvc,
 };
+pub use tls::TlsSvc;

@@ -2,7 +2,7 @@
 //!
 //! Provides the missing _happy / _error / _edge coverage for:
 //!   HttpServer: serve, serve_with_shutdown, serve_with_listener, axum_helper,
-//!               builder_bind, new_server, new_server_svc
+//!               builder_bind, new_server, new_server_svc, tls_svc
 //!   HttpServerSvc saf factory: new_server, builder, new_server_svc
 // @covers: HttpServer::serve
 // @covers: HttpServer::serve_with_shutdown
@@ -11,6 +11,7 @@
 // @covers: HttpServer::builder_bind
 // @covers: HttpServer::new_server
 // @covers: HttpServer::new_server_svc
+// @covers: HttpServer::tls_svc
 // @covers: HttpServerSvc::new_server
 // @covers: HttpServerSvc::builder
 // @covers: HttpServerSvc::new_server_svc
@@ -25,7 +26,7 @@ use swe_edge_ingress_http::{
 };
 use swe_edge_runtime_http::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpIngress, HttpServer,
-    HttpServerError, HttpServerSvc,
+    HttpServerError, HttpServerSvc, TlsSvc,
 };
 
 // ── Shared stub ───────────────────────────────────────────────────────────────
@@ -253,6 +254,42 @@ fn test_new_server_out_of_range_port_defers_error_to_bind_edge() {
         s.request_timeout(),
         Duration::from_secs(30),
         "out-of-range port defers error to bind — construction must succeed"
+    );
+}
+
+// ── HttpServer::tls_svc ───────────────────────────────────────────────────────
+
+#[test]
+fn test_tls_svc_returns_tls_svc_instance_happy() {
+    // @covers: HttpServer::tls_svc
+    let svc: TlsSvc = AxumHttpServer::tls_svc();
+    assert_eq!(
+        std::mem::size_of_val(&svc),
+        0,
+        "TlsSvc must be a ZST"
+    );
+}
+
+#[test]
+fn test_tls_svc_is_stable_across_calls_error() {
+    // @covers: HttpServer::tls_svc — idempotent construction
+    let a = AxumHttpServer::tls_svc();
+    let b = AxumHttpServer::tls_svc();
+    assert_eq!(
+        std::mem::size_of_val(&a),
+        std::mem::size_of_val(&b),
+        "repeated tls_svc() calls must produce equal-sized values"
+    );
+}
+
+#[test]
+fn test_tls_svc_is_same_type_as_tls_svc_struct_edge() {
+    // @covers: HttpServer::tls_svc — type identity (ZST means no hidden state was added)
+    let svc = AxumHttpServer::tls_svc();
+    assert_eq!(
+        std::mem::size_of_val(&svc),
+        0,
+        "TlsSvc must remain a ZST — adding fields would break this type contract"
     );
 }
 

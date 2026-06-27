@@ -12,7 +12,7 @@ use swe_edge_ingress_http::{
     HttpBody, HttpIngress, HttpIngressError, HttpMethod, HttpRequest, HttpResponse, HttpStream,
     WsChannel, WsMessage,
 };
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 use tokio::net::TcpListener;
 
@@ -201,7 +201,7 @@ impl AxumHttpServerHelper {
         use tower::ServiceBuilder;
         use tower_http::trace::TraceLayer;
 
-        let acceptor = swe_edge_ingress_tls::TlsSvc::build_tls_acceptor(tls_cfg)
+        let acceptor = crate::core::tls::DefaultAcceptorBuilder::build_tls_acceptor(tls_cfg)
             .map_err(HttpServerError::Tls)?;
 
         let mut shutdown = std::pin::pin!(shutdown);
@@ -637,8 +637,12 @@ mod tests {
 
     #[test]
     fn test_serve_tls_rejects_invalid_cert_paths() {
-        use swe_edge_ingress_tls::IngressTlsConfig;
-        let tls_cfg = IngressTlsConfig::tls("nonexistent_cert.pem", "nonexistent_key.pem");
+        use edge_domain_security::IngressTlsConfig;
+        let tls_cfg = IngressTlsConfig {
+            cert_pem_path: "nonexistent_cert.pem".into(),
+            key_pem_path: "nonexistent_key.pem".into(),
+            client_ca_pem_path: None,
+        };
         let result = tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build()

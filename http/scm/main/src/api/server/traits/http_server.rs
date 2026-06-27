@@ -11,6 +11,7 @@ use crate::api::server::errors::HttpServerError;
 use crate::api::server::types::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServerSvc,
 };
+use crate::api::tls::TlsSvc;
 
 /// A runnable HTTP server that drives an [`HttpIngress`] handler.
 pub trait HttpServer: Send + Sync {
@@ -66,5 +67,13 @@ pub trait HttpServer: Send + Sync {
         Self: Sized,
     {
         HttpServerSvc
+    }
+
+    /// Return the TLS acceptor factory (type anchor for [`TlsSvc`]).
+    fn tls_svc() -> TlsSvc
+    where
+        Self: Sized,
+    {
+        TlsSvc
     }
 }

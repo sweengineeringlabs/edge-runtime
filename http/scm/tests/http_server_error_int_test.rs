@@ -78,7 +78,7 @@ fn test_http_server_error_serve_is_send_sync_edge() {
 
 #[test]
 fn test_http_server_error_tls_display_contains_tls_prefix_happy() {
-    use swe_edge_ingress_tls::IngressTlsError;
+    use edge_domain_security::IngressTlsError;
     let inner =
         IngressTlsError::CertLoad("bad_cert.pem".into(), std::io::Error::other("not found"));
     let e = HttpServerError::Tls(inner);
@@ -89,7 +89,7 @@ fn test_http_server_error_tls_display_contains_tls_prefix_happy() {
 #[test]
 fn test_http_server_error_tls_source_is_ingress_tls_error_error() {
     use std::error::Error;
-    use swe_edge_ingress_tls::IngressTlsError;
+    use edge_domain_security::IngressTlsError;
     let inner = IngressTlsError::CertLoad("bad.pem".into(), std::io::Error::other("no file"));
     let e = HttpServerError::Tls(inner);
     assert!(e.source().is_some(), "Tls variant must expose source error");

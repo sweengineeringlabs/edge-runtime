@@ -8,7 +8,7 @@
 // @covers dep:tower
 // @covers dep:tower-http
 // @covers dep:swe-edge-ingress-http
-// @covers dep:swe-edge-ingress-tls
+// @covers dep:edge-domain-security
 // @covers dep:swe-edge-ingress-verifier
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
@@ -129,31 +129,49 @@ fn test_swe_edge_ingress_http_ingress_error_variants_display_edge() {
     }
 }
 
-// ── dep:swe-edge-ingress-tls — TLS config construction ───────────────────────
+// ── dep:edge-domain-security — TLS config construction ───────────────────────
 
 #[test]
-fn test_swe_edge_ingress_tls_config_tls_is_not_mtls_happy() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
-    let cfg = IngressTlsConfig::tls("cert.pem", "key.pem");
-    assert!(!cfg.is_mtls(), "plain TLS config must not report mTLS");
+fn test_edge_domain_security_tls_config_plain_is_not_mtls_happy() {
+    use edge_domain_security::IngressTlsConfig;
+    let cfg = IngressTlsConfig {
+        cert_pem_path: "cert.pem".into(),
+        key_pem_path: "key.pem".into(),
+        client_ca_pem_path: None,
+    };
+    assert!(
+        cfg.client_ca_pem_path.is_none(),
+        "plain TLS config must not have a client CA"
+    );
 }
 
 #[test]
-fn test_swe_edge_ingress_tls_config_mtls_is_mtls_error() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
-    let cfg = IngressTlsConfig::mtls("cert.pem", "key.pem", "ca.pem");
-    assert!(cfg.is_mtls(), "mTLS config must report is_mtls() == true");
+fn test_edge_domain_security_tls_config_mtls_has_client_ca_error() {
+    use edge_domain_security::IngressTlsConfig;
+    let cfg = IngressTlsConfig {
+        cert_pem_path: "cert.pem".into(),
+        key_pem_path: "key.pem".into(),
+        client_ca_pem_path: Some("ca.pem".into()),
+    };
+    assert_eq!(
+        cfg.client_ca_pem_path.as_deref(),
+        Some("ca.pem"),
+        "mTLS config must carry the exact client CA path that was set"
+    );
 }
 
 #[tokio::test]
-async fn test_swe_edge_ingress_tls_serve_rejects_missing_certs_edge() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
+async fn test_edge_domain_security_tls_serve_rejects_missing_certs_edge() {
+    use edge_domain_security::IngressTlsConfig;
     // Bind listener first, then pass it to the TLS server — the TLS acceptor
     // constructor fails before hyper-util is called.
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap().to_string();
-    let server = AxumHttpServer::new(addr, stub())
-        .with_tls(IngressTlsConfig::tls("no_cert.pem", "no_key.pem"));
+    let server = AxumHttpServer::new(addr, stub()).with_tls(IngressTlsConfig {
+        cert_pem_path: "no_cert.pem".into(),
+        key_pem_path: "no_key.pem".into(),
+        client_ca_pem_path: None,
+    });
     let shutdown: BoxFuture<'static, ()> = Box::pin(async {});
     let result = server.serve_with_listener(listener, shutdown).await;
     assert!(result.is_err(), "missing cert must produce an error");
@@ -267,8 +285,12 @@ fn test_tower_http_body_limit_layer_applied_to_server_edge() {
 
 #[tokio::test]
 async fn test_hyper_util_tls_path_rejects_missing_cert_happy() {
-    use swe_edge_ingress_tls::IngressTlsConfig;
-    let cfg = IngressTlsConfig::tls("no_cert.pem", "no_key.pem");
+    use edge_domain_security::IngressTlsConfig;
+    let cfg = IngressTlsConfig {
+        cert_pem_path: "no_cert.pem".into(),
+        key_pem_path: "no_key.pem".into(),
+        client_ca_pem_path: None,
+    };
     let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
     let server =
         AxumHttpServer::new(listener.local_addr().unwrap().to_string(), stub()).with_tls(cfg);

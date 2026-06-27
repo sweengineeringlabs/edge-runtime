@@ -10,6 +10,10 @@ description      = "HTTP server binding — Axum server implementation over swe-
 keywords         = ["http", "server", "axum", "async", "swe"]
 categories       = ["network-programming", "asynchronous"]
 
+[package.metadata.arch]
+application_type = "lib"
+service_type     = "http-runtime"
+
 [package.metadata.struct-engine]
 application_type = "lib"
 service_type     = "http-runtime"
@@ -20,9 +24,12 @@ path = "main/src/lib.rs"
 
 [dependencies]
 swe-edge-ingress-http     = { package = "swe-edge-ingress-http-transport", git = "https://github.com/sweengineeringlabs/edge-ingress-http.git", tag = "v0.5.2" }
-swe-edge-ingress-tls      = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.6.3" }
 swe-edge-ingress-verifier = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.6.3" }
 edge-domain               = { git = "https://github.com/sweengineeringlabs/edge-domain.git",           tag = "v0.10.7", features = ["security"] }
+edge-domain-security      = { git = "https://github.com/sweengineeringlabs/edge-domain.git",           tag = "v0.11.6" }
+tokio-rustls              = "0.26"
+rustls                    = { version = "0.23", features = ["ring"] }
+rustls-pemfile            = "2"
 axum                      = { version = "0.8", features = ["ws"] }
 tower                     = { version = "0.5", features = ["timeout"] }
 tower-http                = { version = "0.6", features = ["trace", "limit"] }
@@ -43,7 +50,8 @@ path = "examples/noop_ingress.rs"
 [dev-dependencies]
 futures     = "0.3"
 edge-domain = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.10.7", features = ["security"] }
-swe-edge-ingress-tls = { git = "https://github.com/sweengineeringlabs/edge-ingress-security.git", tag = "v0.6.3" }
+rcgen       = "0.13"
+tempfile    = "3"
 
 [lints.rust]
 unsafe_code  = "deny"

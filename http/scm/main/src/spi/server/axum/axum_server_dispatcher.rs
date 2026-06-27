@@ -46,7 +46,7 @@ impl AxumHttpServer {
             .unwrap_or_else(|_| self.bind.clone());
 
         if let Some(ref tls_cfg) = self.tls {
-            tracing::info!(bind = %bind_addr, mtls = tls_cfg.is_mtls(), "HTTPS server listening");
+            tracing::info!(bind = %bind_addr, mtls = tls_cfg.client_ca_pem_path.is_some(), "HTTPS server listening");
             AxumHttpServerHelper::serve_tls(
                 listener,
                 self.handler.clone(),
