@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use swe_edge_ingress_grpc::{CompressionMode, GrpcIngressInterceptorChain, HealthService};
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 use swe_edge_runtime_grpc::{
     GrpcServerConfig, GrpcServerConfigError, NoopGrpcIngress, TonicGrpcServer,
 };
@@ -379,7 +379,7 @@ fn test_with_compression_back_to_none_edge() {
 #[test]
 fn test_with_tls_stores_config_happy() {
     // @covers: with_tls
-    let tls = IngressTlsConfig::tls("c.pem", "k.pem");
+    let tls = IngressTlsConfig { cert_pem_path: "c.pem".into(), key_pem_path: "k.pem".into(), client_ca_pem_path: None };
     let s = TonicGrpcServer::new("127.0.0.1:0", handler()).with_tls(tls);
     assert!(s.tls_config().is_some(), "with_tls must store the config");
     assert!(
@@ -398,8 +398,8 @@ fn test_with_tls_default_has_none_error() {
 #[test]
 fn test_with_tls_overwrites_previous_edge() {
     // @covers: with_tls
-    let tls1 = IngressTlsConfig::tls("a.pem", "b.pem");
-    let tls2 = IngressTlsConfig::tls("c.pem", "d.pem");
+    let tls1 = IngressTlsConfig { cert_pem_path: "a.pem".into(), key_pem_path: "b.pem".into(), client_ca_pem_path: None };
+    let tls2 = IngressTlsConfig { cert_pem_path: "c.pem".into(), key_pem_path: "d.pem".into(), client_ca_pem_path: None };
     let s = TonicGrpcServer::new("127.0.0.1:0", handler())
         .with_tls(tls1)
         .with_tls(tls2);
@@ -814,7 +814,7 @@ fn test_max_concurrent_streams_minimum_accepted_edge() {
 #[test]
 fn test_tls_config_with_tls_returns_some_happy() {
     // @covers: tls_config
-    let tls = IngressTlsConfig::tls("cert.pem", "key.pem");
+    let tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: None };
     let s = TonicGrpcServer::new("127.0.0.1:0", handler()).with_tls(tls);
     assert!(
         s.tls_config().is_some(),
@@ -836,8 +836,8 @@ fn test_tls_config_default_is_none_error() {
 #[test]
 fn test_tls_config_overwrite_returns_latest_edge() {
     // @covers: tls_config
-    let tls1 = IngressTlsConfig::tls("a.pem", "b.pem");
-    let tls2 = IngressTlsConfig::tls("c.pem", "d.pem");
+    let tls1 = IngressTlsConfig { cert_pem_path: "a.pem".into(), key_pem_path: "b.pem".into(), client_ca_pem_path: None };
+    let tls2 = IngressTlsConfig { cert_pem_path: "c.pem".into(), key_pem_path: "d.pem".into(), client_ca_pem_path: None };
     let s = TonicGrpcServer::new("127.0.0.1:0", handler())
         .with_tls(tls1)
         .with_tls(tls2);

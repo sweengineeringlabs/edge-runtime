@@ -1,8 +1,10 @@
 //! Public contract declarations — server traits, types, and errors.
 mod noop;
 mod server;
+mod tls;
 
 pub use noop::{NoopGrpcIngress, NoopGrpcValidator, Validator, ValidatorSvc};
+pub use tls::TlsSvc;
 pub use server::{
     GrpcServer, GrpcServerConfig, GrpcServerConfigBuilder, GrpcServerConfigError, GrpcServerError,
     GrpcServerObserver, GrpcServerObserverSvc, GrpcServerSvc, StatusCodeConverter, TonicGrpcServer,

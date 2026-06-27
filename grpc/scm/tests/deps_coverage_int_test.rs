@@ -98,32 +98,32 @@ fn test_swe_edge_ingress_grpc_status_code_default_is_ok_edge() {
     );
 }
 
-// ── swe-edge-ingress-tls ─────────────────────────────────────────────────────
+// ── edge-domain-security (IngressTlsConfig) ─────────────────────────────────
 
 #[test]
 fn test_swe_edge_ingress_tls_tls_config_constructs_happy() {
-    // @covers: swe-edge-ingress-tls / IngressTlsConfig::tls
-    use swe_edge_ingress_tls::IngressTlsConfig;
-    let cfg = IngressTlsConfig::tls("server.crt", "server.key");
+    // @covers: edge_domain_security / IngressTlsConfig::tls
+    use edge_domain_security::{IngressTlsConfig, TlsConfig};
+    let cfg = IngressTlsConfig { cert_pem_path: "server.crt".into(), key_pem_path: "server.key".into(), client_ca_pem_path: None };
     assert_eq!(cfg.cert_pem_path, "server.crt");
     assert!(!cfg.is_mtls());
 }
 
 #[test]
 fn test_swe_edge_ingress_tls_mtls_config_sets_ca_error() {
-    // @covers: swe-edge-ingress-tls / IngressTlsConfig::mtls
-    use swe_edge_ingress_tls::IngressTlsConfig;
-    let cfg = IngressTlsConfig::mtls("server.crt", "server.key", "ca.crt");
+    // @covers: edge_domain_security / IngressTlsConfig::mtls
+    use edge_domain_security::{IngressTlsConfig, TlsConfig};
+    let cfg = IngressTlsConfig { cert_pem_path: "server.crt".into(), key_pem_path: "server.key".into(), client_ca_pem_path: Some("ca.crt".into()) };
     assert!(cfg.is_mtls(), "mTLS config must report is_mtls() = true");
     assert_eq!(cfg.client_ca_pem_path.as_deref(), Some("ca.crt"));
 }
 
 #[test]
 fn test_swe_edge_ingress_tls_tls_vs_mtls_differ_edge() {
-    // @covers: swe-edge-ingress-tls / IngressTlsConfig
-    use swe_edge_ingress_tls::IngressTlsConfig;
-    let tls = IngressTlsConfig::tls("c.crt", "k.key");
-    let mtls = IngressTlsConfig::mtls("c.crt", "k.key", "ca.crt");
+    // @covers: edge_domain_security / IngressTlsConfig
+    use edge_domain_security::{IngressTlsConfig, TlsConfig};
+    let tls = IngressTlsConfig { cert_pem_path: "c.crt".into(), key_pem_path: "k.key".into(), client_ca_pem_path: None };
+    let mtls = IngressTlsConfig { cert_pem_path: "c.crt".into(), key_pem_path: "k.key".into(), client_ca_pem_path: Some("ca.crt".into()) };
     assert_ne!(tls.is_mtls(), mtls.is_mtls());
 }
 

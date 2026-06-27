@@ -3,7 +3,7 @@
 use std::sync::Arc;
 
 use swe_edge_ingress_grpc::{AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain};
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 
 /// Fluent builder for [`TonicGrpcServer`].
 pub struct TonicGrpcServerBuilder {

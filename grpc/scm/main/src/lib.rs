@@ -12,7 +12,6 @@ mod saf;
 mod spi;
 
 pub use api::*;
-#[expect(unused_imports)]
 pub use saf::*;
 pub use swe_edge_ingress_grpc::{
     AuditEvent, AuditEventBuilder, AuditSink, AuthorizationInterceptor, CompressionMode,
@@ -26,4 +25,4 @@ pub use swe_edge_ingress_grpc::{
     PEER_CN, PEER_IDENTITY, PEER_SAN_DNS, PEER_SAN_URI, RESERVED_PEER_PREFIXES, TRACEPARENT,
     TRACESTATE, WATCH_CHANNEL_CAPACITY,
 };
-pub use swe_edge_ingress_tls::{IngressTlsConfig, IngressTlsError};
+pub use edge_domain_security::{IngressTlsConfig, IngressTlsError};

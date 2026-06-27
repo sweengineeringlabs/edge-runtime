@@ -12,6 +12,7 @@ use crate::api::server::types::{
     GrpcServerConfig, GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc,
     StatusCodeConverter, TonicGrpcServer, TonicGrpcServerBuilder,
 };
+use crate::api::TlsSvc;
 
 /// A runnable gRPC server that drives a [`GrpcIngress`] handler.
 pub trait GrpcServer: Send + Sync {
@@ -73,5 +74,13 @@ pub trait GrpcServer: Send + Sync {
         Self: Sized,
     {
         StatusCodeConverter
+    }
+
+    /// Return the TLS service factory (type anchor for [`TlsSvc`]).
+    fn tls_svc() -> TlsSvc
+    where
+        Self: Sized,
+    {
+        TlsSvc
     }
 }

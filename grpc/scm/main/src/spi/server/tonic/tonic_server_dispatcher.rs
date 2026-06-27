@@ -20,6 +20,7 @@ use tower::ServiceBuilder;
 use tower_http::trace::TraceLayer;
 
 use edge_domain::SecurityContext;
+use edge_domain_security::TlsConfig;
 
 use super::grpc_principal::GrpcPrincipal;
 
@@ -115,7 +116,7 @@ impl TonicGrpcServer {
             .as_ref()
             .map(|cfg| {
                 tracing::info!(bind = %bind_addr, mtls = cfg.is_mtls(), "gRPC+TLS server listening");
-                swe_edge_ingress_tls::TlsSvc::build_tls_acceptor(cfg).map_err(GrpcServerError::Tls)
+                crate::TlsSvc::build_tls_acceptor(cfg).map_err(GrpcServerError::Tls)
             })
             .transpose()?;
 
@@ -1175,8 +1176,12 @@ mod dedicated_coverage {
 
     #[test]
     fn test_with_tls_sets_config() {
-        use swe_edge_ingress_tls::IngressTlsConfig;
-        let cfg = IngressTlsConfig::tls("cert.pem", "key.pem");
+        use edge_domain_security::IngressTlsConfig;
+        let cfg = IngressTlsConfig {
+            cert_pem_path: "cert.pem".into(),
+            key_pem_path: "key.pem".into(),
+            client_ca_pem_path: None,
+        };
         let s = server().with_tls(cfg);
         assert!(s.tls.is_some());
         // Negative: without with_tls the field must be absent

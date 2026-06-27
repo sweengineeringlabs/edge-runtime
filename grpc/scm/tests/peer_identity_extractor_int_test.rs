@@ -6,13 +6,14 @@
 //! minimal DER blobs that trigger the extractor's fallback behaviour.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
+use edge_domain_security::TlsConfig;
 use swe_edge_runtime_grpc::{GrpcServerConfig, IngressTlsConfig, NoopGrpcIngress, TonicGrpcServer};
 
 /// Verify the server builds successfully with TLS config (exercises the TLS
 /// path that calls PeerIdentityExtractor internally).
 #[test]
 fn test_server_builds_with_tls_happy() {
-    let tls = IngressTlsConfig::tls("cert.pem", "key.pem");
+    let tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: None };
     // Verify the TLS config is preserved through GrpcServerConfig -> from_config.
     use std::net::SocketAddr;
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
@@ -44,7 +45,7 @@ fn test_server_plaintext_peer_metadata_is_empty_error() {
 /// Verify that mTLS config is stored via GrpcServerConfig.
 #[test]
 fn test_server_with_empty_mtls_config_edge() {
-    let cfg_tls = IngressTlsConfig::mtls("cert.pem", "key.pem", "ca.pem");
+    let cfg_tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: Some("ca.pem".into()) };
     // The mTLS config is accepted and accessible through the public API.
     assert!(
         cfg_tls.is_mtls(),

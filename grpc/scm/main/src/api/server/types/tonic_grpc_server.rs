@@ -6,7 +6,7 @@ use std::time::Duration;
 use swe_edge_ingress_grpc::{
     AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain, HealthService,
 };
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 
 /// Default maximum inbound message size (4 MiB).
 pub const MAX_MESSAGE_BYTES: usize = 4 * 1_024 * 1_024;

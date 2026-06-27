@@ -11,7 +11,7 @@ pub enum GrpcServerError {
     Bind(String, #[source] std::io::Error),
     /// TLS acceptor construction failed.
     #[error("TLS: {0}")]
-    Tls(#[source] swe_edge_ingress_tls::IngressTlsError),
+    Tls(#[source] edge_domain_security::IngressTlsError),
     /// Server configuration was rejected.
     #[error("server config rejected: {0}")]
     Config(#[source] GrpcServerConfigError),

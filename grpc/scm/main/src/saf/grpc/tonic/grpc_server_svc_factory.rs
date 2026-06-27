@@ -7,7 +7,7 @@ use swe_edge_ingress_grpc::{
     AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain, HealthService,
     NoopAuditSink,
 };
-use swe_edge_ingress_tls::IngressTlsConfig;
+use edge_domain_security::IngressTlsConfig;
 
 use crate::api::{
     GrpcServerConfig, GrpcServerConfigError, TonicGrpcServer, DEFAULT_KEEPALIVE_INTERVAL,
