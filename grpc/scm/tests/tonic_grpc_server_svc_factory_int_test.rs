@@ -7,7 +7,8 @@ use std::time::Duration;
 use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_grpc::{CompressionMode, GrpcIngressInterceptorChain, HealthService};
 use swe_edge_runtime_grpc::{
-    GrpcServerConfig, GrpcServerConfigError, NoopGrpcIngress, TonicGrpcServer,
+    GrpcServerConfig, GrpcServerConfigError, GrpcServerConfigOps, GrpcServerManage,
+    NoopGrpcIngress, TonicGrpcServer,
 };
 
 fn handler() -> Arc<NoopGrpcIngress> {

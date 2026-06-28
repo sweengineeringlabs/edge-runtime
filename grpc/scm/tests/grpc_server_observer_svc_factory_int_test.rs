@@ -3,7 +3,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_grpc::{
-    GrpcServerObserver, GrpcServerObserverSvc, NoopGrpcIngress, TonicGrpcServer,
+    GrpcServerManage, GrpcServerObserver, GrpcServerObserverOps, GrpcServerObserverSvc,
+    NoopGrpcIngress, TonicGrpcServer,
 };
 
 fn server() -> TonicGrpcServer {

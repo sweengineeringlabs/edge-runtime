@@ -5,7 +5,8 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 
 use swe_edge_runtime_grpc::{
-    GrpcServerConfig, GrpcServerConfigError, NoopGrpcIngress, TonicGrpcServer,
+    GrpcServerConfig, GrpcServerConfigError, GrpcServerConfigOps, GrpcServerManage,
+    NoopGrpcIngress, TonicGrpcServer,
 };
 
 fn make_handler() -> Arc<NoopGrpcIngress> {

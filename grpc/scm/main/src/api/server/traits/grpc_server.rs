@@ -6,11 +6,14 @@ use std::sync::Arc;
 use futures::future::BoxFuture;
 use swe_edge_ingress_grpc::GrpcIngress;
 
-use crate::api::server::errors::GrpcServerConfigError;
 use crate::api::server::errors::GrpcServerError;
 use crate::api::server::types::{
-    GrpcServerConfig, GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc,
-    StatusCodeConverter, TonicGrpcServer, TonicGrpcServerBuilder,
+    GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc, StatusCodeConverter,
+    TonicGrpcServer, TonicGrpcServerBuilder,
+};
+use crate::api::server::traits::{
+    GrpcServerBuild, GrpcServerConfigBuild, GrpcServerManage, GrpcServerObserverOps,
+    GrpcServerSvcOps, StatusCodeConvert,
 };
 use crate::api::TlsSvc;
 
@@ -30,18 +33,8 @@ pub trait GrpcServer: Send + Sync {
     where
         Self: Sized,
     {
-        TonicGrpcServer::new(bind, handler)
-    }
-
-    /// Construct a [`TonicGrpcServer`] from a [`GrpcServerConfig`], or return a [`GrpcServerConfigError`].
-    fn from_config(
-        config: &GrpcServerConfig,
-        handler: Arc<dyn GrpcIngress>,
-    ) -> Result<TonicGrpcServer, GrpcServerConfigError>
-    where
-        Self: Sized,
-    {
-        TonicGrpcServer::from_config(config, handler)
+        let _ = <TonicGrpcServerBuilder as GrpcServerBuild>::build;
+        <TonicGrpcServer as GrpcServerManage>::new(bind, handler)
     }
 
     /// Construct a default [`GrpcServerConfigBuilder`] (type anchor).
@@ -49,7 +42,9 @@ pub trait GrpcServer: Send + Sync {
     where
         Self: Sized,
     {
-        GrpcServerConfigBuilder::new(bind)
+        let cfg = <GrpcServerConfigBuilder as GrpcServerConfigBuild>::new(bind);
+        let _ = cfg.bind_addr();
+        cfg
     }
 
     /// Return a [`GrpcServerSvc`] factory (type anchor).
@@ -57,6 +52,7 @@ pub trait GrpcServer: Send + Sync {
     where
         Self: Sized,
     {
+        let _ = <GrpcServerSvc as GrpcServerSvcOps>::svc_marker;
         GrpcServerSvc
     }
 
@@ -65,6 +61,7 @@ pub trait GrpcServer: Send + Sync {
     where
         Self: Sized,
     {
+        let _ = <GrpcServerObserverSvc as GrpcServerObserverOps>::svc_marker;
         GrpcServerObserverSvc
     }
 
@@ -73,6 +70,7 @@ pub trait GrpcServer: Send + Sync {
     where
         Self: Sized,
     {
+        let _ = <StatusCodeConverter as StatusCodeConvert>::svc_marker;
         StatusCodeConverter
     }
 

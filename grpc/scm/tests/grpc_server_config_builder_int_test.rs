@@ -3,7 +3,9 @@
 
 use std::net::SocketAddr;
 
-use swe_edge_runtime_grpc::{CompressionMode, GrpcServerConfigBuilder, DEFAULT_MAX_MESSAGE_BYTES};
+use swe_edge_runtime_grpc::{
+    CompressionMode, GrpcServerConfigBuild, GrpcServerConfigBuilder, DEFAULT_MAX_MESSAGE_BYTES,
+};
 
 fn bind() -> SocketAddr {
     "127.0.0.1:0".parse().unwrap()

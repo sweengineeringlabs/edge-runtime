@@ -10,7 +10,7 @@ use hyper_util::rt::{TokioExecutor, TokioIo};
 use tokio::net::TcpListener;
 use tokio::sync::oneshot;
 
-use swe_edge_runtime_grpc::{NoopGrpcIngress, TonicGrpcServer};
+use swe_edge_runtime_grpc::{GrpcServerManage, NoopGrpcIngress, TonicGrpcServer};
 
 fn grpc_frame(payload: &[u8]) -> Bytes {
     let mut buf = BytesMut::with_capacity(5 + payload.len());

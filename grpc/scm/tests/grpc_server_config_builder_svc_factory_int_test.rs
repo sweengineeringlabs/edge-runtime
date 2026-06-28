@@ -5,7 +5,7 @@ use std::net::SocketAddr;
 
 use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
-use swe_edge_runtime_grpc::GrpcServerConfigBuilder;
+use swe_edge_runtime_grpc::{GrpcServerConfigBuild, GrpcServerConfigBuilder};
 
 fn bind() -> SocketAddr {
     "127.0.0.1:50052".parse().unwrap()

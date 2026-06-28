@@ -5,7 +5,7 @@ use std::sync::Arc;
 
 use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_grpc::{CompressionMode, GrpcIngressInterceptorChain, NoopAuditSink};
-use swe_edge_runtime_grpc::{NoopGrpcIngress, TonicGrpcServerBuilder};
+use swe_edge_runtime_grpc::{GrpcServerBuild, GrpcServerManage, NoopGrpcIngress, TonicGrpcServerBuilder};
 
 fn handler() -> Arc<NoopGrpcIngress> {
     NoopGrpcIngress::create()

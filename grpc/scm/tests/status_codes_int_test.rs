@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_grpc::{
-    GrpcIngressError, GrpcStatusCode, StatusCodeConverter, SANITIZED_INTERNAL_MSG,
+    GrpcIngressError, GrpcStatusCode, StatusCodeConvert, StatusCodeConverter, SANITIZED_INTERNAL_MSG,
 };
 
 const ALL_17: [GrpcStatusCode; 17] = [

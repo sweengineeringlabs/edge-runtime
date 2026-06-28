@@ -5,7 +5,8 @@
 use std::time::Duration;
 
 use swe_edge_runtime_grpc::{
-    GrpcIngress, GrpcRequest, GrpcServerObserver, NoopGrpcIngress, SecurityContext, TonicGrpcServer,
+    GrpcIngress, GrpcRequest, GrpcServerManage, GrpcServerObserver, NoopGrpcIngress, SecurityContext,
+    TonicGrpcServer,
 };
 
 /// Verify that SecurityContext (from edge-domain) integrates with dispatch.

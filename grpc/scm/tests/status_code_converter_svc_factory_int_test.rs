@@ -2,7 +2,7 @@
 #![allow(clippy::unwrap_used)]
 
 use swe_edge_ingress_grpc::{GrpcIngressError, GrpcStatusCode};
-use swe_edge_runtime_grpc::{StatusCodeConverter, SANITIZED_INTERNAL_MSG};
+use swe_edge_runtime_grpc::{StatusCodeConvert, StatusCodeConverter, SANITIZED_INTERNAL_MSG};
 
 // ── from_tonic_code ─────────────────────────────────────────────────────────
 

@@ -4,7 +4,8 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use swe_edge_runtime_grpc::{
-    CompressionMode, GrpcServerConfig, GrpcServerObserver, NoopGrpcIngress, TonicGrpcServerBuilder,
+    CompressionMode, GrpcServerBuild, GrpcServerConfig, GrpcServerConfigOps, GrpcServerManage,
+    NoopGrpcIngress, TonicGrpcServer, TonicGrpcServerBuilder,
 };
 
 #[test]
@@ -115,7 +116,7 @@ fn test_builder_without_interceptors_produces_empty_chain_edge() {
         .build();
     // Health service should still be auto-wired even without explicit interceptors.
     assert!(
-        GrpcServerObserver::health_service(&s).is_some(),
+        s.health_service().is_some(),
         "health service must be auto-wired"
     );
     // Removing it proves the is_some() above wasn't a false positive.
@@ -124,7 +125,7 @@ fn test_builder_without_interceptors_produces_empty_chain_edge() {
         .build()
         .without_health_service();
     assert!(
-        GrpcServerObserver::health_service(&s2).is_none(),
+        s2.health_service().is_none(),
         "health service must be removable from a builder-constructed server"
     );
 }

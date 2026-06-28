@@ -7,7 +7,10 @@
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 use edge_domain_security::TlsConfig;
-use swe_edge_runtime_grpc::{GrpcServerConfig, IngressTlsConfig, NoopGrpcIngress, TonicGrpcServer};
+use swe_edge_runtime_grpc::{
+    GrpcServerConfigOps, GrpcServerManage, GrpcServerConfig, IngressTlsConfig, NoopGrpcIngress,
+    TonicGrpcServer,
+};
 
 /// Verify the server builds successfully with TLS config (exercises the TLS
 /// path that calls PeerIdentityExtractor internally).

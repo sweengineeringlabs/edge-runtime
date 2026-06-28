@@ -4,7 +4,10 @@ mod traits;
 mod types;
 
 pub use errors::{GrpcServerConfigError, GrpcServerError};
-pub use traits::{GrpcServer, GrpcServerObserver};
+pub use traits::{
+    GrpcServer, GrpcServerBuild, GrpcServerConfigBuild, GrpcServerConfigOps, GrpcServerManage,
+    GrpcServerObserver, GrpcServerObserverOps, GrpcServerSvcOps, StatusCodeConvert,
+};
 pub use types::{
     GrpcServerConfig, GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc,
     StatusCodeConverter, TonicGrpcServer, TonicGrpcServerBuilder, DEFAULT_KEEPALIVE_INTERVAL,

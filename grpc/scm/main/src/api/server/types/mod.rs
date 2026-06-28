@@ -21,3 +21,8 @@ pub use tonic_grpc_server::{
     MISSING_AUTHORIZATION_INTERCEPTOR_MSG, REFLECTION_ENABLED_WARN_MSG, SANITIZED_INTERNAL_MSG,
 };
 pub use tonic_grpc_server_builder::TonicGrpcServerBuilder;
+
+pub use super::traits::{
+    GrpcServerBuild, GrpcServerConfigBuild, GrpcServerConfigOps, GrpcServerManage,
+    GrpcServerObserverOps, GrpcServerSvcOps, StatusCodeConvert,
+};

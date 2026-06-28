@@ -4,7 +4,11 @@
 
 use std::net::SocketAddr;
 
-use swe_edge_runtime_grpc::{GrpcServer, GrpcServerSvc, NoopGrpcIngress, TonicGrpcServer};
+use swe_edge_runtime_grpc::{
+    GrpcServer, GrpcServerBuild, GrpcServerConfigBuild, GrpcServerConfigOps, GrpcServerManage,
+    GrpcServerObserverOps, GrpcServerSvc, GrpcServerSvcOps, NoopGrpcIngress, StatusCodeConvert,
+    TonicGrpcServer, TonicGrpcServerBuilder,
+};
 
 // ── create_config_builder ────────────────────────────────────────────────────
 
@@ -73,11 +77,11 @@ fn test_new_tonic_server_ipv6_addr_creates_server_edge() {
     assert!(!server.is_reflection_enabled());
 }
 
-// ── GrpcServer::from_config ──────────────────────────────────────────────────
+// ── GrpcServerManage::from_config ────────────────────────────────────────────
 
 #[test]
 fn test_from_config_valid_plaintext_config_happy() {
-    // @covers: GrpcServer::from_config
+    // @covers: GrpcServerManage::from_config
     use swe_edge_runtime_grpc::GrpcServerConfig;
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
     let cfg = GrpcServerConfig::new(bind).allow_plaintext();
@@ -91,7 +95,7 @@ fn test_from_config_valid_plaintext_config_happy() {
 
 #[test]
 fn test_from_config_tls_required_no_tls_returns_error() {
-    // @covers: GrpcServer::from_config
+    // @covers: GrpcServerManage::from_config
     use swe_edge_runtime_grpc::GrpcServerConfig;
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
     let cfg = GrpcServerConfig::new(bind); // tls_required=true, no TLS
@@ -101,7 +105,7 @@ fn test_from_config_tls_required_no_tls_returns_error() {
 
 #[test]
 fn test_from_config_reflection_flag_propagated_edge() {
-    // @covers: GrpcServer::from_config
+    // @covers: GrpcServerManage::from_config
     use swe_edge_runtime_grpc::GrpcServerConfig;
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
     let cfg = GrpcServerConfig::new(bind)
@@ -148,7 +152,6 @@ fn test_new_config_builder_zero_port_edge() {
 #[test]
 fn test_builder_bind_returns_bind_address_happy() {
     // @covers: GrpcServer::builder_bind
-    use swe_edge_runtime_grpc::TonicGrpcServerBuilder;
     let b = TonicGrpcServerBuilder::new("127.0.0.1:50053", NoopGrpcIngress::create());
     let server = TonicGrpcServer::new("", NoopGrpcIngress::create()).allow_unauthenticated(true);
     let bind = server.builder_bind(&b);
@@ -158,7 +161,6 @@ fn test_builder_bind_returns_bind_address_happy() {
 #[test]
 fn test_builder_bind_empty_string_error() {
     // @covers: GrpcServer::builder_bind
-    use swe_edge_runtime_grpc::TonicGrpcServerBuilder;
     let b = TonicGrpcServerBuilder::new("", NoopGrpcIngress::create());
     let server = TonicGrpcServer::new("", NoopGrpcIngress::create()).allow_unauthenticated(true);
     assert_eq!(server.builder_bind(&b), "");
@@ -167,7 +169,6 @@ fn test_builder_bind_empty_string_error() {
 #[test]
 fn test_builder_bind_ipv6_addr_edge() {
     // @covers: GrpcServer::builder_bind
-    use swe_edge_runtime_grpc::TonicGrpcServerBuilder;
     let b = TonicGrpcServerBuilder::new("[::1]:8080", NoopGrpcIngress::create());
     let server = TonicGrpcServer::new("", NoopGrpcIngress::create()).allow_unauthenticated(true);
     assert_eq!(server.builder_bind(&b), "[::1]:8080");
