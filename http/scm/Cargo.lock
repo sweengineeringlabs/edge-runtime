@@ -559,7 +559,7 @@ dependencies = [
 [[package]]
 name = "edge-domain-security"
 version = "0.1.0"
-source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.6#4aa2aaf004f9dfbf81da1a0cbd3004e8707d1f6f"
+source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.7#f821a003a346cba63521108dc6e881d5850bbb57"
 dependencies = [
  "serde",
  "serde_json",
@@ -1634,7 +1634,7 @@ dependencies = [
  "axum",
  "bytes",
  "edge-domain 0.10.0",
- "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.6)",
+ "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.11.7)",
  "futures",
  "http",
  "hyper",

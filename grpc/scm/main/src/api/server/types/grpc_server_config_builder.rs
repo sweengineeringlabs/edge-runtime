@@ -2,8 +2,8 @@
 
 use std::net::SocketAddr;
 
-use swe_edge_ingress_grpc::CompressionMode;
 use edge_domain_security::IngressTlsConfig;
+use swe_edge_ingress_grpc::CompressionMode;
 
 /// Fluent builder for [`GrpcServerConfig`].
 pub struct GrpcServerConfigBuilder {

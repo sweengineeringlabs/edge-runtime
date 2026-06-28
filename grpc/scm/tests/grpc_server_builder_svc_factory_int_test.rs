@@ -3,8 +3,8 @@
 
 use std::sync::Arc;
 
-use swe_edge_ingress_grpc::CompressionMode;
 use edge_domain_security::IngressTlsConfig;
+use swe_edge_ingress_grpc::CompressionMode;
 use swe_edge_runtime_grpc::{NoopGrpcIngress, TonicGrpcServerBuilder};
 
 fn handler() -> Arc<NoopGrpcIngress> {
@@ -84,7 +84,11 @@ fn test_build_without_allow_unauthenticated_defaults_to_false_error() {
 #[test]
 fn test_build_with_all_options_propagated_edge() {
     // @covers: build
-    let tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: None };
+    let tls = IngressTlsConfig {
+        cert_pem_path: "cert.pem".into(),
+        key_pem_path: "key.pem".into(),
+        client_ca_pem_path: None,
+    };
     let s = builder()
         .with_tls(tls)
         .allow_unauthenticated()
@@ -184,7 +188,11 @@ fn test_with_max_concurrent_streams_minimum_one_edge() {
 #[test]
 fn test_with_tls_propagated_to_server_happy() {
     // @covers: with_tls
-    let tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: None };
+    let tls = IngressTlsConfig {
+        cert_pem_path: "cert.pem".into(),
+        key_pem_path: "key.pem".into(),
+        client_ca_pem_path: None,
+    };
     let s = builder().with_tls(tls).build();
     assert!(
         s.tls_config().is_some(),
@@ -209,8 +217,16 @@ fn test_with_tls_default_produces_no_tls_error() {
 #[test]
 fn test_with_tls_overwrite_propagated_edge() {
     // @covers: with_tls
-    let tls1 = IngressTlsConfig { cert_pem_path: "a.pem".into(), key_pem_path: "b.pem".into(), client_ca_pem_path: None };
-    let tls2 = IngressTlsConfig { cert_pem_path: "c.pem".into(), key_pem_path: "d.pem".into(), client_ca_pem_path: None };
+    let tls1 = IngressTlsConfig {
+        cert_pem_path: "a.pem".into(),
+        key_pem_path: "b.pem".into(),
+        client_ca_pem_path: None,
+    };
+    let tls2 = IngressTlsConfig {
+        cert_pem_path: "c.pem".into(),
+        key_pem_path: "d.pem".into(),
+        client_ca_pem_path: None,
+    };
     let s = builder().with_tls(tls1).with_tls(tls2).build();
     assert!(
         s.tls_config().is_some(),
@@ -285,7 +301,11 @@ fn test_enable_reflection_default_is_false_error() {
 #[test]
 fn test_enable_reflection_with_tls_edge() {
     // @covers: enable_reflection
-    let tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: None };
+    let tls = IngressTlsConfig {
+        cert_pem_path: "cert.pem".into(),
+        key_pem_path: "key.pem".into(),
+        client_ca_pem_path: None,
+    };
     let s = builder().enable_reflection().with_tls(tls).build();
     assert!(
         s.is_reflection_enabled(),

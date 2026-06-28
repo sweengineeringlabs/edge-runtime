@@ -2,8 +2,8 @@
 
 use std::net::SocketAddr;
 
-use serde::{Deserialize, Serialize};
 use edge_domain_security::IngressTlsConfig;
+use serde::{Deserialize, Serialize};
 
 use swe_edge_ingress_grpc::CompressionMode;
 

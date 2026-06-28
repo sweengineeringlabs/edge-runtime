@@ -196,7 +196,7 @@ mod dedicated_coverage {
     use swe_edge_ingress_http::{
         HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, MAX_BODY_BYTES,
     };
-    use swe_edge_ingress_tls::IngressTlsConfig;
+    use edge_domain_security::IngressTlsConfig;
 
     fn make_handler() -> Arc<dyn HttpIngress> {
         struct AxumServerDispatcherOkIngress;

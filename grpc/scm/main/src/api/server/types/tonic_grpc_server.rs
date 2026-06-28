@@ -3,10 +3,10 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_grpc::{
     AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain, HealthService,
 };
-use edge_domain_security::IngressTlsConfig;
 
 /// Default maximum inbound message size (4 MiB).
 pub const MAX_MESSAGE_BYTES: usize = 4 * 1_024 * 1_024;

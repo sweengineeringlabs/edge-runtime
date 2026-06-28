@@ -17,7 +17,10 @@ fn test_tls_svc_is_constructible_happy() {
     };
     let result = TlsSvc::build_tls_acceptor(&cfg);
     // tls_svc() itself cannot fail; build_tls_acceptor surfaces errors
-    assert!(result.is_err(), "build_tls_acceptor with missing cert must err");
+    assert!(
+        result.is_err(),
+        "build_tls_acceptor with missing cert must err"
+    );
 }
 
 /// @covers: tls_svc

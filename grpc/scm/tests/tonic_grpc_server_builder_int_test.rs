@@ -86,7 +86,11 @@ fn test_builder_with_max_concurrent_streams_sets_value_error() {
 #[test]
 fn test_builder_with_tls_sets_tls_config_edge() {
     use swe_edge_runtime_grpc::IngressTlsConfig;
-    let tls = IngressTlsConfig { cert_pem_path: "cert.pem".into(), key_pem_path: "key.pem".into(), client_ca_pem_path: None };
+    let tls = IngressTlsConfig {
+        cert_pem_path: "cert.pem".into(),
+        key_pem_path: "key.pem".into(),
+        client_ca_pem_path: None,
+    };
     use std::net::SocketAddr;
     let bind: SocketAddr = "127.0.0.1:0".parse().unwrap();
     let cfg = GrpcServerConfig::new(bind).with_tls(tls);

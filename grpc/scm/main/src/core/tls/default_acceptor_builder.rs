@@ -93,7 +93,9 @@ mod tests {
     /// @covers: build_tls_acceptor
     #[test]
     fn test_build_tls_acceptor_valid_cert_and_key_returns_acceptor_happy() {
-        rustls::crypto::ring::default_provider().install_default().ok();
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .ok();
         let dir = tempfile::tempdir().expect("tempdir");
         let (cert, key) = generate_self_signed();
         let cfg = IngressTlsConfig {
@@ -127,7 +129,9 @@ mod tests {
     /// @covers: build_tls_acceptor
     #[test]
     fn test_build_tls_acceptor_mtls_with_ca_produces_acceptor_edge() {
-        rustls::crypto::ring::default_provider().install_default().ok();
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .ok();
         let dir = tempfile::tempdir().expect("tempdir");
         let (cert, key) = generate_self_signed();
         let (ca, _) = generate_self_signed();
