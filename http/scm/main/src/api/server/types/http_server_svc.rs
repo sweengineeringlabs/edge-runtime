@@ -1,4 +1,23 @@
-//! HttpServerSvc type declaration — SEA api/ is the legal declaration site.
+//! HttpServerSvc type declaration and inherent impl.
+
+use std::sync::Arc;
+
+use swe_edge_ingress_http::HttpIngress;
+
+use crate::api::{AxumHttpServer, AxumHttpServerBuilder};
 
 /// Factory for HTTP server objects.
 pub struct HttpServerSvc;
+
+impl HttpServerSvc {
+    /// Construct a new [`AxumHttpServer`] bound to `bind`, delegating all
+    /// inbound requests to `handler`.
+    pub fn new_server(bind: String, handler: Arc<dyn HttpIngress>) -> AxumHttpServer {
+        AxumHttpServer::new(bind, handler)
+    }
+
+    /// Return a fluent builder for constructing an [`AxumHttpServer`].
+    pub fn builder(bind: String, handler: Arc<dyn HttpIngress>) -> AxumHttpServerBuilder {
+        AxumHttpServerBuilder::new(bind, handler)
+    }
+}
