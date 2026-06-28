@@ -1,2 +1,2 @@
-mod tls_svc;
-pub(crate) use tls_svc::DefaultAcceptorBuilder;
+mod default_acceptor_builder;
+pub(crate) use default_acceptor_builder::DefaultAcceptorBuilder;

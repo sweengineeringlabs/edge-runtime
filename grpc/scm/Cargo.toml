@@ -10,6 +10,10 @@ description      = "gRPC server hosting crate for the swe-edge runtime layer —
 keywords         = ["grpc", "server", "runtime", "async", "swe"]
 categories       = ["network-programming", "asynchronous"]
 
+[package.metadata.arch]
+application_type = "lib"
+service_type     = "grpc-runtime"
+
 [package.metadata.struct-engine]
 application_type = "lib"
 service_type     = "grpc-runtime"
