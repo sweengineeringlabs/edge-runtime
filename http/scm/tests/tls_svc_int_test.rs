@@ -28,7 +28,10 @@ fn test_rustls_server_config_builder_is_constructible_happy() {
     use rustls::ServerConfig;
     // Exercises rustls::ServerConfig builder pattern used internally.
     let builder = ServerConfig::builder().with_no_client_auth();
-    assert!(std::mem::size_of_val(&builder) > 0, "rustls builder must occupy memory");
+    assert!(
+        std::mem::size_of_val(&builder) > 0,
+        "rustls builder must occupy memory"
+    );
 }
 
 #[test]
@@ -47,7 +50,10 @@ fn test_rustls_pemfile_certs_parses_valid_pem_edge() {
     let certs: Vec<_> = rustls_pemfile::certs(&mut BufReader::new(cert_pem.as_bytes()))
         .collect::<Result<_, _>>()
         .expect("cert parse must succeed");
-    assert!(!certs.is_empty(), "self-signed PEM must yield at least one cert");
+    assert!(
+        !certs.is_empty(),
+        "self-signed PEM must yield at least one cert"
+    );
 }
 
 // ── dep:tokio-rustls — TlsAcceptor type-level coverage ───────────────────────

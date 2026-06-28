@@ -175,12 +175,11 @@ fn test_with_stream_handler_does_not_affect_default_timeout_error() {
 fn test_with_tls_invalid_paths_still_constructs_server_error() {
     // @covers: AxumHttpServer::with_tls (construction; TLS errors surface at serve time)
     use edge_domain_security::IngressTlsConfig;
-    let s = AxumHttpServer::new("127.0.0.1:0", handler())
-        .with_tls(IngressTlsConfig {
-            cert_pem_path: "no.pem".into(),
-            key_pem_path: "no.pem".into(),
-            client_ca_pem_path: None,
-        });
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_tls(IngressTlsConfig {
+        cert_pem_path: "no.pem".into(),
+        key_pem_path: "no.pem".into(),
+        client_ca_pem_path: None,
+    });
     assert_eq!(
         s.request_timeout(),
         DEFAULT_REQUEST_TIMEOUT,
@@ -192,12 +191,11 @@ fn test_with_tls_invalid_paths_still_constructs_server_error() {
 fn test_with_tls_mtls_config_does_not_panic_edge() {
     // @covers: AxumHttpServer::with_tls (mTLS variant)
     use edge_domain_security::IngressTlsConfig;
-    let s = AxumHttpServer::new("127.0.0.1:0", handler())
-        .with_tls(IngressTlsConfig {
-            cert_pem_path: "c.pem".into(),
-            key_pem_path: "k.pem".into(),
-            client_ca_pem_path: Some("ca.pem".into()),
-        });
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_tls(IngressTlsConfig {
+        cert_pem_path: "c.pem".into(),
+        key_pem_path: "k.pem".into(),
+        client_ca_pem_path: Some("ca.pem".into()),
+    });
     assert_eq!(
         s.request_timeout(),
         DEFAULT_REQUEST_TIMEOUT,

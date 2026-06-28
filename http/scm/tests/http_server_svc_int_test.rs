@@ -263,11 +263,7 @@ fn test_new_server_out_of_range_port_defers_error_to_bind_edge() {
 fn test_tls_svc_returns_tls_svc_instance_happy() {
     // @covers: HttpServer::tls_svc
     let svc: TlsSvc = AxumHttpServer::tls_svc();
-    assert_eq!(
-        std::mem::size_of_val(&svc),
-        0,
-        "TlsSvc must be a ZST"
-    );
+    assert_eq!(std::mem::size_of_val(&svc), 0, "TlsSvc must be a ZST");
 }
 
 #[test]

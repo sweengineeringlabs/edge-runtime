@@ -7,12 +7,12 @@ use std::sync::Arc;
 use axum::http::StatusCode;
 use axum::response::IntoResponse as _;
 use edge_domain::SecurityContext;
+use edge_domain_security::IngressTlsConfig;
 use futures::StreamExt as _;
 use swe_edge_ingress_http::{
     HttpBody, HttpIngress, HttpIngressError, HttpMethod, HttpRequest, HttpResponse, HttpStream,
     WsChannel, WsMessage,
 };
-use edge_domain_security::IngressTlsConfig;
 use swe_edge_ingress_verifier::TokenVerifier;
 use tokio::net::TcpListener;
 

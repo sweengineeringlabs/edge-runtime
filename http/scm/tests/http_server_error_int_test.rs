@@ -88,8 +88,8 @@ fn test_http_server_error_tls_display_contains_tls_prefix_happy() {
 
 #[test]
 fn test_http_server_error_tls_source_is_ingress_tls_error_error() {
-    use std::error::Error;
     use edge_domain_security::IngressTlsError;
+    use std::error::Error;
     let inner = IngressTlsError::CertLoad("bad.pem".into(), std::io::Error::other("no file"));
     let e = HttpServerError::Tls(inner);
     assert!(e.source().is_some(), "Tls variant must expose source error");
