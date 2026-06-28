@@ -1,10 +1,3 @@
-//! SAF factory surface for GrpcServerObserver.
-
-use crate::api::{GrpcServerObserver, GrpcServerObserverSvc};
-
-impl GrpcServerObserverSvc {
-    /// Returns whether reflection is enabled by observing a GrpcServer.
-    pub fn is_reflection_enabled(server: &dyn GrpcServerObserver) -> bool {
-        server.is_reflection_enabled()
-    }
-}
+//! SAF surface marker for GrpcServerObserverSvc. Inherent methods live in api/server/types/.
+/// Service identifier for the gRPC server observer factory.
+pub const GRPC_SERVER_OBSERVER_SVC: &str = "grpc_server_observer";

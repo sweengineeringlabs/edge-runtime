@@ -3,8 +3,7 @@ mod noop;
 mod server;
 mod tls;
 
-pub use noop::{NoopGrpcIngress, NoopGrpcValidator, Validator, ValidatorSvc};
-pub use tls::TlsSvc;
+pub use noop::{GrpcValidationError, NoopGrpcIngress, NoopGrpcValidator, Validator, ValidatorSvc};
 pub use server::{
     GrpcServer, GrpcServerConfig, GrpcServerConfigBuilder, GrpcServerConfigError, GrpcServerError,
     GrpcServerObserver, GrpcServerObserverSvc, GrpcServerSvc, StatusCodeConverter, TonicGrpcServer,
@@ -13,3 +12,4 @@ pub use server::{
     DEFAULT_MAX_MESSAGE_BYTES, MAX_MESSAGE_BYTES, MISSING_AUTHORIZATION_INTERCEPTOR_MSG,
     REFLECTION_ENABLED_WARN_MSG, SANITIZED_INTERNAL_MSG,
 };
+pub use tls::TlsSvc;

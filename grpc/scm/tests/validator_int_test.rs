@@ -2,7 +2,7 @@
 //! @covers: Validator::validate
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use swe_edge_runtime_grpc::{NoopGrpcValidator, Validator};
+use swe_edge_runtime_grpc::{GrpcValidationError, NoopGrpcValidator, Validator};
 
 #[test]
 fn test_validate_noop_returns_ok_happy() {
@@ -12,15 +12,15 @@ fn test_validate_noop_returns_ok_happy() {
     assert!(result.is_ok(), "noop validator must always pass");
     assert_ne!(
         result,
-        Err("rejected".to_string()),
+        Err(GrpcValidationError::Invalid("rejected".to_string())),
         "noop must not produce RejectValidator's message"
     );
 }
 
 struct RejectValidator;
 impl Validator for RejectValidator {
-    fn validate(&self) -> Result<(), String> {
-        Err("rejected".to_string())
+    fn validate(&self) -> Result<(), GrpcValidationError> {
+        Err(GrpcValidationError::Invalid("rejected".to_string()))
     }
 }
 
@@ -30,7 +30,10 @@ fn test_validate_custom_error_returns_err_error() {
     let v = RejectValidator;
     let result = v.validate();
     assert!(result.is_err());
-    assert_eq!(result.unwrap_err(), "rejected");
+    assert_eq!(
+        result.unwrap_err(),
+        GrpcValidationError::Invalid("rejected".to_string())
+    );
 }
 
 #[test]
@@ -42,8 +45,10 @@ fn test_validate_noop_as_trait_object_edge() {
         dyn_v.validate().is_ok(),
         "noop via trait object must always pass"
     );
-    // The reject validator distinguishes noop from a real failure.
     let reject = RejectValidator;
     let dyn_reject: &dyn Validator = &reject;
-    assert_eq!(dyn_reject.validate().unwrap_err(), "rejected");
+    assert_eq!(
+        dyn_reject.validate().unwrap_err(),
+        GrpcValidationError::Invalid("rejected".to_string())
+    );
 }

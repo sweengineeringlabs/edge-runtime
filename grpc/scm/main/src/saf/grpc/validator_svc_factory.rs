@@ -1,15 +1,3 @@
-//! SAF factory surface for Validator.
-
-use crate::api::{NoopGrpcValidator, Validator, ValidatorSvc};
-
-impl ValidatorSvc {
-    /// Validate a value using the provided [`Validator`].
-    pub fn validate(v: &dyn Validator) -> Result<(), String> {
-        v.validate()
-    }
-
-    /// Create a no-op validator that always passes.
-    pub fn create_noop() -> NoopGrpcValidator {
-        NoopGrpcValidator
-    }
-}
+//! SAF surface marker for ValidatorSvc. Inherent methods live in api/noop/.
+/// Service identifier for the validator factory.
+pub const VALIDATOR_SVC: &str = "validator";

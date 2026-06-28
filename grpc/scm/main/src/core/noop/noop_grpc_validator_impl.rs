@@ -1,9 +1,9 @@
 //! No-op validator implementation.
 
-use crate::api::{NoopGrpcValidator, Validator};
+use crate::api::{GrpcValidationError, NoopGrpcValidator, Validator};
 
 impl Validator for NoopGrpcValidator {
-    fn validate(&self) -> Result<(), String> {
+    fn validate(&self) -> Result<(), GrpcValidationError> {
         Ok(())
     }
 }
