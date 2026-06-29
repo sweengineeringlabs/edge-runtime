@@ -78,24 +78,26 @@ fn test_http_server_error_serve_is_send_sync_edge() {
 
 #[test]
 fn test_http_server_error_tls_display_contains_tls_prefix_happy() {
-    use edge_domain_security::IngressTlsError;
-    let inner =
-        IngressTlsError::CertLoad("bad_cert.pem".into(), std::io::Error::other("not found"));
-    let e = HttpServerError::Tls(inner);
+    let e = HttpServerError::Tls("cert load failed: not found".into());
     let msg = e.to_string();
-    assert!(!msg.is_empty(), "TLS error must display: {msg}");
+    assert!(
+        msg.contains("TLS"),
+        "display must include TLS prefix; got: {msg}"
+    );
+    assert!(
+        msg.contains("cert load failed"),
+        "display must include inner message; got: {msg}"
+    );
 }
 
 #[test]
-fn test_http_server_error_tls_source_is_ingress_tls_error_error() {
-    use edge_domain_security::IngressTlsError;
-    use std::error::Error;
-    let inner = IngressTlsError::CertLoad("bad.pem".into(), std::io::Error::other("no file"));
-    let e = HttpServerError::Tls(inner);
-    assert!(e.source().is_some(), "Tls variant must expose source error");
+fn test_http_server_error_tls_holds_message_string_error() {
+    let payload = "bad_cert.pem: permission denied";
+    let e = HttpServerError::Tls(payload.into());
+    let msg = e.to_string();
     assert!(
-        !e.source().unwrap().to_string().is_empty(),
-        "TLS source error must have non-empty message"
+        msg.contains(payload),
+        "Tls variant must embed the message string; got: {msg}"
     );
 }
 

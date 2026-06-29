@@ -11,5 +11,5 @@ pub enum HttpServerError {
     Serve(#[source] std::io::Error),
     /// TLS acceptor construction failed.
     #[error("TLS: {0}")]
-    Tls(#[source] edge_domain_security::IngressTlsError),
+    Tls(String),
 }

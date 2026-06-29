@@ -46,7 +46,7 @@ impl AxumHttpServer {
             .unwrap_or_else(|_| self.bind.clone());
 
         if let Some(ref tls_cfg) = self.tls {
-            tracing::info!(bind = %bind_addr, mtls = tls_cfg.client_ca_pem_path.is_some(), "HTTPS server listening");
+            tracing::info!(bind = %bind_addr, mtls = tls_cfg.ca_pem_path.is_some(), "HTTPS server listening");
             AxumHttpServerHelper::serve_tls(
                 listener,
                 self.handler.clone(),
@@ -191,12 +191,12 @@ impl HttpStream for AxumHttpServer {
 #[cfg(test)]
 mod dedicated_coverage {
     use super::AxumHttpServer;
+    use edge_domain_security::PemTlsConfig;
     use futures::future::BoxFuture;
     use std::sync::Arc;
     use swe_edge_ingress_http::{
         HttpHealthCheck, HttpIngress, HttpIngressResult, HttpRequest, HttpResponse, MAX_BODY_BYTES,
     };
-    use edge_domain_security::IngressTlsConfig;
 
     fn make_handler() -> Arc<dyn HttpIngress> {
         struct AxumServerDispatcherOkIngress;
@@ -233,7 +233,7 @@ mod dedicated_coverage {
 
     #[test]
     fn test_with_tls_sets_config() {
-        let cfg = IngressTlsConfig::tls("cert.pem", "key.pem");
+        let cfg = PemTlsConfig::tls("cert.pem", "key.pem");
         let s = server().with_tls(cfg);
         assert!(s.tls.is_some());
         assert_eq!(

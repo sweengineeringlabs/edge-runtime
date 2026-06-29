@@ -113,11 +113,11 @@ fn test_with_request_timeout_large_value_edge() {
 
 #[test]
 fn test_with_tls_does_not_panic_happy() {
-    use edge_domain_security::IngressTlsConfig;
-    let s = server().with_tls(IngressTlsConfig {
+    use edge_domain_security::PemTlsConfig;
+    let s = server().with_tls(PemTlsConfig {
         cert_pem_path: "c.pem".into(),
         key_pem_path: "k.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     });
     assert_eq!(
         s.request_timeout(),
@@ -128,11 +128,11 @@ fn test_with_tls_does_not_panic_happy() {
 
 #[test]
 fn test_with_mtls_does_not_panic_error() {
-    use edge_domain_security::IngressTlsConfig;
-    let s = server().with_tls(IngressTlsConfig {
+    use edge_domain_security::PemTlsConfig;
+    let s = server().with_tls(PemTlsConfig {
         cert_pem_path: "c.pem".into(),
         key_pem_path: "k.pem".into(),
-        client_ca_pem_path: Some("ca.pem".into()),
+        ca_pem_path: Some("ca.pem".into()),
     });
     assert_eq!(
         s.request_timeout(),
@@ -143,17 +143,17 @@ fn test_with_mtls_does_not_panic_error() {
 
 #[test]
 fn test_tls_serve_rejects_missing_cert_edge() {
-    use edge_domain_security::IngressTlsConfig;
+    use edge_domain_security::PemTlsConfig;
     let result = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap()
         .block_on(async {
             let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
-            let s = server().with_tls(IngressTlsConfig {
+            let s = server().with_tls(PemTlsConfig {
                 cert_pem_path: "no.pem".into(),
                 key_pem_path: "no.pem".into(),
-                client_ca_pem_path: None,
+                ca_pem_path: None,
             });
             let shutdown: BoxFuture<'static, ()> = Box::pin(async {});
             s.serve_with_listener(listener, shutdown).await

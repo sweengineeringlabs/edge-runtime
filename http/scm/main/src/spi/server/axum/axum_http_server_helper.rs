@@ -7,7 +7,7 @@ use std::sync::Arc;
 use axum::http::StatusCode;
 use axum::response::IntoResponse as _;
 use edge_domain::SecurityContext;
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use futures::StreamExt as _;
 use swe_edge_ingress_http::{
     HttpBody, HttpIngress, HttpIngressError, HttpMethod, HttpRequest, HttpResponse, HttpStream,
@@ -181,7 +181,7 @@ impl AxumHttpServerHelper {
             .into_response()
     }
 
-    /// Serve TLS connections using the provided `IngressTlsConfig`.
+    /// Serve TLS connections using the provided `PemTlsConfig`.
     #[allow(clippy::too_many_arguments, clippy::unused_async)]
     pub(crate) async fn serve_tls<F>(
         listener: TcpListener,
@@ -190,7 +190,7 @@ impl AxumHttpServerHelper {
         request_timeout: std::time::Duration,
         verifier: Option<Arc<dyn TokenVerifier>>,
         stream_handler: Option<Arc<dyn HttpStream>>,
-        tls_cfg: &IngressTlsConfig,
+        tls_cfg: &PemTlsConfig,
         shutdown: F,
     ) -> Result<(), HttpServerError>
     where
@@ -202,7 +202,7 @@ impl AxumHttpServerHelper {
         use tower_http::trace::TraceLayer;
 
         let acceptor = crate::core::tls::DefaultAcceptorBuilder::build_tls_acceptor(tls_cfg)
-            .map_err(HttpServerError::Tls)?;
+            .map_err(|e| HttpServerError::Tls(e.to_string()))?;
 
         let mut shutdown = std::pin::pin!(shutdown);
 
@@ -637,11 +637,11 @@ mod tests {
 
     #[test]
     fn test_serve_tls_rejects_invalid_cert_paths() {
-        use edge_domain_security::IngressTlsConfig;
-        let tls_cfg = IngressTlsConfig {
+        use edge_domain_security::PemTlsConfig;
+        let tls_cfg = PemTlsConfig {
             cert_pem_path: "nonexistent_cert.pem".into(),
             key_pem_path: "nonexistent_key.pem".into(),
-            client_ca_pem_path: None,
+            ca_pem_path: None,
         };
         let result = tokio::runtime::Builder::new_current_thread()
             .enable_all()

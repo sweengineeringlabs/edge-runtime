@@ -1,6 +1,6 @@
 //! SAF surface for [`TlsSvc`] — TLS acceptor factory.
 
-use edge_domain_security::{IngressTlsConfig, IngressTlsError};
+use edge_domain_security::{IngressTlsError, PemTlsConfig};
 use tokio_rustls::TlsAcceptor;
 
 use crate::api::TlsSvc;
@@ -10,8 +10,8 @@ use crate::core::tls::DefaultAcceptorBuilder;
 pub const TLS_SVC: &str = "tls";
 
 impl TlsSvc {
-    /// Build a [`TlsAcceptor`] from an [`IngressTlsConfig`].
-    pub fn build_tls_acceptor(cfg: &IngressTlsConfig) -> Result<TlsAcceptor, IngressTlsError> {
+    /// Build a [`TlsAcceptor`] from an [`PemTlsConfig`].
+    pub fn build_tls_acceptor(cfg: &PemTlsConfig) -> Result<TlsAcceptor, IngressTlsError> {
         DefaultAcceptorBuilder::build_tls_acceptor(cfg)
     }
 }

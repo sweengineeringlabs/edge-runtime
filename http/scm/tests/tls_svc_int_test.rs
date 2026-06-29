@@ -5,7 +5,7 @@
 // @covers dep:tokio-rustls
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
-use edge_domain_security::{IngressTlsConfig, IngressTlsError};
+use edge_domain_security::{IngressTlsError, PemTlsConfig};
 use swe_edge_runtime_http::TlsSvc;
 
 fn write_temp(path: &std::path::Path, content: &str) {
@@ -25,7 +25,9 @@ fn generate_self_signed() -> (String, String) {
 
 #[test]
 fn test_rustls_server_config_builder_is_constructible_happy() {
-    rustls::crypto::ring::default_provider().install_default().ok();
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .ok();
     use rustls::ServerConfig;
     // Exercises rustls::ServerConfig builder pattern used internally.
     let builder = ServerConfig::builder().with_no_client_auth();
@@ -61,7 +63,9 @@ fn test_rustls_pemfile_certs_parses_valid_pem_edge() {
 
 #[test]
 fn test_tokio_rustls_acceptor_is_non_zero_size_happy() {
-    rustls::crypto::ring::default_provider().install_default().ok();
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .ok();
     use rustls::pki_types::{CertificateDer, PrivateKeyDer};
     use rustls::ServerConfig;
     use std::sync::Arc;
@@ -100,7 +104,9 @@ fn test_tokio_rustls_acceptor_is_non_zero_size_happy() {
 /// @covers: TlsSvc::build_tls_acceptor
 #[test]
 fn test_build_tls_acceptor_valid_cert_produces_acceptor_happy() {
-    rustls::crypto::ring::default_provider().install_default().ok();
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .ok();
     let dir = tempfile::tempdir().expect("tempdir failed");
     let (cert_pem, key_pem) = generate_self_signed();
     let cert_path = dir.path().join("cert.pem");
@@ -108,10 +114,7 @@ fn test_build_tls_acceptor_valid_cert_produces_acceptor_happy() {
     write_temp(&cert_path, &cert_pem);
     write_temp(&key_path, &key_pem);
 
-    let cfg = IngressTlsConfig::tls(
-        cert_path.to_string_lossy(),
-        key_path.to_string_lossy(),
-    );
+    let cfg = PemTlsConfig::tls(cert_path.to_string_lossy(), key_path.to_string_lossy());
 
     let result = TlsSvc::build_tls_acceptor(&cfg);
     assert!(
@@ -127,10 +130,10 @@ fn test_build_tls_acceptor_valid_cert_produces_acceptor_happy() {
 /// @covers: TlsSvc::build_tls_acceptor
 #[test]
 fn test_build_tls_acceptor_missing_cert_returns_cert_load_error_error() {
-    let cfg = IngressTlsConfig {
+    let cfg = PemTlsConfig {
         cert_pem_path: "/nonexistent/cert.pem".into(),
         key_pem_path: "/nonexistent/key.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
 
     let result = TlsSvc::build_tls_acceptor(&cfg);
@@ -144,7 +147,9 @@ fn test_build_tls_acceptor_missing_cert_returns_cert_load_error_error() {
 /// @covers: TlsSvc::build_tls_acceptor
 #[test]
 fn test_build_tls_acceptor_mtls_with_valid_ca_produces_acceptor_edge() {
-    rustls::crypto::ring::default_provider().install_default().ok();
+    rustls::crypto::ring::default_provider()
+        .install_default()
+        .ok();
     let dir = tempfile::tempdir().expect("tempdir failed");
     let (cert_pem, key_pem) = generate_self_signed();
     let (ca_pem, _ca_key) = generate_self_signed();
@@ -155,7 +160,7 @@ fn test_build_tls_acceptor_mtls_with_valid_ca_produces_acceptor_edge() {
     write_temp(&key_path, &key_pem);
     write_temp(&ca_path, &ca_pem);
 
-    let cfg = IngressTlsConfig::mtls(
+    let cfg = PemTlsConfig::mtls(
         cert_path.to_string_lossy(),
         key_path.to_string_lossy(),
         ca_path.to_string_lossy(),

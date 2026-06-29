@@ -1,1 +1,2 @@
-//! Core implementations for the HTTP server domain — reserved for future use.
+//! Core implementations for the HTTP server domain.
+pub(crate) mod types;

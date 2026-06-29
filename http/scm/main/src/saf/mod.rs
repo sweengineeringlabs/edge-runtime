@@ -15,3 +15,6 @@ pub use swe_edge_ingress_http::{
 };
 pub use tls_svc::TLS_SVC;
 pub use validator_svc::Validator;
+
+#[cfg(test)]
+mod tests;

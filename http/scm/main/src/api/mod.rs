@@ -7,6 +7,9 @@ mod noop;
 mod server;
 mod tls;
 
+#[cfg(test)]
+mod tests;
+
 pub use noop::{NoopHttpIngress, NoopValidator};
 pub use server::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServer, HttpServerError,

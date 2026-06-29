@@ -10,6 +10,7 @@ use swe_edge_runtime_http::AxumHttpServerHelper;
 
 // ── is_websocket_upgrade ──────────────────────────────────────────────────────
 
+/// @covers: is_websocket_upgrade
 #[test]
 fn test_is_websocket_upgrade_with_websocket_header_returns_true_happy() {
     let mut headers = axum::http::HeaderMap::new();
@@ -20,12 +21,14 @@ fn test_is_websocket_upgrade_with_websocket_header_returns_true_happy() {
     assert!(AxumHttpServerHelper::is_websocket_upgrade(&headers));
 }
 
+/// @covers: is_websocket_upgrade
 #[test]
 fn test_is_websocket_upgrade_with_no_header_returns_false_error() {
     let headers = axum::http::HeaderMap::new();
     assert!(!AxumHttpServerHelper::is_websocket_upgrade(&headers));
 }
 
+/// @covers: is_websocket_upgrade
 #[test]
 fn test_is_websocket_upgrade_with_non_websocket_upgrade_returns_false_edge() {
     let mut headers = axum::http::HeaderMap::new();
@@ -38,6 +41,7 @@ fn test_is_websocket_upgrade_with_non_websocket_upgrade_returns_false_edge() {
 
 // ── is_sse_request ────────────────────────────────────────────────────────────
 
+/// @covers: is_sse_request
 #[test]
 fn test_is_sse_request_with_event_stream_accept_returns_true_happy() {
     let mut headers = axum::http::HeaderMap::new();
@@ -48,6 +52,7 @@ fn test_is_sse_request_with_event_stream_accept_returns_true_happy() {
     assert!(AxumHttpServerHelper::is_sse_request(&headers));
 }
 
+/// @covers: is_sse_request
 #[test]
 fn test_is_sse_request_with_json_accept_returns_false_error() {
     let mut headers = axum::http::HeaderMap::new();
@@ -58,6 +63,7 @@ fn test_is_sse_request_with_json_accept_returns_false_error() {
     assert!(!AxumHttpServerHelper::is_sse_request(&headers));
 }
 
+/// @covers: is_sse_request
 #[test]
 fn test_is_sse_request_with_no_accept_returns_false_edge() {
     let headers = axum::http::HeaderMap::new();
@@ -66,6 +72,7 @@ fn test_is_sse_request_with_no_accept_returns_false_edge() {
 
 // ── collect_headers ───────────────────────────────────────────────────────────
 
+/// @covers: collect_headers
 #[test]
 fn test_collect_headers_returns_content_type_happy() {
     let mut headers = axum::http::HeaderMap::new();
@@ -80,6 +87,7 @@ fn test_collect_headers_returns_content_type_happy() {
     );
 }
 
+/// @covers: collect_headers
 #[test]
 fn test_collect_headers_empty_map_returns_empty_error() {
     let headers = axum::http::HeaderMap::new();
@@ -87,6 +95,7 @@ fn test_collect_headers_empty_map_returns_empty_error() {
     assert!(map.is_empty());
 }
 
+/// @covers: collect_headers
 #[test]
 fn test_collect_headers_keys_are_lowercase_edge() {
     let mut headers = axum::http::HeaderMap::new();
@@ -106,12 +115,14 @@ fn test_collect_headers_keys_are_lowercase_edge() {
 
 // ── payload_too_large ─────────────────────────────────────────────────────────
 
+/// @covers: payload_too_large
 #[test]
 fn test_payload_too_large_returns_413_happy() {
     let resp = AxumHttpServerHelper::payload_too_large();
     assert_eq!(resp.status(), axum::http::StatusCode::PAYLOAD_TOO_LARGE);
 }
 
+/// @covers: payload_too_large
 #[test]
 fn test_payload_too_large_content_type_is_plain_text_error() {
     let resp = AxumHttpServerHelper::payload_too_large();
@@ -126,6 +137,7 @@ fn test_payload_too_large_content_type_is_plain_text_error() {
     );
 }
 
+/// @covers: payload_too_large
 #[test]
 fn test_payload_too_large_called_twice_is_idempotent_edge() {
     let r1 = AxumHttpServerHelper::payload_too_large();
@@ -135,18 +147,21 @@ fn test_payload_too_large_called_twice_is_idempotent_edge() {
 
 // ── internal_server_error ────────────────────────────────────────────────────
 
+/// @covers: internal_server_error
 #[test]
 fn test_internal_server_error_returns_500_happy() {
     let resp = AxumHttpServerHelper::internal_server_error("failure");
     assert_eq!(resp.status(), axum::http::StatusCode::INTERNAL_SERVER_ERROR);
 }
 
+/// @covers: internal_server_error
 #[test]
 fn test_internal_server_error_returns_500_error() {
     let resp = AxumHttpServerHelper::internal_server_error("test failure");
     assert_eq!(resp.status(), axum::http::StatusCode::INTERNAL_SERVER_ERROR);
 }
 
+/// @covers: internal_server_error
 #[test]
 fn test_internal_server_error_content_type_is_plain_text_edge() {
     let resp = AxumHttpServerHelper::internal_server_error("oops");
@@ -161,9 +176,9 @@ fn test_internal_server_error_content_type_is_plain_text_edge() {
     );
 }
 
+/// @covers: is_websocket_upgrade
 #[test]
 fn test_helper_is_unit_struct_edge() {
-    // AxumHttpServerHelper is a unit struct — construction is always valid.
     let h = AxumHttpServerHelper;
     assert_eq!(
         std::mem::size_of_val(&h),

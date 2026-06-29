@@ -4,7 +4,7 @@ use std::fs;
 use std::io::BufReader;
 use std::sync::Arc;
 
-use edge_domain_security::{IngressTlsConfig, IngressTlsError};
+use edge_domain_security::{IngressTlsError, PemTlsConfig};
 use rustls::pki_types::{CertificateDer, PrivateKeyDer};
 use rustls::ServerConfig;
 use tokio_rustls::TlsAcceptor;
@@ -12,13 +12,11 @@ use tokio_rustls::TlsAcceptor;
 pub(crate) struct DefaultAcceptorBuilder;
 
 impl DefaultAcceptorBuilder {
-    pub(crate) fn build_tls_acceptor(
-        cfg: &IngressTlsConfig,
-    ) -> Result<TlsAcceptor, IngressTlsError> {
+    pub(crate) fn build_tls_acceptor(cfg: &PemTlsConfig) -> Result<TlsAcceptor, IngressTlsError> {
         let certs = Self::load_certs(&cfg.cert_pem_path)?;
         let key = Self::load_key(&cfg.key_pem_path)?;
 
-        let config = if let Some(ca_path) = &cfg.client_ca_pem_path {
+        let config = if let Some(ca_path) = &cfg.ca_pem_path {
             Self::build_mtls_config(certs, key, ca_path)?
         } else {
             ServerConfig::builder()
@@ -73,7 +71,7 @@ impl DefaultAcceptorBuilder {
 #[cfg(test)]
 mod tests {
     use super::DefaultAcceptorBuilder;
-    use edge_domain_security::{IngressTlsConfig, IngressTlsError};
+    use edge_domain_security::{IngressTlsError, PemTlsConfig};
 
     fn generate_self_signed() -> (String, String) {
         let key_pair = rcgen::KeyPair::generate().expect("key gen");
@@ -93,28 +91,27 @@ mod tests {
     /// @covers: build_tls_acceptor
     #[test]
     fn test_build_tls_acceptor_valid_cert_and_key_returns_acceptor_happy() {
-        rustls::crypto::ring::default_provider().install_default().ok();
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .ok();
         let dir = tempfile::tempdir().expect("tempdir");
         let (cert, key) = generate_self_signed();
-        let cfg = IngressTlsConfig {
+        let cfg = PemTlsConfig {
             cert_pem_path: write_temp(dir.path(), "c.pem", &cert),
             key_pem_path: write_temp(dir.path(), "k.pem", &key),
-            client_ca_pem_path: None,
+            ca_pem_path: None,
         };
         let result = DefaultAcceptorBuilder::build_tls_acceptor(&cfg);
-        assert!(
-            result.is_ok(),
-            "valid cert+key must produce acceptor"
-        );
+        assert!(result.is_ok(), "valid cert+key must produce acceptor");
     }
 
     /// @covers: build_tls_acceptor
     #[test]
     fn test_build_tls_acceptor_missing_cert_returns_cert_load_error_error() {
-        let cfg = IngressTlsConfig {
+        let cfg = PemTlsConfig {
             cert_pem_path: "/no/cert.pem".into(),
             key_pem_path: "/no/key.pem".into(),
-            client_ca_pem_path: None,
+            ca_pem_path: None,
         };
         let result = DefaultAcceptorBuilder::build_tls_acceptor(&cfg);
         assert!(
@@ -126,19 +123,18 @@ mod tests {
     /// @covers: build_tls_acceptor
     #[test]
     fn test_build_tls_acceptor_mtls_with_ca_produces_acceptor_edge() {
-        rustls::crypto::ring::default_provider().install_default().ok();
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .ok();
         let dir = tempfile::tempdir().expect("tempdir");
         let (cert, key) = generate_self_signed();
         let (ca, _) = generate_self_signed();
-        let cfg = IngressTlsConfig {
+        let cfg = PemTlsConfig {
             cert_pem_path: write_temp(dir.path(), "c.pem", &cert),
             key_pem_path: write_temp(dir.path(), "k.pem", &key),
-            client_ca_pem_path: Some(write_temp(dir.path(), "ca.pem", &ca)),
+            ca_pem_path: Some(write_temp(dir.path(), "ca.pem", &ca)),
         };
         let result = DefaultAcceptorBuilder::build_tls_acceptor(&cfg);
-        assert!(
-            result.is_ok(),
-            "valid mTLS config must produce acceptor"
-        );
+        assert!(result.is_ok(), "valid mTLS config must produce acceptor");
     }
 }

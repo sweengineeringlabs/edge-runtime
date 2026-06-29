@@ -174,11 +174,11 @@ fn test_with_stream_handler_does_not_affect_default_timeout_error() {
 #[test]
 fn test_with_tls_invalid_paths_still_constructs_server_error() {
     // @covers: AxumHttpServer::with_tls (construction; TLS errors surface at serve time)
-    use edge_domain_security::IngressTlsConfig;
-    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_tls(IngressTlsConfig {
+    use edge_domain_security::PemTlsConfig;
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_tls(PemTlsConfig {
         cert_pem_path: "no.pem".into(),
         key_pem_path: "no.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     });
     assert_eq!(
         s.request_timeout(),
@@ -190,11 +190,11 @@ fn test_with_tls_invalid_paths_still_constructs_server_error() {
 #[test]
 fn test_with_tls_mtls_config_does_not_panic_edge() {
     // @covers: AxumHttpServer::with_tls (mTLS variant)
-    use edge_domain_security::IngressTlsConfig;
-    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_tls(IngressTlsConfig {
+    use edge_domain_security::PemTlsConfig;
+    let s = AxumHttpServer::new("127.0.0.1:0", handler()).with_tls(PemTlsConfig {
         cert_pem_path: "c.pem".into(),
         key_pem_path: "k.pem".into(),
-        client_ca_pem_path: Some("ca.pem".into()),
+        ca_pem_path: Some("ca.pem".into()),
     });
     assert_eq!(
         s.request_timeout(),
@@ -272,14 +272,14 @@ fn test_build_with_zero_timeout_preserves_zero_error() {
 #[test]
 fn test_build_with_all_options_produces_configured_server_edge() {
     // @covers: AxumHttpServerBuilder::build (all builder options combined)
-    use edge_domain_security::IngressTlsConfig;
+    use edge_domain_security::PemTlsConfig;
     let s = AxumHttpServerBuilder::new("127.0.0.1:0", handler())
         .with_body_limit(512)
         .with_request_timeout(Duration::from_millis(100))
-        .with_tls(IngressTlsConfig {
+        .with_tls(PemTlsConfig {
             cert_pem_path: "c.pem".into(),
             key_pem_path: "k.pem".into(),
-            client_ca_pem_path: None,
+            ca_pem_path: None,
         })
         .build();
     assert_eq!(
