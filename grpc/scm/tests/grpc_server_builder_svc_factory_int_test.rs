@@ -3,9 +3,11 @@
 
 use std::sync::Arc;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
-use swe_edge_runtime_grpc::{GrpcServerBuild, GrpcServerManage, NoopGrpcIngress, TonicGrpcServerBuilder};
+use swe_edge_runtime_grpc::{
+    GrpcServerBuild, GrpcServerManage, NoopGrpcIngress, TonicGrpcServerBuilder,
+};
 
 fn handler() -> Arc<NoopGrpcIngress> {
     NoopGrpcIngress::create()
@@ -84,10 +86,10 @@ fn test_build_without_allow_unauthenticated_defaults_to_false_error() {
 #[test]
 fn test_build_with_all_options_propagated_edge() {
     // @covers: build
-    let tls = IngressTlsConfig {
+    let tls = PemTlsConfig {
         cert_pem_path: "cert.pem".into(),
         key_pem_path: "key.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let s = builder()
         .with_tls(tls)
@@ -188,10 +190,10 @@ fn test_with_max_concurrent_streams_minimum_one_edge() {
 #[test]
 fn test_with_tls_propagated_to_server_happy() {
     // @covers: with_tls
-    let tls = IngressTlsConfig {
+    let tls = PemTlsConfig {
         cert_pem_path: "cert.pem".into(),
         key_pem_path: "key.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let s = builder().with_tls(tls).build();
     assert!(
@@ -217,15 +219,15 @@ fn test_with_tls_default_produces_no_tls_error() {
 #[test]
 fn test_with_tls_overwrite_propagated_edge() {
     // @covers: with_tls
-    let tls1 = IngressTlsConfig {
+    let tls1 = PemTlsConfig {
         cert_pem_path: "a.pem".into(),
         key_pem_path: "b.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
-    let tls2 = IngressTlsConfig {
+    let tls2 = PemTlsConfig {
         cert_pem_path: "c.pem".into(),
         key_pem_path: "d.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let s = builder().with_tls(tls1).with_tls(tls2).build();
     assert!(
@@ -301,10 +303,10 @@ fn test_enable_reflection_default_is_false_error() {
 #[test]
 fn test_enable_reflection_with_tls_edge() {
     // @covers: enable_reflection
-    let tls = IngressTlsConfig {
+    let tls = PemTlsConfig {
         cert_pem_path: "cert.pem".into(),
         key_pem_path: "key.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let s = builder().enable_reflection().with_tls(tls).build();
     assert!(

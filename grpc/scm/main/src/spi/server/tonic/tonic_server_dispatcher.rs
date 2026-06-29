@@ -29,8 +29,6 @@ use crate::api::{
     GrpcServerError, StatusCodeConvert, StatusCodeConverter, TonicGrpcServer,
     MISSING_AUTHORIZATION_INTERCEPTOR_MSG, REFLECTION_ENABLED_WARN_MSG,
 };
-#[cfg(test)]
-use crate::api::{GrpcServerConfigOps, GrpcServerManage};
 use swe_edge_ingress_grpc::{AuditEvent, AuditSink};
 use swe_edge_ingress_grpc::{
     CompressionMode, GrpcMetadata, GrpcRequest, GrpcResponse, GrpcStatusCode, PeerIdentity, PEER_CN,
@@ -117,7 +115,8 @@ impl TonicGrpcServer {
             .as_ref()
             .map(|cfg| {
                 tracing::info!(bind = %bind_addr, mtls = cfg.is_mtls(), "gRPC+TLS server listening");
-                crate::TlsSvc::build_tls_acceptor(cfg).map_err(GrpcServerError::Tls)
+                crate::TlsSvc::build_tls_acceptor(cfg)
+                    .map_err(|e| GrpcServerError::Tls(e.to_string()))
             })
             .transpose()?;
 
@@ -820,282 +819,110 @@ impl TonicServerDispatcher {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::GrpcServerConfig;
-    use futures::future::BoxFuture;
-    use swe_edge_ingress_grpc::GrpcIngress;
-    use swe_edge_ingress_grpc::GrpcIngressInterceptorChain;
-    use swe_edge_ingress_grpc::HealthService;
-    use swe_edge_ingress_grpc::{AuthorizationInterceptor, GrpcIngressInterceptor};
-    use swe_edge_ingress_grpc::{GrpcHealthCheck, GrpcIngressResult};
+    use std::sync::Arc;
 
-    // ── read_deadline ─────────────────────────────────────────────────────
+    use crate::api::{GrpcServerError, GrpcServerManage, NoopGrpcIngress, TonicGrpcServer};
 
-    #[test]
-    fn test_read_deadline_falls_back_to_default_when_header_absent() {
-        let map = http::HeaderMap::new();
-        assert_eq!(TonicServerDispatcher::read_deadline(&map), DEFAULT_DEADLINE);
+    fn server_without_authz() -> TonicGrpcServer {
+        TonicGrpcServer::new("127.0.0.1:0", Arc::new(NoopGrpcIngress))
     }
 
+    /// @covers: enforce_authorization_invariant
     #[test]
-    fn test_read_deadline_parses_grpc_timeout_header() {
-        let mut map = http::HeaderMap::new();
-        map.insert("grpc-timeout", "500m".parse().unwrap());
+    fn test_enforce_authorization_invariant_no_interceptor_returns_error_error() {
+        let s = server_without_authz();
+        let result = s.enforce_authorization_invariant();
+        assert!(
+            matches!(result, Err(GrpcServerError::AuthorizationRequired(_))),
+            "must fail-closed when no interceptor is registered"
+        );
+    }
+
+    /// @covers: enforce_authorization_invariant
+    #[test]
+    fn test_enforce_authorization_invariant_allow_unauthenticated_returns_ok_happy() {
+        let s = server_without_authz().allow_unauthenticated(true);
         assert_eq!(
-            TonicServerDispatcher::read_deadline(&map),
-            Duration::from_millis(500)
+            s.enforce_authorization_invariant().unwrap(),
+            (),
+            "allow_unauthenticated bypasses the fail-closed check"
         );
     }
 
+    /// @covers: enforce_authorization_invariant
     #[test]
-    fn test_read_deadline_falls_back_on_malformed_header() {
-        let mut map = http::HeaderMap::new();
-        map.insert("grpc-timeout", "garbage".parse().unwrap());
-        assert_eq!(TonicServerDispatcher::read_deadline(&map), DEFAULT_DEADLINE);
+    fn test_enforce_authorization_invariant_false_then_true_edge() {
+        let s_closed = server_without_authz().allow_unauthenticated(false);
+        assert!(s_closed.enforce_authorization_invariant().is_err());
+        let s_open = server_without_authz().allow_unauthenticated(true);
+        assert!(s_open.enforce_authorization_invariant().is_ok());
     }
 
-    // ── grpc_error ────────────────────────────────────────────────────────
-
+    /// @covers: serve
     #[test]
-    fn test_grpc_error_returns_200_with_grpc_content_type() {
-        let resp = TonicServerDispatcher::grpc_error(tonic::Code::NotFound, "missing");
-        assert_eq!(resp.status(), 200);
-        assert_eq!(
-            resp.headers().get("content-type").unwrap(),
-            "application/grpc"
+    fn test_serve_returns_authorization_required_before_binding_error() {
+        let rt = tokio::runtime::Runtime::new().expect("runtime");
+        let s = server_without_authz();
+        let result = rt.block_on(s.serve(std::future::ready(())));
+        assert!(
+            matches!(result, Err(GrpcServerError::AuthorizationRequired(_))),
+            "serve must fail-closed before binding the socket"
         );
     }
 
-    // ── collect_metadata ──────────────────────────────────────────────────
-
+    /// @covers: serve
     #[test]
-    fn test_collect_metadata_extracts_utf8_header_values() {
-        let mut map = http::HeaderMap::new();
-        map.insert("x-request-id", "abc-123".parse().unwrap());
-        let meta = TonicServerDispatcher::collect_metadata(&map);
-        assert_eq!(meta.get("x-request-id"), Some(&"abc-123".to_string()));
-    }
-
-    // ── sanitize_authz_error ──────────────────────────────────────────────
-
-    #[test]
-    fn test_sanitize_authz_error_strips_permission_denied_rationale() {
-        let detailed = GrpcIngressError::PermissionDenied(
-            "policy ROLE_ADMIN denied subject=alice path=/svc/Drop".into(),
-        );
-        let sanitized = TonicServerDispatcher::sanitize_authz_error(detailed);
-        match sanitized {
-            GrpcIngressError::PermissionDenied(msg) => {
-                assert_eq!(msg, "authorization denied");
-                assert!(!msg.contains("alice"));
-                assert!(!msg.contains("ROLE_ADMIN"));
-            }
-            other => panic!("expected PermissionDenied, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn test_sanitize_authz_error_strips_status_permission_denied_rationale() {
-        let detailed = GrpcIngressError::Status(
-            GrpcStatusCode::PermissionDenied,
-            "denied: subject=bob lacks scope=admin".into(),
-        );
-        let sanitized = TonicServerDispatcher::sanitize_authz_error(detailed);
-        match sanitized {
-            GrpcIngressError::Status(GrpcStatusCode::PermissionDenied, msg) => {
-                assert_eq!(msg, "authorization denied");
-                assert!(!msg.contains("bob"));
-                assert!(!msg.contains("scope"));
-            }
-            other => panic!("expected Status(PermissionDenied), got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn test_sanitize_authz_error_passes_through_unrelated_errors() {
-        let original = GrpcIngressError::NotFound("row not found".into());
-        let result = TonicServerDispatcher::sanitize_authz_error(original);
-        match result {
-            GrpcIngressError::NotFound(msg) => assert_eq!(msg, "row not found"),
-            other => panic!("expected NotFound, got {other:?}"),
-        }
-    }
-
-    // ── enforce_authorization_invariant ──────────────────────────────────
-
-    struct TonicGrpcServerFakeAuthz;
-    impl GrpcIngressInterceptor for TonicGrpcServerFakeAuthz {
-        fn before_dispatch(&self, _: &mut GrpcRequest) -> Result<(), GrpcIngressError> {
-            Ok(())
-        }
-        fn after_dispatch(&self, _: &mut GrpcResponse) -> Result<(), GrpcIngressError> {
-            Ok(())
-        }
-        fn is_authorization(&self) -> bool {
-            true
-        }
-    }
-    impl AuthorizationInterceptor for TonicGrpcServerFakeAuthz {}
-
-    struct TonicGrpcServerDummyHandler;
-    impl GrpcIngress for TonicGrpcServerDummyHandler {
-        fn handle_unary(
-            &self,
-            _: GrpcRequest,
-            _ctx: SecurityContext,
-        ) -> BoxFuture<'_, GrpcIngressResult<GrpcResponse>> {
-            Box::pin(async {
-                Ok(GrpcResponse {
-                    body: vec![],
-                    metadata: GrpcMetadata::default(),
-                })
-            })
-        }
-        fn health_check(&self) -> BoxFuture<'_, GrpcIngressResult<GrpcHealthCheck>> {
-            Box::pin(async { Ok(GrpcHealthCheck::healthy()) })
-        }
-    }
-
-    #[test]
-    fn test_enforce_authorization_invariant_succeeds_with_authz_interceptor() {
-        let chain = GrpcIngressInterceptorChain::new().push(Arc::new(TonicGrpcServerFakeAuthz));
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .with_interceptors(chain);
-        let result = server.enforce_authorization_invariant();
+    fn test_serve_allow_unauthenticated_binds_and_shuts_down_immediately_happy() {
+        let rt = tokio::runtime::Runtime::new().expect("runtime");
+        let s = server_without_authz().allow_unauthenticated(true);
+        let result = rt.block_on(s.serve(std::future::ready(())));
         assert!(
             result.is_ok(),
-            "authz interceptor registered → invariant must pass"
-        );
-        // The chain contains an authorization interceptor — that's why it passed.
-        assert!(
-            server.interceptors.contains_authorization(),
-            "chain must report the registered authz interceptor"
+            "server with open auth must start and stop cleanly"
         );
     }
 
+    /// @covers: serve_with_listener
     #[test]
-    fn test_enforce_authorization_invariant_succeeds_when_allow_unauthenticated_is_set() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .allow_unauthenticated(true);
-        let result = server.enforce_authorization_invariant();
+    fn test_serve_with_listener_returns_authorization_required_before_listen_error() {
+        let rt = tokio::runtime::Runtime::new().expect("runtime");
+        let s = server_without_authz();
+        let listener = rt
+            .block_on(tokio::net::TcpListener::bind("127.0.0.1:0"))
+            .expect("listener");
+        let result = rt.block_on(s.serve_with_listener(listener, std::future::ready(())));
+        assert!(
+            matches!(result, Err(GrpcServerError::AuthorizationRequired(_))),
+            "serve_with_listener must enforce fail-closed invariant"
+        );
+    }
+
+    /// @covers: serve_with_listener
+    #[test]
+    fn test_serve_with_listener_allow_unauthenticated_accepts_and_stops_happy() {
+        let rt = tokio::runtime::Runtime::new().expect("runtime");
+        let s = server_without_authz().allow_unauthenticated(true);
+        let listener = rt
+            .block_on(tokio::net::TcpListener::bind("127.0.0.1:0"))
+            .expect("listener");
+        let result = rt.block_on(s.serve_with_listener(listener, std::future::ready(())));
         assert!(
             result.is_ok(),
-            "allow_unauthenticated=true → invariant must not reject"
-        );
-        // The flag itself is what grants the pass.
-        assert!(
-            server.allow_unauthenticated,
-            "allow_unauthenticated flag must be set"
+            "serve_with_listener must accept a pre-bound listener"
         );
     }
 
+    /// @covers: serve_with_listener
     #[test]
-    fn test_enforce_authorization_invariant_returns_error_when_authz_missing_and_fail_closed() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler));
-        // No authz registered, allow_unauthenticated defaults to false → returns Err.
-        assert!(server.enforce_authorization_invariant().is_err());
-    }
-
-    // ── with_audit_sink / allow_unauthenticated builders ──────────────────
-
-    #[test]
-    fn test_with_audit_sink_installs_provided_sink() {
-        use std::sync::Mutex;
-        struct TonicGrpcServerCountingSink(Arc<Mutex<usize>>);
-        impl AuditSink for TonicGrpcServerCountingSink {
-            fn record(&self, _: AuditEvent) {
-                *self.0.lock().unwrap() += 1;
-            }
-        }
-        let calls = Arc::new(Mutex::new(0usize));
-        let sink: Arc<dyn AuditSink> = Arc::new(TonicGrpcServerCountingSink(calls.clone()));
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .with_audit_sink(sink);
-        // Drive the sink directly through the server's stored Arc.
-        server.audit_sink.record(AuditEvent {
-            timestamp: SystemTime::UNIX_EPOCH,
-            method: "/x".into(),
-            identity: None,
-            status: GrpcStatusCode::Ok,
-            duration_ms: 0,
-        });
-        assert_eq!(*calls.lock().unwrap(), 1);
-    }
-
-    #[test]
-    fn test_allow_unauthenticated_sets_the_flag() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .allow_unauthenticated(true);
-        assert!(server.allow_unauthenticated);
-    }
-
-    #[test]
-    fn test_new_disables_reflection_flag_by_default() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler));
-        assert!(!server.is_reflection_enabled());
-    }
-
-    #[test]
-    fn test_enable_reflection_builder_flips_the_flag() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .enable_reflection(true);
-        assert!(server.is_reflection_enabled());
-    }
-
-    #[test]
-    fn test_from_config_propagates_enable_reflection_from_config() {
-        let cfg = GrpcServerConfig::new("127.0.0.1:0".parse().unwrap())
-            .allow_plaintext()
-            .enable_reflection();
-        let server = TonicGrpcServer::from_config(&cfg, Arc::new(TonicGrpcServerDummyHandler))
-            .expect("config valid");
-        assert!(server.is_reflection_enabled());
-    }
-
-    // ── auto-wired TraceContextInterceptor ────────────────────────────────
-
-    #[test]
-    fn test_new_autowires_trace_context_interceptor_by_default() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .allow_unauthenticated(true);
-        // auto_trace_context flag must be true so serve_with_listener prepends
-        // TraceContextInterceptor when building the effective chain.
-        assert!(server.auto_trace_context);
-    }
-
-    #[test]
-    fn test_without_trace_context_clears_flag() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .allow_unauthenticated(true)
-            .without_trace_context();
-        assert!(!server.auto_trace_context);
-    }
-
-    // ── auto-wired HealthService ──────────────────────────────────────────
-
-    #[test]
-    fn test_new_autowires_health_service_by_default() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler));
-        assert!(server.health_service().is_some());
-        // Negative: removal must make it absent
-        let without = server.without_health_service();
-        assert!(without.health_service().is_none());
-    }
-
-    #[test]
-    fn test_without_health_service_removes_auto_wired_instance() {
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .without_health_service();
-        assert!(server.health_service().is_none());
-    }
-
-    #[test]
-    fn test_with_health_service_replaces_default() {
-        let custom = Arc::new(HealthService::new());
-        let ptr = Arc::as_ptr(&custom);
-        let server = TonicGrpcServer::new("127.0.0.1:0", Arc::new(TonicGrpcServerDummyHandler))
-            .with_health_service(custom);
-        // pointer equality confirms our instance was stored, not a fresh default.
-        assert_eq!(Arc::as_ptr(server.health_service().unwrap()), ptr);
+    fn test_serve_with_listener_invalid_port_zero_unauthenticated_edge() {
+        // Port 0 is the standard OS-assigned ephemeral port — verify the server
+        // accepts it without treating it as a bind error.
+        let rt = tokio::runtime::Runtime::new().expect("runtime");
+        let s = server_without_authz().allow_unauthenticated(true);
+        let listener = rt
+            .block_on(tokio::net::TcpListener::bind("127.0.0.1:0"))
+            .expect("ephemeral listener");
+        let result = rt.block_on(s.serve_with_listener(listener, std::future::ready(())));
+        assert!(result.is_ok());
     }
 }

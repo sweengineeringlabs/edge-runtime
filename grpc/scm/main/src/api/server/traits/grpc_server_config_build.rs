@@ -2,7 +2,7 @@
 
 use std::net::SocketAddr;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
 
 use crate::api::GrpcServerConfig;
@@ -22,7 +22,7 @@ pub trait GrpcServerConfigBuild {
     where
         Self: Sized;
     /// Attach TLS configuration.
-    fn with_tls(self, tls: IngressTlsConfig) -> Self
+    fn with_tls(self, tls: PemTlsConfig) -> Self
     where
         Self: Sized;
     /// Override the max-message-bytes cap.

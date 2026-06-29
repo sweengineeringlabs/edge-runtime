@@ -3,7 +3,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::{
     AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain, HealthService,
 };
@@ -20,9 +20,9 @@ pub const DEFAULT_KEEPALIVE_TIMEOUT: Duration = Duration::from_secs(10);
 /// Error message when no `AuthorizationInterceptor` is registered and `allow_unauthenticated` is false.
 pub const MISSING_AUTHORIZATION_INTERCEPTOR_MSG: &str =
     "gRPC server requires an AuthorizationInterceptor in the chain \
-     (e.g. swe-edge-ingress-grpc-authz::AuthzInterceptor). To explicitly run \
-     without authz, set `allow_unauthenticated = true` in \
-     GrpcServerConfig (logged at startup as a warning).";
+     (for example, the AuthzInterceptor from the swe-edge-ingress-grpc-authz \
+     crate). To explicitly run without authz, set `allow_unauthenticated = true` \
+     in GrpcServerConfig (logged at startup as a warning).";
 
 /// Sanitized message returned to clients for any `Internal` server error.
 pub const SANITIZED_INTERNAL_MSG: &str = "internal server error";
@@ -38,7 +38,7 @@ pub struct TonicGrpcServer {
     pub(crate) handler: Arc<dyn GrpcIngress>,
     pub(crate) max_bytes: usize,
     pub(crate) max_concurrent_streams: u32,
-    pub(crate) tls: Option<IngressTlsConfig>,
+    pub(crate) tls: Option<PemTlsConfig>,
     pub(crate) interceptors: GrpcIngressInterceptorChain,
     pub(crate) compression: CompressionMode,
     pub(crate) allow_unauthenticated: bool,

@@ -1,7 +1,7 @@
 //! Integration tests for GrpcServerObserverOps factory methods and SAF surface.
 #![allow(clippy::unwrap_used)]
 
-use swe_edge_runtime_grpc::GrpcServerObserverOps;
+use swe_edge_runtime_grpc::{GrpcServerObserver, GrpcServerObserverOps};
 
 #[test]
 fn test_grpc_server_observer_ops_svc_identifier_exists() {
@@ -17,7 +17,11 @@ fn test_grpc_server_observer_ops_svc_identifier_exists() {
 fn test_svc_marker_returns_true_happy() {
     // @covers: svc_marker
     struct TestMarker;
-    impl GrpcServerObserverOps for TestMarker {}
+    impl GrpcServerObserverOps for TestMarker {
+        fn is_reflection_enabled(server: &dyn GrpcServerObserver) -> bool {
+            server.is_reflection_enabled()
+        }
+    }
     let t = TestMarker;
     assert!(t.svc_marker());
 }
@@ -27,7 +31,11 @@ fn test_svc_marker_always_true_error() {
     // @covers: svc_marker
     // Verifies svc_marker cannot return false.
     struct TestMarker;
-    impl GrpcServerObserverOps for TestMarker {}
+    impl GrpcServerObserverOps for TestMarker {
+        fn is_reflection_enabled(server: &dyn GrpcServerObserver) -> bool {
+            server.is_reflection_enabled()
+        }
+    }
     let t = TestMarker;
     assert_ne!(t.svc_marker(), false, "svc_marker must return true");
 }
@@ -37,7 +45,11 @@ fn test_svc_marker_consistent_edge() {
     // @covers: svc_marker
     // Verifies marker returns true consistently.
     struct TestMarker;
-    impl GrpcServerObserverOps for TestMarker {}
+    impl GrpcServerObserverOps for TestMarker {
+        fn is_reflection_enabled(server: &dyn GrpcServerObserver) -> bool {
+            server.is_reflection_enabled()
+        }
+    }
     let t = TestMarker;
     let first_call = t.svc_marker();
     let second_call = t.svc_marker();

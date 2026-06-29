@@ -2,7 +2,7 @@
 
 use std::net::SocketAddr;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use serde::{Deserialize, Serialize};
 
 use swe_edge_ingress_grpc::CompressionMode;
@@ -29,8 +29,8 @@ pub struct GrpcServerConfig {
     pub bind: SocketAddr,
     /// Require TLS on the wire.
     pub tls_required: bool,
-    /// TLS configuration.  When set with `client_ca_pem_path`, mTLS.
-    pub tls: Option<IngressTlsConfig>,
+    /// TLS configuration.  When set with `ca_pem_path`, mTLS.
+    pub tls: Option<PemTlsConfig>,
     /// Hard cap on a single inbound message in bytes.
     pub max_message_bytes: usize,
     /// HTTP/2 SETTINGS_MAX_CONCURRENT_STREAMS advertised to clients.

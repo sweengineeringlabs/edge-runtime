@@ -12,7 +12,6 @@ mod grpc_server_svc_factory;
 mod grpc_server_svc_ops_svc_factory;
 mod noop;
 mod status_code_convert_svc_factory;
-mod status_code_converter_svc_factory;
 mod tonic;
 mod validator_svc_factory;
 
@@ -27,4 +26,3 @@ pub use grpc_server_observer_svc_factory::GRPC_SERVER_OBSERVER_SVC;
 pub use grpc_server_svc_factory::GRPC_SERVER_SVC;
 pub use grpc_server_svc_ops_svc_factory::GRPC_SERVER_SVC_OPS_SVC;
 pub use status_code_convert_svc_factory::STATUS_CODE_CONVERT_SVC;
-pub use status_code_converter_svc_factory::STATUS_CODE_CONVERTER_SVC;

@@ -1,7 +1,8 @@
 //! Integration tests for GrpcServerSvcOps factory methods and SAF surface.
 #![allow(clippy::unwrap_used)]
 
-use swe_edge_runtime_grpc::GrpcServerSvcOps;
+use std::net::SocketAddr;
+use swe_edge_runtime_grpc::{GrpcServerConfigBuild, GrpcServerConfigBuilder, GrpcServerSvcOps};
 
 #[test]
 fn test_grpc_server_svc_ops_svc_identifier_exists() {
@@ -17,7 +18,11 @@ fn test_grpc_server_svc_ops_svc_identifier_exists() {
 fn test_svc_marker_returns_true_happy() {
     // @covers: svc_marker
     struct TestMarker;
-    impl GrpcServerSvcOps for TestMarker {}
+    impl GrpcServerSvcOps for TestMarker {
+        fn create_config_builder(bind: SocketAddr) -> GrpcServerConfigBuilder {
+            GrpcServerConfigBuilder::new(bind)
+        }
+    }
     let t = TestMarker;
     assert!(t.svc_marker());
 }
@@ -27,7 +32,11 @@ fn test_svc_marker_always_true_error() {
     // @covers: svc_marker
     // Verifies svc_marker cannot return false.
     struct TestMarker;
-    impl GrpcServerSvcOps for TestMarker {}
+    impl GrpcServerSvcOps for TestMarker {
+        fn create_config_builder(bind: SocketAddr) -> GrpcServerConfigBuilder {
+            GrpcServerConfigBuilder::new(bind)
+        }
+    }
     let t = TestMarker;
     assert_ne!(t.svc_marker(), false, "svc_marker must return true");
 }
@@ -37,7 +46,11 @@ fn test_svc_marker_consistent_edge() {
     // @covers: svc_marker
     // Verifies marker returns true consistently.
     struct TestMarker;
-    impl GrpcServerSvcOps for TestMarker {}
+    impl GrpcServerSvcOps for TestMarker {
+        fn create_config_builder(bind: SocketAddr) -> GrpcServerConfigBuilder {
+            GrpcServerConfigBuilder::new(bind)
+        }
+    }
     let t = TestMarker;
     let first_call = t.svc_marker();
     let second_call = t.svc_marker();

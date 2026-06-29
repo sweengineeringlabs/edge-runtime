@@ -12,7 +12,7 @@ mod saf;
 mod spi;
 
 pub use api::*;
-pub use edge_domain_security::{IngressTlsConfig, IngressTlsError};
+pub use edge_domain_security::{IngressTlsError, PemTlsConfig};
 pub use saf::*;
 pub use swe_edge_ingress_grpc::{
     AuditEvent, AuditEventBuilder, AuditSink, AuthorizationInterceptor, CompressionMode,

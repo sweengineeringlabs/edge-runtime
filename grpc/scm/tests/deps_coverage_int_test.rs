@@ -98,16 +98,16 @@ fn test_swe_edge_ingress_grpc_status_code_default_is_ok_edge() {
     );
 }
 
-// ── edge-domain-security (IngressTlsConfig) ─────────────────────────────────
+// ── edge-domain-security (PemTlsConfig) ─────────────────────────────────
 
 #[test]
 fn test_swe_edge_ingress_tls_tls_config_constructs_happy() {
-    // @covers: edge_domain_security / IngressTlsConfig::tls
-    use edge_domain_security::{IngressTlsConfig, TlsConfig};
-    let cfg = IngressTlsConfig {
+    // @covers: edge_domain_security / PemTlsConfig::tls
+    use edge_domain_security::{PemTlsConfig, TlsConfig};
+    let cfg = PemTlsConfig {
         cert_pem_path: "server.crt".into(),
         key_pem_path: "server.key".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     assert_eq!(cfg.cert_pem_path, "server.crt");
     assert!(!cfg.is_mtls());
@@ -115,30 +115,30 @@ fn test_swe_edge_ingress_tls_tls_config_constructs_happy() {
 
 #[test]
 fn test_swe_edge_ingress_tls_mtls_config_sets_ca_error() {
-    // @covers: edge_domain_security / IngressTlsConfig::mtls
-    use edge_domain_security::{IngressTlsConfig, TlsConfig};
-    let cfg = IngressTlsConfig {
+    // @covers: edge_domain_security / PemTlsConfig::mtls
+    use edge_domain_security::{PemTlsConfig, TlsConfig};
+    let cfg = PemTlsConfig {
         cert_pem_path: "server.crt".into(),
         key_pem_path: "server.key".into(),
-        client_ca_pem_path: Some("ca.crt".into()),
+        ca_pem_path: Some("ca.crt".into()),
     };
     assert!(cfg.is_mtls(), "mTLS config must report is_mtls() = true");
-    assert_eq!(cfg.client_ca_pem_path.as_deref(), Some("ca.crt"));
+    assert_eq!(cfg.ca_pem_path.as_deref(), Some("ca.crt"));
 }
 
 #[test]
 fn test_swe_edge_ingress_tls_tls_vs_mtls_differ_edge() {
-    // @covers: edge_domain_security / IngressTlsConfig
-    use edge_domain_security::{IngressTlsConfig, TlsConfig};
-    let tls = IngressTlsConfig {
+    // @covers: edge_domain_security / PemTlsConfig
+    use edge_domain_security::{PemTlsConfig, TlsConfig};
+    let tls = PemTlsConfig {
         cert_pem_path: "c.crt".into(),
         key_pem_path: "k.key".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
-    let mtls = IngressTlsConfig {
+    let mtls = PemTlsConfig {
         cert_pem_path: "c.crt".into(),
         key_pem_path: "k.key".into(),
-        client_ca_pem_path: Some("ca.crt".into()),
+        ca_pem_path: Some("ca.crt".into()),
     };
     assert_ne!(tls.is_mtls(), mtls.is_mtls());
 }
@@ -296,15 +296,15 @@ fn test_tokio_rustls_tls_acceptor_type_is_accessible_happy() {
     // @covers: tokio-rustls / TlsAcceptor
     // TlsAcceptor requires a valid rustls::ServerConfig to construct; verify the
     // type is accessible and that the build path (via TlsSvc) propagates errors.
-    use edge_domain_security::IngressTlsConfig;
+    use edge_domain_security::PemTlsConfig;
     use swe_edge_runtime_grpc::TlsSvc;
     use tokio_rustls::TlsAcceptor;
     // Confirm the type is importable and usable as a return-type annotation
     let _: fn() -> Option<TlsAcceptor> = || None;
-    let cfg = IngressTlsConfig {
+    let cfg = PemTlsConfig {
         cert_pem_path: "/nonexistent/cert.pem".into(),
         key_pem_path: "/nonexistent/key.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let result = TlsSvc::build_tls_acceptor(&cfg);
     assert!(

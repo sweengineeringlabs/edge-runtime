@@ -2,7 +2,7 @@
 
 use std::sync::Arc;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::{AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain};
 
 use crate::api::TonicGrpcServer;
@@ -25,7 +25,7 @@ pub trait GrpcServerBuild {
     where
         Self: Sized;
     /// Attach a TLS configuration.
-    fn with_tls(self, cfg: IngressTlsConfig) -> Self
+    fn with_tls(self, cfg: PemTlsConfig) -> Self
     where
         Self: Sized;
     /// Attach an interceptor chain.

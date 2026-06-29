@@ -1,12 +1,10 @@
 //! GrpcServerBuild trait impl for TonicGrpcServerBuilder.
 use std::sync::Arc;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::{AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain};
 
-use crate::api::{
-    GrpcServerBuild, GrpcServerManage, TonicGrpcServer, TonicGrpcServerBuilder,
-};
+use crate::api::{GrpcServerBuild, GrpcServerManage, TonicGrpcServer, TonicGrpcServerBuilder};
 
 impl GrpcServerBuild for TonicGrpcServerBuilder {
     fn new(bind: impl Into<String>, handler: Arc<dyn GrpcIngress>) -> Self {
@@ -34,7 +32,7 @@ impl GrpcServerBuild for TonicGrpcServerBuilder {
         self
     }
 
-    fn with_tls(mut self, cfg: IngressTlsConfig) -> Self {
+    fn with_tls(mut self, cfg: PemTlsConfig) -> Self {
         self.tls = Some(cfg);
         self
     }

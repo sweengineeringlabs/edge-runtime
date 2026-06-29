@@ -7,13 +7,13 @@ use futures::future::BoxFuture;
 use swe_edge_ingress_grpc::GrpcIngress;
 
 use crate::api::server::errors::GrpcServerError;
-use crate::api::server::types::{
-    GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc, StatusCodeConverter,
-    TonicGrpcServer, TonicGrpcServerBuilder,
-};
 use crate::api::server::traits::{
     GrpcServerBuild, GrpcServerConfigBuild, GrpcServerManage, GrpcServerObserverOps,
     GrpcServerSvcOps, StatusCodeConvert,
+};
+use crate::api::server::types::{
+    GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc, StatusCodeConverter,
+    TonicGrpcServer, TonicGrpcServerBuilder,
 };
 use crate::api::TlsSvc;
 

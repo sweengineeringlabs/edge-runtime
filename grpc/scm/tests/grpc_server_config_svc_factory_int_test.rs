@@ -3,7 +3,7 @@
 
 use std::net::SocketAddr;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
 use swe_edge_runtime_grpc::{GrpcServerConfig, GrpcServerConfigOps};
 
@@ -128,10 +128,10 @@ fn test_allow_plaintext_called_twice_stays_plaintext_edge() {
 #[test]
 fn test_with_tls_stores_config_happy() {
     // @covers: with_tls
-    let tls = IngressTlsConfig {
+    let tls = PemTlsConfig {
         cert_pem_path: "cert.pem".into(),
         key_pem_path: "key.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let cfg = GrpcServerConfig::new(bind())
         .allow_plaintext()
@@ -153,15 +153,15 @@ fn test_with_tls_default_has_none_error() {
 #[test]
 fn test_with_tls_overwrites_previous_config_edge() {
     // @covers: with_tls
-    let tls1 = IngressTlsConfig {
+    let tls1 = PemTlsConfig {
         cert_pem_path: "cert1.pem".into(),
         key_pem_path: "key1.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
-    let tls2 = IngressTlsConfig {
+    let tls2 = PemTlsConfig {
         cert_pem_path: "cert2.pem".into(),
         key_pem_path: "key2.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let cfg = GrpcServerConfig::new(bind())
         .allow_plaintext()
@@ -381,10 +381,10 @@ fn test_allow_unauthenticated_default_is_false_error() {
 #[test]
 fn test_allow_unauthenticated_with_tls_still_sets_flag_edge() {
     // @covers: allow_unauthenticated
-    let tls = IngressTlsConfig {
+    let tls = PemTlsConfig {
         cert_pem_path: "c.pem".into(),
         key_pem_path: "k.pem".into(),
-        client_ca_pem_path: None,
+        ca_pem_path: None,
     };
     let cfg = GrpcServerConfig::new(bind())
         .with_tls(tls)

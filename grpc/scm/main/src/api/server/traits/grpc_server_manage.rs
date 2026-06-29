@@ -3,13 +3,13 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::{
     AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain, HealthService,
 };
 
-use crate::api::server::types::GrpcServerConfig;
 use crate::api::server::errors::GrpcServerConfigError;
+use crate::api::server::types::GrpcServerConfig;
 
 /// Lifecycle management and builder-style configuration for a Tonic gRPC server.
 ///
@@ -58,7 +58,7 @@ pub trait GrpcServerManage {
     where
         Self: Sized;
     /// Attach a TLS configuration (enables mTLS when a CA cert is provided).
-    fn with_tls(self, config: IngressTlsConfig) -> Self
+    fn with_tls(self, config: PemTlsConfig) -> Self
     where
         Self: Sized;
     /// Override the HTTP/2 keepalive PING interval and PONG timeout.
@@ -94,7 +94,7 @@ pub trait GrpcServerManage {
     /// Return the maximum number of concurrent HTTP/2 streams.
     fn max_concurrent_streams(&self) -> u32;
     /// Return the TLS configuration, if any.
-    fn tls_config(&self) -> Option<&IngressTlsConfig>;
+    fn tls_config(&self) -> Option<&PemTlsConfig>;
     /// Return the configured compression mode.
     fn compression_mode(&self) -> CompressionMode;
     /// Return `true` if unauthenticated callers are allowed.

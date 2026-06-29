@@ -2,7 +2,7 @@
 
 use std::net::SocketAddr;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
 
 use crate::api::GrpcServerConfig;
@@ -11,7 +11,7 @@ use crate::api::GrpcServerConfig;
 pub struct GrpcServerConfigBuilder {
     pub(crate) bind: SocketAddr,
     pub(crate) tls_required: bool,
-    pub(crate) tls: Option<IngressTlsConfig>,
+    pub(crate) tls: Option<PemTlsConfig>,
     pub(crate) max_message_bytes: usize,
     pub(crate) max_concurrent_streams: u32,
     pub(crate) allow_unauthenticated: bool,

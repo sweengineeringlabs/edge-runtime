@@ -1,7 +1,7 @@
 //! GrpcServerConfigOps trait impl for GrpcServerConfig.
 use std::net::SocketAddr;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
 
 use crate::api::{
@@ -38,7 +38,7 @@ impl GrpcServerConfigOps for GrpcServerConfig {
         self
     }
 
-    fn with_tls(mut self, tls: IngressTlsConfig) -> Self {
+    fn with_tls(mut self, tls: PemTlsConfig) -> Self {
         self.tls = Some(tls);
         self
     }

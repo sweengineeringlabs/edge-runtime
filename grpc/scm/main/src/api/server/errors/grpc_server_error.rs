@@ -9,9 +9,11 @@ pub enum GrpcServerError {
     /// Failed to bind the server socket.
     #[error("failed to bind to {0}: {1}")]
     Bind(String, #[source] std::io::Error),
-    /// TLS acceptor construction failed.
+    /// TLS acceptor construction failed. Carries the rendered cause message;
+    /// the typed `IngressTlsError` is converted at the spi/ boundary so the
+    /// api/ contract stays free of foreign error types.
     #[error("TLS: {0}")]
-    Tls(#[source] edge_domain_security::IngressTlsError),
+    Tls(String),
     /// Server configuration was rejected.
     #[error("server config rejected: {0}")]
     Config(#[source] GrpcServerConfigError),

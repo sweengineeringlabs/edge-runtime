@@ -1,12 +1,13 @@
 //! GrpcServerConfigBuild trait impl for GrpcServerConfigBuilder.
 use std::net::SocketAddr;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::CompressionMode;
 
 use crate::api::{
-    GrpcServerConfig, GrpcServerConfigBuild, GrpcServerConfigBuilder, DEFAULT_KEEPALIVE_INTERVAL_SECS,
-    DEFAULT_KEEPALIVE_TIMEOUT_SECS, DEFAULT_MAX_CONCURRENT_STREAMS, DEFAULT_MAX_MESSAGE_BYTES,
+    GrpcServerConfig, GrpcServerConfigBuild, GrpcServerConfigBuilder,
+    DEFAULT_KEEPALIVE_INTERVAL_SECS, DEFAULT_KEEPALIVE_TIMEOUT_SECS,
+    DEFAULT_MAX_CONCURRENT_STREAMS, DEFAULT_MAX_MESSAGE_BYTES,
 };
 
 impl GrpcServerConfigBuild for GrpcServerConfigBuilder {
@@ -30,7 +31,7 @@ impl GrpcServerConfigBuild for GrpcServerConfigBuilder {
         self
     }
 
-    fn with_tls(mut self, tls: IngressTlsConfig) -> Self {
+    fn with_tls(mut self, tls: PemTlsConfig) -> Self {
         self.tls = Some(tls);
         self
     }

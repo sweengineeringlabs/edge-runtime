@@ -18,22 +18,11 @@ fn test_svc_marker_returns_true_happy() {
     // @covers: svc_marker
     struct TestMarker;
     impl StatusCodeConvert for TestMarker {
-        fn from_tonic_code(_: tonic::Code) -> swe_edge_ingress_grpc::GrpcStatusCode {
-            swe_edge_ingress_grpc::GrpcStatusCode::Ok
-        }
-        fn to_tonic_code(_: swe_edge_ingress_grpc::GrpcStatusCode) -> tonic::Code {
-            tonic::Code::Ok
-        }
         fn to_wire(_: swe_edge_ingress_grpc::GrpcStatusCode) -> i32 {
             0
         }
         fn from_wire(_: i32) -> swe_edge_ingress_grpc::GrpcStatusCode {
             swe_edge_ingress_grpc::GrpcStatusCode::Ok
-        }
-        fn map_inbound_error(
-            _: swe_edge_ingress_grpc::GrpcIngressError,
-        ) -> (tonic::Code, String) {
-            (tonic::Code::Internal, String::new())
         }
     }
     let t = TestMarker;
@@ -46,22 +35,11 @@ fn test_svc_marker_always_true_error() {
     // Verifies svc_marker cannot return false.
     struct TestMarker;
     impl StatusCodeConvert for TestMarker {
-        fn from_tonic_code(_: tonic::Code) -> swe_edge_ingress_grpc::GrpcStatusCode {
-            swe_edge_ingress_grpc::GrpcStatusCode::Ok
-        }
-        fn to_tonic_code(_: swe_edge_ingress_grpc::GrpcStatusCode) -> tonic::Code {
-            tonic::Code::Ok
-        }
         fn to_wire(_: swe_edge_ingress_grpc::GrpcStatusCode) -> i32 {
             0
         }
         fn from_wire(_: i32) -> swe_edge_ingress_grpc::GrpcStatusCode {
             swe_edge_ingress_grpc::GrpcStatusCode::Ok
-        }
-        fn map_inbound_error(
-            _: swe_edge_ingress_grpc::GrpcIngressError,
-        ) -> (tonic::Code, String) {
-            (tonic::Code::Internal, String::new())
         }
     }
     let t = TestMarker;
@@ -74,22 +52,11 @@ fn test_svc_marker_consistent_edge() {
     // Verifies marker returns true consistently.
     struct TestMarker;
     impl StatusCodeConvert for TestMarker {
-        fn from_tonic_code(_: tonic::Code) -> swe_edge_ingress_grpc::GrpcStatusCode {
-            swe_edge_ingress_grpc::GrpcStatusCode::Ok
-        }
-        fn to_tonic_code(_: swe_edge_ingress_grpc::GrpcStatusCode) -> tonic::Code {
-            tonic::Code::Ok
-        }
         fn to_wire(_: swe_edge_ingress_grpc::GrpcStatusCode) -> i32 {
             0
         }
         fn from_wire(_: i32) -> swe_edge_ingress_grpc::GrpcStatusCode {
             swe_edge_ingress_grpc::GrpcStatusCode::Ok
-        }
-        fn map_inbound_error(
-            _: swe_edge_ingress_grpc::GrpcIngressError,
-        ) -> (tonic::Code, String) {
-            (tonic::Code::Internal, String::new())
         }
     }
     let t = TestMarker;

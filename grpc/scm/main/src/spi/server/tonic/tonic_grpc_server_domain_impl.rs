@@ -2,7 +2,7 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use edge_domain_security::IngressTlsConfig;
+use edge_domain_security::PemTlsConfig;
 use swe_edge_ingress_grpc::{
     AuditSink, CompressionMode, GrpcIngress, GrpcIngressInterceptorChain, HealthService,
     NoopAuditSink,
@@ -97,7 +97,7 @@ impl GrpcServerManage for TonicGrpcServer {
         self
     }
 
-    fn with_tls(mut self, config: IngressTlsConfig) -> Self {
+    fn with_tls(mut self, config: PemTlsConfig) -> Self {
         self.tls = Some(config);
         self
     }
@@ -152,7 +152,7 @@ impl GrpcServerManage for TonicGrpcServer {
         self.max_concurrent_streams
     }
 
-    fn tls_config(&self) -> Option<&IngressTlsConfig> {
+    fn tls_config(&self) -> Option<&PemTlsConfig> {
         self.tls.as_ref()
     }
 

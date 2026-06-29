@@ -29,7 +29,7 @@ path = "examples/noop_server.rs"
 [dependencies]
 swe-edge-ingress-grpc    = { package = "swe-edge-ingress-grpc-transport", git = "https://github.com/sweengineeringlabs/edge-ingress-grpc.git", tag = "v0.6.2" }
 edge-domain              = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.10.7", features = ["handler", "security", "command"] }
-edge-domain-security     = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.11.7" }
+edge-domain-security     = { git = "https://github.com/sweengineeringlabs/edge-domain.git", tag = "v0.12.0" }
 tokio-rustls             = "0.26"
 rustls                   = { version = "0.23", features = ["ring"] }
 rustls-pemfile           = "2"
