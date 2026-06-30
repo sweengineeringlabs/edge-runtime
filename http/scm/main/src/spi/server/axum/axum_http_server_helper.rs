@@ -201,7 +201,7 @@ impl AxumHttpServerHelper {
         use tower::ServiceBuilder;
         use tower_http::trace::TraceLayer;
 
-        let acceptor = crate::core::tls::DefaultAcceptorBuilder::build_tls_acceptor(tls_cfg)
+        let acceptor = edge_security_runtime::TlsSvc::build_tls_acceptor(tls_cfg)
             .map_err(|e| HttpServerError::Tls(e.to_string()))?;
 
         let mut shutdown = std::pin::pin!(shutdown);

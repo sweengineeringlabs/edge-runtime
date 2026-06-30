@@ -15,7 +15,7 @@ use crate::api::server::types::{
     GrpcServerConfigBuilder, GrpcServerObserverSvc, GrpcServerSvc, StatusCodeConverter,
     TonicGrpcServer, TonicGrpcServerBuilder,
 };
-use crate::api::TlsSvc;
+use edge_security_runtime::TlsSvc;
 
 /// A runnable gRPC server that drives a [`GrpcIngress`] handler.
 pub trait GrpcServer: Send + Sync {

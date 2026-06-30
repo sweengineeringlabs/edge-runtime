@@ -11,7 +11,7 @@ use crate::api::server::errors::HttpServerError;
 use crate::api::server::types::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServerSvc,
 };
-use crate::api::tls::TlsSvc;
+use edge_security_runtime::TlsSvc;
 
 /// A runnable HTTP server that drives an [`HttpIngress`] handler.
 pub trait HttpServer: Send + Sync {

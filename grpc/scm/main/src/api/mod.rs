@@ -1,11 +1,11 @@
 //! Public contract declarations — server traits, types, and errors.
 mod noop;
 mod server;
-mod tls;
 
 #[cfg(test)]
 mod tests;
 
+pub use edge_security_runtime::TlsSvc;
 pub use noop::{GrpcValidationError, NoopGrpcIngress, NoopGrpcValidator, Validator, ValidatorSvc};
 pub use server::{
     GrpcServer, GrpcServerBuild, GrpcServerConfig, GrpcServerConfigBuild, GrpcServerConfigBuilder,
@@ -17,4 +17,3 @@ pub use server::{
     DEFAULT_MAX_MESSAGE_BYTES, MAX_MESSAGE_BYTES, MISSING_AUTHORIZATION_INTERCEPTOR_MSG,
     REFLECTION_ENABLED_WARN_MSG, SANITIZED_INTERNAL_MSG,
 };
-pub use tls::TlsSvc;

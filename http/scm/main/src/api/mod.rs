@@ -5,14 +5,13 @@
 
 mod noop;
 mod server;
-mod tls;
 
 #[cfg(test)]
 mod tests;
 
+pub use edge_security_runtime::TlsSvc;
 pub use noop::{NoopHttpIngress, NoopValidator};
 pub use server::{
     AxumHttpServer, AxumHttpServerBuilder, AxumHttpServerHelper, HttpServer, HttpServerError,
     HttpServerSvc,
 };
-pub use tls::TlsSvc;

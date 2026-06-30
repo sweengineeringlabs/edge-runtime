@@ -649,6 +649,23 @@ version = "0.1.0"
 source = "git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.8.30#25b8652a0630a1ed63c3f20d0b3c4997d1c4fc0d"
 
 [[package]]
+name = "edge-security-runtime"
+version = "0.3.5"
+source = "git+https://github.com/sweengineeringlabs/edge-security.git?tag=v0.3.5#4fab1e656b8e94a1f5e1f494ef2bb11462510fb0"
+dependencies = [
+ "async-trait",
+ "dirs 5.0.1",
+ "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.12.0)",
+ "jsonwebtoken",
+ "rustls",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio-rustls",
+]
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1233,19 +1250,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rcgen"
-version = "0.13.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75e669e5202259b5314d1ea5397316ad400819437857b90861765f24c4cf80a2"
-dependencies = [
- "pem",
- "ring",
- "rustls-pki-types",
- "time",
- "yasna",
-]
-
-[[package]]
 name = "redox_syscall"
 version = "0.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1635,20 +1639,17 @@ dependencies = [
  "bytes",
  "edge-domain 0.10.0",
  "edge-domain-security 0.1.0 (git+https://github.com/sweengineeringlabs/edge-domain.git?tag=v0.12.0)",
+ "edge-security-runtime",
  "futures",
  "http",
  "hyper",
  "hyper-util",
- "rcgen",
- "rustls",
- "rustls-pemfile",
  "serde_json",
  "swe-edge-ingress-http-transport",
  "swe-edge-ingress-verifier",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
- "tokio-rustls",
  "tower",
  "tower-http",
  "tracing",
@@ -2305,15 +2306,6 @@ name = "wit-bindgen"
 version = "0.57.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ebf944e87a7c253233ad6766e082e3cd714b5d03812acc24c318f549614536e"
-
-[[package]]
-name = "yasna"
-version = "0.5.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e17bb3549cc1321ae1296b9cdc2698e2b6cb1992adfa19a8c72e5b7a738f44cd"
-dependencies = [
- "time",
-]
 
 [[package]]
 name = "zerocopy"

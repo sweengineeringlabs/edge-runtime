@@ -2,7 +2,7 @@
 //! `deps_have_integration_tests`. Each section explicitly uses a dependency.
 //!
 //! Dependencies covered: edge-domain, sha2, swe-edge-ingress-grpc,
-//! rustls, tokio-rustls, tokio-util, tower, tower-http.
+//! edge-security-runtime, tokio-util, tower, tower-http.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
 
 // ── edge-domain ───────────────────────────────────────────────────────────────
@@ -275,32 +275,15 @@ async fn test_tower_http_trace_layer_new_for_grpc_edge() {
     );
 }
 
-// ── rustls ────────────────────────────────────────────────────────────────────
+// ── edge-security-runtime ───────────────────────────────────────────────────
 
 #[test]
-fn test_rustls_crypto_provider_installs_happy() {
-    // @covers: rustls / CryptoProvider
-    use rustls::crypto::ring::default_provider;
-    let result = default_provider().install_default();
-    // Either succeeds (first call) or returns AlreadySet (subsequent calls)
-    assert!(
-        result.is_ok() || matches!(result, Err(_)),
-        "install_default must not panic"
-    );
-}
-
-// ── tokio-rustls ──────────────────────────────────────────────────────────────
-
-#[test]
-fn test_tokio_rustls_tls_acceptor_type_is_accessible_happy() {
-    // @covers: tokio-rustls / TlsAcceptor
-    // TlsAcceptor requires a valid rustls::ServerConfig to construct; verify the
-    // type is accessible and that the build path (via TlsSvc) propagates errors.
+fn test_security_runtime_build_tls_acceptor_missing_cert_fails_error() {
+    // @covers: edge-security-runtime / TlsSvc::build_tls_acceptor
+    // The TLS acceptor builder lives in edge-security-runtime; import it directly
+    // and verify it propagates the load error when the cert path is missing.
     use edge_domain_security::PemTlsConfig;
-    use swe_edge_runtime_grpc::TlsSvc;
-    use tokio_rustls::TlsAcceptor;
-    // Confirm the type is importable and usable as a return-type annotation
-    let _: fn() -> Option<TlsAcceptor> = || None;
+    use edge_security_runtime::TlsSvc;
     let cfg = PemTlsConfig {
         cert_pem_path: "/nonexistent/cert.pem".into(),
         key_pem_path: "/nonexistent/key.pem".into(),

@@ -91,3 +91,51 @@ async fn test_tonic_grpc_server_serve_with_listener_completes_on_immediate_shutd
         "reflection must still be off after serve returns"
     );
 }
+
+// ── GrpcServer::tls_svc ───────────────────────────────────────────────────────
+
+/// @covers: tls_svc
+#[test]
+fn test_tls_svc_returns_tls_svc_instance_happy() {
+    // GrpcServer::tls_svc() hands out the TLS acceptor factory now owned by
+    // edge-security-runtime. It must construct without error.
+    use edge_security_runtime::TlsSvc;
+    use swe_edge_runtime_grpc::GrpcServer;
+    let svc: TlsSvc = TonicGrpcServer::tls_svc();
+    assert_eq!(std::mem::size_of_val(&svc), 0, "TlsSvc must be a ZST");
+}
+
+/// @covers: tls_svc
+#[test]
+fn test_tls_svc_acceptor_missing_cert_returns_error_error() {
+    // The factory returned by tls_svc() must surface load errors for a missing
+    // cert rather than panicking — the negative path of the handed-out builder.
+    use edge_domain_security::PemTlsConfig;
+    use edge_security_runtime::TlsSvc;
+    use swe_edge_runtime_grpc::GrpcServer;
+    let _svc = TonicGrpcServer::tls_svc();
+    let cfg = PemTlsConfig {
+        cert_pem_path: "/does/not/exist.pem".into(),
+        key_pem_path: "/does/not/exist.pem".into(),
+        ca_pem_path: None,
+    };
+    assert!(
+        TlsSvc::build_tls_acceptor(&cfg).is_err(),
+        "missing cert path must produce an error"
+    );
+}
+
+/// @covers: tls_svc
+#[test]
+fn test_tls_svc_is_stable_across_calls_edge() {
+    // Repeated tls_svc() calls must yield equal-sized (ZST) values — proving the
+    // factory carries no hidden per-call state.
+    use swe_edge_runtime_grpc::GrpcServer;
+    let a = TonicGrpcServer::tls_svc();
+    let b = TonicGrpcServer::tls_svc();
+    assert_eq!(
+        std::mem::size_of_val(&a),
+        std::mem::size_of_val(&b),
+        "repeated tls_svc() calls must produce equal-sized values"
+    );
+}
